@@ -14,6 +14,9 @@
 	<bean id="dRatingDao" 
 		class="com.wadpam.rnr.dao.DRatingDaoBean">
 	</bean>
+	<bean id="dResultDao" 
+		class="com.wadpam.rnr.dao.DResultDaoBean">
+	</bean>
 	
 
 </beans>

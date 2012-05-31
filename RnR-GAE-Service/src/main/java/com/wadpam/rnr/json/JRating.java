@@ -12,16 +12,7 @@ import javax.persistence.Basic;
  *
  * @author os
  */
-public class JRating {
-    /** Unique id for this Entity in the database */
-    private String id;
-    
-    /** Milliseconds since 1970 when this Entity was created in the database */
-    private Long createdDate;
-    
-    /** Milliseconds since 1970 when this Entity was last updated in the database */
-    private Long updatedDate;
-
+public class JRating extends JBaseObject {
     /** The Many-To-One productId (unconstrained) */
     private String             productId;
 
@@ -38,41 +29,15 @@ public class JRating {
     }
 
     public JRating(String id, Long createdDate, Long updatedDate) {
-        this.id = id;
-        this.createdDate = createdDate;
-        this.updatedDate = updatedDate;
+        super(id, createdDate, updatedDate, updatedDate);
     }
 
     @Override
-    public String toString() {
-        return String.format("{id:%d, productId:%s, username:%s, location:%s, rating:%s}",
-                id, productId, username, location, rating);
+    protected String subString() {
+        return String.format("productId:%s, username:%s, location:%s, rating:%s",
+                productId, username, location, rating);
     }
     
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-    
-    public Long getCreatedDate() {
-        return createdDate;
-    }
-
-    public void setCreatedDate(Long createdDate) {
-        this.createdDate = createdDate;
-    }
-
-    public Long getUpdatedDate() {
-        return updatedDate;
-    }
-
-    public void setUpdatedDate(Long updatedDate) {
-        this.updatedDate = updatedDate;
-    }
-
     public JLocation getLocation() {
         return location;
     }

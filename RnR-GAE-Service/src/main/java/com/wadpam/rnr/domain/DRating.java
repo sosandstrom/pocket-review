@@ -13,12 +13,15 @@ import net.sf.mardao.api.domain.AEDLongEntity;
 
 import com.google.appengine.api.datastore.GeoPt;
 import com.google.appengine.api.datastore.Rating;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 /**
  *
  * @author os
  */
 @Entity
+@Table(uniqueConstraints={@UniqueConstraint(columnNames={"productId", "username"})})
 public class DRating extends AEDLongEntity {
     /** Generated primary key */
     @Id
