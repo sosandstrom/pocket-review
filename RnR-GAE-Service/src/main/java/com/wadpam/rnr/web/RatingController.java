@@ -58,7 +58,7 @@ public class RatingController {
         @RestCode(code=200, message="OK", description="Rating added"),
         @RestCode(code=404, message="Not Found", description="Product not found")
     })
-    @RequestMapping(value="{productId}", method= RequestMethod.POST)
+    @RequestMapping(value="{productId}", method= RequestMethod.GET)
     public ResponseEntity<JResult> getAverageRatings(
             @PathVariable String productId) {
         final JResult body = rnrService.getAverage(productId);

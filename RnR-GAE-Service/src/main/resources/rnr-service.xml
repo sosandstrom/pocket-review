@@ -22,6 +22,7 @@
         
         <bean id="rnrService" class="com.wadpam.rnr.service.RnrService">
             <property name="ratingDao" ref="dRatingDao" />
+            <property name="resultDao" ref="dResultDao" />
         </bean>
         
         <bean id="domainFilter" class="com.wadpam.rnr.service.DomainFilter">
@@ -33,5 +34,5 @@
             <property name="rnrService" ref="rnrService" />
         </bean>
 
-        <bean class="com.goldengekko.users.web.MonitorController" />
+        <bean class="com.wadpam.rnr.web.MonitorController" />
 </beans>

@@ -6,9 +6,9 @@ package com.wadpam.rnr.json;
  */
 public class JResult extends JBaseObject {
 
-    private Long ratingSum;
+    private Long ratingSum = 0L;
 
-    private Long ratingCount;
+    private Long ratingCount = 0L;
 
     @Override
     protected String subString() {

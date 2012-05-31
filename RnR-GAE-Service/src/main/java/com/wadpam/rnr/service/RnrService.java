@@ -12,6 +12,7 @@ import com.wadpam.rnr.dao.DResultDao;
 import com.wadpam.rnr.domain.DRating;
 import com.wadpam.rnr.domain.DResult;
 import com.wadpam.rnr.json.JBaseObject;
+import com.wadpam.rnr.json.JLocation;
 import com.wadpam.rnr.json.JRating;
 import com.wadpam.rnr.json.JResult;
 import java.util.ArrayList;
@@ -92,19 +93,43 @@ public class RnrService {
     }
     
     public static JResult convert(DResult from) {
+        if (null == from) {
+            return null;
+        }
         final JResult to = new JResult();
         convert(from, to);
+        
+        to.setRatingCount(from.getRatingCount());
+        to.setRatingSum(from.getRatingSum());
         
         return to;
     }
 
     public static JRating convert(DRating from) {
+        if (null == from) {
+            return null;
+        }
         final JRating to = new JRating();
         convert(from, to);
+        
+        to.setLocation(convert(from.getLocation()));
+        to.setProductId(from.getProductId());
+        to.setRating(from.getRating().getRating());
+        to.setUsername(from.getUsername());
         
         return to;
     }
 
+    protected static JLocation convert(GeoPt from) {
+        if (null == from) {
+            return null;
+        }
+
+        JLocation to = new JLocation(from.getLatitude(), from.getLongitude());
+
+        return to;
+    }
+    
     public static <T extends AEDPrimaryKeyEntity> void convert(T from, JBaseObject to) {
         if (null == from || null == to) {
             return;
