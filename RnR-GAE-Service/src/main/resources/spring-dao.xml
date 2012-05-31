@@ -1,23 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
 	">
 
 <!-- Bean managed transactions -->
 
-	<!-- ============== DaoBeans for entities in package com.goldengekko.users.domain ============ -->
-	<bean id="duConnectionDataDao" 
-		class="com.goldengekko.users.dao.DuConnectionDataDaoBean">
-	</bean>
-	<bean id="duConnectionFactoryDao" 
-		class="com.goldengekko.users.dao.DuConnectionFactoryDaoBean">
-	</bean>
-	<bean id="duNamespaceDao" 
-		class="com.goldengekko.users.dao.DuNamespaceDaoBean">
-	</bean>
-	<bean id="duUserDao" 
-		class="com.goldengekko.users.dao.DuUserDaoBean">
+	<!-- ============== DaoBeans for entities in package com.wadpam.rnr.domain ============ -->
+	<bean id="dRatingDao" 
+		class="com.wadpam.rnr.dao.DRatingDaoBean">
 	</bean>
 	
 

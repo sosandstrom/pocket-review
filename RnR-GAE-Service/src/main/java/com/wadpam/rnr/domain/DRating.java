@@ -2,45 +2,47 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.wadpam.rnr.json;
+package com.wadpam.rnr.domain;
+
+
+import javax.persistence.Basic;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+
+import net.sf.mardao.api.domain.AEDLongEntity;
 
 import com.google.appengine.api.datastore.GeoPt;
 import com.google.appengine.api.datastore.Rating;
-import javax.persistence.Basic;
 
 /**
  *
  * @author os
  */
-public class JRating {
-    /** Unique id for this Entity in the database */
-    private String id;
-    
-    /** Milliseconds since 1970 when this Entity was created in the database */
-    private Long createdDate;
-    
-    /** Milliseconds since 1970 when this Entity was last updated in the database */
-    private Long updatedDate;
+@Entity
+public class DRating extends AEDLongEntity {
+    /** Generated primary key */
+    @Id
+    private Long               id;
 
     /** The Many-To-One productId (unconstrained) */
+    @Basic
     private String             productId;
 
     /** The Many-To-One username (unconstrained) */
+    @Basic
     private String             username;
 
     /** Where was this product rated */
-    private JLocation location;
+    @Basic
+    private GeoPt location;
 
     /** A user-provided integer rating for a piece of content. Normalized to a 0-100 scale. */
-    private Integer rating;
+    @Basic
+    private Rating rating;
 
-    public JRating() {
-    }
-
-    public JRating(String id, Long createdDate, Long updatedDate) {
-        this.id = id;
-        this.createdDate = createdDate;
-        this.updatedDate = updatedDate;
+    @Override
+    public Long getSimpleKey() {
+        return id;
     }
 
     @Override
@@ -48,36 +50,20 @@ public class JRating {
         return String.format("{id:%d, productId:%s, username:%s, location:%s, rating:%s}",
                 id, productId, username, location, rating);
     }
-    
-    public String getId() {
+
+    public Long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Long id) {
         this.id = id;
     }
-    
-    public Long getCreatedDate() {
-        return createdDate;
-    }
 
-    public void setCreatedDate(Long createdDate) {
-        this.createdDate = createdDate;
-    }
-
-    public Long getUpdatedDate() {
-        return updatedDate;
-    }
-
-    public void setUpdatedDate(Long updatedDate) {
-        this.updatedDate = updatedDate;
-    }
-
-    public JLocation getLocation() {
+    public GeoPt getLocation() {
         return location;
     }
 
-    public void setLocation(JLocation location) {
+    public void setLocation(GeoPt location) {
         this.location = location;
     }
 
@@ -89,11 +75,11 @@ public class JRating {
         this.productId = productId;
     }
 
-    public Integer getRating() {
+    public Rating getRating() {
         return rating;
     }
 
-    public void setRating(Integer rating) {
+    public void setRating(Rating rating) {
         this.rating = rating;
     }
 
@@ -105,4 +91,5 @@ public class JRating {
         this.username = username;
     }
 
+    
 }

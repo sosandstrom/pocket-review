@@ -4,10 +4,21 @@
  */
 package com.wadpam.rnr.service;
 
+import com.wadpam.rnr.dao.DRatingDao;
+
 /**
  *
  * @author os
  */
 public class RnrService {
+
+    private DRatingDao ratingDao;
+
+
+    
+    
+    public void setRatingDao(DRatingDao ratingDao) {
+        this.ratingDao = ratingDao;
+    }
     
 }
