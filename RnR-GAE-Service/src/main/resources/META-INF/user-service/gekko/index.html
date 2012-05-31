@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>User-Service</title>
+        <link type="text/css" href="/css/blitzer/jquery-ui-1.8.17.custom.css" rel="stylesheet" />	
+    </head>
+    <body>
+        <div id="header" class="ui-widget">
+        </div>
+        
+        <div id="contents" class="ui-widget">
+            <h3>UserService Home</h3>
+            <a href="/api/gekko/userServiceForms.html">Click here</a> to access UserService forms.
+        </div>
+        
+        <div id="footer" class="ui-widget"></div>
+        <script type="text/javascript" src="/js/jquery-1.7.1.min.js"></script>
+        <script type="text/javascript" src="/js/jquery-ui-1.8.17.custom.min.js"></script>
+        <script type="text/javascript">
+$.ajaxSetup( {
+    cache: false,
+    data: null
+});
+
+$(function() {
+});
+
+function getParameterByName(name) {
+
+    var match = RegExp('[?&]' + name + '=([^&]*)')
+                    .exec(window.location.search);
+
+    return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
+
+}
+
+        </script>
+        
+    </body>
+</html>
