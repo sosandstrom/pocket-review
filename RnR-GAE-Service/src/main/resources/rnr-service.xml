@@ -25,9 +25,6 @@
             <property name="resultDao" ref="dResultDao" />
         </bean>
         
-        <bean id="domainFilter" class="com.wadpam.rnr.service.DomainFilter">
-        </bean>
-        
         <!--           Controllers             -->
 
         <bean id="ratingController" class="com.wadpam.rnr.web.RatingController">

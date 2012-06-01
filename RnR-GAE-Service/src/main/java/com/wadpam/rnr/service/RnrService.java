@@ -11,10 +11,7 @@ import com.wadpam.rnr.dao.DRatingDao;
 import com.wadpam.rnr.dao.DResultDao;
 import com.wadpam.rnr.domain.DRating;
 import com.wadpam.rnr.domain.DResult;
-import com.wadpam.rnr.json.JBaseObject;
-import com.wadpam.rnr.json.JLocation;
-import com.wadpam.rnr.json.JRating;
-import com.wadpam.rnr.json.JResult;
+import com.wadpam.rnr.json.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -182,6 +179,17 @@ public class RnrService {
         
         return convert(result);
     }
+
+    /**
+     * 
+     * @param cursor
+     * @param offset
+     * @param limit
+     * @return 
+     */
+    public JResultPage getAveragePage(String cursor, long offset, long limit) {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
     
     public static Long toLong(Key from) {
         if (null == from) {
@@ -244,5 +252,5 @@ public class RnrService {
     public void setResultDao(DResultDao resultDao) {
         this.resultDao = resultDao;
     }
-    
+
 }

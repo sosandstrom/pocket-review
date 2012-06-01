@@ -3,6 +3,7 @@ package com.wadpam.rnr.web;
 import com.wadpam.docrest.domain.RestCode;
 import com.wadpam.docrest.domain.RestReturn;
 import com.wadpam.rnr.json.JResult;
+import com.wadpam.rnr.json.JResultPage;
 import com.wadpam.rnr.service.RnrService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 /**
- *
+ * The rating controller implements all REST methods related to ratings and reviews
  * @author os
  */
 @Controller
@@ -31,6 +32,7 @@ public class RatingController {
      * @param username optional
      * @param latitude optional, -90..90
      * @param longitude optional, -180..180
+     * @param review optional review text
      * @param rating 0..100
      * @return the new average for this product
      */
@@ -43,6 +45,7 @@ public class RatingController {
             @RequestParam(required=false) String username,
             @RequestParam(required=false) Float latitude,
             @RequestParam(required=false) Float longitude,
+            @RequestParam(required=false) String review,
             @RequestParam int rating) {
         final JResult body = rnrService.addRating(productId, username, 
                 latitude, longitude, rating);
@@ -50,7 +53,7 @@ public class RatingController {
     }
 
     /**
-     * 
+     * Returns the average rating for specified productId
      * @param productId domain-unique id for the product to rate
      * @return the average rating for specified productId
      */
@@ -59,13 +62,31 @@ public class RatingController {
         @RestCode(code=404, message="Not Found", description="Product not found")
     })
     @RequestMapping(value="{productId}", method= RequestMethod.GET)
-    public ResponseEntity<JResult> getAverageRatings(
+    public ResponseEntity<JResult> getAverageRating(
             @PathVariable String productId) {
         final JResult body = rnrService.getAverage(productId);
         if (null == body) {
             return new ResponseEntity(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<JResult>(body, HttpStatus.OK);
+    }
+
+    /**
+     * Returns a list of average rating for all products
+     * @return a list of average rating for all products
+     */
+    @RestReturn(value=JResultPage.class, entity=JResult.class, code={
+        @RestCode(code=200, message="OK", description="Rating added"),
+        @RestCode(code=404, message="Not Found", description="Product not found")
+    })
+    @RequestMapping(value="", method= RequestMethod.GET)
+    public ResponseEntity<JResultPage> getAverageRatings(
+            @RequestParam(required=false) String cursor,
+            @RequestParam(defaultValue="0") long offset,
+            @RequestParam(defaultValue="10") long limit
+            ) {
+        final JResultPage body = rnrService.getAveragePage(cursor, offset, limit);
+        return new ResponseEntity<JResultPage>(body, HttpStatus.OK);
     }
 
     public void setRnrService(RnrService rnrService) {

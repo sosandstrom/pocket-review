@@ -105,6 +105,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-mapper-asl</artifactId>
+            <version>1.9.2</version>
+        </dependency>
+
+        <dependency>
 		<groupId>org.apache.velocity</groupId>
 		<artifactId>velocity</artifactId>
 		<version>1.6.2</version>
@@ -265,7 +271,7 @@
                 <configuration>
                     <port>8888</port>
                     <monitorPort>8789</monitorPort>
-                    <serverId>appengine.google.com</serverId>
+<!--                    <serverId>appengine.google.com</serverId>-->
                 </configuration>
                 <dependencies>
                     <dependency>

@@ -28,6 +28,8 @@
 
         <import resource="classpath:/rnr-service.xml" />
         
+        <bean id="domainFilter" class="com.wadpam.rnr.service.DomainFilter">
+        </bean>
 		
         <!--           Controllers             -->
         
