@@ -18,5 +18,5 @@ build/*
 *.xcworkspace
 xcuserdata
 
-# Exclude generated documentation
-AppleDoc/
+# Exclude generate documentation
+Doc/

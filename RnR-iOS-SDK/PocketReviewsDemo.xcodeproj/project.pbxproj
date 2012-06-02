@@ -306,7 +306,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "/usr/local/bin/appledoc --project-name PocketReviews --project-company \"Wadpam\" --company-id com.wadpam --output $SOURCE_ROOT/PocketReviewer/AppleDoc --no-install-docset --keep-intermediate-files --ignore JSONKit.h --ignore JSONKit.m $SOURCE_ROOT/PocketReviewer/.";
+			shellScript = "/usr/local/bin/appledoc --project-name PocketReviews --project-company \"Wadpam\" --company-id com.wadpam --output $SOURCE_ROOT/Doc --no-repeat-first-par --explicit-crossref --no-install-docset --keep-intermediate-files --ignore JSONKit.h --ignore JSONKit.m $SOURCE_ROOT/PocketReviewer/.";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -515,6 +515,7 @@
 				CD29395F157A028E00DE309E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		CD293960157A028E00DE309E /* Build configuration list for PBXNativeTarget "PocketReviewsDemoTests" */ = {
 			isa = XCConfigurationList;
@@ -523,6 +524,7 @@
 				CD293962157A028E00DE309E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		CD293975157A095900DE309E /* Build configuration list for PBXAggregateTarget "Documentation" */ = {
 			isa = XCConfigurationList;
@@ -531,6 +533,7 @@
 				CD293977157A095900DE309E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

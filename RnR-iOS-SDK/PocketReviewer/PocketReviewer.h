@@ -9,16 +9,21 @@
 #import <Foundation/Foundation.h>
 #import "Rating.h"
 
+/** @name Creating and starting the Reviewer */
 
 /**
  A lightweight and ready to go review and rating service tailored for mobile apps. 
- All methods are asynchronous using GCD and will return immediately. The application will be informed about the outcome of a method by providing a completion block.
+ 
+ All methods are asynchronous using GCD and will return immediately. The application will be informed about the outcome 
+ of a method by providing a completion block.
  */
 @interface PocketReviewer : NSObject
 
+/** @name Start reviewing */
 
 /**
  Get the shared reviewer. 
+ 
  The reviewer must be started before it can be used.
  @return Shared reviewer
  */
@@ -26,18 +31,22 @@
 
 
 /**
- Start reviewing by configuring the service. The reviewer needs to know the url and domain of the service.
+ Start reviewing by configuring the service.
  @param url The URL to the review service
  @param domain The unique domain name
- @param anonymous If YES all review and ratings will be anonymous. If NO a unique user id will be generated that will be used in all requests. The user id will be persisted in user preferences. 
+ @param anonymous If YES all review and rating requests will be anonymous. 
+ If NO a unique user id will be generated that will be used in all requests. The user id will be persisted in user preferences. 
  @param error An optional error message
  @return YES if the reviewer was successfuly started
  */
 - (BOOL)startReviewingWithServiceUrl:(NSURL*)url domain:(NSString*)domain anonymous:(BOOL)anonymous withError:(NSError**)error;
 
 
+/** @name Ratings */
+
 /**
  Rate a specific item.
+ 
  Non-anonymous users will only be able to rate the same item once.
  @param itemId The unique item being rated
  @param rating The rating value 1-5
@@ -48,6 +57,7 @@
 
 /**
  Rate a specific item with a specified latitud and longitude.
+ 
  Non-anonymous users will only be able to rate the same item once.
  @param itemId The unique item being rated
  @param latitude The latitude of the item being rated
@@ -59,7 +69,7 @@
  
 
 /**
- Get the average and the number of ratings for a specified item.
+ Get the average rating and the number of ratings for a specified item.
  @param itemId The unique item id
  @param block A block that will be executed when the request completes or fails
  */
@@ -67,7 +77,7 @@
 
 
 /**
- Get the average and the number of ratings for a list of items.
+ Get the average rating and the number of ratings for a list of items.
  @param itemIds An array of items
  @param block A block that will be executed when the request completes or fails
   */
@@ -76,11 +86,14 @@
 
 /**
  Get my ratings. 
- This method will only return ratings if non-anonymous rating have been used, otherwise nil will be returned
+ 
+ This method will only return ratings if non-anonymous ratings have been used, otherwise nil will be returned
  @param block A block that will be executed when the request completes or fails
  */
 - (void)myRatingsWithCompletionBlock:(void(^)(NSArray*, NSError*))block;
 
+
+/** @name Reviews */
 
 /**
  Add a review comment to an item.
@@ -101,22 +114,30 @@
 
 /**
  Get my review comments. 
+ 
  This method will only return reviwes if non-anonymous reviews have been used, otherwise nil will be returned
  @param block A block that will be executed when the request completes or fails
  */
 - (void)myReviewsWithCompletionBlock:(void(^)(NSArray*, NSError*))block;
 
 
+/** @name Properties */
+
 /**
  A unique user id. 
- If set the id will be included in all review and ratings requests. A users will only be able to rate and review the same item once. 
- The reviewer will generate an unqiue user id the first time it is created and store it in user preferences unless anonymous is used. If the application have a better why of uniquely indentifing users, e.g. through user registration or login, it can set its own unqiue user id value here.
+ 
+ If set the id will be included in all review and rating requests. A users will only be able to rate and review the same item once. 
+ 
+ The reviewer will generate an unqiue user id the first time it is created and store it in user preferences unless anonymous is used. 
+ If the application have a better way of uniquely indentifing users, e.g. through user registration or login, it can set its own unqiue user id here.
  */
 @property (nonatomic, retain) NSString* userId;
 
 
 /**
- If dry run is set to YES, review and rating requests will not be sent to the service. The result will be written to the console and default/random data will be returned. Useful during development and debugging.
+ If dry run is set to YES, review and rating requests will not be sent to the service. 
+ 
+ The result will be written to the console and default/random data will be returned. Useful during development and debugging.
  */
 @property (nonatomic) BOOL dryRun;
 
