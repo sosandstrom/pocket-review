@@ -13,8 +13,10 @@ import net.sf.mardao.api.domain.AEDLongEntity;
 
 import com.google.appengine.api.datastore.GeoPt;
 import com.google.appengine.api.datastore.Rating;
+import java.util.Collection;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+import net.sf.mardao.api.geo.aed.GeoModel;
 
 /**
  *
@@ -22,7 +24,7 @@ import javax.persistence.UniqueConstraint;
  */
 @Entity
 @Table(uniqueConstraints={@UniqueConstraint(columnNames={"productId", "username"})})
-public class DRating extends AEDLongEntity {
+public class DRating extends AEDLongEntity implements GeoModel {
     /** Generated primary key */
     @Id
     private Long               id;
@@ -42,6 +44,10 @@ public class DRating extends AEDLongEntity {
     /** A user-provided integer rating for a piece of content. Normalized to a 0-100 scale. */
     @Basic
     private Rating rating;
+    
+    @Basic
+    /** used by GeoDao to index boxes */
+    private Collection<String> geoboxes;
 
     @Override
     public Long getSimpleKey() {
@@ -52,6 +58,25 @@ public class DRating extends AEDLongEntity {
     public String toString() {
         return String.format("{id:%d, productId:%s, username:%s, location:%s, rating:%s}",
                 id, productId, username, location, rating);
+    }
+
+    @Override
+    public double getLatitude() {
+        return null != location ? location.getLatitude() : 0;
+    }
+
+    @Override
+    public double getLongitude() {
+        return null != location ? location.getLongitude() : 0;
+    }
+
+    @Override
+    public void setGeoboxes(Collection<String> geoboxes) {
+        this.geoboxes = geoboxes;
+    }
+
+    public Collection<String> getGeoboxes() {
+        return geoboxes;
     }
 
     public Long getId() {

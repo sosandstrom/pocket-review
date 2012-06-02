@@ -1,0 +1,525 @@
+<html>
+    <head>
+	<title>REST API documentation</title>
+        <link rel="stylesheet" href="api.css" type="text/css" />
+    </head>
+    <body>
+<!-- Table of Contents ---------------------------------------------------->
+    	<h1>Content</h1>
+    	<ul>
+            <li>
+<a href="api.html#com.wadpam.rnr.web.RatingController" class="link">/{domain}/rating</a>
+                <ul>
+                    <li><a href="api.html#com.wadpam.rnr.web.RatingController.addRating" class="link">addRating()</a></li>
+                    <li><a href="api.html#com.wadpam.rnr.web.RatingController.findNearbyRatings" class="link">findNearbyRatings()</a></li>
+                    <li><a href="api.html#com.wadpam.rnr.web.RatingController.getAverageRating" class="link">getAverageRating()</a></li>
+                    <li><a href="api.html#com.wadpam.rnr.web.RatingController.getAverageRatings" class="link">getAverageRatings()</a></li>
+                </ul>
+            </li>
+            <li>JSON objects
+                <ul>
+                </ul>
+            </li>
+        </ul>
+<!-- Resource: /person ---------------------------------------------------->
+    <h1 class="resourceHeader">
+/{domain}/rating
+    </h1>
+
+    <a name="com.wadpam.rnr.web.RatingController" />
+
+    <p class="concreteClass">
+            <b>Description</b>: The rating controller implements all REST methods related to ratings and reviews
+    </p>
+
+    <p class="concreteClass">
+            <b>Concrete class</b>: com.wadpam.rnr.web.RatingController
+    </p>
+
+<!-- Method: findByName() ---------------------------------------------------->		
+        <a name="com.wadpam.rnr.web.RatingController.addRating" />
+
+        <h2 class="methodHeader">addRating()</h2>
+
+        <p>
+            <b>Description</b>:Adds the rating for specified productId and username
+        </p>
+
+        <p>
+            <b>Implementing Class</b>: com.wadpam.rnr.web.RatingController
+        </p>
+
+        <p class="restPath">
+            <b>REST path</b>: POST&nbsp;
+    /{domain}/rating/{productId}
+
+		<h3>Request parameters</h3>
+		<table>
+			<thead>
+	    		<td class="column1">Where</th>
+	    		<td class="column2">Name</th>
+	    		<td class="column3">Type</th>
+	    		<td class="columnAuto">Description</th>
+			</thead>
+			<tbody>
+                            <tr>
+                                <td>path</td><td>productId</td><td>String</td><td>domain-unique id for the product to rate</td>
+                            </tr>
+                            <tr>
+                                <td>query</td><td>username</td><td>String</td><td>optional</td>
+                            </tr>
+                            <tr>
+                                <td>query</td><td>latitude</td><td>Float</td><td>optional, -90..90</td>
+                            </tr>
+                            <tr>
+                                <td>query</td><td>longitude</td><td>Float</td><td>optional, -180..180</td>
+                            </tr>
+                            <tr>
+                                <td>query</td><td>review</td><td>String</td><td>optional review text</td>
+                            </tr>
+                            <tr>
+                                <td>query</td><td>rating</td><td>int</td><td>0..100</td>
+                            </tr>
+			</tbody>
+		</table>
+
+		<h3>Response Codes</h3>
+			<table>
+				<thead>
+	   				<td class="column1">HTTP Response Code</td>
+	   				<td class="column2">Message</td>
+	   				<td class="columnAuto">Description</td>
+				</thead>
+				<tbody>
+               <tr>
+                <td>200</td><td>OK</td><td colspan="2">Rating added</td>
+            </tr>
+				</tbody>
+			</table>
+
+			<p>
+                            <b>Response Type</b>: <a href="api.html#com.wadpam.rnr.json.JResult" class="link">com.wadpam.rnr.json.JResult</a>
+                        </p>
+
+		<h3>Response Example</h3>
+		<p class="code">
+			<pre>{<div>&nbsp;&nbsp;&nbsp;<b>"average"</b>&nbsp;:&nbsp;int,</div><div>&nbsp;&nbsp;&nbsp;<b>"createdDate"</b>&nbsp;:&nbsp;Long,</div><div>&nbsp;&nbsp;&nbsp;<b>"id"</b>&nbsp;:&nbsp;String,</div><div>&nbsp;&nbsp;&nbsp;<b>"ratingCount"</b>&nbsp;:&nbsp;Long,</div><div>&nbsp;&nbsp;&nbsp;<b>"ratingSum"</b>&nbsp;:&nbsp;Long,</div><div>&nbsp;&nbsp;&nbsp;<b>"updatedDate"</b>&nbsp;:&nbsp;Long,</div>}</pre>
+		</p>
+				
+<!-- Method: findByName() ---------------------------------------------------->		
+        <a name="com.wadpam.rnr.web.RatingController.findNearbyRatings" />
+
+        <h2 class="methodHeader">findNearbyRatings()</h2>
+
+        <p>
+            <b>Description</b>:Returns a Collection of JRatings, where rating is 0..100
+        </p>
+
+        <p>
+            <b>Implementing Class</b>: com.wadpam.rnr.web.RatingController
+        </p>
+
+        <p class="restPath">
+            <b>REST path</b>: GET&nbsp;
+    /{domain}/rating/nearby
+
+		<h3>Request parameters</h3>
+		<table>
+			<thead>
+	    		<td class="column1">Where</th>
+	    		<td class="column2">Name</th>
+	    		<td class="column3">Type</th>
+	    		<td class="columnAuto">Description</th>
+			</thead>
+			<tbody>
+                            <tr>
+                                <td>query</td><td>latitude</td><td>Float</td><td>optional,</td>
+                            </tr>
+                            <tr>
+                                <td>query</td><td>longitude</td><td>Float</td><td>optional</td>
+                            </tr>
+			</tbody>
+		</table>
+
+		<h3>Response Codes</h3>
+			<table>
+				<thead>
+	   				<td class="column1">HTTP Response Code</td>
+	   				<td class="column2">Message</td>
+	   				<td class="columnAuto">Description</td>
+				</thead>
+				<tbody>
+               <tr>
+                <td>200</td><td>OK</td><td colspan="2">Ratings added</td>
+            </tr>
+				</tbody>
+			</table>
+
+			<p>
+                            <b>Response Type</b>: <a href="api.html#com.wadpam.rnr.json.JRating" class="link">com.wadpam.rnr.json.JRating</a>
+                        </p>
+
+		<h3>Response Example</h3>
+		<p class="code">
+			<pre>{<div>&nbsp;&nbsp;&nbsp;<b>"createdDate"</b>&nbsp;:&nbsp;Long,</div><div>&nbsp;&nbsp;&nbsp;<b>"id"</b>&nbsp;:&nbsp;String,</div><div>&nbsp;&nbsp;&nbsp;<b>"location"</b>&nbsp;:&nbsp;{<div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>"latitude"</b>&nbsp;:&nbsp;float,</div><div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>"longitude"</b>&nbsp;:&nbsp;float,</div>&nbsp;&nbsp;&nbsp;},</div><div>&nbsp;&nbsp;&nbsp;<b>"productId"</b>&nbsp;:&nbsp;String,</div><div>&nbsp;&nbsp;&nbsp;<b>"rating"</b>&nbsp;:&nbsp;Integer,</div><div>&nbsp;&nbsp;&nbsp;<b>"updatedDate"</b>&nbsp;:&nbsp;Long,</div><div>&nbsp;&nbsp;&nbsp;<b>"username"</b>&nbsp;:&nbsp;String,</div>}</pre>
+		</p>
+				
+<!-- Method: findByName() ---------------------------------------------------->		
+        <a name="com.wadpam.rnr.web.RatingController.getAverageRating" />
+
+        <h2 class="methodHeader">getAverageRating()</h2>
+
+        <p>
+            <b>Description</b>:Returns the average rating for specified productId
+        </p>
+
+        <p>
+            <b>Implementing Class</b>: com.wadpam.rnr.web.RatingController
+        </p>
+
+        <p class="restPath">
+            <b>REST path</b>: GET&nbsp;
+    /{domain}/rating/{productId}
+
+		<h3>Request parameters</h3>
+		<table>
+			<thead>
+	    		<td class="column1">Where</th>
+	    		<td class="column2">Name</th>
+	    		<td class="column3">Type</th>
+	    		<td class="columnAuto">Description</th>
+			</thead>
+			<tbody>
+                            <tr>
+                                <td>path</td><td>productId</td><td>String</td><td>domain-unique id for the product to rate</td>
+                            </tr>
+			</tbody>
+		</table>
+
+		<h3>Response Codes</h3>
+			<table>
+				<thead>
+	   				<td class="column1">HTTP Response Code</td>
+	   				<td class="column2">Message</td>
+	   				<td class="columnAuto">Description</td>
+				</thead>
+				<tbody>
+               <tr>
+                <td>200</td><td>OK</td><td colspan="2">Rating added</td>
+            </tr>
+               <tr>
+                <td>404</td><td>Not Found</td><td colspan="2">Product not found</td>
+            </tr>
+				</tbody>
+			</table>
+
+			<p>
+                            <b>Response Type</b>: <a href="api.html#com.wadpam.rnr.json.JResult" class="link">com.wadpam.rnr.json.JResult</a>
+                        </p>
+
+		<h3>Response Example</h3>
+		<p class="code">
+			<pre>{<div>&nbsp;&nbsp;&nbsp;<b>"average"</b>&nbsp;:&nbsp;int,</div><div>&nbsp;&nbsp;&nbsp;<b>"createdDate"</b>&nbsp;:&nbsp;Long,</div><div>&nbsp;&nbsp;&nbsp;<b>"id"</b>&nbsp;:&nbsp;String,</div><div>&nbsp;&nbsp;&nbsp;<b>"ratingCount"</b>&nbsp;:&nbsp;Long,</div><div>&nbsp;&nbsp;&nbsp;<b>"ratingSum"</b>&nbsp;:&nbsp;Long,</div><div>&nbsp;&nbsp;&nbsp;<b>"updatedDate"</b>&nbsp;:&nbsp;Long,</div>}</pre>
+		</p>
+				
+<!-- Method: findByName() ---------------------------------------------------->		
+        <a name="com.wadpam.rnr.web.RatingController.getAverageRatings" />
+
+        <h2 class="methodHeader">getAverageRatings()</h2>
+
+        <p>
+            <b>Description</b>:Returns a list of average rating for all products
+        </p>
+
+        <p>
+            <b>Implementing Class</b>: com.wadpam.rnr.web.RatingController
+        </p>
+
+        <p class="restPath">
+            <b>REST path</b>: GET&nbsp;
+    /{domain}/rating/
+
+		<h3>Request parameters</h3>
+		<table>
+			<thead>
+	    		<td class="column1">Where</th>
+	    		<td class="column2">Name</th>
+	    		<td class="column3">Type</th>
+	    		<td class="columnAuto">Description</th>
+			</thead>
+			<tbody>
+                            <tr>
+                                <td>query</td><td>cursor</td><td>String</td><td></td>
+                            </tr>
+                            <tr>
+                                <td>query</td><td>offset</td><td>long</td><td></td>
+                            </tr>
+                            <tr>
+                                <td>query</td><td>limit</td><td>long</td><td></td>
+                            </tr>
+			</tbody>
+		</table>
+
+		<h3>Response Codes</h3>
+			<table>
+				<thead>
+	   				<td class="column1">HTTP Response Code</td>
+	   				<td class="column2">Message</td>
+	   				<td class="columnAuto">Description</td>
+				</thead>
+				<tbody>
+               <tr>
+                <td>200</td><td>OK</td><td colspan="2">Rating added</td>
+            </tr>
+               <tr>
+                <td>404</td><td>Not Found</td><td colspan="2">Product not found</td>
+            </tr>
+				</tbody>
+			</table>
+
+			<p>
+                            <b>Response Type</b>: <a href="api.html#com.wadpam.rnr.json.JResult" class="link">com.wadpam.rnr.json.JResult</a>Page
+                        </p>
+
+		<h3>Response Example</h3>
+		<p class="code">
+			<pre>{<div>&nbsp;&nbsp;&nbsp;<b>"average"</b>&nbsp;:&nbsp;int,</div><div>&nbsp;&nbsp;&nbsp;<b>"createdDate"</b>&nbsp;:&nbsp;Long,</div><div>&nbsp;&nbsp;&nbsp;<b>"id"</b>&nbsp;:&nbsp;String,</div><div>&nbsp;&nbsp;&nbsp;<b>"ratingCount"</b>&nbsp;:&nbsp;Long,</div><div>&nbsp;&nbsp;&nbsp;<b>"ratingSum"</b>&nbsp;:&nbsp;Long,</div><div>&nbsp;&nbsp;&nbsp;<b>"updatedDate"</b>&nbsp;:&nbsp;Long,</div>}</pre>
+		</p>
+				
+
+
+    <h1 class="resourceHeader">JSON Objects</h1>
+
+<!-- JSON object: com.wadpam.rnr.json.JLocation ---------------------------------------------------->		
+        <a name="com.wadpam.rnr.json.JLocation" />
+        <h2 class="methodHeader">com.wadpam.rnr.json.JLocation</h2>
+		<table>
+			<thead>
+	    		<td class="column1">Name</th>
+	    		<td class="column2">Type</th>
+	    		<td class="column3">Description</th>
+			</thead>
+			<tbody>
+ 
+                        <tr>
+                            <td>latitude</td>
+                            <td>float</td>
+                            <td>
+South-North coordinate -90..90
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>longitude</td>
+                            <td>float</td>
+                            <td>
+West-East coordinate -180..180
+                            </td>
+                        </tr>
+                        </tbody>
+               </table>
+<!-- JSON object: com.wadpam.rnr.json.JRating ---------------------------------------------------->		
+        <a name="com.wadpam.rnr.json.JRating" />
+        <h2 class="methodHeader">com.wadpam.rnr.json.JRating</h2>
+		<table>
+			<thead>
+	    		<td class="column1">Name</th>
+	    		<td class="column2">Type</th>
+	    		<td class="column3">Description</th>
+			</thead>
+			<tbody>
+ 
+                        <tr>
+                            <td>location</td>
+                            <td><a href="api.html#com.wadpam.rnr.json.JLocation" class="link">com.wadpam.rnr.json.JLocation</a></td>
+                            <td>
+Where was this product rated
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>productId</td>
+                            <td><a href="api.html#java.lang.String" class="link">java.lang.String</a></td>
+                            <td>
+The Many-To-One productId (unconstrained)
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>rating</td>
+                            <td><a href="api.html#java.lang.Integer" class="link">java.lang.Integer</a></td>
+                            <td>
+A user-provided integer rating for a piece of content. Normalized to a 0-100 scale.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>username</td>
+                            <td><a href="api.html#java.lang.String" class="link">java.lang.String</a></td>
+                            <td>
+The Many-To-One username (unconstrained)
+                            </td>
+                        </tr>
+                        </tbody>
+               </table>
+<!-- JSON object: com.wadpam.rnr.json.JResult ---------------------------------------------------->		
+        <a name="com.wadpam.rnr.json.JResult" />
+        <h2 class="methodHeader">com.wadpam.rnr.json.JResult</h2>
+		<table>
+			<thead>
+	    		<td class="column1">Name</th>
+	    		<td class="column2">Type</th>
+	    		<td class="column3">Description</th>
+			</thead>
+			<tbody>
+ 
+                        <tr>
+                            <td>average</td>
+                            <td>int</td>
+                            <td>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>ratingCount</td>
+                            <td><a href="api.html#java.lang.Long" class="link">java.lang.Long</a></td>
+                            <td>
+
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>ratingSum</td>
+                            <td><a href="api.html#java.lang.Long" class="link">java.lang.Long</a></td>
+                            <td>
+
+                            </td>
+                        </tr>
+                        </tbody>
+               </table>
+<!-- JSON object: java.lang.Integer ---------------------------------------------------->		
+        <a name="java.lang.Integer" />
+        <h2 class="methodHeader">java.lang.Integer</h2>
+		<table>
+			<thead>
+	    		<td class="column1">Name</th>
+	    		<td class="column2">Type</th>
+	    		<td class="column3">Description</th>
+			</thead>
+			<tbody>
+ 
+                        <tr>
+                            <td>chars</td>
+                            <td>void</td>
+                            <td>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>integer</td>
+                            <td><a href="api.html#java.lang.Integer" class="link">java.lang.Integer</a></td>
+                            <td>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>integer</td>
+                            <td><a href="api.html#java.lang.Integer" class="link">java.lang.Integer</a></td>
+                            <td>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>integer</td>
+                            <td><a href="api.html#java.lang.Integer" class="link">java.lang.Integer</a></td>
+                            <td>
+                            </td>
+                        </tr>
+                        </tbody>
+               </table>
+<!-- JSON object: java.lang.Long ---------------------------------------------------->		
+        <a name="java.lang.Long" />
+        <h2 class="methodHeader">java.lang.Long</h2>
+		<table>
+			<thead>
+	    		<td class="column1">Name</th>
+	    		<td class="column2">Type</th>
+	    		<td class="column3">Description</th>
+			</thead>
+			<tbody>
+ 
+                        <tr>
+                            <td>chars</td>
+                            <td>void</td>
+                            <td>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>long</td>
+                            <td><a href="api.html#java.lang.Long" class="link">java.lang.Long</a></td>
+                            <td>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>long</td>
+                            <td><a href="api.html#java.lang.Long" class="link">java.lang.Long</a></td>
+                            <td>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>long</td>
+                            <td><a href="api.html#java.lang.Long" class="link">java.lang.Long</a></td>
+                            <td>
+                            </td>
+                        </tr>
+                        </tbody>
+               </table>
+<!-- JSON object: java.lang.String ---------------------------------------------------->		
+        <a name="java.lang.String" />
+        <h2 class="methodHeader">java.lang.String</h2>
+		<table>
+			<thead>
+	    		<td class="column1">Name</th>
+	    		<td class="column2">Type</th>
+	    		<td class="column3">Description</th>
+			</thead>
+			<tbody>
+ 
+                        <tr>
+                            <td>empty</td>
+                            <td>boolean</td>
+                            <td>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>chars</td>
+                            <td>void</td>
+                            <td>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>chars</td>
+                            <td>void</td>
+                            <td>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>bytes</td>
+                            <td>void</td>
+                            <td>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>bytes</td>
+                            <td>byte</td>
+                            <td>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>bytes</td>
+                            <td>byte</td>
+                            <td>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>bytes</td>
+                            <td>byte</td>
+                            <td>
+                            </td>
+                        </tr>
+                        </tbody>
+               </table>
+
+    </body>
+</html>

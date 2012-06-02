@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import net.sf.mardao.api.domain.AEDPrimaryKeyEntity;
+import net.sf.mardao.api.geo.aed.GeoDao;
+import net.sf.mardao.api.geo.aed.GeoDaoImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,6 +30,11 @@ public class RnrService {
 
     private DRatingDao ratingDao;
     private DResultDao resultDao;
+    private GeoDao geoRatingDao;
+    
+    public void init() {
+        geoRatingDao = new GeoDaoImpl<DRating, DRating>(ratingDao);
+    }
     
     /**
      * @param productId 
@@ -61,7 +68,7 @@ public class RnrService {
         // upsert
         dr.setRating(new Rating(rating));
         dr.setLocation(location);
-        ratingDao.persist(dr);
+        geoRatingDao.persist(dr);
         
         // update average result
         DResult result = resultDao.findByPrimaryKey(productId);
@@ -168,6 +175,11 @@ public class RnrService {
         }
 
         return to;
+    }
+
+    public Collection<JRating> findNearbyRatings(Float latitude, Float longitude) {
+        final Collection<DRating> list = geoRatingDao.findInGeobox(latitude, longitude, 3, 2, null, false, 0, -1);
+        return (Collection<JRating>) convert(list);
     }
 
     /**

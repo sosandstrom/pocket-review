@@ -1,6 +1,8 @@
 package com.wadpam.rnr.dao;
 
 import com.google.appengine.api.datastore.Key;
+import com.wadpam.rnr.domain.DRating;
+import net.sf.mardao.api.geo.aed.GeoDao;
 
 /**
  * Business Methods interface for entity DRating.
@@ -10,7 +12,7 @@ import com.google.appengine.api.datastore.Key;
  * Generated on 2012-05-31T19:50:34.960+0700.
  * @author mardao DAO generator (net.sf.mardao.plugin.ProcessDomainMojo)
  */
-public interface DRatingDao extends GeneratedDRatingDao<Key, Key> {
+public interface DRatingDao extends GeneratedDRatingDao<Key, Key>, GeoDao<DRating> {
 
 	// TODO: declare your Business Methods here
 	

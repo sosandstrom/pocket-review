@@ -2,9 +2,12 @@ package com.wadpam.rnr.web;
 
 import com.wadpam.docrest.domain.RestCode;
 import com.wadpam.docrest.domain.RestReturn;
+import com.wadpam.rnr.json.JRating;
 import com.wadpam.rnr.json.JResult;
 import com.wadpam.rnr.json.JResultPage;
 import com.wadpam.rnr.service.RnrService;
+import java.util.Collection;
+import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -40,16 +43,52 @@ public class RatingController {
         @RestCode(code=200, message="OK", description="Rating added")
     })
     @RequestMapping(value="{productId}", method= RequestMethod.POST)
-    public ResponseEntity<JResult> addRating(
+    public ResponseEntity<JResult> addRating(HttpServletRequest request,
             @PathVariable String productId,
             @RequestParam(required=false) String username,
             @RequestParam(required=false) Float latitude,
             @RequestParam(required=false) Float longitude,
             @RequestParam(required=false) String review,
             @RequestParam int rating) {
+        if (null == latitude) {
+            final String cityLatLong = request.getHeader("X-AppEngine-CityLatLong");
+            if (null != cityLatLong) {
+                final int index = cityLatLong.indexOf(',');
+                latitude = Float.parseFloat(cityLatLong.substring(0, index));
+                longitude = Float.parseFloat(cityLatLong.substring(index+1));
+            }
+        }
         final JResult body = rnrService.addRating(productId, username, 
                 latitude, longitude, rating);
         return new ResponseEntity<JResult>(body, HttpStatus.OK);
+    }
+    
+    /**
+     * Returns a Collection of JRatings, where rating is 0..100
+     * @param latitude optional, 
+     * @param longitude optional
+     * @return a Collection of JRatings, where rating is 0..100
+     */
+    @RestReturn(value=JRating.class, entity=JRating.class, code={
+        @RestCode(code=200, message="OK", description="Ratings added")
+    })
+    @RequestMapping(value="nearby", method= RequestMethod.GET)
+    public ResponseEntity<Collection<JRating>> findNearbyRatings(HttpServletRequest request,
+            @RequestParam(required=false) Float latitude,
+            @RequestParam(required=false) Float longitude
+                    ) {
+        if (null == latitude) {
+            final String cityLatLong = request.getHeader("X-AppEngine-CityLatLong");
+            if (null != cityLatLong) {
+                final int index = cityLatLong.indexOf(',');
+                latitude = Float.parseFloat(cityLatLong.substring(0, index));
+                longitude = Float.parseFloat(cityLatLong.substring(index+1));
+            }
+        }
+        
+        final Collection<JRating> body = rnrService.findNearbyRatings(
+                latitude, longitude);
+        return new ResponseEntity<Collection<JRating>>(body, HttpStatus.OK);
     }
 
     /**

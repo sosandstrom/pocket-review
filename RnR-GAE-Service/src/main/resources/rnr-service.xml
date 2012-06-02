@@ -20,7 +20,7 @@
 
         <import resource="classpath*:spring-dao.xml" />
         
-        <bean id="rnrService" class="com.wadpam.rnr.service.RnrService">
+        <bean id="rnrService" class="com.wadpam.rnr.service.RnrService" init-method="init">
             <property name="ratingDao" ref="dRatingDao" />
             <property name="resultDao" ref="dResultDao" />
         </bean>
