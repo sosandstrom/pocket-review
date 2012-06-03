@@ -19,6 +19,18 @@
  */
 @interface PocketReviewer : NSObject
 
+
+/**
+ Specify the radius to use during nearby requests.
+ */
+typedef enum {
+  kDefaultRadius = 0,
+  kSmallestRadius = 2,
+  kMediumRadius = 3,
+  kLargestRadius = 4,
+} NearbyRadius;
+
+
 /** @name Start reviewing */
 
 /**
@@ -45,7 +57,7 @@
 /** @name Ratings */
 
 /**
- Rate a specific item.
+ Rate an item.
  
  Non-anonymous users will only be able to rate the same item once.
  @param itemId The unique item being rated
@@ -56,16 +68,19 @@
 
 
 /**
- Rate a specific item with a specified latitud and longitude.
+ Rate an item with a specified latitude and longitude.
  
  Non-anonymous users will only be able to rate the same item once.
+ 
+ Please note that it is the rated items location what should be provided, not the device current location.
  @param itemId The unique item being rated
  @param latitude The latitude of the item being rated
  @param longitude The longitude of the item being rated
  @param rating The rating value 1-5
  @param block A block that will be executed when the request completes or fails
  */
-- (void)rateItem:(NSString*)itemId forLatitude:(float)latitude andLongitude:(float)longitude withRating:(NSInteger)rating completionBlock:(void(^)(NSError*))block;
+- (void)rateItem:(NSString*)itemId forLatitude:(float)latitude longitude:(float)longitude 
+      withRating:(NSInteger)rating completionBlock:(void(^)(NSError*))block;
  
 
 /**
@@ -93,6 +108,35 @@
 - (void)myRatingsWithCompletionBlock:(void(^)(NSArray*, NSError*))block;
 
 
+/**
+ Get nearby items with a minimum rating using location provided by Google.
+ 
+ The latitude and logitude automatically provided by GAE will be used as the device location. 
+ The location provided by Google is most likely on a city level.
+ 
+ Items must be rated using the item latitude and longitude for this method to return ratings, otherwise en empty list will be returned.
+ @param radius The radius to search within
+ @param minimumRating The minimum rating of the returned items
+ @param block A block that will be executed when the request completes or fails
+ */
+- (void)nearbyItemsWithinRadius:(NearbyRadius)radius minimumRating:(NSInteger)minimumRating completionBlock:(void(^)(NSArray*, NSError*))block;
+
+
+/**
+ Get nearby items with a minimum rating using a provided location.
+ 
+ Items must be rated using the item latitude and longitude for this method to return ratings, otherwise en empty list will be returned.
+ @param latitude The devices latitude
+ @param longitude The device longitude
+ @param radius The radius to search within
+ @param minimumRating The minimum rating of the returned items
+ @param block A block that will be executed when the request completes or fails
+ */
+- (void)nearbyItemsForLatitude:(float)latitude longitude:(float)longitude withinRadius:(NearbyRadius)radius 
+                 minimumRating:(NSInteger)minimumRating completionBlock:(void(^)(NSArray*, NSError*))block;
+
+
+
 /** @name Reviews */
 
 /**
@@ -105,7 +149,7 @@
 
 
 /**
- Get all review comments for an item.
+ Get all reviews for an item.
  @param itemId The unique item
  @param block A block that will be executed when the request completes or fails
  */
@@ -113,7 +157,7 @@
 
 
 /**
- Get my review comments. 
+ Get my reviews. 
  
  This method will only return reviwes if non-anonymous reviews have been used, otherwise nil will be returned
  @param block A block that will be executed when the request completes or fails
@@ -144,15 +188,18 @@
 
 /** 
  Future methods
- - (void)nearbyTopRatingsForLatitude:(double)latitude andLongitude:(double)longitude withRadius:(double)radius completionBlock:(void(^)(NSArray*))block;
  - (void)likeItem:(NSString*)itemId completionBlock:(void(^)(NSError*))block;
  - (void)likesForItem:(NSString*)itemId completionBlock:(void(^)(NSNumber*, NSError*))block;
  - (void)likesForItems:(NSArray*)itemIds completionBlock:(void(^)(NSArray*, NSError*))block;
  */
 
+
+
+// TODO rewrite validation of arguments (NO macros)
+// TODO empty result list when no matcher and when nil? Combine the parsing code?
+// TODO reviews
 // TODO delete review
 // TODO Ids for reviews? rating? like?
-// TODO Build and deploy documentation to the web app
 // TODO use jsonORM
 
 

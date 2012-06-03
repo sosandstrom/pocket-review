@@ -25,4 +25,8 @@
 
 - (IBAction)rating:(UIButton *)sender;
 
+- (IBAction)allRatings:(id)sender;
+
+- (IBAction)nearbyRatings:(id)sender;
+
 @end

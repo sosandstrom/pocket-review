@@ -339,7 +339,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "echo \"Copy documentation to the webapp static folder for deployment at GAE\"\n\nif [ -r ../RnR-GAE-Backend/src/main/webapp/static/doc/ios ]\nthen\n  echo \"Target directory exists, delete it\"\n  rm -rf ../RnR-GAE-Backend/src/main/webapp/static/doc/ios\nfi\n\necho \"Create the ios doc root folder\"\nmkdir -p ../RnR-GAE-Backend/src/main/webapp/static/doc/ios\n\necho \"Copy the file\"\ncp -r Doc/html/* ../RnR-GAE-Backend/src/main/webapp/static/doc/ios/.";
+			shellScript = "echo \"Copy documentation to the webapp static folder for deployment at GAE\"\n\nif [ -r ../RnR-GAE-Backend/src/main/webapp/static/doc/ios ]\nthen\n  echo \"Target directory exists, delete it\"\n  rm -rf ../RnR-GAE-Backend/src/main/webapp/static/doc/ios\nfi\n\necho \"Create the ios doc root folder\"\nmkdir -p ../RnR-GAE-Backend/src/main/webapp/static/doc/ios\n\necho \"Copy the files\"\ncp -r Doc/html/* ../RnR-GAE-Backend/src/main/webapp/static/doc/ios/.";
 		};
 /* End PBXShellScriptBuildPhase section */
 

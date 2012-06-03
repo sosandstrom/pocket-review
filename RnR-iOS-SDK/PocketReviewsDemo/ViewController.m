@@ -71,13 +71,13 @@
   UISegmentedControl *segment = nil;
   switch (sender.tag) {
     case 1:
-      segment = A001Segment;
+      segment = self.A001Segment;
       break;
     case 2:
-      segment = A002Segment;
+      segment = self.A002Segment;
       break;
     case 3:
-      segment = A003Segment;
+      segment = self.A003Segment;
       break;
     default:
       break;
@@ -101,13 +101,13 @@
   UILabel *label = nil;
   switch (sender.tag) {
     case 1:
-      label = A001Label;
+      label = self.A001Label;
       break;
     case 2:
-      label = A002Label;
+      label = self.A002Label;
       break;
     case 3:
-      label = A003Label;
+      label = self.A003Label;
       break;
     default:
       break;
@@ -122,6 +122,36 @@
       NSLog(@"Get rating method failed with error %@", [error userInfo]);
   }];
   
+}
+
+- (IBAction)allRatings:(id)sender {
+  NSLog(@"Get all ratings");
+  [self.reviewer ratingForItems:[NSArray arrayWithObjects:@"A001", @"A002", @"A003", nil] completionBlock:^(NSArray* ratings, NSError* error) {
+    if (!error) {
+      NSLog(@"Get ratings for a list of items was successful");
+      for (Rating *rating in ratings) {
+        if ([rating.itemId isEqualToString:@"A001"])
+          self.A001Label.text = [NSString stringWithFormat:@"%.1f (%d)", rating.averageRating, rating.numberOfRatings];
+        else if ([rating.itemId isEqualToString:@"A002"])
+          self.A002Label.text = [NSString stringWithFormat:@"%.1f (%d)", rating.averageRating, rating.numberOfRatings];
+        else if ([rating.itemId isEqualToString:@"A003"])
+          self.A003Label.text = [NSString stringWithFormat:@"%.1f (%d)", rating.averageRating, rating.numberOfRatings];
+      }
+    }
+  }];
+}
+
+
+- (IBAction)nearbyRatings:(id)sender {
+  NSLog(@"Get nearby ratings");
+  
+  [self.reviewer nearbyItemsWithinRadius:kDefaultRadius minimumRating:3 completionBlock:^(NSArray* ratings, NSError* error) {
+    if (!error) {
+      NSLog(@"Get nearby ratins for items was successful");
+      NSLog(@"Ratings %@", ratings);
+    } else 
+      NSLog(@"Get nearby items failed");
+  }];
 }
 
 

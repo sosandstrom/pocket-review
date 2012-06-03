@@ -60,7 +60,11 @@
 	
 	<option value="//api/name/myReviewsWithCompletionBlock:">&nbsp;&nbsp;&nbsp;&nbsp;- myReviewsWithCompletionBlock:</option>
 	
-	<option value="//api/name/rateItem:forLatitude:andLongitude:withRating:completionBlock:">&nbsp;&nbsp;&nbsp;&nbsp;- rateItem:forLatitude:andLongitude:withRating:completionBlock:</option>
+	<option value="//api/name/nearbyItemsForLatitude:longitude:withinRadius:minimumRating:completionBlock:">&nbsp;&nbsp;&nbsp;&nbsp;- nearbyItemsForLatitude:longitude:withinRadius:minimumRating:completionBlock:</option>
+	
+	<option value="//api/name/nearbyItemsWithinRadius:minimumRating:completionBlock:">&nbsp;&nbsp;&nbsp;&nbsp;- nearbyItemsWithinRadius:minimumRating:completionBlock:</option>
+	
+	<option value="//api/name/rateItem:forLatitude:longitude:withRating:completionBlock:">&nbsp;&nbsp;&nbsp;&nbsp;- rateItem:forLatitude:longitude:withRating:completionBlock:</option>
 	
 	<option value="//api/name/rateItem:withRating:completionBlock:">&nbsp;&nbsp;&nbsp;&nbsp;- rateItem:withRating:completionBlock:</option>
 	
@@ -128,7 +132,11 @@
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/myReviewsWithCompletionBlock:">myReviewsWithCompletionBlock:</a></span></li>
 	
-	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/rateItem:forLatitude:andLongitude:withRating:completionBlock:">rateItem:forLatitude:andLongitude:withRating:completionBlock:</a></span></li>
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/nearbyItemsForLatitude:longitude:withinRadius:minimumRating:completionBlock:">nearbyItemsForLatitude:longitude:withinRadius:minimumRating:completionBlock:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/nearbyItemsWithinRadius:minimumRating:completionBlock:">nearbyItemsWithinRadius:minimumRating:completionBlock:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/rateItem:forLatitude:longitude:withRating:completionBlock:">rateItem:forLatitude:longitude:withRating:completionBlock:</a></span></li>
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/rateItem:withRating:completionBlock:">rateItem:withRating:completionBlock:</a></span></li>
 	
@@ -223,14 +231,14 @@ of a method by providing a completion block.</p>
 							<li>
 	<span class="tooltip">
 		<code><a href="#//api/name/rateItem:withRating:completionBlock:">&ndash;&nbsp;rateItem:withRating:completionBlock:</a></code>
-		<span class="tooltip"><p>Rate a specific item.</p></span>
+		<span class="tooltip"><p>Rate an item.</p></span>
 	</span>
 	
 	
 </li><li>
 	<span class="tooltip">
-		<code><a href="#//api/name/rateItem:forLatitude:andLongitude:withRating:completionBlock:">&ndash;&nbsp;rateItem:forLatitude:andLongitude:withRating:completionBlock:</a></code>
-		<span class="tooltip"><p>Rate a specific item with a specified latitud and longitude.</p></span>
+		<code><a href="#//api/name/rateItem:forLatitude:longitude:withRating:completionBlock:">&ndash;&nbsp;rateItem:forLatitude:longitude:withRating:completionBlock:</a></code>
+		<span class="tooltip"><p>Rate an item with a specified latitude and longitude.</p></span>
 	</span>
 	
 	
@@ -255,6 +263,20 @@ of a method by providing a completion block.</p>
 	</span>
 	
 	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/nearbyItemsWithinRadius:minimumRating:completionBlock:">&ndash;&nbsp;nearbyItemsWithinRadius:minimumRating:completionBlock:</a></code>
+		<span class="tooltip"><p>Get nearby items with a minimum rating using location provided by Google.</p></span>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/nearbyItemsForLatitude:longitude:withinRadius:minimumRating:completionBlock:">&ndash;&nbsp;nearbyItemsForLatitude:longitude:withinRadius:minimumRating:completionBlock:</a></code>
+		<span class="tooltip"><p>Get nearby items with a minimum rating using a provided location.</p></span>
+	</span>
+	
+	
 </li>
 						</ul>
 						
@@ -273,14 +295,14 @@ of a method by providing a completion block.</p>
 </li><li>
 	<span class="tooltip">
 		<code><a href="#//api/name/reviewsForItem:completionBlock:">&ndash;&nbsp;reviewsForItem:completionBlock:</a></code>
-		<span class="tooltip"><p>Get all review comments for an item.</p></span>
+		<span class="tooltip"><p>Get all reviews for an item.</p></span>
 	</span>
 	
 	
 </li><li>
 	<span class="tooltip">
 		<code><a href="#//api/name/myReviewsWithCompletionBlock:">&ndash;&nbsp;myReviewsWithCompletionBlock:</a></code>
-		<span class="tooltip"><p>Get my review comments.</p></span>
+		<span class="tooltip"><p>Get my reviews.</p></span>
 	</span>
 	
 	
@@ -524,7 +546,7 @@ If the application have a better way of uniquely indentifing users, e.g. through
 	
 	
 	<div class="method-subsection brief-description">
-		<p>Get my review comments.</p>
+		<p>Get my reviews.</p>
 	</div>		
 	
     
@@ -569,18 +591,153 @@ If the application have a better way of uniquely indentifing users, e.g. through
 </div>
 						
 						<div class="section-method">
-	<a name="//api/name/rateItem:forLatitude:andLongitude:withRating:completionBlock:" title="rateItem:forLatitude:andLongitude:withRating:completionBlock:"></a>
-	<h3 class="subsubtitle method-title">rateItem:forLatitude:andLongitude:withRating:completionBlock:</h3>
+	<a name="//api/name/nearbyItemsForLatitude:longitude:withinRadius:minimumRating:completionBlock:" title="nearbyItemsForLatitude:longitude:withinRadius:minimumRating:completionBlock:"></a>
+	<h3 class="subsubtitle method-title">nearbyItemsForLatitude:longitude:withinRadius:minimumRating:completionBlock:</h3>
 	
 	
 	
 	<div class="method-subsection brief-description">
-		<p>Rate a specific item with a specified latitud and longitude.</p>
+		<p>Get nearby items with a minimum rating using a provided location.</p>
 	</div>		
 	
     
 
-	<div class="method-subsection method-declaration"><code>- (void)rateItem:(NSString *)<em>itemId</em> forLatitude:(float)<em>latitude</em> andLongitude:(float)<em>longitude</em> withRating:(NSInteger)<em>rating</em> completionBlock:(void ( ^ ) ( NSError *))<em>block</em></code></div>
+	<div class="method-subsection method-declaration"><code>- (void)nearbyItemsForLatitude:(float)<em>latitude</em> longitude:(float)<em>longitude</em> withinRadius:(NearbyRadius)<em>radius</em> minimumRating:(NSInteger)<em>minimumRating</em> completionBlock:(void ( ^ ) ( NSArray *, NSError *))<em>block</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>latitude</em></dt>
+			<dd><p>The devices latitude</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>longitude</em></dt>
+			<dd><p>The device longitude</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>radius</em></dt>
+			<dd><p>The radius to search within</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>minimumRating</em></dt>
+			<dd><p>The minimum rating of the returned items</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>block</em></dt>
+			<dd><p>A block that will be executed when the request completes or fails</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>Items must be rated using the item latitude and longitude for this method to return ratings, otherwise en empty list will be returned.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">PocketReviewer.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/nearbyItemsWithinRadius:minimumRating:completionBlock:" title="nearbyItemsWithinRadius:minimumRating:completionBlock:"></a>
+	<h3 class="subsubtitle method-title">nearbyItemsWithinRadius:minimumRating:completionBlock:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Get nearby items with a minimum rating using location provided by Google.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)nearbyItemsWithinRadius:(NearbyRadius)<em>radius</em> minimumRating:(NSInteger)<em>minimumRating</em> completionBlock:(void ( ^ ) ( NSArray *, NSError *))<em>block</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>radius</em></dt>
+			<dd><p>The radius to search within</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>minimumRating</em></dt>
+			<dd><p>The minimum rating of the returned items</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>block</em></dt>
+			<dd><p>A block that will be executed when the request completes or fails</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>The latitude and logitude automatically provided by GAE will be used as the device location.
+The location provided by Google is most likely on a city level.</p>
+
+<p>Items must be rated using the item latitude and longitude for this method to return ratings, otherwise en empty list will be returned.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">PocketReviewer.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/rateItem:forLatitude:longitude:withRating:completionBlock:" title="rateItem:forLatitude:longitude:withRating:completionBlock:"></a>
+	<h3 class="subsubtitle method-title">rateItem:forLatitude:longitude:withRating:completionBlock:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Rate an item with a specified latitude and longitude.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)rateItem:(NSString *)<em>itemId</em> forLatitude:(float)<em>latitude</em> longitude:(float)<em>longitude</em> withRating:(NSInteger)<em>rating</em> completionBlock:(void ( ^ ) ( NSError *))<em>block</em></code></div>
 
     
 	
@@ -623,6 +780,8 @@ If the application have a better way of uniquely indentifing users, e.g. through
 	<div class="method-subsection discussion-section">
 		<h4 class="method-subtitle">Discussion</h4>
 		<p>Non-anonymous users will only be able to rate the same item once.</p>
+
+<p>Please note that it is the rated items location what should be provided, not the device current location.</p>
 	</div>
 	
 	
@@ -646,7 +805,7 @@ If the application have a better way of uniquely indentifing users, e.g. through
 	
 	
 	<div class="method-subsection brief-description">
-		<p>Rate a specific item.</p>
+		<p>Rate an item.</p>
 	</div>		
 	
     
@@ -865,7 +1024,7 @@ If the application have a better way of uniquely indentifing users, e.g. through
 	
 	
 	<div class="method-subsection brief-description">
-		<p>Get all review comments for an item.</p>
+		<p>Get all reviews for an item.</p>
 	</div>		
 	
     
