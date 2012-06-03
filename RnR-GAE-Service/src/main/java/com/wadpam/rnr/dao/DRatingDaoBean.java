@@ -32,4 +32,10 @@ public class DRatingDaoBean
         throw new UnsupportedOperationException("Invoke on GeoDao instead.");
     }
 
+    @Override
+    public Long save(DRating model) {
+        throw new UnsupportedOperationException("Invoke on GeoDao instead.");
+    }
+
+    
 }

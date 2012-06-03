@@ -50,14 +50,6 @@ public class RatingController {
             @RequestParam(required=false) Float longitude,
             @RequestParam(required=false) String review,
             @RequestParam int rating) {
-        if (null == latitude) {
-            final String cityLatLong = request.getHeader("X-AppEngine-CityLatLong");
-            if (null != cityLatLong) {
-                final int index = cityLatLong.indexOf(',');
-                latitude = Float.parseFloat(cityLatLong.substring(0, index));
-                longitude = Float.parseFloat(cityLatLong.substring(index+1));
-            }
-        }
         final JResult body = rnrService.addRating(productId, username, 
                 latitude, longitude, rating);
         return new ResponseEntity<JResult>(body, HttpStatus.OK);
@@ -67,16 +59,19 @@ public class RatingController {
      * Returns a Collection of JRatings, where rating is 0..100
      * @param latitude optional, 
      * @param longitude optional
-     * @return a Collection of JRatings, where rating is 0..100
+     * @param radius optional, should be 2, 3, or 4. Default is 3.
+     * @param minRating optional, should be 1..100, default is 50.
+     * @return a Collection of JRatings, where rating is minRating..100
      */
     @RestReturn(value=JRating.class, entity=JRating.class, code={
-        @RestCode(code=200, message="OK", description="Ratings added")
+        @RestCode(code=200, message="OK", description="Ratings found")
     })
     @RequestMapping(value="nearby", method= RequestMethod.GET)
     public ResponseEntity<Collection<JRating>> findNearbyRatings(HttpServletRequest request,
             @RequestParam(required=false) Float latitude,
-            @RequestParam(required=false) Float longitude
-                    ) {
+            @RequestParam(required=false) Float longitude,
+            @RequestParam(defaultValue="3") int radius,
+            @RequestParam(defaultValue="50") int minRating) {
         if (null == latitude) {
             final String cityLatLong = request.getHeader("X-AppEngine-CityLatLong");
             if (null != cityLatLong) {
@@ -87,7 +82,7 @@ public class RatingController {
         }
         
         final Collection<JRating> body = rnrService.findNearbyRatings(
-                latitude, longitude);
+                latitude, longitude, radius, minRating);
         return new ResponseEntity<Collection<JRating>>(body, HttpStatus.OK);
     }
 

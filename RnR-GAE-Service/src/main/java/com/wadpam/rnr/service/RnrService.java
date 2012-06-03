@@ -6,6 +6,7 @@ package com.wadpam.rnr.service;
 
 import com.google.appengine.api.datastore.GeoPt;
 import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Rating;
 import com.wadpam.rnr.dao.DRatingDao;
 import com.wadpam.rnr.dao.DResultDao;
@@ -15,6 +16,7 @@ import com.wadpam.rnr.json.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import net.sf.mardao.api.dao.Expression;
 import net.sf.mardao.api.domain.AEDPrimaryKeyEntity;
 import net.sf.mardao.api.geo.aed.GeoDao;
 import net.sf.mardao.api.geo.aed.GeoDaoImpl;
@@ -42,8 +44,6 @@ public class RnrService {
      */
     public JResult addRating(String productId, String username,
             Float latitude, Float longitude, int rating) {
-        final GeoPt location = (null != latitude && null != longitude) ? 
-                new GeoPt(latitude, longitude) : null;
         
         DRating dr = null;
         int existing = -1;
@@ -67,8 +67,14 @@ public class RnrService {
         
         // upsert
         dr.setRating(new Rating(rating));
-        dr.setLocation(location);
-        geoRatingDao.persist(dr);
+        if (null != latitude && null != longitude) {
+            final GeoPt location = new GeoPt(latitude, longitude);
+            dr.setLocation(location);
+            geoRatingDao.save(dr);
+        }
+        else {
+            ratingDao.persist(dr);
+        }
         
         // update average result
         DResult result = resultDao.findByPrimaryKey(productId);
@@ -177,8 +183,12 @@ public class RnrService {
         return to;
     }
 
-    public Collection<JRating> findNearbyRatings(Float latitude, Float longitude) {
-        final Collection<DRating> list = geoRatingDao.findInGeobox(latitude, longitude, 3, 2, null, false, 0, -1);
+    public Collection<JRating> findNearbyRatings(Float latitude, Float longitude, int radius, int minRating) {
+        final int resolution = 3;
+        final Expression ratingFilter = new Expression(ratingDao.COLUMN_NAME_RATING, 
+                Query.FilterOperator.GREATER_THAN_OR_EQUAL, minRating);
+        final Collection<DRating> list = geoRatingDao.findInGeobox(latitude, longitude, 
+                resolution, radius, null, false, 0, -1, ratingFilter);
         return (Collection<JRating>) convert(list);
     }
 
