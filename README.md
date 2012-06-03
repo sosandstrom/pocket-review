@@ -1,7 +1,7 @@
 pocket-review
 =============
 
-**till under development, coming soon**
+**Still under development, coming soon**
 
 Reviews and ratings on the run, tailored for mobile apps.
 
