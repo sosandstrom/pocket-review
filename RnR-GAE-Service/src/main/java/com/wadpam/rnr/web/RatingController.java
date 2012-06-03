@@ -123,6 +123,20 @@ public class RatingController {
         return new ResponseEntity<JResultPage>(body, HttpStatus.OK);
     }
 
+    /**
+     * Returns a list of average rating for specified products
+     * @return a list of average rating for specified products
+     */
+    @RestReturn(value=JResultPage.class, entity=JResult.class, code={
+        @RestCode(code=200, message="OK", description="Rating added")
+    })
+    @RequestMapping(value="", method= RequestMethod.GET, params="ids")
+    public ResponseEntity<Collection<JResult>> getAverageRatings(
+            @RequestParam(value="ids") String ids[]) {
+        final Collection<JResult> body = rnrService.getAverageRatings(ids);
+        return new ResponseEntity<Collection<JResult>>(body, HttpStatus.OK);
+    }
+
     public void setRnrService(RnrService rnrService) {
         this.rnrService = rnrService;
     }

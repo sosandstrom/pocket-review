@@ -14,8 +14,10 @@ import com.wadpam.rnr.domain.DRating;
 import com.wadpam.rnr.domain.DResult;
 import com.wadpam.rnr.json.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Map;
 import net.sf.mardao.api.dao.Expression;
 import net.sf.mardao.api.domain.AEDPrimaryKeyEntity;
 import net.sf.mardao.api.geo.aed.GeoDao;
@@ -212,7 +214,17 @@ public class RnrService {
     public JResultPage getAveragePage(String cursor, long offset, long limit) {
         throw new UnsupportedOperationException("Not yet implemented");
     }
-    
+
+    /**
+     * 
+     * @param ids
+     * @return 
+     */
+    public Collection<JResult> getAverageRatings(String[] ids) {
+        Map<String,DResult> map = resultDao.findByPrimaryKeys(null, Arrays.asList(ids));
+        return (Collection<JResult>) convert(map.values());
+    }
+
     public static Long toLong(Key from) {
         if (null == from) {
             return null;

@@ -14,6 +14,7 @@
                     <li><a href="api.html#com.wadpam.rnr.web.RatingController.findNearbyRatings" class="link">findNearbyRatings()</a></li>
                     <li><a href="api.html#com.wadpam.rnr.web.RatingController.getAverageRating" class="link">getAverageRating()</a></li>
                     <li><a href="api.html#com.wadpam.rnr.web.RatingController.getAverageRatings" class="link">getAverageRatings()</a></li>
+                    <li><a href="api.html#com.wadpam.rnr.web.RatingController.getAverageRatings" class="link">getAverageRatings()</a></li>
                 </ul>
             </li>
             <li>JSON objects
@@ -138,6 +139,12 @@
                             <tr>
                                 <td>query</td><td>longitude</td><td>Float</td><td>optional</td>
                             </tr>
+                            <tr>
+                                <td>query</td><td>radius</td><td>int</td><td>optional, should be 2, 3, or 4. Default is 3.</td>
+                            </tr>
+                            <tr>
+                                <td>query</td><td>minRating</td><td>int</td><td>optional, should be 1..100, default is 50.</td>
+                            </tr>
 			</tbody>
 		</table>
 
@@ -150,7 +157,7 @@
 				</thead>
 				<tbody>
                <tr>
-                <td>200</td><td>OK</td><td colspan="2">Ratings added</td>
+                <td>200</td><td>OK</td><td colspan="2">Ratings found</td>
             </tr>
 				</tbody>
 			</table>
@@ -273,6 +280,61 @@
             </tr>
                <tr>
                 <td>404</td><td>Not Found</td><td colspan="2">Product not found</td>
+            </tr>
+				</tbody>
+			</table>
+
+			<p>
+                            <b>Response Type</b>: <a href="api.html#com.wadpam.rnr.json.JResult" class="link">com.wadpam.rnr.json.JResult</a>Page
+                        </p>
+
+		<h3>Response Example</h3>
+		<p class="code">
+			<pre>{<div>&nbsp;&nbsp;&nbsp;<b>"average"</b>&nbsp;:&nbsp;int,</div><div>&nbsp;&nbsp;&nbsp;<b>"createdDate"</b>&nbsp;:&nbsp;Long,</div><div>&nbsp;&nbsp;&nbsp;<b>"id"</b>&nbsp;:&nbsp;String,</div><div>&nbsp;&nbsp;&nbsp;<b>"ratingCount"</b>&nbsp;:&nbsp;Long,</div><div>&nbsp;&nbsp;&nbsp;<b>"ratingSum"</b>&nbsp;:&nbsp;Long,</div><div>&nbsp;&nbsp;&nbsp;<b>"updatedDate"</b>&nbsp;:&nbsp;Long,</div>}</pre>
+		</p>
+				
+<!-- Method: findByName() ---------------------------------------------------->		
+        <a name="com.wadpam.rnr.web.RatingController.getAverageRatings" />
+
+        <h2 class="methodHeader">getAverageRatings()</h2>
+
+        <p>
+            <b>Description</b>:Returns a list of average rating for specified products
+        </p>
+
+        <p>
+            <b>Implementing Class</b>: com.wadpam.rnr.web.RatingController
+        </p>
+
+        <p class="restPath">
+            <b>REST path</b>: GET&nbsp;
+    /{domain}/rating/
+
+		<h3>Request parameters</h3>
+		<table>
+			<thead>
+	    		<td class="column1">Where</th>
+	    		<td class="column2">Name</th>
+	    		<td class="column3">Type</th>
+	    		<td class="columnAuto">Description</th>
+			</thead>
+			<tbody>
+                            <tr>
+                                <td>query</td><td>ids</td><td>java.lang.String[]</td><td></td>
+                            </tr>
+			</tbody>
+		</table>
+
+		<h3>Response Codes</h3>
+			<table>
+				<thead>
+	   				<td class="column1">HTTP Response Code</td>
+	   				<td class="column2">Message</td>
+	   				<td class="columnAuto">Description</td>
+				</thead>
+				<tbody>
+               <tr>
+                <td>200</td><td>OK</td><td colspan="2">Rating added</td>
             </tr>
 				</tbody>
 			</table>
