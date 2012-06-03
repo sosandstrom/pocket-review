@@ -46,18 +46,15 @@
 #define ID @"id"
 
 // Parameter validation rules
-#define CHECK_URL(url) ((url == nil) ? ([self parsingErrorWithDescription:@"Service URL can not been nil, can not start reviewer"]) : (nil))
-#define CHECK_DOMAIN(domain) ((domain == nil) ? ([self parsingErrorWithDescription:@"Application domain can not be nil"]) : (nil))
-#define CHECK_ITEM_ID(itemId) ((itemId == nil) ? ([self parsingErrorWithDescription:@"Item id can not be nil"]) : (nil))
-#define CHECK_USER_ID(userId) ((userId == nil) ? ([self parsingErrorWithDescription:@"User id can not be nil"]) : (nil))
-#define CHECK_RATING(rating) (([rating integerValue] < 0 || [rating integerValue] > 5) ? \
-                              ([self parsingErrorWithDescription:@"Rating value must be between 0 and 5"]) : (nil))
-#define CHECK_LATITUDE(latitude) (([latitude floatValue] < -90.0f || [latitude floatValue] > 90.0f) ? \
-                              ([self parsingErrorWithDescription:@"User id can not be nil"]) : (nil))
-#define CHECK_LONGITUDE(longitude) (([longitude floatValue] < -180.0f || [longitude floatValue] > 180.0f) ? \
-                              ([self parsingErrorWithDescription:@"User id can not be nil"]) : (nil))
-#define CHECK_NEARBY_RADIUS(radius) (([radius integerValue] < 2 || [radius integerValue] > 4) ?  \
-                              ([self parsingErrorWithDescription:@"Radius is invalid, must use any of the provided enum values"]) : (nil))
+#define CHECK_URL(url, err) [self checkUrl:url error:err]
+#define CHECK_DOMAIN(domain, err) [self checkDomain:domain error:err]
+#define CHECK_ITEM_ID(itemId, err) [self checkItemId:itemId error:err]
+#define CHECK_USER_ID(userId, err) [self checkUserId:userId error:err]
+#define CHECK_RATING(rating, err) [self checkRating:rating error:err]
+#define CHECK_LATITUDE(latitude, err) [self checkLatitude:latitude error:err]
+#define CHECK_LONGITUDE(longitude, err) [self checkLongitude:latitude error:err]
+#define CHECK_RADIUS(rating, err) [self checkRadius:radius error:err]
+#define CHECK_ITEM_IDS(itemIds, err) [self checkItemIds:itemIds error:err]
 
 // Append paths and query string
 #define APPEND_PATH(path, url) [NSURL URLWithString:[[url URLByAppendingPathComponent:path] absoluteString]]
@@ -68,13 +65,23 @@
 @interface PocketReviewer ()
 
 - (void)doRateItem:(NSString*)itemId forLatitude:(NSNumber*)latitude longitude:(NSNumber*)longitude 
-              withRating:(NSNumber*)rating completionBlock:(void(^)(NSError*))block;
-- (void)doNearbyItemsForLatitude:(NSNumber*)latitude longitude:(NSNumber*)longitude withinRadius:(NSNumber*)radius 
-                         minimumRating:(NSNumber*)minimumRating completionBlock:(void(^)(NSArray*, NSError*))block;
+        withRating:(NSInteger)rating completionBlock:(void(^)(NSError*))block;
+- (void)doNearbyItemsForLatitude:(NSNumber*)latitude longitude:(NSNumber*)longitude withinRadius:(NearbyRadius)radius 
+                   minimumRating:(NSInteger)minimumRating completionBlock:(void(^)(NSArray*, NSError*))block;
 
 - (NSInteger)serviceRequestWithUrl:(NSURL*)url body:(NSDictionary*)body responseData:(NSData**)data error:(NSError**)error;
 - (NSString*)toStringFromDict:(NSDictionary*)dict;
 - (NSError*)parsingErrorWithDescription:(NSString*)format, ...;
+
+- (BOOL)checkUrl:(NSURL*)url error:(NSError**)error;
+- (BOOL)checkDomain:(NSString*)domain error:(NSError **)error;
+- (BOOL)checkUserId:(NSString*)userId error:(NSError **)error;
+- (BOOL)checkItemId:(NSString*)itemId error:(NSError **)error;
+- (BOOL)checkRating:(NSInteger)rating error:(NSError**)error;
+- (BOOL)checkLatitude:(NSNumber*)latitude error:(NSError**)error;
+- (BOOL)checkLongitude:(NSNumber*)longitude error:(NSError**)error;
+- (BOOL)checkRadius:(NSInteger)radius error:(NSError**)error;
+- (BOOL)checkItemIds:(NSArray*)itemIds error:(NSError**)error;
 
 @property (nonatomic, retain) NSURL *url;
 @property (nonatomic) BOOL anonymous;
@@ -133,11 +140,8 @@
   DLOG(@"Start rating");
 
   // Check paramters
-  NSError *validationError = nil;
-  validationError = CHECK_URL(url);
-  validationError = CHECK_DOMAIN(domain);
-  if (validationError) {
-    error = &validationError;
+  if (!CHECK_URL(url, error) || 
+      !CHECK_DOMAIN(domain, error)) {
     return NO;
   }
   
@@ -152,7 +156,7 @@
 
 // Rate an item
 - (void)rateItem:(NSString*)itemId withRating:(NSInteger)rating completionBlock:(void(^)(NSError*))block {
-  [self doRateItem:itemId forLatitude:nil longitude:nil withRating:[NSNumber numberWithInteger:rating] completionBlock:block];
+  [self doRateItem:itemId forLatitude:nil longitude:nil withRating:rating completionBlock:block];
 }
 
 
@@ -161,13 +165,13 @@
       withRating:(NSInteger)rating completionBlock:(void(^)(NSError*))block {
   
   [self doRateItem:itemId forLatitude:[NSNumber numberWithFloat:latitude] longitude:[NSNumber numberWithFloat:longitude] 
-          withRating:[NSNumber numberWithInteger:rating] completionBlock:block];
+          withRating:rating completionBlock:block];
 }
 
 
 // Internal rating method
 - (void)doRateItem:(NSString*)itemId forLatitude:(NSNumber*)latitude longitude:(NSNumber*)longitude 
-          withRating:(NSNumber*)rating completionBlock:(void(^)(NSError*))block {
+          withRating:(NSInteger)rating completionBlock:(void(^)(NSError*))block {
   
   // Use GDC
   dispatch_async(self.queue, ^{
@@ -177,18 +181,17 @@
     NSError *error = nil;
     
     // Check parameters
-    error = CHECK_URL(self.url);
-    error = CHECK_ITEM_ID(itemId);
-    error = CHECK_LATITUDE(latitude);
-    error = CHECK_LONGITUDE(longitude);
-    error = CHECK_RATING(rating);
-    if (error) {
+    if (!CHECK_URL(self.url, &error) || 
+        !CHECK_ITEM_ID(itemId, &error) || 
+        !CHECK_LATITUDE(latitude, &error) || 
+        !CHECK_LONGITUDE(longitude, &error) ||
+        !CHECK_RATING(rating, &error)) {
       block(error);
       return;
     }
     
     // Rescale the rating value to fit the backend api
-    NSNumber *scaledRating = [NSNumber numberWithInteger:[rating integerValue] * RATING_SCALE];
+    NSInteger scaledRating = rating * RATING_SCALE;
     
     // Build the request path
     NSURL *requestUrl = APPEND_PATH(@"rating", self.url);
@@ -197,7 +200,7 @@
     // Collect body paramters
     NSMutableDictionary *body = [NSMutableDictionary dictionary];
     if (self.userId) [body setObject:self.userId forKey:USER_ID];
-    if (rating) [body setObject:scaledRating forKey:RATING];
+    [body setObject:[NSNumber numberWithInteger:scaledRating] forKey:RATING];
     if (latitude) [body setObject:latitude forKey:LATITUDE];
     if (longitude) [body setObject:longitude forKey:LONGITUDE];
     
@@ -212,7 +215,8 @@
       block(nil);
     } else {
       // Run the complition block with error
-      block([self parsingErrorWithDescription:@"HTTP rate request failed with respose code %d and error message %@", responseCode, [error userInfo]]);
+      block([self parsingErrorWithDescription:@"HTTP rate request failed with respose code %d and error message %@", 
+             responseCode, [error userInfo]]);
     }
   
   });
@@ -230,9 +234,8 @@
     NSError *error = nil;
     
     // Check parameters
-    error = CHECK_URL(self.url);
-    error = CHECK_ITEM_ID(itemId);
-    if (error) {
+    if (!CHECK_URL(self.url, &error) || 
+        !CHECK_ITEM_ID(itemId, &error)) {
       block(nil, error);
       return;
     }
@@ -279,10 +282,9 @@
     NSError *error = nil;
     
     // Check parameters
-    error = CHECK_URL(self.url);
-    error = CHECK_ITEM_ID(itemIds);
-    if (error) {
-      block(nil, error); 
+    if (!CHECK_URL(self.url, &error) || 
+        !CHECK_ITEM_IDS(itemIds, &error)) {
+      block(nil, error);
       return;
     }
     
@@ -322,7 +324,8 @@
       block(ratings, nil);
     } else {
       // Run the completion block with error
-      block(nil, [self parsingErrorWithDescription:@"HTTP get rating request failed with respose code %d and error message %@", responseCode, [error userInfo]]);
+      block(nil, [self parsingErrorWithDescription:@"HTTP get rating request failed with respose code %d and error message %@", 
+                  responseCode, [error userInfo]]);
     }
     
   });
@@ -337,9 +340,8 @@
   NSError *error = nil;
   
   // Check parameters
-  error = CHECK_URL(self.url);
-  error = CHECK_USER_ID(self.userId);
-  if (error) {
+  if (!CHECK_URL(self.url, &error) || 
+      !CHECK_USER_ID(self.userId, &error)) {
     block(nil, error);
     return;
   }
@@ -351,8 +353,7 @@
 
 // Get nearby items using Google provided latitude and langitude
 - (void)nearbyItemsWithinRadius:(NearbyRadius)radius minimumRating:(NSInteger)minimumRating completionBlock:(void(^)(NSArray*, NSError*))block {
-  [self doNearbyItemsForLatitude:nil longitude:nil withinRadius:[NSNumber numberWithInteger:radius]
-                   minimumRating:[NSNumber numberWithInteger:minimumRating] completionBlock:block];
+  [self doNearbyItemsForLatitude:nil longitude:nil withinRadius:radius minimumRating:minimumRating completionBlock:block];
   
 }
 
@@ -361,13 +362,13 @@
 - (void)nearbyItemsForLatitude:(float)latitude longitude:(float)longitude withinRadius:(NearbyRadius)radius 
                  minimumRating:(NSInteger)minimumRating completionBlock:(void(^)(NSArray*, NSError*))block {
   [self doNearbyItemsForLatitude:[NSNumber numberWithFloat:latitude] longitude:[NSNumber numberWithFloat:longitude] 
-                    withinRadius:[NSNumber numberWithInteger:radius] minimumRating:[NSNumber numberWithInteger:minimumRating] completionBlock:block];
+                    withinRadius:radius minimumRating:minimumRating completionBlock:block];
   
 }
 
 
-- (void)doNearbyItemsForLatitude:(NSNumber*)latitude longitude:(NSNumber*)longitude withinRadius:(NSNumber*)radius 
-                   minimumRating:(NSNumber*)minimumRating completionBlock:(void(^)(NSArray*, NSError*))block {
+- (void)doNearbyItemsForLatitude:(NSNumber*)latitude longitude:(NSNumber*)longitude withinRadius:(NearbyRadius)radius 
+                   minimumRating:(NSInteger)minimumRating completionBlock:(void(^)(NSArray*, NSError*))block {
   
   // Use GDC
   dispatch_async(self.queue, ^{    
@@ -376,36 +377,36 @@
     // Track errors
     NSError *error = nil;
     
-    // Convert the radius, do not send any value if default radius is specified
-    NSNumber *searchRadius = ([radius integerValue] == kDefaultRadius) ? nil : radius;
-    
     // Check parameters
-    error = CHECK_URL(self.url);
-    error = CHECK_LATITUDE(latitude);
-    error = CHECK_LONGITUDE(longitude);
-    error = CHECK_RATING(minimumRating);
-    //error = CHECK_NEARBY_RADIUS(searchRadius);
-    if (error) {
+    if (!CHECK_URL(self.url, &error) || 
+        !CHECK_LATITUDE(latitude, &error) || 
+        !CHECK_LONGITUDE(longitude, &error) ||
+        !CHECK_RATING(minimumRating, &error)) {
       block(nil, error);
       return;
     }
     
     // Rescale the rating value to fit the backend api
-    NSNumber *scaledRating = [NSNumber numberWithInteger:[minimumRating integerValue] * RATING_SCALE];
+    NSInteger scaledRating = minimumRating * RATING_SCALE;
     
-    // Collect body paramters
-    NSMutableDictionary *body = [NSMutableDictionary dictionary];
-    if (latitude) [body setObject:latitude forKey:LATITUDE];
-    if (longitude) [body setObject:longitude forKey:LONGITUDE];
-    if (searchRadius) [body setObject:radius forKey:RADIUS];
-    if (minimumRating) [body setObject:scaledRating forKey:MIN_RATING];      
+    // Convert the radius, do not send any value if default radius is specified
+    NSNumber *searchRadius = (radius == kDefaultRadius) ? nil : [NSNumber numberWithInteger:radius];
+    
+    // Collect query string
+    NSMutableDictionary *query = [NSMutableDictionary dictionary];
+    if (latitude) [query setObject:latitude forKey:LATITUDE];
+    if (longitude) [query setObject:longitude forKey:LONGITUDE];
+    if (searchRadius) [query setObject:[NSNumber numberWithInteger:radius] forKey:RADIUS];
+    if (minimumRating) [query setObject:[NSNumber numberWithInteger:scaledRating] forKey:MIN_RATING];      
       
     // Build the request path
-    NSURL *requestUrl = APPEND_PATH(@"nearby", self.url);
+    NSURL *requestUrl = APPEND_PATH(@"rating", self.url);
+    requestUrl = APPEND_PATH(@"nearby", requestUrl);
+    requestUrl = APPEND_QUERY([self toStringFromDict:query], requestUrl);
     
     // Make the request
     NSData *data = nil;
-    int responseCode = [self serviceRequestWithUrl:requestUrl body:body responseData:&data error:&error];
+    int responseCode = [self serviceRequestWithUrl:requestUrl body:nil responseData:&data error:&error];
     DLOG(@"Get ratings request executed with response code %d", responseCode);
     
     // Handle the http response
@@ -420,7 +421,6 @@
         rating.totalSumOfRatings = [(NSNumber*)[ratingDict valueForKey:RATING_SUM] integerValue] / RATING_SCALE;
         rating.numberOfRatings = [(NSNumber*)[ratingDict valueForKey:RATING_COUNT] integerValue];
         rating.itemId = [ratingDict valueForKey:ID];
-        
         // Add the rating to the result array
         [ratings addObject:rating];
       }
@@ -429,7 +429,8 @@
       block(ratings, nil);
     } else {
       // Run the completion block with error
-      block(nil, [self parsingErrorWithDescription:@"HTTP get rating request failed with respose code %d and error message %@", responseCode, [error userInfo]]);
+      block(nil, [self parsingErrorWithDescription:@"HTTP get rating request failed with respose code %d and error message %@", 
+                  responseCode, [error userInfo]]);
     }
     
   });
@@ -576,5 +577,78 @@
   return [NSError errorWithDomain:@"com.wadpam.PocketReviews.ErrorDomain" code:1 userInfo:errorInfo];
 }
 
+
+// Validation of parameters
+- (BOOL)checkUrl:(NSURL*)url error:(NSError**)error {
+  if (!url) {
+    *error = [self parsingErrorWithDescription:@"Service URL can not been nil, can not start reviewer"];
+    return NO;
+  } else
+    return YES;
+}
+
+- (BOOL)checkDomain:(NSString*)domain error:(NSError**)error {
+  if (!domain || [domain length] == 0) {
+    *error = [self parsingErrorWithDescription:@"Application domain can not be nil or empty"];
+    return NO;
+  } else
+    return YES;
+}
+
+- (BOOL)checkItemId:(NSString*)itemId error:(NSError**)error {
+  if (!itemId || [itemId length] == 0) {
+    *error = [self parsingErrorWithDescription:@"Item id can not be nil or empty"];
+    return NO;
+  } else
+    return YES;}
+
+- (BOOL)checkUserId:(NSString*)userId error:(NSError**)error {
+  if (!userId || [userId length] == 0) {
+    *error = [self parsingErrorWithDescription:@"User id can not be nil or empty"];
+    return NO;
+  } else
+    return YES;
+}
+
+- (BOOL)checkRating:(NSInteger)rating error:(NSError**)error {
+  if (rating < 1 && rating > 5) {
+    *error = [self parsingErrorWithDescription:@"Rating value must be between 1..5"];
+    return NO;
+  } else
+    return YES;
+}
+
+- (BOOL)checkLatitude:(NSNumber*)latitude error:(NSError**)error {
+  if (latitude != nil && [latitude floatValue] < -90.0f && [latitude floatValue] > 90.0f) {
+    *error = [self parsingErrorWithDescription:@"Latitude must be between -90..90"];
+    return NO;
+  } else
+    return YES;
+}
+
+- (BOOL)checkLongitude:(NSNumber*)longitude error:(NSError**)error {
+  if (longitude != nil && [longitude floatValue] < -180.0f && [longitude floatValue] > 180.0f) {
+    *error = [self parsingErrorWithDescription:@"Latitude must be between -180..180"];
+    return NO;
+  } else
+    return YES;
+}
+
+- (BOOL)checkRadius:(NSInteger)radius error:(NSError**)error {
+  if (radius < 1 && radius > 4) {
+    *error = [self parsingErrorWithDescription:@"Radius must be one of the provided enums"];
+    return NO;
+  } else
+    return YES;
+}
+
+- (BOOL)checkItemIds:(NSArray*)itemIds error:(NSError**)error {
+  if (!itemIds || [itemIds count] == 0) {
+    *error = [self parsingErrorWithDescription:@"List of item ids can not be nil or empty"];
+    return NO;
+  } else
+    return YES;
+}
+          
 
 @end

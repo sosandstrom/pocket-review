@@ -24,7 +24,7 @@
  Specify the radius to use during nearby requests.
  */
 typedef enum {
-  kDefaultRadius = 0,
+  kDefaultRadius = 1,
   kSmallestRadius = 2,
   kMediumRadius = 3,
   kLargestRadius = 4,
