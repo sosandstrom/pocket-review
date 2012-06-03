@@ -22,13 +22,18 @@
 
 
 /**
- The average rating of the item.
+ The average rating.
  */
-@property (nonatomic) float averageRating;
+@property (nonatomic, readonly) float averageRating;
+
+/**
+ The total sum of all ratings.
+ */
+@property (nonatomic) NSInteger totalSumOfRatings;
 
 
 /**
- The total number of ratings for the item.
+ The total number of ratings.
  */
 @property (nonatomic) NSInteger numberOfRatings;
 

@@ -150,5 +150,12 @@
  - (void)likesForItems:(NSArray*)itemIds completionBlock:(void(^)(NSArray*, NSError*))block;
  */
 
+// TODO delete review
+// TODO Ids for reviews? rating? like?
+// TODO Build and deploy documentation to the web app
+// TODO use jsonORM
+
+
+
 
 @end

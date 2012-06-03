@@ -18,6 +18,18 @@
 			name = Documentation;
 			productName = Documentation;
 		};
+		CDB49651157A7F1500C2157F /* DeployDocumentation */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = CDB49652157A7F1500C2157F /* Build configuration list for PBXAggregateTarget "DeployDocumentation" */;
+			buildPhases = (
+				CDB49656157A7F5100C2157F /* ShellScript */,
+			);
+			dependencies = (
+				CDB49658157A83A500C2157F /* PBXTargetDependency */,
+			);
+			name = DeployDocumentation;
+			productName = DeployDocumentation;
+		};
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
@@ -50,6 +62,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = CD293926157A028E00DE309E;
 			remoteInfo = PocketReviewsDemo;
+		};
+		CDB49657157A83A500C2157F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CD29391E157A028E00DE309E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = CD293974157A095900DE309E;
+			remoteInfo = Documentation;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -256,6 +275,7 @@
 				CD293926157A028E00DE309E /* PocketReviewsDemo */,
 				CD29394A157A028E00DE309E /* PocketReviewsDemoTests */,
 				CD293974157A095900DE309E /* Documentation */,
+				CDB49651157A7F1500C2157F /* DeployDocumentation */,
 			);
 		};
 /* End PBXProject section */
@@ -308,6 +328,19 @@
 			shellPath = /bin/sh;
 			shellScript = "/usr/local/bin/appledoc --project-name PocketReviews --project-company \"Wadpam\" --company-id com.wadpam --output $SOURCE_ROOT/Doc --no-repeat-first-par --explicit-crossref --no-install-docset --keep-intermediate-files --ignore JSONKit.h --ignore JSONKit.m $SOURCE_ROOT/PocketReviewer/.";
 		};
+		CDB49656157A7F5100C2157F /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "echo \"Copy documentation to the webapp static folder for deployment at GAE\"\n\nif [ -r ../RnR-GAE-Backend/src/main/webapp/static/doc/ios ]\nthen\n  echo \"Target directory exists, delete it\"\n  rm -rf ../RnR-GAE-Backend/src/main/webapp/static/doc/ios\nfi\n\necho \"Create the ios doc root folder\"\nmkdir -p ../RnR-GAE-Backend/src/main/webapp/static/doc/ios\n\necho \"Copy the file\"\ncp -r Doc/html/* ../RnR-GAE-Backend/src/main/webapp/static/doc/ios/.";
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -342,6 +375,11 @@
 			isa = PBXTargetDependency;
 			target = CD293926157A028E00DE309E /* PocketReviewsDemo */;
 			targetProxy = CD293950157A028E00DE309E /* PBXContainerItemProxy */;
+		};
+		CDB49658157A83A500C2157F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = CD293974157A095900DE309E /* Documentation */;
+			targetProxy = CDB49657157A83A500C2157F /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -496,6 +534,20 @@
 			};
 			name = Release;
 		};
+		CDB49653157A7F1500C2157F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		CDB49654157A7F1500C2157F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -534,6 +586,14 @@
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
+		};
+		CDB49652157A7F1500C2157F /* Build configuration list for PBXAggregateTarget "DeployDocumentation" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CDB49653157A7F1500C2157F /* Debug */,
+				CDB49654157A7F1500C2157F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
 		};
 /* End XCConfigurationList section */
 	};

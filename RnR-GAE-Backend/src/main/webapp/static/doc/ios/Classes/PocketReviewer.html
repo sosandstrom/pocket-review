@@ -1,0 +1,1092 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="html/html; charset=utf-8" />
+		<title>PocketReviewer Class Reference</title>
+		<meta id="xcode-display" name="xcode-display" content="render"/>
+		<meta name="viewport" content="width=550" />
+		<link rel="stylesheet" type="text/css" href="../css/styles.css" media="all" />
+		<link rel="stylesheet" type="text/css" media="print" href="../css/stylesPrint.css" />
+		<meta name="generator" content="appledoc 2.0.5 (build 789)" />
+	</head>
+	<body>
+		<header id="top_header">
+			<div id="library" class="hideInXcode">
+				<h1><a id="libraryTitle" href="../index.html">PocketReviews </a></h1>
+				<a id="developerHome" href="../index.html">Wadpam</a>
+			</div>
+			
+			<div id="title" role="banner">
+				<h1 class="hideInXcode">PocketReviewer Class Reference</h1>
+			</div>
+			<ul id="headerButtons" role="toolbar">
+				<li id="toc_button">
+					<button aria-label="Show Table of Contents" role="checkbox" class="open" id="table_of_contents"><span class="disclosure"></span>Table of Contents</button>
+				</li>
+				<li id="jumpto_button" role="navigation">
+					<select id="jumpTo">
+	<option value="top">Jump To&#133;</option>
+	
+	<option value="overview">Overview</option>
+	
+	
+	
+	
+	<option value="tasks">Tasks</option>
+	
+	
+	
+	
+	
+	<option value="properties">Properties</option>
+	
+	<option value="//api/name/dryRun">&nbsp;&nbsp;&nbsp;&nbsp;dryRun</option>
+	
+	<option value="//api/name/userId">&nbsp;&nbsp;&nbsp;&nbsp;userId</option>
+	
+	
+	
+	
+	<option value="class_methods">Class Methods</option>
+	
+	<option value="//api/name/sharedReviewer">&nbsp;&nbsp;&nbsp;&nbsp;+ sharedReviewer</option>
+	
+	
+	
+	
+	<option value="instance_methods">Instance Methods</option>
+	
+	<option value="//api/name/myRatingsWithCompletionBlock:">&nbsp;&nbsp;&nbsp;&nbsp;- myRatingsWithCompletionBlock:</option>
+	
+	<option value="//api/name/myReviewsWithCompletionBlock:">&nbsp;&nbsp;&nbsp;&nbsp;- myReviewsWithCompletionBlock:</option>
+	
+	<option value="//api/name/rateItem:forLatitude:andLongitude:withRating:completionBlock:">&nbsp;&nbsp;&nbsp;&nbsp;- rateItem:forLatitude:andLongitude:withRating:completionBlock:</option>
+	
+	<option value="//api/name/rateItem:withRating:completionBlock:">&nbsp;&nbsp;&nbsp;&nbsp;- rateItem:withRating:completionBlock:</option>
+	
+	<option value="//api/name/ratingForItem:completionBlock:">&nbsp;&nbsp;&nbsp;&nbsp;- ratingForItem:completionBlock:</option>
+	
+	<option value="//api/name/ratingForItems:completionBlock:">&nbsp;&nbsp;&nbsp;&nbsp;- ratingForItems:completionBlock:</option>
+	
+	<option value="//api/name/reviewItem:withReview:completionBlock:">&nbsp;&nbsp;&nbsp;&nbsp;- reviewItem:withReview:completionBlock:</option>
+	
+	<option value="//api/name/reviewsForItem:completionBlock:">&nbsp;&nbsp;&nbsp;&nbsp;- reviewsForItem:completionBlock:</option>
+	
+	<option value="//api/name/startReviewingWithServiceUrl:domain:anonymous:withError:">&nbsp;&nbsp;&nbsp;&nbsp;- startReviewingWithServiceUrl:domain:anonymous:withError:</option>
+	
+	
+	
+</select>
+				</li>
+			</ul>
+		</header>
+		<nav id="tocContainer" class="isShowingTOC">
+			<ul id="toc" role="tree">
+				
+<li role="treeitem"><span class="nodisclosure"></span><span class="sectionName"><a href="#overview">Overview</a></span></li>
+
+
+
+
+<li role="treeitem" id="task_treeitem"><span class="nodisclosure"></span><span class="sectionName"><a href="#tasks">Tasks</a></span><ul>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#task_Start reviewing">Start reviewing</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#task_Ratings">Ratings</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#task_Reviews">Reviews</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#task_Properties">Properties</a></span></li>
+	
+</ul></li>
+
+
+
+
+
+<li role="treeitem" class="children"><span class="disclosure"></span><span class="sectionName"><a href="#properties">Properties</a></span><ul>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/dryRun">dryRun</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/userId">userId</a></span></li>
+	
+</ul></li>
+
+
+
+<li role="treeitem" class="children"><span class="disclosure"></span><span class="sectionName"><a href="#class_methods">Class Methods</a></span><ul>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/sharedReviewer">sharedReviewer</a></span></li>
+	
+</ul></li>
+
+
+
+<li role="treeitem" class="children"><span class="disclosure"></span><span class="sectionName"><a href="#instance_methods">Instance Methods</a></span><ul>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/myRatingsWithCompletionBlock:">myRatingsWithCompletionBlock:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/myReviewsWithCompletionBlock:">myReviewsWithCompletionBlock:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/rateItem:forLatitude:andLongitude:withRating:completionBlock:">rateItem:forLatitude:andLongitude:withRating:completionBlock:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/rateItem:withRating:completionBlock:">rateItem:withRating:completionBlock:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/ratingForItem:completionBlock:">ratingForItem:completionBlock:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/ratingForItems:completionBlock:">ratingForItems:completionBlock:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/reviewItem:withReview:completionBlock:">reviewItem:withReview:completionBlock:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/reviewsForItem:completionBlock:">reviewsForItem:completionBlock:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/startReviewingWithServiceUrl:domain:anonymous:withError:">startReviewingWithServiceUrl:domain:anonymous:withError:</a></span></li>
+	
+</ul></li>
+
+
+			</ul>
+		</nav>
+		<article>
+			<div id="contents" class="isShowingTOC" role="main">
+				<a title="PocketReviewer Class Reference" name="top"></a>
+				<div class="main-navigation navigation-top">
+					<ul>
+	<li><a href="../index.html">Index</a></li>
+	<li><a href="../hierarchy.html">Hierarchy</a></li>
+</ul>
+				</div>
+				<div id="header">
+					<div class="section-header">
+						<h1 class="title title-header">PocketReviewer Class Reference</h1>
+					</div>		
+				</div>
+				<div id="container">	
+					
+					<div class="section section-specification"><table cellspacing="0"><tbody>
+						<tr>
+	<td class="specification-title">Inherits from</td>
+	<td class="specification-value">NSObject</td>
+</tr><tr>
+	<td class="specification-title">Declared in</td>
+	<td class="specification-value">PocketReviewer.h<br />PocketReviewer.m</td>
+</tr>
+						</tbody></table></div>
+					
+					
+					
+					
+					<div class="section section-overview">
+						<a title="Overview" name="overview"></a>
+						<h2 class="subtitle subtitle-overview">Overview</h2>
+						<p>A lightweight and ready to go review and rating service tailored for mobile apps.</p>
+
+<p>All methods are asynchronous using GCD and will return immediately. The application will be informed about the outcome
+of a method by providing a completion block.</p>
+					</div>
+					
+					
+					
+					
+					
+					<div class="section section-tasks">
+						<a title="Tasks" name="tasks"></a>
+						<h2 class="subtitle subtitle-tasks">Tasks</h2>
+						
+						
+						<a title="Start reviewing" name="task_Start reviewing"></a>
+						<h3 class="subsubtitle task-title">Start reviewing</h3>
+
+						<ul class="task-list">
+							<li>
+	<span class="tooltip">
+		<code><a href="#//api/name/sharedReviewer">+&nbsp;sharedReviewer</a></code>
+		<span class="tooltip"><p>Get the shared reviewer.</p></span>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/startReviewingWithServiceUrl:domain:anonymous:withError:">&ndash;&nbsp;startReviewingWithServiceUrl:domain:anonymous:withError:</a></code>
+		<span class="tooltip"><p>Start reviewing by configuring the service.</p></span>
+	</span>
+	
+	
+</li>
+						</ul>
+						
+						
+						<a title="Ratings" name="task_Ratings"></a>
+						<h3 class="subsubtitle task-title">Ratings</h3>
+
+						<ul class="task-list">
+							<li>
+	<span class="tooltip">
+		<code><a href="#//api/name/rateItem:withRating:completionBlock:">&ndash;&nbsp;rateItem:withRating:completionBlock:</a></code>
+		<span class="tooltip"><p>Rate a specific item.</p></span>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/rateItem:forLatitude:andLongitude:withRating:completionBlock:">&ndash;&nbsp;rateItem:forLatitude:andLongitude:withRating:completionBlock:</a></code>
+		<span class="tooltip"><p>Rate a specific item with a specified latitud and longitude.</p></span>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/ratingForItem:completionBlock:">&ndash;&nbsp;ratingForItem:completionBlock:</a></code>
+		<span class="tooltip"><p>Get the average rating and the number of ratings for a specified item.</p></span>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/ratingForItems:completionBlock:">&ndash;&nbsp;ratingForItems:completionBlock:</a></code>
+		<span class="tooltip"><p>Get the average rating and the number of ratings for a list of items.</p></span>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/myRatingsWithCompletionBlock:">&ndash;&nbsp;myRatingsWithCompletionBlock:</a></code>
+		<span class="tooltip"><p>Get my ratings.</p></span>
+	</span>
+	
+	
+</li>
+						</ul>
+						
+						
+						<a title="Reviews" name="task_Reviews"></a>
+						<h3 class="subsubtitle task-title">Reviews</h3>
+
+						<ul class="task-list">
+							<li>
+	<span class="tooltip">
+		<code><a href="#//api/name/reviewItem:withReview:completionBlock:">&ndash;&nbsp;reviewItem:withReview:completionBlock:</a></code>
+		<span class="tooltip"><p>Add a review comment to an item.</p></span>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/reviewsForItem:completionBlock:">&ndash;&nbsp;reviewsForItem:completionBlock:</a></code>
+		<span class="tooltip"><p>Get all review comments for an item.</p></span>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/myReviewsWithCompletionBlock:">&ndash;&nbsp;myReviewsWithCompletionBlock:</a></code>
+		<span class="tooltip"><p>Get my review comments.</p></span>
+	</span>
+	
+	
+</li>
+						</ul>
+						
+						
+						<a title="Properties" name="task_Properties"></a>
+						<h3 class="subsubtitle task-title">Properties</h3>
+
+						<ul class="task-list">
+							<li>
+	<span class="tooltip">
+		<code><a href="#//api/name/userId">&nbsp;&nbsp;userId</a></code>
+		<span class="tooltip"><p>A unique user id.</p></span>
+	</span>
+	<span class="task-item-suffix">property</span>
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/dryRun">&nbsp;&nbsp;dryRun</a></code>
+		<span class="tooltip"><p>If dry run is set to YES, review and rating requests will not be sent to the service.</p></span>
+	</span>
+	<span class="task-item-suffix">property</span>
+	
+</li>
+						</ul>
+						
+					</div>
+					
+					
+					
+					
+					
+					<div class="section section-methods">
+						<a title="Properties" name="properties"></a>
+						<h2 class="subtitle subtitle-methods">Properties</h2>
+						
+						<div class="section-method">
+	<a name="//api/name/dryRun" title="dryRun"></a>
+	<h3 class="subsubtitle method-title">dryRun</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>If dry run is set to YES, review and rating requests will not be sent to the service.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>@property (nonatomic) BOOL dryRun</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>The result will be written to the console and default/random data will be returned. Useful during development and debugging.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">PocketReviewer.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/userId" title="userId"></a>
+	<h3 class="subsubtitle method-title">userId</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>A unique user id.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>@property (nonatomic, retain) NSString *userId</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>If set the id will be included in all review and rating requests. A users will only be able to rate and review the same item once.</p>
+
+<p>The reviewer will generate an unqiue user id the first time it is created and store it in user preferences unless anonymous is used.
+If the application have a better way of uniquely indentifing users, e.g. through user registration or login, it can set its own unqiue user id here.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">PocketReviewer.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+					</div>
+					
+					
+					
+					<div class="section section-methods">
+						<a title="Class Methods" name="class_methods"></a>
+						<h2 class="subtitle subtitle-methods">Class Methods</h2>
+						
+						<div class="section-method">
+	<a name="//api/name/sharedReviewer" title="sharedReviewer"></a>
+	<h3 class="subsubtitle method-title">sharedReviewer</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Get the shared reviewer.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>+ (PocketReviewer *)sharedReviewer</code></div>
+
+    
+	
+	
+	
+	<div class="method-subsection return">
+		<h4 class="method-subtitle parameter-title">Return Value</h4>
+		<p>Shared reviewer</p>
+	</div>
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>The reviewer must be started before it can be used.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">PocketReviewer.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+					</div>
+					
+					
+					
+					<div class="section section-methods">
+						<a title="Instance Methods" name="instance_methods"></a>
+						<h2 class="subtitle subtitle-methods">Instance Methods</h2>
+						
+						<div class="section-method">
+	<a name="//api/name/myRatingsWithCompletionBlock:" title="myRatingsWithCompletionBlock:"></a>
+	<h3 class="subsubtitle method-title">myRatingsWithCompletionBlock:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Get my ratings.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)myRatingsWithCompletionBlock:(void ( ^ ) ( NSArray *, NSError *))<em>block</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>block</em></dt>
+			<dd><p>A block that will be executed when the request completes or fails</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>This method will only return ratings if non-anonymous ratings have been used, otherwise nil will be returned</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">PocketReviewer.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/myReviewsWithCompletionBlock:" title="myReviewsWithCompletionBlock:"></a>
+	<h3 class="subsubtitle method-title">myReviewsWithCompletionBlock:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Get my review comments.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)myReviewsWithCompletionBlock:(void ( ^ ) ( NSArray *, NSError *))<em>block</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>block</em></dt>
+			<dd><p>A block that will be executed when the request completes or fails</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>This method will only return reviwes if non-anonymous reviews have been used, otherwise nil will be returned</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">PocketReviewer.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/rateItem:forLatitude:andLongitude:withRating:completionBlock:" title="rateItem:forLatitude:andLongitude:withRating:completionBlock:"></a>
+	<h3 class="subsubtitle method-title">rateItem:forLatitude:andLongitude:withRating:completionBlock:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Rate a specific item with a specified latitud and longitude.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)rateItem:(NSString *)<em>itemId</em> forLatitude:(float)<em>latitude</em> andLongitude:(float)<em>longitude</em> withRating:(NSInteger)<em>rating</em> completionBlock:(void ( ^ ) ( NSError *))<em>block</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>itemId</em></dt>
+			<dd><p>The unique item being rated</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>latitude</em></dt>
+			<dd><p>The latitude of the item being rated</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>longitude</em></dt>
+			<dd><p>The longitude of the item being rated</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>rating</em></dt>
+			<dd><p>The rating value 1-5</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>block</em></dt>
+			<dd><p>A block that will be executed when the request completes or fails</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>Non-anonymous users will only be able to rate the same item once.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">PocketReviewer.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/rateItem:withRating:completionBlock:" title="rateItem:withRating:completionBlock:"></a>
+	<h3 class="subsubtitle method-title">rateItem:withRating:completionBlock:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Rate a specific item.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)rateItem:(NSString *)<em>itemId</em> withRating:(NSInteger)<em>rating</em> completionBlock:(void ( ^ ) ( NSError *))<em>block</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>itemId</em></dt>
+			<dd><p>The unique item being rated</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>rating</em></dt>
+			<dd><p>The rating value 1-5</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>block</em></dt>
+			<dd><p>A block that will be executed when the request completes or fails</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>Non-anonymous users will only be able to rate the same item once.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">PocketReviewer.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/ratingForItem:completionBlock:" title="ratingForItem:completionBlock:"></a>
+	<h3 class="subsubtitle method-title">ratingForItem:completionBlock:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Get the average rating and the number of ratings for a specified item.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)ratingForItem:(NSString *)<em>itemId</em> completionBlock:(void ( ^ ) ( Rating *, NSError *))<em>block</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>itemId</em></dt>
+			<dd><p>The unique item id</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>block</em></dt>
+			<dd><p>A block that will be executed when the request completes or fails</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">PocketReviewer.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/ratingForItems:completionBlock:" title="ratingForItems:completionBlock:"></a>
+	<h3 class="subsubtitle method-title">ratingForItems:completionBlock:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Get the average rating and the number of ratings for a list of items.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)ratingForItems:(NSArray *)<em>itemIds</em> completionBlock:(void ( ^ ) ( NSArray *, NSError *))<em>block</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>itemIds</em></dt>
+			<dd><p>An array of items</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>block</em></dt>
+			<dd><p>A block that will be executed when the request completes or fails</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">PocketReviewer.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/reviewItem:withReview:completionBlock:" title="reviewItem:withReview:completionBlock:"></a>
+	<h3 class="subsubtitle method-title">reviewItem:withReview:completionBlock:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Add a review comment to an item.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)reviewItem:(NSString *)<em>itemId</em> withReview:(NSString *)<em>review</em> completionBlock:(void ( ^ ) ( NSError *))<em>block</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>itemId</em></dt>
+			<dd><p>The unique item being reviewed</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>review</em></dt>
+			<dd><p>The review comment</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>block</em></dt>
+			<dd><p>A block that will be executed when the request completes or fails</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">PocketReviewer.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/reviewsForItem:completionBlock:" title="reviewsForItem:completionBlock:"></a>
+	<h3 class="subsubtitle method-title">reviewsForItem:completionBlock:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Get all review comments for an item.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)reviewsForItem:(NSString *)<em>itemId</em> completionBlock:(void ( ^ ) ( NSArray *, NSError *))<em>block</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>itemId</em></dt>
+			<dd><p>The unique item</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>block</em></dt>
+			<dd><p>A block that will be executed when the request completes or fails</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">PocketReviewer.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/startReviewingWithServiceUrl:domain:anonymous:withError:" title="startReviewingWithServiceUrl:domain:anonymous:withError:"></a>
+	<h3 class="subsubtitle method-title">startReviewingWithServiceUrl:domain:anonymous:withError:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Start reviewing by configuring the service.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (BOOL)startReviewingWithServiceUrl:(NSURL *)<em>url</em> domain:(NSString *)<em>domain</em> anonymous:(BOOL)<em>anonymous</em> withError:(NSError **)<em>error</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>url</em></dt>
+			<dd><p>The URL to the review service</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>domain</em></dt>
+			<dd><p>The unique domain name</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>anonymous</em></dt>
+			<dd><p>If YES all review and rating requests will be anonymous.
+If NO a unique user id will be generated that will be used in all requests. The user id will be persisted in user preferences.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>error</em></dt>
+			<dd><p>An optional error message</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	<div class="method-subsection return">
+		<h4 class="method-subtitle parameter-title">Return Value</h4>
+		<p>YES if the reviewer was successfuly started</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">PocketReviewer.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+					</div>
+					
+					
+				</div>
+				<div class="main-navigation navigation-bottom">
+					<ul>
+	<li><a href="../index.html">Index</a></li>
+	<li><a href="../hierarchy.html">Hierarchy</a></li>
+</ul>
+				</div>
+				<div id="footer">
+					<hr />
+					<div class="footer-copyright">
+						<p><span class="copyright">&copy; 2012 Wadpam. All rights reserved. (Last updated: 2012-06-03)</span><br />
+						
+						<span class="generator">Generated by <a href="http://appledoc.gentlebytes.com">appledoc 2.0.5 (build 789)</a>.</span></p>
+						
+					</div>
+				</div>
+			</div>
+		</article>
+		<script type="text/javascript">
+			function jumpToChange()
+			{
+				window.location.hash = this.options[this.selectedIndex].value;
+			}
+			
+			function toggleTOC()
+			{
+				var contents = document.getElementById('contents');
+				var tocContainer = document.getElementById('tocContainer');
+				
+				if (this.getAttribute('class') == 'open')
+				{
+					this.setAttribute('class', '');
+					contents.setAttribute('class', '');
+					tocContainer.setAttribute('class', '');
+					
+					window.name = "hideTOC";
+				}
+				else
+				{
+					this.setAttribute('class', 'open');
+					contents.setAttribute('class', 'isShowingTOC');
+					tocContainer.setAttribute('class', 'isShowingTOC');
+					
+					window.name = "";
+				}
+				return false;
+			}
+			
+			function toggleTOCEntryChildren(e)
+			{
+				e.stopPropagation();
+				var currentClass = this.getAttribute('class');
+				if (currentClass == 'children') {
+					this.setAttribute('class', 'children open');
+				}
+				else if (currentClass == 'children open') {
+					this.setAttribute('class', 'children');
+				}
+				return false;
+			}
+			
+			function tocEntryClick(e)
+			{
+				e.stopPropagation();
+				return true;
+			}
+			
+			function init()
+			{
+				var selectElement = document.getElementById('jumpTo');
+				selectElement.addEventListener('change', jumpToChange, false);
+				
+				var tocButton = document.getElementById('table_of_contents');
+				tocButton.addEventListener('click', toggleTOC, false);
+				
+				var taskTreeItem = document.getElementById('task_treeitem');
+				if (taskTreeItem.getElementsByTagName('li').length > 0)
+				{
+					taskTreeItem.setAttribute('class', 'children');
+					taskTreeItem.firstChild.setAttribute('class', 'disclosure');
+				}
+				
+				var tocList = document.getElementById('toc');
+				
+				var tocEntries = tocList.getElementsByTagName('li');
+				for (var i = 0; i < tocEntries.length; i++) {
+					tocEntries[i].addEventListener('click', toggleTOCEntryChildren, false);
+				}
+				
+				var tocLinks = tocList.getElementsByTagName('a');
+				for (var i = 0; i < tocLinks.length; i++) {
+					tocLinks[i].addEventListener('click', tocEntryClick, false);
+				}
+				
+				if (window.name == "hideTOC") {
+					toggleTOC.call(tocButton);
+				}
+			}
+			
+			window.onload = init;
+			
+			// If showing in Xcode, hide the TOC and Header
+			if (navigator.userAgent.match(/xcode/i)) {
+				document.getElementById("contents").className = "hideInXcode"
+				document.getElementById("tocContainer").className = "hideInXcode"
+				document.getElementById("top_header").className = "hideInXcode"
+			}
+			
+		</script>
+	</body>
+</html>

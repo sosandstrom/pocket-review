@@ -12,7 +12,7 @@
 
 
 @synthesize itemId = itemId_;
-@synthesize averageRating = averageRating_;
+@synthesize totalSumOfRatings = totalSumOfRatings_;
 @synthesize numberOfRatings = numberOfRatings_;
 
 
@@ -26,6 +26,12 @@
 // Create autoreleased Rating object
 + (Rating*)rating {
   return [[[Rating alloc] init] autorelease];
+}
+
+
+// Getter for average rating
+- (float) averageRating {
+  return (float)self.totalSumOfRatings / (float)self.numberOfRatings;
 }
 
 

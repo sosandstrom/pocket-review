@@ -23,25 +23,44 @@
 // ALog always displays output regardless of the DEBUG setting
 #define ALOG(fmt, ...) NSLog( (@"%s [Line %d] " fmt), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__);
 
-// Defines
+// The service accept ratings from 0..100. This API only accept from 0..5
+#define RATING_SCALE 20
+
+// http request config
 #define USER_AGENT @"Mozilla/5.0 (iPhone; CPU iPhone OS 5_0 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) Version/5.1 Mobile/9A334 Safari/7534.48.3"
 #define REQUEST_TIMEOUT 10
 
+// http parameter names
+#define ITEM_ID @"itemid"
 #define RATING @"rating"
-#define USERID @"username"
+#define USER_ID @"username"
 #define LATITUDE @"latitude"
 #define LONGITUDE @"longitude"
 
-#define AVERAGE @"average"
+// JSON attribute names
+#define RATING_SUM @"ratingSum"
 #define RATING_COUNT @"ratingCount"
 #define ID @"id"
+
+// Parameter validation rules
+#define CHECK_URL(url) ((url == nil) ? ([self parsingErrorWithDescription:@"Service URL can not been nil, can not start reviewer"]) : (nil))
+#define CHECK_DOMAIN(domain) ((domain == nil) ? ([self parsingErrorWithDescription:@"Application domain can not be nil"]) : (nil))
+#define CHECK_ITEM_ID(itemId) ((itemId == nil) ? ([self parsingErrorWithDescription:@"Item id can not be nil"]) : (nil))
+#define CHECK_USER_ID(userId) ((userId == nil) ? ([self parsingErrorWithDescription:@"User id can not be nil"]) : (nil))
+#define CHECK_RATING(rating) (([rating integerValue] < 0 || [rating integerValue] > 5) ? \
+                              ([self parsingErrorWithDescription:@"Rating value must be between 0 and 5"]) : (nil))
+#define CHECK_LATITUDE(latitude) (([latitude floatValue] < -90.0f || [latitude floatValue] > 90.0f) ? \
+                              ([self parsingErrorWithDescription:@"User id can not be nil"]) : (nil))
+#define CHECK_LONGITUDE(longitude) (([longitude floatValue] < -180.0f || [longitude floatValue] > 180.0f) ? \
+                              ([self parsingErrorWithDescription:@"User id can not be nil"]) : (nil))
 
 
 // Private stuff
 @interface PocketReviewer ()
 
 - (void)dispatchRateItem:(NSString*)itemId forLatitude:(NSNumber*)latitude andLongitude:(NSNumber*)longitude 
-              withRating:(NSNumber*)rating completionBlock:(void(^)(NSError*))block;;
+              withRating:(NSNumber*)rating completionBlock:(void(^)(NSError*))block;
+- (NSInteger)serviceRequestWithUrl:(NSURL*)url body:(NSDictionary*)body responseData:(NSData**)data error:(NSError**)error;
 - (NSString*)toStringFromDict:(NSDictionary*)dict;
 - (NSError*)parsingErrorWithDescription:(NSString*)format, ...;
 
@@ -103,23 +122,18 @@
 // Start rating
 - (BOOL)startReviewingWithServiceUrl:(NSURL*)url domain:(NSString*)domain anonymous:(BOOL)anonymous withError:(NSError**)error {
   DLOG(@"Start rating");
-  
-  // Check the url
-  if (!url) {
-    ALOG(@"URL can not be nil");
-    *error = [self parsingErrorWithDescription:@"URL can not be nil"];
+
+  // Check paramters
+  NSError *validationError = nil;
+  validationError = CHECK_URL(url);
+  validationError = CHECK_DOMAIN(domain);
+  if (validationError) {
+    error = &validationError;
     return NO;
   }
+  
   self.url = url;
-  
-  // Check the domain
-  if (!domain) {
-    ALOG(@"Domain can not be nil");
-    *error = [self parsingErrorWithDescription:@"Domain can not be nil"];
-    return NO;
-  }
   self.domain = domain;
-    
   self.anonymous = anonymous;
   
   return YES;
@@ -151,94 +165,44 @@
     // Track errors
     NSError *error = nil;
     
-    // Check that the rating is configured and started
-    if (!self.url) {
-      ALOG(@"The rator is not started yet");
-      error = [self parsingErrorWithDescription:@"The rator is not started yet"];
-    }
-    
-    // Check the item
-    if (!itemId) {
-      ALOG(@"The item id can not be nil");
-      error = [self parsingErrorWithDescription:@"The item id can not be nil"];
-    }
-    
-    // Check the rating
-    if ([rating integerValue] < 0 || [rating integerValue] > 5) {
-      ALOG(@"The rating value must be between 0 and 5");
-      error = [self parsingErrorWithDescription:@"The rating value must be between 0 and 5"];
-    }
-    
-    // Check latitude
-    if ([latitude floatValue] < -90.0f || [latitude floatValue] > 90.0f) {
-      ALOG(@"The latitude must be between -90.0 and 90.0");
-      error = [self parsingErrorWithDescription:@"The latitude must be between -90.0 and 90.0"];
-    }  
-    
-    // Check longitude
-    if ([longitude floatValue] < -180.0f || [longitude floatValue] > 180.0f) {
-      ALOG(@"The longitude must be between -90.0 and 90.0");
-      error = [self parsingErrorWithDescription:@"The longitude must be between -180.0 and 180.0"];
-    } 
-    
+    // Check parameters
+    error = CHECK_URL(self.url);
+    error = CHECK_ITEM_ID(itemId);
+    error = CHECK_LATITUDE(latitude);
+    error = CHECK_LONGITUDE(longitude);
+    error = CHECK_RATING(rating);
     if (error) {
-      // Run the complition block with error
       block(error);
       return;
     }
     
+    // Rescale the rating value to fit the backend api
+    NSNumber *scaledRating = [NSNumber numberWithInteger:[rating integerValue] * RATING_SCALE];
+    
     // Build the request path
-    NSURL *rateUrl = [self.url URLByAppendingPathComponent:[NSString stringWithFormat:@"%@/rating/%@", self.domain, itemId]];
+    NSURL *requestUrl = [self.url URLByAppendingPathComponent:[NSString stringWithFormat:@"%@/rating/%@", self.domain, itemId]];
     
-    // Collect request paramters
-    NSMutableDictionary *dict = [NSMutableDictionary dictionary];
-    if (self.userId) [dict setObject:self.userId forKey:USERID];
-    if (rating) [dict setObject:rating forKey:RATING];
-    if (latitude) [dict setObject:latitude forKey:LATITUDE];
-    if (longitude) [dict setObject:longitude forKey:LONGITUDE];
+    // Collect body paramters
+    NSMutableDictionary *body = [NSMutableDictionary dictionary];
+    if (self.userId) [body setObject:self.userId forKey:USER_ID];
+    if (rating) [body setObject:scaledRating forKey:RATING];
+    if (latitude) [body setObject:latitude forKey:LATITUDE];
+    if (longitude) [body setObject:longitude forKey:LONGITUDE];
     
-    // Check if dry run
-    if (self.dryRun) {
-      NSMutableString *prettyURL = [NSMutableString stringWithString:[rateUrl description]];
-      [prettyURL appendFormat:@"?%@", [self toStringFromDict:dict]];
-      [prettyURL replaceOccurrencesOfString:@"?" withString:@"\n  " options:NSLiteralSearch 
-                                      range:NSMakeRange(0, [prettyURL length])];
-      [prettyURL replaceOccurrencesOfString:@"&" withString:@"\n  " options:NSLiteralSearch 
-                                      range:NSMakeRange(0, [prettyURL length])];
-      ALOG(@"Dry run request:\n%@", prettyURL);
+    // Make the request
+    NSData *data = nil;
+    int responseCode = [self serviceRequestWithUrl:requestUrl body:body responseData:&data error:&error];
+    DLOG(@"Rating request executed with response code %d", responseCode);
+    
+    // Handle the http response code
+    if (responseCode == 200) {
+      // Run the completion block
+      block(nil);
     } else {
-      // Create the http request
-      NSMutableURLRequest *httpRequest = [NSMutableURLRequest requestWithURL:rateUrl];
-      [httpRequest setHTTPMethod:@"POST"];
-      [httpRequest setCachePolicy:NSURLRequestReloadIgnoringLocalAndRemoteCacheData];
-      [httpRequest setTimeoutInterval:REQUEST_TIMEOUT];
-      
-      // Set User-Agent header
-      [httpRequest setValue:USER_AGENT forHTTPHeaderField:@"User-Agent"];
-      
-      // POST parameters
-      [httpRequest setHTTPBody:[[self toStringFromDict:dict] dataUsingEncoding:NSUTF8StringEncoding]];
-      
-      // Make the requests
-      NSURLResponse *response = nil;
-      DLOG(@"Sending rate request %@", httpRequest);
-      [NSURLConnection sendSynchronousRequest:httpRequest returningResponse:&response error:&error];
-      
-      // Handle the http response
-      if ([(NSHTTPURLResponse*)response statusCode] == 200) {
-        DLOG(@"Response code 200");
-        // Run the completion block
-        block(nil);
-      } else {
-        ALOG(@"HTTP rate request to service failed with respose code %d and error message %@", 
-             [(NSHTTPURLResponse*)response statusCode], [error userInfo]);
-        error = [self parsingErrorWithDescription:@"HTTP rate request to service failed with respose code %d and error message %@", 
-                 [(NSHTTPURLResponse*)response statusCode], [error userInfo]];
-        // Run the complition block with error
-        block(error);
-      }
+      // Run the complition block with error
+      block([self parsingErrorWithDescription:@"HTTP rate request failed with respose code %d and error message %@", responseCode, [error userInfo]]);
     }
-    
+  
   });
 }
 
@@ -253,20 +217,10 @@
     // Track errors
     NSError *error = nil;
     
-    // Check that the rating is configured and started
-    if (!self.url) {
-      ALOG(@"The rator is not started yet");
-      error = [self parsingErrorWithDescription:@"The rator is not started yet"];
-    }
-    
-    // Check the item
-    if (!itemId) {
-      ALOG(@"The item id can not be nil");
-      error = [self parsingErrorWithDescription:@"The item id can not be nil"];
-    }
-    
+    // Check parameters
+    error = CHECK_URL(self.url);
+    error = CHECK_ITEM_ID(itemId);
     if (error) {
-      // Run the completion block with error
       block(nil, error);
       return;
     }
@@ -274,49 +228,26 @@
     // Build the request path
     NSURL *requestUrl = [self.url URLByAppendingPathComponent:[NSString stringWithFormat:@"%@/rating/%@", self.domain, itemId]];
     
-    // Check if dry run
-    if (self.dryRun) {
-      NSMutableString *prettyURL = [NSMutableString stringWithString:[requestUrl description]];
-      [prettyURL replaceOccurrencesOfString:@"?" withString:@"\n  " options:NSLiteralSearch 
-                                      range:NSMakeRange(0, [prettyURL length])];
-      [prettyURL replaceOccurrencesOfString:@"&" withString:@"\n  " options:NSLiteralSearch 
-                                      range:NSMakeRange(0, [prettyURL length])];
-      ALOG(@"Dry run request:\n%@", prettyURL);
+    // Make the request
+    NSData *data = nil;
+    int responseCode = [self serviceRequestWithUrl:requestUrl body:nil responseData:&data error:&error];
+    DLOG(@"Get rating request executed with response code %d", responseCode);
+      
+    // Handle the http response
+    if (responseCode == 200) {
+      // Parse the JSON
+      NSDictionary *ratingDict = [data objectFromJSONData];
+      Rating *rating = [Rating rating];
+      rating.totalSumOfRatings = [(NSNumber*)[ratingDict valueForKey:RATING_SUM] integerValue] / RATING_SCALE;
+      rating.numberOfRatings = [(NSNumber*)[ratingDict valueForKey:RATING_COUNT] integerValue];
+      rating.itemId = [ratingDict valueForKey:ID];
+
+      // Run the completion block
+      block(rating, nil);
     } else {
-      // Create the http request
-      NSMutableURLRequest *httpRequest = [NSMutableURLRequest requestWithURL:requestUrl];
-      [httpRequest setHTTPMethod:@"GET"];
-      [httpRequest setCachePolicy:NSURLRequestReloadIgnoringLocalAndRemoteCacheData];
-      [httpRequest setTimeoutInterval:REQUEST_TIMEOUT];
-      
-      // Set User-Agent header
-      [httpRequest setValue:USER_AGENT forHTTPHeaderField:@"User-Agent"];
-      
-      // Make the requests
-      NSURLResponse *response = nil;
-      DLOG(@"Sending get rating request %@", httpRequest);
-      NSData *jsonResponse = [NSURLConnection sendSynchronousRequest:httpRequest returningResponse:&response error:&error];
-      
-      // Handle the http response
-      if ([(NSHTTPURLResponse*)response statusCode] == 200) {
-        DLOG(@"Response code 200");
-        // Parse the JSON
-        NSDictionary *ratingObj = [jsonResponse objectFromJSONData];
-        Rating *rating = [Rating rating];
-        rating.averageRating = [(NSNumber*)[ratingObj valueForKey:AVERAGE] floatValue];
-        rating.numberOfRatings = [(NSNumber*)[ratingObj valueForKey:RATING_COUNT] integerValue];
-        rating.itemId = [ratingObj valueForKey:ID];
-        
-        // Run the completion block
-        block(rating, nil);
-      } else {
-        ALOG(@"HTTP get rating request to service failed with respose code %d and error message %@", 
-             [(NSHTTPURLResponse*)response statusCode], [error userInfo]);
-        error = [self parsingErrorWithDescription:@"HTTP get rating request to service failed with respose code %d and error message %@", 
-                 [(NSHTTPURLResponse*)response statusCode], [error userInfo]];
-        // Run the completion block with error
-        block(nil, error);
-      }
+      // Run the completion block with error
+      block(nil, [self parsingErrorWithDescription:@"HTTP get rating request failed with respose code %d and error message %@", 
+                  responseCode, [error userInfo]]);
     }
     
   });
@@ -330,24 +261,15 @@
   // Track errors
   NSError *error = nil;
   
-  // Check that the rating is configured and started
-  if (!self.url) {
-    ALOG(@"The rator is not started yet");
-    error = [self parsingErrorWithDescription:@"The rator is not started yet"];
-  }
-  
-  // Check the item
-  if (!itemIds) {
-    ALOG(@"The item id array can not be nil");
-    error = [self parsingErrorWithDescription:@"The item id array can not be nil"];
-  }
-  
-  if (!error) {
-    // Run the fail block
-    block(nil, error);
+  // Check parameters
+  // Check parameters
+  error = CHECK_URL(self.url);
+  error = CHECK_ITEM_ID(itemIds);
+  if (error) {
+    block(nil, error); 
     return;
   }
-  
+
   // TODO
 }
 
@@ -359,19 +281,10 @@
   // Track errors
   NSError *error = nil;
   
-  // Check that the rating is configured and started
-  if (!self.url) {
-    ALOG(@"The rator is not started yet");
-    error = [self parsingErrorWithDescription:@"The rator is not started yet"];
-  }
-  
-  if (!self.userId) {
-    ALOG(@"The user id can not be nil");
-    error = [self parsingErrorWithDescription:@"The user id can not be nil"];
-  }
-  
-  if (!error) {
-    // Run the fail block
+  // Check parameters
+  error = CHECK_URL(self.url);
+  error = CHECK_USER_ID(self.userId);
+  if (error) {
     block(nil, error);
     return;
   }
@@ -437,6 +350,60 @@
 }
 
 
+// Send a request to the backend service
+- (NSInteger)serviceRequestWithUrl:(NSURL*)url body:(NSDictionary*)body responseData:(NSData**)data error:(NSError**)error {
+  
+  // Check if dry run
+  if (self.dryRun) {
+    NSMutableString *prettyURL = [NSMutableString stringWithString:[url description]];
+    
+    // If we have a POST body add that to the output as well
+    if (body)
+      [prettyURL appendFormat:@"?%@", [self toStringFromDict:body]];
+    
+    // Format the output for easy reading
+    [prettyURL replaceOccurrencesOfString:@"?" withString:@"\n  " options:NSLiteralSearch 
+                                    range:NSMakeRange(0, [prettyURL length])];
+    [prettyURL replaceOccurrencesOfString:@"&" withString:@"\n  " options:NSLiteralSearch 
+                                    range:NSMakeRange(0, [prettyURL length])];
+    ALOG(@"Dry run request:\n%@", prettyURL);
+    
+    // Always return success
+    return 200;
+    
+  } else {
+    // Create the http request
+    NSMutableURLRequest *httpRequest = [NSMutableURLRequest requestWithURL:url];
+
+    // Decide http methods
+    if (body)
+      httpRequest.HTTPMethod = @"POST";
+    else
+      httpRequest.HTTPMethod = @"GET";
+      
+     // Cache policy and timeout value 
+    [httpRequest setCachePolicy:NSURLRequestReloadIgnoringLocalAndRemoteCacheData];
+    [httpRequest setTimeoutInterval:REQUEST_TIMEOUT];
+    
+    // Set User-Agent header
+    [httpRequest setValue:USER_AGENT forHTTPHeaderField:@"User-Agent"];
+    
+    // If POST add body
+    if ([httpRequest.HTTPMethod isEqualToString:@"POST"])
+      [httpRequest setHTTPBody:[[self toStringFromDict:body] dataUsingEncoding:NSUTF8StringEncoding]];
+    
+    // Make the request
+    NSURLResponse *response = nil;
+    DLOG(@"Sending backend request %@", httpRequest);
+    *data = [NSURLConnection sendSynchronousRequest:httpRequest returningResponse:&response error:error];
+    
+    // Return the http response code
+    return [(NSHTTPURLResponse*)response statusCode];
+  }
+  
+}
+
+
 // Create a paramter string from a NSDictionary                                        
 - (NSString*)toStringFromDict:(NSDictionary*)dict {
   // Create the parameter list
@@ -449,7 +416,7 @@
 }
 
 
-// Format an error message and raise and expection
+// Format an error message
 - (NSError*)parsingErrorWithDescription:(NSString*)format, ... {   
   // Create a formatted string from input parameters
   va_list varArgsList;
@@ -457,13 +424,13 @@
   NSString *formatString = [[[NSString alloc] initWithFormat:format arguments:varArgsList] autorelease];
   va_end(varArgsList);
   
-  ALOG(@"Parsing error with message: %@", formatString);
+  ALOG(@"Error with message: %@", formatString);
   
   // Create the error and store the state
   NSDictionary *errorInfo = [NSDictionary dictionaryWithObjectsAndKeys: 
                              NSLocalizedDescriptionKey, formatString,
                              nil];
-  return [NSError errorWithDomain:@"levin.mattias.PocketReview.ErrorDomain" code:1 userInfo:errorInfo];
+  return [NSError errorWithDomain:@"com.wadpam.PocketReviews.ErrorDomain" code:1 userInfo:errorInfo];
 }
 
 
