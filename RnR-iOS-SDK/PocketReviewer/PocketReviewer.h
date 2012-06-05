@@ -51,7 +51,7 @@ typedef enum {
  @param error An optional error message
  @return YES if the reviewer was successfuly started
  */
-- (BOOL)startReviewingWithServiceUrl:(NSURL*)url domain:(NSString*)domain anonymous:(BOOL)anonymous withError:(NSError**)error;
+- (BOOL)startReviewingWithServiceUrl:(NSURL*)url domain:(NSString*)domain anonymousUser:(BOOL)anonymous withError:(NSError**)error;
 
 
 /** @name Ratings */
@@ -110,14 +110,14 @@ typedef enum {
 
 
 /**
- Get nearby items with a minimum rating using location provided by Google.
+ Get nearby items with a minimum average rating using the location provided by Google.
  
  The latitude and logitude automatically provided by GAE will be used as the device location. 
  The location provided by Google is most likely on a city level.
  
  Items must be rated using the item latitude and longitude for this method to return ratings, otherwise en empty list will be returned.
  @param radius The radius to search within
- @param minimumRating The minimum rating of the returned items
+ @param minimumAverageRating The minimum average rating of the returned items
  @param block A block that will be executed when the request completes or fails
  */
 - (void)nearbyItemsWithinRadius:(NearbyRadius)radius minimumAverageRating:(NSInteger)minimumAverageRating 
@@ -125,13 +125,13 @@ typedef enum {
 
 
 /**
- Get nearby items with a minimum rating using a provided location.
+ Get nearby items with a minimum average rating using a provided location.
  
  Items must be rated using the item latitude and longitude for this method to return ratings, otherwise en empty list will be returned.
  @param latitude The devices latitude
  @param longitude The device longitude
  @param radius The radius to search within
- @param minimumRating The minimum rating of the returned items
+ @param minimumAverageRating The minimum average rating of the returned items
  @param block A block that will be executed when the request completes or fails
  */
 - (void)nearbyItemsForLatitude:(float)latitude longitude:(float)longitude withinRadius:(NearbyRadius)radius 
@@ -145,7 +145,8 @@ typedef enum {
  Add a review comment to an item.
  
  Non-anonymous users will only be able to review the same item once.
- Only non-anonymous users will be able to get their review and also delete it
+ 
+ Only non-anonymous users will be able to get their own reviews and delete them.
  @param itemId The unique item being reviewed
  @param review The review comment
  @param block A block that will be executed when the request completes or fails
@@ -166,17 +167,18 @@ typedef enum {
  
  This method will only work if non-anonymous review was done.
  @param itemId The unique item
+ @param block A block that will be executed when the request completes or fails
  */
 - (void)deleteMyReviewForItem:(NSString*)itemId completionBlock:(void(^)(NSError*))block;
 
 
 /**
- Get my reviews. 
+ Get all my reviews.
  
  This method will only return reviwes if non-anonymous reviews have been used, otherwise nil will be returned
  @param block A block that will be executed when the request completes or fails
  */
-- (void)myReviewWithCompletionBlock:(void(^)(NSArray*, NSError*))block;
+- (void)myReviewsWithCompletionBlock:(void(^)(NSArray*, NSError*))block;
 
 
 /** @name Properties */

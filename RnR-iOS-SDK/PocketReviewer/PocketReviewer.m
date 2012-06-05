@@ -140,7 +140,7 @@
 
 
 // Start rating
-- (BOOL)startReviewingWithServiceUrl:(NSURL*)url domain:(NSString*)domain anonymous:(BOOL)anonymous withError:(NSError**)error {
+- (BOOL)startReviewingWithServiceUrl:(NSURL*)url domain:(NSString*)domain anonymousUser:(BOOL)anonymous withError:(NSError**)error {
   DLOG(@"Start rating");
 
   // Check paramters
@@ -460,7 +460,7 @@
 
 
 // Get all my reviews
-- (void)myReviewWithCompletionBlock:(void(^)(NSArray*, NSError*))block {
+- (void)myReviewsWithCompletionBlock:(void(^)(NSArray*, NSError*))block {
   // TODO
 }
 
