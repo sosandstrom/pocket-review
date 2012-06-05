@@ -12,7 +12,7 @@
 /** @name Creating and starting the Reviewer */
 
 /**
- A lightweight and ready to go review and rating service tailored for mobile apps. 
+ A lightweight, easy to use and ready to go review and rating service tailored for mobile apps. 
  
  All methods are asynchronous using GCD and will return immediately. The application will be informed about the outcome 
  of a method by providing a completion block.
@@ -71,6 +71,7 @@ typedef enum {
  Rate an item with a specified latitude and longitude.
  
  Non-anonymous users will only be able to rate the same item once.
+ Only Non-anonymous users will be able to get their own rating.
  
  Please note that it is the rated items location what should be provided, not the device current location.
  @param itemId The unique item being rated
@@ -88,7 +89,7 @@ typedef enum {
  @param itemId The unique item id
  @param block A block that will be executed when the request completes or fails
  */
-- (void)ratingForItem:(NSString*)itemId completionBlock:(void(^)(Rating*, NSError*))block;
+- (void)averageRatingForItem:(NSString*)itemId completionBlock:(void(^)(Rating*, NSError*))block;
 
 
 /**
@@ -96,7 +97,7 @@ typedef enum {
  @param itemIds An array of items
  @param block A block that will be executed when the request completes or fails
   */
-- (void)ratingForItems:(NSArray*)itemIds completionBlock:(void(^)(NSArray*, NSError*))block;
+- (void)averageRatingForItems:(NSArray*)itemIds completionBlock:(void(^)(NSArray*, NSError*))block;
 
 
 /**
@@ -119,7 +120,8 @@ typedef enum {
  @param minimumRating The minimum rating of the returned items
  @param block A block that will be executed when the request completes or fails
  */
-- (void)nearbyItemsWithinRadius:(NearbyRadius)radius minimumRating:(NSInteger)minimumRating completionBlock:(void(^)(NSArray*, NSError*))block;
+- (void)nearbyItemsWithinRadius:(NearbyRadius)radius minimumAverageRating:(NSInteger)minimumAverageRating 
+                completionBlock:(void(^)(NSArray*, NSError*))block;
 
 
 /**
@@ -133,7 +135,7 @@ typedef enum {
  @param block A block that will be executed when the request completes or fails
  */
 - (void)nearbyItemsForLatitude:(float)latitude longitude:(float)longitude withinRadius:(NearbyRadius)radius 
-                 minimumRating:(NSInteger)minimumRating completionBlock:(void(^)(NSArray*, NSError*))block;
+                 minimumAverageRating:(NSInteger)minimumAverageRating completionBlock:(void(^)(NSArray*, NSError*))block;
 
 
 
@@ -141,6 +143,9 @@ typedef enum {
 
 /**
  Add a review comment to an item.
+ 
+ Non-anonymous users will only be able to review the same item once.
+ Only non-anonymous users will be able to get their review and also delete it
  @param itemId The unique item being reviewed
  @param review The review comment
  @param block A block that will be executed when the request completes or fails
@@ -157,12 +162,21 @@ typedef enum {
 
 
 /**
+ Delete the review written by the current user.
+ 
+ This method will only work if non-anonymous review was done.
+ @param itemId The unique item
+ */
+- (void)deleteMyReviewForItem:(NSString*)itemId completionBlock:(void(^)(NSError*))block;
+
+
+/**
  Get my reviews. 
  
  This method will only return reviwes if non-anonymous reviews have been used, otherwise nil will be returned
  @param block A block that will be executed when the request completes or fails
  */
-- (void)myReviewsWithCompletionBlock:(void(^)(NSArray*, NSError*))block;
+- (void)myReviewWithCompletionBlock:(void(^)(NSArray*, NSError*))block;
 
 
 /** @name Properties */
@@ -194,10 +208,9 @@ typedef enum {
  */
 
 
-
-// TODO rewrite validation of arguments (NO macros)
+// Inconsistency for what data is returned in different REST endpoints. There is only one rating and review response o
+// TODO reviews + rename and combine get rating
 // TODO empty result list when no matcher and when nil? Combine the parsing code?
-// TODO reviews
 // TODO delete review
 // TODO Ids for reviews? rating? like?
 // TODO use jsonORM

@@ -16,13 +16,15 @@ Pocket-reveiws consist of:
 
 Developers can use any of the supported SDKs to quickly integrate the service into their application or use the REST-API provided by the backend and implement the network requests them self.
 
-The service is divided into the following groups of functions:
+The service is divided into the following groups of features:
 
 * Ratings - Rate a product  
 * Reviews - Write a review for a product  
 * Likes - Like a product  
 
-Each function must include a unique product id provided by the application (the application might receive this id from some other service being integrated, e.g. a product catalog).
+### Product id
+
+Each review and rating must include a unique product id provided by the application. The application might receive this id from some other service being integrated, e.g. a product catalog. It is up to the application to provide this id and ensure uniqueness and consistency through requests.
 
 ### Anonymous ratings
 The application can perform all functions either anonymoulsy or providing a unique user identifier.
@@ -32,8 +34,8 @@ If a unique user id is provided the service will ensure that the same user will 
 The SDKs provide functionality for automatically generating a unique user identifier that will persist through application starts. The application may also provide their own user id if they have a better way of identifying the user, e.g. through registration or login.
 
 
-### Position tagged ratings
-The application can optionally supply a position (latitude and longitude) of the product being rated. This will allow the application to perform nearby operations, e.g. get nearby top ratings.
+### Location tagged ratings
+The application can optionally supply a position (latitude and longitude) of the product being rated. This will allow the application to perform nearby operations, e.g. get nearby top average ratings. It is important that it is the products location that is provided during a rating and reivew, not the device location.
 
 ## API documentation
 The additional details can be found here documentation for the respective SDK

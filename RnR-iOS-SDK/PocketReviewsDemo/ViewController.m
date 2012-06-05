@@ -113,7 +113,7 @@
       break;
   }
   
-  [self.reviewer ratingForItem:item completionBlock:^(Rating* rating, NSError* error) {
+  [self.reviewer averageRatingForItem:item completionBlock:^(Rating* rating, NSError* error) {
     if (!error) {
       NSLog(@"Get rating method was successful");
       label.text = [NSString stringWithFormat:@"%.1f (%d)", rating.averageRating, rating.numberOfRatings];
@@ -126,7 +126,7 @@
 
 - (IBAction)allRatings:(id)sender {
   NSLog(@"Get all ratings");
-  [self.reviewer ratingForItems:[NSArray arrayWithObjects:@"A001", @"A002", @"A003", nil] completionBlock:^(NSArray* ratings, NSError* error) {
+  [self.reviewer averageRatingForItems:[NSArray arrayWithObjects:@"A001", @"A002", @"A003", nil] completionBlock:^(NSArray* ratings, NSError* error) {
     if (!error) {
       NSLog(@"Get ratings for a list of items was successful");
       for (Rating *rating in ratings) {
@@ -145,7 +145,7 @@
 - (IBAction)nearbyRatings:(id)sender {
   NSLog(@"Get nearby ratings");
   
-  [self.reviewer nearbyItemsWithinRadius:kDefaultRadius minimumRating:3 completionBlock:^(NSArray* ratings, NSError* error) {
+  [self.reviewer nearbyItemsWithinRadius:kDefaultRadius minimumAverageRating:3 completionBlock:^(NSArray* ratings, NSError* error) {
     if (!error) {
       NSLog(@"Get nearby ratins for items was successful");
       NSLog(@"Ratings %@", ratings);

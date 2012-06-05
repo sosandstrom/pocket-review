@@ -33,6 +33,7 @@
 // http parameter names
 #define ITEM_ID @"itemid"
 #define RATING @"rating"
+#define REVIEW @"review"
 #define USER_ID @"username"
 #define LATITUDE @"latitude"
 #define LONGITUDE @"longitude"
@@ -51,10 +52,12 @@
 #define CHECK_ITEM_ID(itemId, err) [self checkItemId:itemId error:err]
 #define CHECK_USER_ID(userId, err) [self checkUserId:userId error:err]
 #define CHECK_RATING(rating, err) [self checkRating:rating error:err]
+#define CHECK_REVIEW(review, err) [self checkReview:review error:err]
 #define CHECK_LATITUDE(latitude, err) [self checkLatitude:latitude error:err]
 #define CHECK_LONGITUDE(longitude, err) [self checkLongitude:latitude error:err]
 #define CHECK_RADIUS(rating, err) [self checkRadius:radius error:err]
 #define CHECK_ITEM_IDS(itemIds, err) [self checkItemIds:itemIds error:err]
+
 
 // Append paths and query string
 #define APPEND_PATH(path, url) [NSURL URLWithString:[[url URLByAppendingPathComponent:path] absoluteString]]
@@ -64,10 +67,10 @@
 // Private stuff
 @interface PocketReviewer ()
 
-- (void)doRateItem:(NSString*)itemId forLatitude:(NSNumber*)latitude longitude:(NSNumber*)longitude 
-        withRating:(NSInteger)rating completionBlock:(void(^)(NSError*))block;
+- (void)doRateAndReviewItem:(NSString*)itemId forLatitude:(NSNumber*)latitude longitude:(NSNumber*)longitude 
+         rating:(NSNumber*)rating review:(NSString*)review completionBlock:(void(^)(NSError*))block;
 - (void)doNearbyItemsForLatitude:(NSNumber*)latitude longitude:(NSNumber*)longitude withinRadius:(NearbyRadius)radius 
-                   minimumRating:(NSInteger)minimumRating completionBlock:(void(^)(NSArray*, NSError*))block;
+                   minimumAverageRating:(NSInteger)minimumAverageRating completionBlock:(void(^)(NSArray*, NSError*))block;
 
 - (NSInteger)serviceRequestWithUrl:(NSURL*)url body:(NSDictionary*)body responseData:(NSData**)data error:(NSError**)error;
 - (NSString*)toStringFromDict:(NSDictionary*)dict;
@@ -77,7 +80,8 @@
 - (BOOL)checkDomain:(NSString*)domain error:(NSError **)error;
 - (BOOL)checkUserId:(NSString*)userId error:(NSError **)error;
 - (BOOL)checkItemId:(NSString*)itemId error:(NSError **)error;
-- (BOOL)checkRating:(NSInteger)rating error:(NSError**)error;
+- (BOOL)checkRating:(NSNumber*)rating error:(NSError**)error;
+- (BOOL)checkReview:(NSString*)review error:(NSError**)error;
 - (BOOL)checkLatitude:(NSNumber*)latitude error:(NSError**)error;
 - (BOOL)checkLongitude:(NSNumber*)longitude error:(NSError**)error;
 - (BOOL)checkRadius:(NSInteger)radius error:(NSError**)error;
@@ -156,7 +160,8 @@
 
 // Rate an item
 - (void)rateItem:(NSString*)itemId withRating:(NSInteger)rating completionBlock:(void(^)(NSError*))block {
-  [self doRateItem:itemId forLatitude:nil longitude:nil withRating:rating completionBlock:block];
+  [self doRateAndReviewItem:itemId forLatitude:nil longitude:nil rating:[NSNumber numberWithInteger:rating] 
+                     review:nil completionBlock:block];
 }
 
 
@@ -164,18 +169,19 @@
 - (void)rateItem:(NSString*)itemId forLatitude:(float)latitude longitude:(float)longitude 
       withRating:(NSInteger)rating completionBlock:(void(^)(NSError*))block {
   
-  [self doRateItem:itemId forLatitude:[NSNumber numberWithFloat:latitude] longitude:[NSNumber numberWithFloat:longitude] 
-          withRating:rating completionBlock:block];
+  [self doRateAndReviewItem:itemId forLatitude:[NSNumber numberWithFloat:latitude] 
+                  longitude:[NSNumber numberWithFloat:longitude] rating:[NSNumber numberWithInteger:rating] 
+                     review:nil completionBlock:block];
 }
 
 
-// Internal rating method
-- (void)doRateItem:(NSString*)itemId forLatitude:(NSNumber*)latitude longitude:(NSNumber*)longitude 
-          withRating:(NSInteger)rating completionBlock:(void(^)(NSError*))block {
+// Internal rating and review method
+- (void)doRateAndReviewItem:(NSString*)itemId forLatitude:(NSNumber*)latitude longitude:(NSNumber*)longitude 
+                     rating:(NSNumber*)rating review:(NSString*)review completionBlock:(void(^)(NSError*))block {
   
   // Use GDC
   dispatch_async(self.queue, ^{
-    DLOG(@"Rate an item");
+    DLOG(@"Rate and review an item");
     
     // Track errors
     NSError *error = nil;
@@ -185,13 +191,11 @@
         !CHECK_ITEM_ID(itemId, &error) || 
         !CHECK_LATITUDE(latitude, &error) || 
         !CHECK_LONGITUDE(longitude, &error) ||
-        !CHECK_RATING(rating, &error)) {
+        !CHECK_RATING(rating, &error) ||
+        !CHECK_REVIEW(review, &error)) {
       block(error);
       return;
     }
-    
-    // Rescale the rating value to fit the backend api
-    NSInteger scaledRating = rating * RATING_SCALE;
     
     // Build the request path
     NSURL *requestUrl = APPEND_PATH(@"rating", self.url);
@@ -200,14 +204,15 @@
     // Collect body paramters
     NSMutableDictionary *body = [NSMutableDictionary dictionary];
     if (self.userId) [body setObject:self.userId forKey:USER_ID];
-    [body setObject:[NSNumber numberWithInteger:scaledRating] forKey:RATING];
+    if (rating) [body setObject:[NSNumber numberWithInteger:[rating integerValue] * RATING_SCALE] forKey:RATING];
+    if (review) [body setObject:review forKey:REVIEW];
     if (latitude) [body setObject:latitude forKey:LATITUDE];
     if (longitude) [body setObject:longitude forKey:LONGITUDE];
     
     // Make the request
     NSData *data = nil;
     int responseCode = [self serviceRequestWithUrl:requestUrl body:body responseData:&data error:&error];
-    DLOG(@"Rating request executed with response code %d", responseCode);
+    DLOG(@"Rating and review request executed with response code %d", responseCode);
     
     // Handle the http response code
     if (responseCode == 200) {
@@ -215,7 +220,7 @@
       block(nil);
     } else {
       // Run the complition block with error
-      block([self parsingErrorWithDescription:@"HTTP rate request failed with respose code %d and error message %@", 
+      block([self parsingErrorWithDescription:@"HTTP rating and review request failed with respose code %d and error message %@", 
              responseCode, [error userInfo]]);
     }
   
@@ -224,7 +229,7 @@
 
 
 // Get the rating for an item
-- (void)ratingForItem:(NSString*)itemId completionBlock:(void(^)(Rating*, NSError*))block {
+- (void)averageRatingForItem:(NSString*)itemId completionBlock:(void(^)(Rating*, NSError*))block {
   
   // Use GDC
   dispatch_async(self.queue, ^{
@@ -272,7 +277,7 @@
 
 
 // Get raings for a list of items
-- (void)ratingForItems:(NSArray*)itemIds completionBlock:(void(^)(NSArray*, NSError*))block {
+- (void)averageRatingForItems:(NSArray*)itemIds completionBlock:(void(^)(NSArray*, NSError*))block {
   
   // Use GDC
   dispatch_async(self.queue, ^{    
@@ -352,23 +357,25 @@
 
 
 // Get nearby items using Google provided latitude and langitude
-- (void)nearbyItemsWithinRadius:(NearbyRadius)radius minimumRating:(NSInteger)minimumRating completionBlock:(void(^)(NSArray*, NSError*))block {
-  [self doNearbyItemsForLatitude:nil longitude:nil withinRadius:radius minimumRating:minimumRating completionBlock:block];
+- (void)nearbyItemsWithinRadius:(NearbyRadius)radius minimumAverageRating:(NSInteger)minimumAverageRating 
+                completionBlock:(void(^)(NSArray*, NSError*))block {
+  [self doNearbyItemsForLatitude:nil longitude:nil withinRadius:radius minimumAverageRating:minimumAverageRating 
+                 completionBlock:block];
   
 }
 
 
 // Get nearby items 
 - (void)nearbyItemsForLatitude:(float)latitude longitude:(float)longitude withinRadius:(NearbyRadius)radius 
-                 minimumRating:(NSInteger)minimumRating completionBlock:(void(^)(NSArray*, NSError*))block {
+                 minimumAverageRating:(NSInteger)minimumAverageRating completionBlock:(void(^)(NSArray*, NSError*))block {
   [self doNearbyItemsForLatitude:[NSNumber numberWithFloat:latitude] longitude:[NSNumber numberWithFloat:longitude] 
-                    withinRadius:radius minimumRating:minimumRating completionBlock:block];
+                    withinRadius:radius minimumAverageRating:minimumAverageRating completionBlock:block];
   
 }
 
 
 - (void)doNearbyItemsForLatitude:(NSNumber*)latitude longitude:(NSNumber*)longitude withinRadius:(NearbyRadius)radius 
-                   minimumRating:(NSInteger)minimumRating completionBlock:(void(^)(NSArray*, NSError*))block {
+                   minimumAverageRating:(NSInteger)minimumAverageRating completionBlock:(void(^)(NSArray*, NSError*))block {
   
   // Use GDC
   dispatch_async(self.queue, ^{    
@@ -381,13 +388,10 @@
     if (!CHECK_URL(self.url, &error) || 
         !CHECK_LATITUDE(latitude, &error) || 
         !CHECK_LONGITUDE(longitude, &error) ||
-        !CHECK_RATING(minimumRating, &error)) {
+        !CHECK_RATING([NSNumber numberWithInteger:minimumAverageRating], &error)) {
       block(nil, error);
       return;
     }
-    
-    // Rescale the rating value to fit the backend api
-    NSInteger scaledRating = minimumRating * RATING_SCALE;
     
     // Convert the radius, do not send any value if default radius is specified
     NSNumber *searchRadius = (radius == kDefaultRadius) ? nil : [NSNumber numberWithInteger:radius];
@@ -397,7 +401,7 @@
     if (latitude) [query setObject:latitude forKey:LATITUDE];
     if (longitude) [query setObject:longitude forKey:LONGITUDE];
     if (searchRadius) [query setObject:[NSNumber numberWithInteger:radius] forKey:RADIUS];
-    if (minimumRating) [query setObject:[NSNumber numberWithInteger:scaledRating] forKey:MIN_RATING];      
+    if (minimumAverageRating) [query setObject:[NSNumber numberWithInteger:minimumAverageRating * RATING_SCALE] forKey:MIN_RATING];      
       
     // Build the request path
     NSURL *requestUrl = APPEND_PATH(@"rating", self.url);
@@ -439,7 +443,7 @@
 
 // Add a review
 - (void)reviewItem:(NSString*)itemId withReview:(NSString*)review completionBlock:(void(^)(NSError*))block {
-  // TODO
+  [self doRateAndReviewItem:itemId forLatitude:nil longitude:nil rating:nil review:review completionBlock:block];
 }
 
 
@@ -449,8 +453,14 @@
 }
 
 
+// Delete the review written by the current user
+- (void)deleteMyReviewForItem:(NSString*)itemId completionBlock:(void(^)(NSError*))block {
+  // TODO
+}
+
+
 // Get all my reviews
-- (void)myReviewsWithCompletionBlock:(void(^)(NSArray*, NSError*))block {
+- (void)myReviewWithCompletionBlock:(void(^)(NSArray*, NSError*))block {
   // TODO
 }
 
@@ -610,13 +620,22 @@
     return YES;
 }
 
-- (BOOL)checkRating:(NSInteger)rating error:(NSError**)error {
-  if (rating < 1 && rating > 5) {
+- (BOOL)checkRating:(NSNumber*)rating error:(NSError**)error {
+  if (!rating && [rating integerValue] < 1 && [rating integerValue] > 5) {
     *error = [self parsingErrorWithDescription:@"Rating value must be between 1..5"];
     return NO;
   } else
     return YES;
 }
+
+- (BOOL)checkReview:(NSString*)review error:(NSError**)error {
+  if ([review length] == 0) {
+    *error = [self parsingErrorWithDescription:@"Review can not be an empty string"];
+    return NO;
+  } else
+    return YES;
+}
+
 
 - (BOOL)checkLatitude:(NSNumber*)latitude error:(NSError**)error {
   if (latitude != nil && [latitude floatValue] < -90.0f && [latitude floatValue] > 90.0f) {
