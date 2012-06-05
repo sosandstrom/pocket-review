@@ -2,23 +2,25 @@
 
 **Under development comming soon..**
 
+You have developed a cool app showing various items and product, e.g. restaurants, photos, hotels, and you like your users to be able to rate them but have nowhere to store all those stars? 
+
 ## Overview
 Pocket-reviews is a lightweight, easy to use and ready to go review and rating service tailored for mobile applications.
 
 Pocket-reveiws consist of:
 
-* A backend service hosted on Google App Engine
-* iOS SDK
-* Javascript SDK (coming soon)
-* Android SDK (coming soon)
+* A backend service hosted on Google App Engine  
+* iOS SDK  
+* Javascript SDK (coming soon)  
+* Android SDK (coming soon)  
 
 Developers can use any of the supported SDKs to quickly integrate the service into their application or use the REST-API provided by the backend and implement the network requests them self.
 
 The service is divided into the following groups of functions:
 
-* Ratings - rate (1-5) a product
-* Reviews - write a review for a product
-* Likes - like a product
+* Ratings - Rate a product  
+* Reviews - Write a review for a product  
+* Likes - Like a product  
 
 Each function must include a unique product id provided by the application (the application might receive this id from some other service being integrated, e.g. a product catalog).
 
@@ -36,11 +38,8 @@ The application can optionally supply a position (latitude and longitude) of the
 ## API documentation
 The additional details can be found here documentation for the respective SDK
 
-[REST API](http://pocket-reviews.appspot.com/doc/rest-api/api.html)
-
-[iOS](http://pocket-reviews.appspot.com/doc/ios/index.html)
-
-Android (coming soon)
-
+[REST API](http://pocket-reviews.appspot.com/doc/rest-api/api.html)  
+[iOS](http://pocket-reviews.appspot.com/doc/ios/index.html)  
+Android (coming soon)  
 Javascript (coming soon)
 
