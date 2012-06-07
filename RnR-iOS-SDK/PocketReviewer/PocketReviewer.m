@@ -40,6 +40,7 @@
 #define RADIUS @"radius"
 #define MIN_RATING @"minRating"
 #define IDS @"ids"
+#define MAX_NUMBER_OF_RESULTS @"maxResults"
 
 // JSON attribute names
 #define RATING_SUM @"ratingSum"
@@ -57,6 +58,7 @@
 #define CHECK_LONGITUDE(longitude, err) [self checkLongitude:latitude error:err]
 #define CHECK_RADIUS(rating, err) [self checkRadius:radius error:err]
 #define CHECK_ITEM_IDS(itemIds, err) [self checkItemIds:itemIds error:err]
+#define CHECK_MAX_NUMBER_OF_RESULTS(maxNumberOfResults, err) [self checkMaxNumberOfResults:maxNumberOfResults error:err]
 
 
 // Append paths and query string
@@ -68,9 +70,9 @@
 @interface PocketReviewer ()
 
 - (void)doRateAndReviewItem:(NSString*)itemId forLatitude:(NSNumber*)latitude longitude:(NSNumber*)longitude 
-         rating:(NSNumber*)rating review:(NSString*)review completionBlock:(void(^)(NSError*))block;
-- (void)doNearbyItemsForLatitude:(NSNumber*)latitude longitude:(NSNumber*)longitude withinRadius:(NearbyRadius)radius 
-                   minimumAverageRating:(NSInteger)minimumAverageRating completionBlock:(void(^)(NSArray*, NSError*))block;
+                     rating:(NSNumber*)rating review:(NSString*)review completionBlock:(void(^)(NSError*))block;
+- (void)doNearbyAverageRatingsForLatitude:(NSNumber*)latitude longitude:(NSNumber*)longitude withinRadius:(NearbyRadius)radius 
+                       maxNumberOfResults:(NSInteger)maxNumberOfResults completionBlock:(void(^)(NSArray*, NSError*))block;
 
 - (NSInteger)serviceRequestWithUrl:(NSURL*)url body:(NSDictionary*)body responseData:(NSData**)data error:(NSError**)error;
 - (NSString*)toStringFromDict:(NSDictionary*)dict;
@@ -86,6 +88,7 @@
 - (BOOL)checkLongitude:(NSNumber*)longitude error:(NSError**)error;
 - (BOOL)checkRadius:(NSInteger)radius error:(NSError**)error;
 - (BOOL)checkItemIds:(NSArray*)itemIds error:(NSError**)error;
+- (BOOL)checkMaxNumberOfResults:(NSInteger)maxNumberOfResults error:(NSError**)error;
 
 @property (nonatomic, retain) NSURL *url;
 @property (nonatomic) BOOL anonymous;
@@ -118,7 +121,7 @@
 - (id)init {
   self = [super init];
   if (self) {        
-    //cInitialise instance variables
+    // Initialise instance variables
     self.queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
   }
   return self;
@@ -179,7 +182,7 @@
 - (void)doRateAndReviewItem:(NSString*)itemId forLatitude:(NSNumber*)latitude longitude:(NSNumber*)longitude 
                      rating:(NSNumber*)rating review:(NSString*)review completionBlock:(void(^)(NSError*))block {
   
-  // Use GDC
+  // Use GCD
   dispatch_async(self.queue, ^{
     DLOG(@"Rate and review an item");
     
@@ -231,7 +234,7 @@
 // Get the rating for an item
 - (void)averageRatingForItem:(NSString*)itemId completionBlock:(void(^)(Rating*, NSError*))block {
   
-  // Use GDC
+  // Use GCD
   dispatch_async(self.queue, ^{
     DLOG(@"Get a rating");
     
@@ -279,7 +282,7 @@
 // Get raings for a list of items
 - (void)averageRatingForItems:(NSArray*)itemIds completionBlock:(void(^)(NSArray*, NSError*))block {
   
-  // Use GDC
+  // Use GCD
   dispatch_async(self.queue, ^{    
     DLOG(@"Get rating for an array of items");
     
@@ -355,29 +358,35 @@
 }
 
 
+// Get top average ratings
+- (void)topAverageRatings:(NSInteger)maxNumberOfResults completionBlock:(void(^)(NSArray*, NSError*))block {
+  // TODO
+}
+
+
 
 // Get nearby items using Google provided latitude and langitude
-- (void)nearbyItemsWithinRadius:(NearbyRadius)radius minimumAverageRating:(NSInteger)minimumAverageRating 
-                completionBlock:(void(^)(NSArray*, NSError*))block {
-  [self doNearbyItemsForLatitude:nil longitude:nil withinRadius:radius minimumAverageRating:minimumAverageRating 
+- (void)nearbyTopAverageRatingsWithinRadius:(NearbyRadius)radius maxNumberOfResults:(NSInteger)maxNumberOfResults 
+                            completionBlock:(void(^)(NSArray*, NSError*))block {
+  [self doNearbyAverageRatingsForLatitude:nil longitude:nil withinRadius:radius maxNumberOfResults:maxNumberOfResults 
                  completionBlock:block];
   
 }
 
 
 // Get nearby items 
-- (void)nearbyItemsForLatitude:(float)latitude longitude:(float)longitude withinRadius:(NearbyRadius)radius 
-                 minimumAverageRating:(NSInteger)minimumAverageRating completionBlock:(void(^)(NSArray*, NSError*))block {
-  [self doNearbyItemsForLatitude:[NSNumber numberWithFloat:latitude] longitude:[NSNumber numberWithFloat:longitude] 
-                    withinRadius:radius minimumAverageRating:minimumAverageRating completionBlock:block];
+- (void)nearbyTopAverageRatingsForLatitude:(float)latitude longitude:(float)longitude withinRadius:(NearbyRadius)radius 
+                        maxNumberOfResults:(NSInteger)maxNumberOfResults completionBlock:(void(^)(NSArray*, NSError*))block {
+  [self doNearbyAverageRatingsForLatitude:[NSNumber numberWithFloat:latitude] longitude:[NSNumber numberWithFloat:longitude] 
+                    withinRadius:radius maxNumberOfResults:maxNumberOfResults completionBlock:block];
   
 }
 
 
-- (void)doNearbyItemsForLatitude:(NSNumber*)latitude longitude:(NSNumber*)longitude withinRadius:(NearbyRadius)radius 
-                   minimumAverageRating:(NSInteger)minimumAverageRating completionBlock:(void(^)(NSArray*, NSError*))block {
+- (void)doNearbyAverageRatingsForLatitude:(NSNumber*)latitude longitude:(NSNumber*)longitude withinRadius:(NearbyRadius)radius 
+                       maxNumberOfResults:(NSInteger)maxNumberOfResults completionBlock:(void(^)(NSArray*, NSError*))block {
   
-  // Use GDC
+  // Use GCD
   dispatch_async(self.queue, ^{    
     DLOG(@"Get nearby items");
     
@@ -388,7 +397,7 @@
     if (!CHECK_URL(self.url, &error) || 
         !CHECK_LATITUDE(latitude, &error) || 
         !CHECK_LONGITUDE(longitude, &error) ||
-        !CHECK_RATING([NSNumber numberWithInteger:minimumAverageRating], &error)) {
+        !CHECK_MAX_NUMBER_OF_RESULTS(maxNumberOfResults, &error)) {
       block(nil, error);
       return;
     }
@@ -401,7 +410,7 @@
     if (latitude) [query setObject:latitude forKey:LATITUDE];
     if (longitude) [query setObject:longitude forKey:LONGITUDE];
     if (searchRadius) [query setObject:[NSNumber numberWithInteger:radius] forKey:RADIUS];
-    if (minimumAverageRating) [query setObject:[NSNumber numberWithInteger:minimumAverageRating * RATING_SCALE] forKey:MIN_RATING];      
+    //[query setObject:[NSNumber numberWithInteger:maxNumberOfResults] forKey:MAX_NUMBER_OF_RESULTS]; // TODO uncomment when backend has been updated
       
     // Build the request path
     NSURL *requestUrl = APPEND_PATH(@"rating", self.url);
@@ -621,7 +630,7 @@
 }
 
 - (BOOL)checkRating:(NSNumber*)rating error:(NSError**)error {
-  if (!rating && [rating integerValue] < 1 && [rating integerValue] > 5) {
+  if (rating != nil && [rating integerValue] < 1 && [rating integerValue] > 5) {
     *error = [self parsingErrorWithDescription:@"Rating value must be between 1..5"];
     return NO;
   } else
@@ -629,7 +638,7 @@
 }
 
 - (BOOL)checkReview:(NSString*)review error:(NSError**)error {
-  if ([review length] == 0) {
+  if (review && [review length] == 0) {
     *error = [self parsingErrorWithDescription:@"Review can not be an empty string"];
     return NO;
   } else
@@ -638,7 +647,7 @@
 
 
 - (BOOL)checkLatitude:(NSNumber*)latitude error:(NSError**)error {
-  if (latitude != nil && [latitude floatValue] < -90.0f && [latitude floatValue] > 90.0f) {
+  if (!latitude && [latitude floatValue] < -90.0f && [latitude floatValue] > 90.0f) {
     *error = [self parsingErrorWithDescription:@"Latitude must be between -90..90"];
     return NO;
   } else
@@ -646,7 +655,7 @@
 }
 
 - (BOOL)checkLongitude:(NSNumber*)longitude error:(NSError**)error {
-  if (longitude != nil && [longitude floatValue] < -180.0f && [longitude floatValue] > 180.0f) {
+  if (!longitude && [longitude floatValue] < -180.0f && [longitude floatValue] > 180.0f) {
     *error = [self parsingErrorWithDescription:@"Latitude must be between -180..180"];
     return NO;
   } else
@@ -668,6 +677,15 @@
   } else
     return YES;
 }
+
+- (BOOL)checkMaxNumberOfResults:(NSInteger)maxNumberOfResults error:(NSError**)error {
+  if (maxNumberOfResults < 1) {
+    *error = [self parsingErrorWithDescription:@"Maximum number of returned results must be more then 0"];
+    return NO;
+  } else
+    return YES;
+}
+
           
 
 @end

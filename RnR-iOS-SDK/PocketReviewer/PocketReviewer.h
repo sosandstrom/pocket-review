@@ -12,7 +12,9 @@
 /** @name Creating and starting the Reviewer */
 
 /**
- A lightweight, easy to use and ready to go review and rating service tailored for mobile apps. 
+ A lightweight, easy to use and ready to go review and rating service tailored for mobile apps.
+ 
+ Before you can use the SDK you need to register a unique domain name at http://pocket-reviews.appspot.com.
  
  All methods are asynchronous using GCD and will return immediately. The application will be informed about the outcome 
  of a method by providing a completion block.
@@ -21,7 +23,7 @@
 
 
 /**
- Specify the radius to use during nearby requests.
+ Specify the radius to use during nearby searches.
  */
 typedef enum {
   kDefaultRadius = 1,
@@ -45,7 +47,7 @@ typedef enum {
 /**
  Start reviewing by configuring the service.
  @param url The URL to the review service
- @param domain The unique domain name
+ @param domain The unique domain name. The app developer need to register a unique domain name at http://pocket-reviews.appspot.com.
  @param anonymous If YES all review and rating requests will be anonymous. 
  If NO a unique user id will be generated that will be used in all requests. The user id will be persisted in user preferences. 
  @param error An optional error message
@@ -59,7 +61,7 @@ typedef enum {
 /**
  Rate an item.
  
- Non-anonymous users will only be able to rate the same item once.
+ The domain can be configured to only allow non-anonymous users to rate the same item once at http://pocket-reviews.appspot.com.
  @param itemId The unique item being rated
  @param rating The rating value 1-5
  @param block A block that will be executed when the request completes or fails
@@ -70,8 +72,9 @@ typedef enum {
 /**
  Rate an item with a specified latitude and longitude.
  
- Non-anonymous users will only be able to rate the same item once.
- Only Non-anonymous users will be able to get their own rating.
+ The domain can be configured to only allow non-anonymous users to rate the same item once at http://pocket-reviews.appspot.com.
+ 
+ Only non-anonymous users will be able to get their own ratings.
  
  Please note that it is the rated items location what should be provided, not the device current location.
  @param itemId The unique item being rated
@@ -101,6 +104,52 @@ typedef enum {
 
 
 /**
+ Get the top average ratings.
+ 
+ The returned ratings will be sorted on average rating.
+ @param maxNumberOfResults The maximum number of results the service should return, e.g. specify 10 to get the top 10 list
+ @param block A block that will be executed when the request completes or fails
+ @
+ */
+- (void)topAverageRatings:(NSInteger)maxNumberOfResults completionBlock:(void(^)(NSArray*, NSError*))block;
+
+
+/**
+ Get top nearby average ratings using the device location provided by Google.
+ 
+ The latitude and logitude automatically provided by GAE will be used as the device location. 
+ The location provided by Google is most likely on city level.
+ 
+ Items must be rated using the items latitude and longitude for this method to return the average ratings, 
+ otherwise en empty list will be returned.
+ 
+ The returned ratings will be sorted on average rating.
+ @param radius The radius to search within
+ @param maxNumberOfResults The maximum number of results the service should return
+ @param block A block that will be executed when the request completes or fails
+ */
+- (void)nearbyTopAverageRatingsWithinRadius:(NearbyRadius)radius maxNumberOfResults:(NSInteger)maxNumberOfResults 
+                            completionBlock:(void(^)(NSArray*, NSError*))block;
+
+
+/**
+ Get nearby items with a minimum average rating using the device location provided by the application.
+ 
+ Items must be rated using the items latitude and longitude for this method to return the average ratings, 
+ otherwise en empty list will be returned.
+ 
+ The returned ratings will be sorted on average rating.
+ @param latitude The devices latitude
+ @param longitude The device longitude
+ @param radius The radius to search within
+ @param maxNumberOfResults The maximum number of results the service should return
+ @param block A block that will be executed when the request completes or fails
+ */
+- (void)nearbyTopAverageRatingsForLatitude:(float)latitude longitude:(float)longitude withinRadius:(NearbyRadius)radius 
+                        maxNumberOfResults:(NSInteger)maxNumberOfResults completionBlock:(void(^)(NSArray*, NSError*))block;
+
+
+/**
  Get my ratings. 
  
  This method will only return ratings if non-anonymous ratings have been used, otherwise nil will be returned
@@ -109,42 +158,12 @@ typedef enum {
 - (void)myRatingsWithCompletionBlock:(void(^)(NSArray*, NSError*))block;
 
 
-/**
- Get nearby items with a minimum average rating using the location provided by Google.
- 
- The latitude and logitude automatically provided by GAE will be used as the device location. 
- The location provided by Google is most likely on a city level.
- 
- Items must be rated using the item latitude and longitude for this method to return ratings, otherwise en empty list will be returned.
- @param radius The radius to search within
- @param minimumAverageRating The minimum average rating of the returned items
- @param block A block that will be executed when the request completes or fails
- */
-- (void)nearbyItemsWithinRadius:(NearbyRadius)radius minimumAverageRating:(NSInteger)minimumAverageRating 
-                completionBlock:(void(^)(NSArray*, NSError*))block;
-
-
-/**
- Get nearby items with a minimum average rating using a provided location.
- 
- Items must be rated using the item latitude and longitude for this method to return ratings, otherwise en empty list will be returned.
- @param latitude The devices latitude
- @param longitude The device longitude
- @param radius The radius to search within
- @param minimumAverageRating The minimum average rating of the returned items
- @param block A block that will be executed when the request completes or fails
- */
-- (void)nearbyItemsForLatitude:(float)latitude longitude:(float)longitude withinRadius:(NearbyRadius)radius 
-                 minimumAverageRating:(NSInteger)minimumAverageRating completionBlock:(void(^)(NSArray*, NSError*))block;
-
-
-
 /** @name Reviews */
 
 /**
  Add a review comment to an item.
  
- Non-anonymous users will only be able to review the same item once.
+ The domain can be configured to only allow non-anonymous users to review the same item once at http://pocket-reviews.appspot.com.
  
  Only non-anonymous users will be able to get their own reviews and delete them.
  @param itemId The unique item being reviewed
@@ -186,7 +205,9 @@ typedef enum {
 /**
  A unique user id. 
  
- If set the id will be included in all review and rating requests. A users will only be able to rate and review the same item once. 
+ If set the id will be included in all review and rating requests.
+ 
+ The domain can be configured to only allow non-anonymous users to rate the same item once at http://pocket-reviews.appspot.com.
  
  The reviewer will generate an unqiue user id the first time it is created and store it in user preferences unless anonymous is used. 
  If the application have a better way of uniquely indentifing users, e.g. through user registration or login, it can set its own unqiue user id here.
@@ -210,9 +231,9 @@ typedef enum {
  */
 
 
-// Inconsistency for what data is returned in different REST endpoints. There is only one rating and review response o
-// TODO reviews + rename and combine get rating
-// TODO empty result list when no matcher and when nil? Combine the parsing code?
+// TODO Inconsistency for what data is returned in different REST endpoints. There is only one rating and review response o
+// TODO When to retun nil and empty array? Maybe combine get rating and get ratings
+// TODO Method that returns a combined average rating and all reviews. Maybe an inner object?
 // TODO delete review
 // TODO Ids for reviews? rating? like?
 // TODO use jsonORM
