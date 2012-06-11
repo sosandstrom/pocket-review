@@ -53,6 +53,7 @@
 		CD29396D157A030100DE309E /* PocketReviewer.m in Sources */ = {isa = PBXBuildFile; fileRef = CD293967157A030100DE309E /* PocketReviewer.m */; };
 		CD29396E157A030100DE309E /* Rating.m in Sources */ = {isa = PBXBuildFile; fileRef = CD293969157A030100DE309E /* Rating.m */; };
 		CD29396F157A030100DE309E /* Rating.m in Sources */ = {isa = PBXBuildFile; fileRef = CD293969157A030100DE309E /* Rating.m */; };
+		CDB49729158462BA00C2157F /* ObjectMapper.m in Sources */ = {isa = PBXBuildFile; fileRef = CDB49727158462BA00C2157F /* ObjectMapper.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -99,6 +100,8 @@
 		CD293967157A030100DE309E /* PocketReviewer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PocketReviewer.m; sourceTree = "<group>"; };
 		CD293968157A030100DE309E /* Rating.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Rating.h; sourceTree = "<group>"; };
 		CD293969157A030100DE309E /* Rating.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Rating.m; sourceTree = "<group>"; };
+		CDB49727158462BA00C2157F /* ObjectMapper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ObjectMapper.m; sourceTree = "<group>"; };
+		CDB49728158462BA00C2157F /* ObjectMapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ObjectMapper.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -209,6 +212,8 @@
 				CD293969157A030100DE309E /* Rating.m */,
 				CD293964157A030100DE309E /* JSONKit.h */,
 				CD293965157A030100DE309E /* JSONKit.m */,
+				CDB49727158462BA00C2157F /* ObjectMapper.m */,
+				CDB49728158462BA00C2157F /* ObjectMapper.h */,
 			);
 			path = PocketReviewer;
 			sourceTree = "<group>";
@@ -326,7 +331,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "/usr/local/bin/appledoc --project-name PocketReviews --project-company \"Wadpam\" --company-id com.wadpam --output $SOURCE_ROOT/Doc --no-repeat-first-par --explicit-crossref --no-install-docset --keep-intermediate-files --ignore JSONKit.h --ignore JSONKit.m $SOURCE_ROOT/PocketReviewer/.";
+			shellScript = "/usr/local/bin/appledoc --project-name PocketReviews --project-company \"Wadpam\" --company-id com.wadpam --output $SOURCE_ROOT/Doc --no-repeat-first-par --explicit-crossref --no-install-docset --keep-intermediate-files --ignore JSONKit.h --ignore JSONKit.m --ignore ObjectMapper.h --ignore ObjectMapper.m $SOURCE_ROOT/PocketReviewer/.";
 		};
 		CDB49656157A7F5100C2157F /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -354,6 +359,7 @@
 				CD29396A157A030100DE309E /* JSONKit.m in Sources */,
 				CD29396C157A030100DE309E /* PocketReviewer.m in Sources */,
 				CD29396E157A030100DE309E /* Rating.m in Sources */,
+				CDB49729158462BA00C2157F /* ObjectMapper.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -594,6 +600,7 @@
 				CDB49654157A7F1500C2157F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

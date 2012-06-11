@@ -7,6 +7,7 @@
 
 #import "PocketReviewer.h"
 #import "JSONKit.h"
+#import "ObjectMapper.h"
 
 
 // Macros
@@ -261,14 +262,17 @@
     // Handle the http response
     if (responseCode == 200) {
       // Parse the JSON
-      NSDictionary *ratingDict = [data objectFromJSONData];
-      Rating *rating = [Rating rating];
-      rating.totalSumOfRatings = [(NSNumber*)[ratingDict valueForKey:RATING_SUM] integerValue] / RATING_SCALE;
-      rating.numberOfRatings = [(NSNumber*)[ratingDict valueForKey:RATING_COUNT] integerValue];
-      rating.itemId = [ratingDict valueForKey:ID];
-
-      // Run the completion block
-      block(rating, nil);
+      NSDictionary *ratingJSON = [data objectFromJSONData];
+      
+      // Map JSON into domain object
+      Rating *rating = [ratingJSON mapToClass:[Rating class] withError:&error];
+      if (rating)
+        // Run the completion block
+        block(rating, nil);
+      else
+        // Mapping failed, Run the completion block with error
+        block(nil, [self parsingErrorWithDescription:@"Not possible to map the parsed JSON, got error %@", [error userInfo]]);
+      
     } else {
       // Run the completion block with error
       block(nil, [self parsingErrorWithDescription:@"HTTP get rating request failed with respose code %d and error message %@", 
@@ -314,22 +318,17 @@
     // Handle the http response
     if (responseCode == 200) {
       // Parse the JSON
-      NSArray *ratingsArray = [data objectFromJSONData];
+      NSArray *ratingsJSON = [data objectFromJSONData];
       
-      // Iterat over each rating dict and create a Rating object
-      NSMutableArray *ratings = [NSMutableArray array];
-      for (NSDictionary *ratingDict in ratingsArray) {
-        Rating *rating = [Rating rating];
-        rating.totalSumOfRatings = [(NSNumber*)[ratingDict valueForKey:RATING_SUM] integerValue] / RATING_SCALE;
-        rating.numberOfRatings = [(NSNumber*)[ratingDict valueForKey:RATING_COUNT] integerValue];
-        rating.itemId = [ratingDict valueForKey:ID];
-        
-        // Add the rating to the result array
-        [ratings addObject:rating];
-      }
-      
-      // Run the completion block
-      block(ratings, nil);
+      // Map JSON into domain object
+      NSArray *ratings = [ratingsJSON mapToClass:[Rating class] withError:&error];
+      if (ratings)
+        // Run the completion block
+        block(ratings, nil);
+      else
+        // Mapping failed, Run the completion block with error
+        block(nil, [self parsingErrorWithDescription:@"Not possible to map the parsed JSON, got error %@", [error userInfo]]);
+
     } else {
       // Run the completion block with error
       block(nil, [self parsingErrorWithDescription:@"HTTP get rating request failed with respose code %d and error message %@", 
@@ -425,21 +424,17 @@
     // Handle the http response
     if (responseCode == 200) {
       // Parse the JSON
-      NSArray *ratingsArray = [data objectFromJSONData];
+      NSArray *ratingsJSON = [data objectFromJSONData];
       
-      // Iterat over each rating dict and create a Rating object
-      NSMutableArray *ratings = [NSMutableArray array];
-      for (NSDictionary *ratingDict in ratingsArray) {
-        Rating *rating = [Rating rating];
-        rating.totalSumOfRatings = [(NSNumber*)[ratingDict valueForKey:RATING_SUM] integerValue] / RATING_SCALE;
-        rating.numberOfRatings = [(NSNumber*)[ratingDict valueForKey:RATING_COUNT] integerValue];
-        rating.itemId = [ratingDict valueForKey:ID];
-        // Add the rating to the result array
-        [ratings addObject:rating];
-      }
+      // Map JSON into domain object
+      NSArray *ratings = [ratingsJSON mapToClass:[Rating class] withError:&error];
+      if (ratings)
+        // Run the completion block
+        block(ratings, nil);
+      else
+        // Mapping failed, Run the completion block with error
+        block(nil, [self parsingErrorWithDescription:@"Not possible to map the parsed JSON, got error %@", [error userInfo]]);
       
-      // Run the completion block
-      block(ratings, nil);
     } else {
       // Run the completion block with error
       block(nil, [self parsingErrorWithDescription:@"HTTP get rating request failed with respose code %d and error message %@", 
@@ -567,7 +562,7 @@
 }
 
 
-// Create a paramter string from a NSDictionary                                        
+// Create a parameter string from a NSDictionary                                        
 - (NSString*)toStringFromDict:(NSDictionary*)dict {
   // Create the parameter list
   NSMutableArray *params = [NSMutableArray array];
@@ -687,5 +682,4 @@
 }
 
           
-
 @end

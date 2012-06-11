@@ -6,13 +6,22 @@
 //
 
 #import "Rating.h"
+#import "ObjectMapper.h"
+
+
+#define RATING_SCALE 20
 
 // Implementation
 @implementation Rating
 
 
+ANNOTATE_PROPERTY_FOR_KEY(itemId, id)
 @synthesize itemId = itemId_;
+
+ANNOTATE_PROPERTY_FOR_KEY(totalSumOfRatings, ratingSum)
 @synthesize totalSumOfRatings = totalSumOfRatings_;
+
+ANNOTATE_PROPERTY_FOR_KEY(numberOfRatings, ratingCount)
 @synthesize numberOfRatings = numberOfRatings_;
 
 
@@ -31,7 +40,14 @@
 
 // Getter for average rating
 - (float) averageRating {
-  return (float)self.totalSumOfRatings / (float)self.numberOfRatings;
+  return (float)self.totalSumOfRatings / (float)self.numberOfRatings / RATING_SCALE;
+}
+
+
+// Custom description
+- (NSString*)description {
+  return [NSString stringWithFormat:@"Id: %@, averate ratng: %f, number of ratings: %d", 
+          self.itemId, self.averageRating, self.numberOfRatings];
 }
 
 
