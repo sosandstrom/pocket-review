@@ -137,6 +137,9 @@
         else if ([rating.itemId isEqualToString:@"A003"])
           self.A003Label.text = [NSString stringWithFormat:@"%.1f (%d)", rating.averageRating, rating.numberOfRatings];
       }
+      [self.A001Label setNeedsDisplay];
+      [self.A002Label setNeedsDisplay];
+      [self.A003Label setNeedsDisplay];
     }
   }];
 }

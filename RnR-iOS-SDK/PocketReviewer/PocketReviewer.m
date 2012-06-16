@@ -31,6 +31,8 @@
 #define USER_AGENT @"Mozilla/5.0 (iPhone; CPU iPhone OS 5_0 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) Version/5.1 Mobile/9A334 Safari/7534.48.3"
 #define REQUEST_TIMEOUT 10
 
+#define RUN_IN_MAIN_THREAD(func) dispatch_async(dispatch_get_main_queue(), ^{ func ;})
+
 // http parameter names
 #define ITEM_ID @"itemid"
 #define RATING @"rating"
@@ -197,7 +199,7 @@
         !CHECK_LONGITUDE(longitude, &error) ||
         !CHECK_RATING(rating, &error) ||
         !CHECK_REVIEW(review, &error)) {
-      block(error);
+      RUN_IN_MAIN_THREAD(block(error));
       return;
     }
     
@@ -221,11 +223,11 @@
     // Handle the http response code
     if (responseCode == 200) {
       // Run the completion block
-      block(nil);
+      RUN_IN_MAIN_THREAD(block(nil));
     } else {
       // Run the complition block with error
-      block([self parsingErrorWithDescription:@"HTTP rating and review request failed with respose code %d and error message %@", 
-             responseCode, [error userInfo]]);
+      RUN_IN_MAIN_THREAD(block([self parsingErrorWithDescription:@"HTTP rating and review request failed with respose code %d and error message %@", 
+             responseCode, [error userInfo]]));
     }
   
   });
@@ -245,7 +247,7 @@
     // Check parameters
     if (!CHECK_URL(self.url, &error) || 
         !CHECK_ITEM_ID(itemId, &error)) {
-      block(nil, error);
+      RUN_IN_MAIN_THREAD(block(nil, error));
       return;
     }
     
@@ -268,15 +270,15 @@
       Rating *rating = [ratingJSON mapToClass:[Rating class] withError:&error];
       if (rating)
         // Run the completion block
-        block(rating, nil);
+        RUN_IN_MAIN_THREAD(block(rating, nil)); 
       else
         // Mapping failed, Run the completion block with error
-        block(nil, [self parsingErrorWithDescription:@"Not possible to map the parsed JSON, got error %@", [error userInfo]]);
+        RUN_IN_MAIN_THREAD(block(nil, [self parsingErrorWithDescription:@"Not possible to map the parsed JSON, got error %@", [error userInfo]]));
       
     } else {
       // Run the completion block with error
-      block(nil, [self parsingErrorWithDescription:@"HTTP get rating request failed with respose code %d and error message %@", 
-                  responseCode, [error userInfo]]);
+      RUN_IN_MAIN_THREAD(block(nil, [self parsingErrorWithDescription:@"HTTP get rating request failed with respose code %d and error message %@",
+                                     responseCode, [error userInfo]]));
     }
     
   });
@@ -296,7 +298,7 @@
     // Check parameters
     if (!CHECK_URL(self.url, &error) || 
         !CHECK_ITEM_IDS(itemIds, &error)) {
-      block(nil, error);
+      RUN_IN_MAIN_THREAD(block(nil, error));
       return;
     }
     
@@ -324,15 +326,15 @@
       NSArray *ratings = [ratingsJSON mapToClass:[Rating class] withError:&error];
       if (ratings)
         // Run the completion block
-        block(ratings, nil);
+        RUN_IN_MAIN_THREAD(block(ratings, nil));
       else
         // Mapping failed, Run the completion block with error
-        block(nil, [self parsingErrorWithDescription:@"Not possible to map the parsed JSON, got error %@", [error userInfo]]);
+        RUN_IN_MAIN_THREAD(block(nil, [self parsingErrorWithDescription:@"Not possible to map the parsed JSON, got error %@", [error userInfo]]));
 
     } else {
       // Run the completion block with error
-      block(nil, [self parsingErrorWithDescription:@"HTTP get rating request failed with respose code %d and error message %@", 
-                  responseCode, [error userInfo]]);
+      RUN_IN_MAIN_THREAD(block(nil, [self parsingErrorWithDescription:@"HTTP get rating request failed with respose code %d and error message %@", 
+                                     responseCode, [error userInfo]]));
     }
     
   });
@@ -349,7 +351,7 @@
   // Check parameters
   if (!CHECK_URL(self.url, &error) || 
       !CHECK_USER_ID(self.userId, &error)) {
-    block(nil, error);
+    RUN_IN_MAIN_THREAD(block(nil, error));
     return;
   }
   
@@ -397,7 +399,7 @@
         !CHECK_LATITUDE(latitude, &error) || 
         !CHECK_LONGITUDE(longitude, &error) ||
         !CHECK_MAX_NUMBER_OF_RESULTS(maxNumberOfResults, &error)) {
-      block(nil, error);
+      RUN_IN_MAIN_THREAD(block(nil, error));
       return;
     }
     
@@ -430,15 +432,15 @@
       NSArray *ratings = [ratingsJSON mapToClass:[Rating class] withError:&error];
       if (ratings)
         // Run the completion block
-        block(ratings, nil);
+        RUN_IN_MAIN_THREAD(block(ratings, nil));
       else
         // Mapping failed, Run the completion block with error
-        block(nil, [self parsingErrorWithDescription:@"Not possible to map the parsed JSON, got error %@", [error userInfo]]);
+        RUN_IN_MAIN_THREAD(block(nil, [self parsingErrorWithDescription:@"Not possible to map the parsed JSON, got error %@", [error userInfo]]));
       
     } else {
       // Run the completion block with error
-      block(nil, [self parsingErrorWithDescription:@"HTTP get rating request failed with respose code %d and error message %@", 
-                  responseCode, [error userInfo]]);
+      RUN_IN_MAIN_THREAD(block(nil, [self parsingErrorWithDescription:@"HTTP get rating request failed with respose code %d and error message %@", 
+                                     responseCode, [error userInfo]]));
     }
     
   });
