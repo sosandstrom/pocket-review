@@ -21,21 +21,32 @@ The service is divided into the following groups of features:
 * Ratings - Rate a product  
 * Reviews - Write a review for a product  
 * Likes - Like a product  
+* Favorites - Add a product to my favorites
 
 ### Product id
 
-Each review and rating must include a unique product id provided by the application. The application might receive this id from some other service being integrated, e.g. a product catalog. It is up to the application to provide this id and ensure uniqueness and consistency through requests.
+Each method must include a unique product id provided by the application. The application might receive this id from some other service being integrated, e.g. a product catalog. It is up to the application to provide this id and ensure uniqueness and consistency through requests.
 
-### Anonymous ratings
+### Anonymous rating and reviews
 The application can perform all functions either anonymoulsy or providing a unique user identifier.
 
-If a unique user id is provided the service will ensure that the same user will not be able to rate or review the same product more the once. It will also be possible to ask for ratings and reviews for a specific user (my ratings).
+If a unique user id is provided be possible to ask for ratings, reviews etc for a specific user, e.g. my review, my likes.
 
 The SDKs provide functionality for automatically generating a unique user identifier that will persist through application starts. The application may also provide their own user id if they have a better way of identifying the user, e.g. through registration or login.
 
-
-### Location tagged ratings
+### Location tagged ratings and reviews
 The application can optionally supply a position (latitude and longitude) of the product being rated. This will allow the application to perform nearby operations, e.g. get nearby top average ratings. It is important that it is the products location that is provided during a rating and reivew, not the device location.
+
+## Deployment
+The backend is running on Google Appe Engine. 
+
+The backend code is divided into a service and a ready-made GAE backend.
+
+Users have several deploy options:
+
+* Using the already deployed and free to use GAE instance at TBD. Please note that this instance will only provide service as long as cost is below the daily GAE budget set by the authors.
+* Deploy their own instace of the GAE backend. This will alow the user fully control the budget and cost from the GAE dashboard. For setting up you own GAE instance, please find instrucitons here TBD.
+* Integrat the service into an exsisting GAE project.
 
 ## API documentation
 The additional details can be found here documentation for the respective SDK
