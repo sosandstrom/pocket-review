@@ -6,8 +6,12 @@ import com.wadpam.rnr.json.JRating;
 import com.wadpam.rnr.json.JResult;
 import com.wadpam.rnr.json.JResultPage;
 import com.wadpam.rnr.service.RnrService;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Collection;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -59,7 +63,7 @@ public class RatingController {
      * Returns a Collection of JRatings, where rating is 0..100
      * @param latitude optional, 
      * @param longitude optional
-     * @param radius optional, should be 2, 3, or 4. Default is 3.
+     * @param bits optional, default is 15 for a 1224m box.
      * @param minRating optional, should be 1..100, default is 50.
      * @return a Collection of JRatings, where rating is minRating..100
      */
@@ -70,7 +74,7 @@ public class RatingController {
     public ResponseEntity<Collection<JRating>> findNearbyRatings(HttpServletRequest request,
             @RequestParam(required=false) Float latitude,
             @RequestParam(required=false) Float longitude,
-            @RequestParam(defaultValue="3") int radius,
+            @RequestParam(defaultValue="15") int bits,
             @RequestParam(defaultValue="50") int minRating) {
         if (null == latitude) {
             final String cityLatLong = request.getHeader("X-AppEngine-CityLatLong");
@@ -82,8 +86,43 @@ public class RatingController {
         }
         
         final Collection<JRating> body = rnrService.findNearbyRatings(
-                latitude, longitude, radius, minRating);
+                latitude, longitude, bits, minRating);
         return new ResponseEntity<Collection<JRating>>(body, HttpStatus.OK);
+    }
+
+    /**
+     * Returns a KML of JRatings, where rating is 0..100
+     * @param latitude optional, 
+     * @param longitude optional
+     * @param bits optional, default is 15 for a 1224m box.
+     * @param minRating optional, should be 1..100, default is 50.
+     * @return a Collection of JRatings, where rating is minRating..100
+     */
+    @RestReturn(value=JRating.class, entity=JRating.class, code={
+        @RestCode(code=200, message="OK", description="Ratings found")
+    })
+    @RequestMapping(value="nearby.kml", method= RequestMethod.GET)
+    public void findNearbyRatingsKml(HttpServletRequest request,
+            HttpServletResponse response,
+            @RequestParam(required=false) Float latitude,
+            @RequestParam(required=false) Float longitude,
+            @RequestParam(defaultValue="15") int bits,
+            @RequestParam(defaultValue="50") int minRating) throws IOException {
+        if (null == latitude) {
+            final String cityLatLong = request.getHeader("X-AppEngine-CityLatLong");
+            if (null != cityLatLong) {
+                final int index = cityLatLong.indexOf(',');
+                latitude = Float.parseFloat(cityLatLong.substring(0, index));
+                longitude = Float.parseFloat(cityLatLong.substring(index+1));
+            }
+        }
+        
+        response.setContentType("application/vnd.google-earth.kml+xml");
+        final PrintWriter out = response.getWriter();
+        rnrService.nearbyRatingsKml(
+                latitude, longitude, bits, minRating, out);
+        out.flush();
+        out.close();
     }
 
     /**

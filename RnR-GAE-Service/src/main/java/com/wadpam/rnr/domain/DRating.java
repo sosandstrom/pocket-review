@@ -47,7 +47,7 @@ public class DRating extends AEDLongEntity implements GeoModel {
     
     @Basic
     /** used by GeoDao to index boxes */
-    private Collection<String> geoboxes;
+    private Collection<Long> geoboxes;
 
     @Override
     public Long getSimpleKey() {
@@ -61,21 +61,21 @@ public class DRating extends AEDLongEntity implements GeoModel {
     }
 
     @Override
-    public double getLatitude() {
+    public float getLatitude() {
         return null != location ? location.getLatitude() : 0;
     }
 
     @Override
-    public double getLongitude() {
+    public float getLongitude() {
         return null != location ? location.getLongitude() : 0;
     }
 
     @Override
-    public void setGeoboxes(Collection<String> geoboxes) {
+    public void setGeoboxes(Collection<Long> geoboxes) {
         this.geoboxes = geoboxes;
     }
 
-    public Collection<String> getGeoboxes() {
+    public Collection<Long> getGeoboxes() {
         return geoboxes;
     }
 

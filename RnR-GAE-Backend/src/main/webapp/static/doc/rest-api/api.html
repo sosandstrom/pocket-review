@@ -12,6 +12,7 @@
                 <ul>
                     <li><a href="api.html#com.wadpam.rnr.web.RatingController.addRating" class="link">addRating()</a></li>
                     <li><a href="api.html#com.wadpam.rnr.web.RatingController.findNearbyRatings" class="link">findNearbyRatings()</a></li>
+                    <li><a href="api.html#com.wadpam.rnr.web.RatingController.findNearbyRatingsKml" class="link">findNearbyRatingsKml()</a></li>
                     <li><a href="api.html#com.wadpam.rnr.web.RatingController.getAverageRating" class="link">getAverageRating()</a></li>
                     <li><a href="api.html#com.wadpam.rnr.web.RatingController.getAverageRatings" class="link">getAverageRatings()</a></li>
                     <li><a href="api.html#com.wadpam.rnr.web.RatingController.getAverageRatings" class="link">getAverageRatings()</a></li>
@@ -123,6 +124,70 @@
         <p class="restPath">
             <b>REST path</b>: GET&nbsp;
     /{domain}/rating/nearby
+
+		<h3>Request parameters</h3>
+		<table>
+			<thead>
+	    		<td class="column1">Where</th>
+	    		<td class="column2">Name</th>
+	    		<td class="column3">Type</th>
+	    		<td class="columnAuto">Description</th>
+			</thead>
+			<tbody>
+                            <tr>
+                                <td>query</td><td>latitude</td><td>Float</td><td>optional,</td>
+                            </tr>
+                            <tr>
+                                <td>query</td><td>longitude</td><td>Float</td><td>optional</td>
+                            </tr>
+                            <tr>
+                                <td>query</td><td>radius</td><td>int</td><td>optional, should be 2, 3, or 4. Default is 3.</td>
+                            </tr>
+                            <tr>
+                                <td>query</td><td>minRating</td><td>int</td><td>optional, should be 1..100, default is 50.</td>
+                            </tr>
+			</tbody>
+		</table>
+
+		<h3>Response Codes</h3>
+			<table>
+				<thead>
+	   				<td class="column1">HTTP Response Code</td>
+	   				<td class="column2">Message</td>
+	   				<td class="columnAuto">Description</td>
+				</thead>
+				<tbody>
+               <tr>
+                <td>200</td><td>OK</td><td colspan="2">Ratings found</td>
+            </tr>
+				</tbody>
+			</table>
+
+			<p>
+                            <b>Response Type</b>: <a href="api.html#com.wadpam.rnr.json.JRating" class="link">com.wadpam.rnr.json.JRating</a>
+                        </p>
+
+		<h3>Response Example</h3>
+		<p class="code">
+			<pre>{<div>&nbsp;&nbsp;&nbsp;<b>"createdDate"</b>&nbsp;:&nbsp;Long,</div><div>&nbsp;&nbsp;&nbsp;<b>"id"</b>&nbsp;:&nbsp;String,</div><div>&nbsp;&nbsp;&nbsp;<b>"location"</b>&nbsp;:&nbsp;{<div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>"latitude"</b>&nbsp;:&nbsp;float,</div><div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>"longitude"</b>&nbsp;:&nbsp;float,</div>&nbsp;&nbsp;&nbsp;},</div><div>&nbsp;&nbsp;&nbsp;<b>"productId"</b>&nbsp;:&nbsp;String,</div><div>&nbsp;&nbsp;&nbsp;<b>"rating"</b>&nbsp;:&nbsp;Integer,</div><div>&nbsp;&nbsp;&nbsp;<b>"updatedDate"</b>&nbsp;:&nbsp;Long,</div><div>&nbsp;&nbsp;&nbsp;<b>"username"</b>&nbsp;:&nbsp;String,</div>}</pre>
+		</p>
+				
+<!-- Method: findByName() ---------------------------------------------------->		
+        <a name="com.wadpam.rnr.web.RatingController.findNearbyRatingsKml" />
+
+        <h2 class="methodHeader">findNearbyRatingsKml()</h2>
+
+        <p>
+            <b>Description</b>:Returns a KML of JRatings, where rating is 0..100
+        </p>
+
+        <p>
+            <b>Implementing Class</b>: com.wadpam.rnr.web.RatingController
+        </p>
+
+        <p class="restPath">
+            <b>REST path</b>: GET&nbsp;
+    /{domain}/rating/nearbyKml
 
 		<h3>Request parameters</h3>
 		<table>

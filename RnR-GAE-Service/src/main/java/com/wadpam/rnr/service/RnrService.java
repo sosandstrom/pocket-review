@@ -4,6 +4,7 @@
  */
 package com.wadpam.rnr.service;
 
+import com.google.appengine.api.NamespaceManager;
 import com.google.appengine.api.datastore.GeoPt;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.Query;
@@ -13,6 +14,7 @@ import com.wadpam.rnr.dao.DResultDao;
 import com.wadpam.rnr.domain.DRating;
 import com.wadpam.rnr.domain.DResult;
 import com.wadpam.rnr.json.*;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -38,8 +40,32 @@ public class RnrService {
     
     public void init() {
         geoRatingDao = new GeoDaoImpl<DRating, DRating>(ratingDao);
+
+        doInDomain("dev", new Runnable() {
+
+            @Override
+            public void run() {
+                for (DRating rating : ratingDao.findAll()) {
+                    if (null != rating.getLocation()) {
+                        geoRatingDao.save(rating);
+                    }
+                }
+            }
+            
+        });
     }
     
+    public static void doInDomain(String domain, Runnable task) {
+        final String currentNamespace = NamespaceManager.get();
+        try {
+            NamespaceManager.set(domain);
+            task.run();
+        }
+        finally {
+            NamespaceManager.set(currentNamespace);
+        }
+    }
+
     /**
      * @param productId 
      * @return the average rating for specified productId
@@ -185,12 +211,11 @@ public class RnrService {
         return to;
     }
 
-    public Collection<JRating> findNearbyRatings(Float latitude, Float longitude, int radius, int minRating) {
-        final int resolution = 3;
+    public Collection<JRating> findNearbyRatings(Float latitude, Float longitude, int bits, int minRating) {
         final Expression ratingFilter = new Expression(ratingDao.COLUMN_NAME_RATING, 
                 Query.FilterOperator.GREATER_THAN_OR_EQUAL, minRating);
         final Collection<DRating> list = geoRatingDao.findInGeobox(latitude, longitude, 
-                resolution, radius, null, false, 0, -1, ratingFilter);
+                bits, null, false, 0, -1, ratingFilter);
         return (Collection<JRating>) convert(list);
     }
 
@@ -223,6 +248,15 @@ public class RnrService {
     public Collection<JResult> getAverageRatings(String[] ids) {
         Map<String,DResult> map = resultDao.findByPrimaryKeys(null, Arrays.asList(ids));
         return (Collection<JResult>) convert(map.values());
+    }
+
+    public void nearbyRatingsKml(Float latitude, Float longitude, int bits, int minRating, PrintWriter out) {
+        final int resolution = 3;
+        final Expression ratingFilter = new Expression(ratingDao.COLUMN_NAME_RATING, 
+                Query.FilterOperator.GREATER_THAN_OR_EQUAL, new Rating(minRating));
+        final Collection<DRating> list = geoRatingDao.findInGeobox(latitude, longitude, 
+                bits, null, false, 0, -1, ratingFilter);
+        writeRatingsKml(out, list);
     }
 
     public static Long toLong(Key from) {
@@ -277,6 +311,37 @@ public class RnrService {
         }
 
         return to;
+    }
+
+    protected void writeRatingsKml(PrintWriter kmlDest, Collection<DRating> list) {
+        kmlDest.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+        kmlDest.println("<kml xmlns=\"http://www.opengis.net/kml/2.2\">");
+        kmlDest.println("<Document>");
+        kmlDest.println("   <name>Nearby ratings</name>");
+        kmlDest.println("   <description>This is the description tag of the KML document</description>");
+
+        
+
+        kmlDest.println("</Document>");
+        kmlDest.println("</kml>");
+    }
+    
+    protected void writePlacemarkKml(PrintWriter kmlDest, DRating rating) {
+        kmlDest.println("   <Placemark>");
+        kmlDest.println("      <name>" + rating.getProductId() + "</name>");
+//                        kmlDest.println("      <address>" + area + ", " + loc + "</address>");
+
+//        StringBuffer desc = new StringBuffer("<![CDATA[<p>");
+//        desc.append("]]>");
+//
+//        kmlDest.println("      <description>" + desc.toString() + "</description>");
+        kmlDest.println("      <description>" + rating.getUsername() + "</description>");
+        kmlDest.println("      <Point>");
+        kmlDest.println(String.format("         <coordinates>%s,%s,0</coordinates>", 
+                Double.toString(rating.getLongitude()), Double.toString(rating.getLatitude())));
+        kmlDest.println("      </Point>");
+        kmlDest.println("   </Placemark>");
+        
     }
 
     public void setRatingDao(DRatingDao ratingDao) {
