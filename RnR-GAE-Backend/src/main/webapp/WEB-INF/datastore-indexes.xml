@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<datastore-indexes autoGenerate="true">
+    <datastore-index kind="DRating" ancestor="false" source="manual">
+        <property name="geoboxes" direction="asc"/>
+        <property name="rating" direction="asc"/>
+    </datastore-index>
+</datastore-indexes>

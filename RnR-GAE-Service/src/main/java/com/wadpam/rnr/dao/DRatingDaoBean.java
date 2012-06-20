@@ -19,7 +19,7 @@ public class DRatingDaoBean
 
     @Override
     public Collection<DRating> findGeoBase(String orderBy, boolean ascending, int limit, int offset, Expression... filters) {
-        return findGeoBase(orderBy, ascending, limit, offset, filters);
+        return findBy(orderBy, ascending, limit, offset, filters);
     }
 
     @Override
@@ -28,13 +28,13 @@ public class DRatingDaoBean
     }
 
     @Override
-    public Collection<DRating> findInGeobox(float lat, float lng, int resolution, int slice, String orderBy, boolean ascending, int offset, int limit, Expression... filters) {
+    public Collection<DRating> findInGeobox(float lat, float lng, int bits, String orderBy, boolean ascending, int offset, int limit, Expression... filters) {
         throw new UnsupportedOperationException("Invoke on GeoDao instead.");
     }
 
     @Override
     public Long save(DRating model) {
-        throw new UnsupportedOperationException("Invoke on GeoDao instead.");
+        return update(model);
     }
 
     
