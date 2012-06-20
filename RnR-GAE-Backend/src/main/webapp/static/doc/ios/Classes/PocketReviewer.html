@@ -56,19 +56,35 @@
 	
 	<option value="instance_methods">Instance Methods</option>
 	
+	<option value="//api/name/addItemToMyFavorite:completionBlock:">&nbsp;&nbsp;&nbsp;&nbsp;- addItemToMyFavorite:completionBlock:</option>
+	
 	<option value="//api/name/averageRatingForItem:completionBlock:">&nbsp;&nbsp;&nbsp;&nbsp;- averageRatingForItem:completionBlock:</option>
 	
 	<option value="//api/name/averageRatingForItems:completionBlock:">&nbsp;&nbsp;&nbsp;&nbsp;- averageRatingForItems:completionBlock:</option>
 	
 	<option value="//api/name/deleteMyReviewForItem:completionBlock:">&nbsp;&nbsp;&nbsp;&nbsp;- deleteMyReviewForItem:completionBlock:</option>
 	
+	<option value="//api/name/likeItem:completionBlock:">&nbsp;&nbsp;&nbsp;&nbsp;- likeItem:completionBlock:</option>
+	
+	<option value="//api/name/likeItem:withLatitude:longitude:completionBlock:">&nbsp;&nbsp;&nbsp;&nbsp;- likeItem:withLatitude:longitude:completionBlock:</option>
+	
+	<option value="//api/name/mostLikedItems:completionBlock:">&nbsp;&nbsp;&nbsp;&nbsp;- mostLikedItems:completionBlock:</option>
+	
+	<option value="//api/name/mostLikedNearbyItemsForLatitude:longitude:withinRadius:maxNumberOfResults:completionBlock:">&nbsp;&nbsp;&nbsp;&nbsp;- mostLikedNearbyItemsForLatitude:longitude:withinRadius:maxNumberOfResults:completionBlock:</option>
+	
+	<option value="//api/name/mostLikedNearbyItemsWithinRadius:maxNumberOfResults:completionBlock:">&nbsp;&nbsp;&nbsp;&nbsp;- mostLikedNearbyItemsWithinRadius:maxNumberOfResults:completionBlock:</option>
+	
+	<option value="//api/name/myFavoritesWithCompletionBlock:">&nbsp;&nbsp;&nbsp;&nbsp;- myFavoritesWithCompletionBlock:</option>
+	
+	<option value="//api/name/myLikesWithCompletionBlock:">&nbsp;&nbsp;&nbsp;&nbsp;- myLikesWithCompletionBlock:</option>
+	
 	<option value="//api/name/myRatingsWithCompletionBlock:">&nbsp;&nbsp;&nbsp;&nbsp;- myRatingsWithCompletionBlock:</option>
 	
 	<option value="//api/name/myReviewsWithCompletionBlock:">&nbsp;&nbsp;&nbsp;&nbsp;- myReviewsWithCompletionBlock:</option>
 	
-	<option value="//api/name/nearbyTopAverageRatingsForLatitude:longitude:withinRadius:maxNumberOfResults:completionBlock:">&nbsp;&nbsp;&nbsp;&nbsp;- nearbyTopAverageRatingsForLatitude:longitude:withinRadius:maxNumberOfResults:completionBlock:</option>
+	<option value="//api/name/numberOfLikesForItem:completionBlock:">&nbsp;&nbsp;&nbsp;&nbsp;- numberOfLikesForItem:completionBlock:</option>
 	
-	<option value="//api/name/nearbyTopAverageRatingsWithinRadius:maxNumberOfResults:completionBlock:">&nbsp;&nbsp;&nbsp;&nbsp;- nearbyTopAverageRatingsWithinRadius:maxNumberOfResults:completionBlock:</option>
+	<option value="//api/name/numberOfLikesForItems:completionBlock:">&nbsp;&nbsp;&nbsp;&nbsp;- numberOfLikesForItems:completionBlock:</option>
 	
 	<option value="//api/name/rateItem:forLatitude:longitude:withRating:completionBlock:">&nbsp;&nbsp;&nbsp;&nbsp;- rateItem:forLatitude:longitude:withRating:completionBlock:</option>
 	
@@ -81,6 +97,10 @@
 	<option value="//api/name/startReviewingWithServiceUrl:domain:anonymousUser:withError:">&nbsp;&nbsp;&nbsp;&nbsp;- startReviewingWithServiceUrl:domain:anonymousUser:withError:</option>
 	
 	<option value="//api/name/topAverageRatings:completionBlock:">&nbsp;&nbsp;&nbsp;&nbsp;- topAverageRatings:completionBlock:</option>
+	
+	<option value="//api/name/topNearbyAverageRatingsForLatitude:longitude:withinRadius:maxNumberOfResults:completionBlock:">&nbsp;&nbsp;&nbsp;&nbsp;- topNearbyAverageRatingsForLatitude:longitude:withinRadius:maxNumberOfResults:completionBlock:</option>
+	
+	<option value="//api/name/topNearbyAverageRatingsWithinRadius:maxNumberOfResults:completionBlock:">&nbsp;&nbsp;&nbsp;&nbsp;- topNearbyAverageRatingsWithinRadius:maxNumberOfResults:completionBlock:</option>
 	
 	
 	
@@ -103,6 +123,10 @@
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#task_Ratings">Ratings</a></span></li>
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#task_Reviews">Reviews</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#task_Likes">Likes</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#task_Favorites">Favorites</a></span></li>
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#task_Properties">Properties</a></span></li>
 	
@@ -132,19 +156,35 @@
 
 <li role="treeitem" class="children"><span class="disclosure"></span><span class="sectionName"><a href="#instance_methods">Instance Methods</a></span><ul>
 	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/addItemToMyFavorite:completionBlock:">addItemToMyFavorite:completionBlock:</a></span></li>
+	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/averageRatingForItem:completionBlock:">averageRatingForItem:completionBlock:</a></span></li>
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/averageRatingForItems:completionBlock:">averageRatingForItems:completionBlock:</a></span></li>
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/deleteMyReviewForItem:completionBlock:">deleteMyReviewForItem:completionBlock:</a></span></li>
 	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/likeItem:completionBlock:">likeItem:completionBlock:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/likeItem:withLatitude:longitude:completionBlock:">likeItem:withLatitude:longitude:completionBlock:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/mostLikedItems:completionBlock:">mostLikedItems:completionBlock:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/mostLikedNearbyItemsForLatitude:longitude:withinRadius:maxNumberOfResults:completionBlock:">mostLikedNearbyItemsForLatitude:longitude:withinRadius:maxNumberOfResults:completionBlock:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/mostLikedNearbyItemsWithinRadius:maxNumberOfResults:completionBlock:">mostLikedNearbyItemsWithinRadius:maxNumberOfResults:completionBlock:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/myFavoritesWithCompletionBlock:">myFavoritesWithCompletionBlock:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/myLikesWithCompletionBlock:">myLikesWithCompletionBlock:</a></span></li>
+	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/myRatingsWithCompletionBlock:">myRatingsWithCompletionBlock:</a></span></li>
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/myReviewsWithCompletionBlock:">myReviewsWithCompletionBlock:</a></span></li>
 	
-	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/nearbyTopAverageRatingsForLatitude:longitude:withinRadius:maxNumberOfResults:completionBlock:">nearbyTopAverageRatingsForLatitude:longitude:withinRadius:maxNumberOfResults:completionBlock:</a></span></li>
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/numberOfLikesForItem:completionBlock:">numberOfLikesForItem:completionBlock:</a></span></li>
 	
-	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/nearbyTopAverageRatingsWithinRadius:maxNumberOfResults:completionBlock:">nearbyTopAverageRatingsWithinRadius:maxNumberOfResults:completionBlock:</a></span></li>
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/numberOfLikesForItems:completionBlock:">numberOfLikesForItems:completionBlock:</a></span></li>
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/rateItem:forLatitude:longitude:withRating:completionBlock:">rateItem:forLatitude:longitude:withRating:completionBlock:</a></span></li>
 	
@@ -157,6 +197,10 @@
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/startReviewingWithServiceUrl:domain:anonymousUser:withError:">startReviewingWithServiceUrl:domain:anonymousUser:withError:</a></span></li>
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/topAverageRatings:completionBlock:">topAverageRatings:completionBlock:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/topNearbyAverageRatingsForLatitude:longitude:withinRadius:maxNumberOfResults:completionBlock:">topNearbyAverageRatingsForLatitude:longitude:withinRadius:maxNumberOfResults:completionBlock:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/topNearbyAverageRatingsWithinRadius:maxNumberOfResults:completionBlock:">topNearbyAverageRatingsWithinRadius:maxNumberOfResults:completionBlock:</a></span></li>
 	
 </ul></li>
 
@@ -197,10 +241,35 @@
 						<h2 class="subtitle subtitle-overview">Overview</h2>
 						<p>A lightweight, easy to use and ready to go review and rating service tailored for mobile apps.</p>
 
-<p>Before you can use the SDK you need to register a unique domain name at http://pocket-reviews.appspot.com.</p>
+<p>Before you can use the SDK you need to register a unique domain name at <a href="http://pocket-reviews.appspot.com">http://pocket-reviews.appspot.com</a>.</p>
+
+<p>The follwing features are provided</p>
+
+<ul>
+<li>Ratings &ndash; Rate a product</li>
+<li>Reviews &ndash; Write a review for a product</li>
+<li>Likes &ndash; Like a product</li>
+<li>Favorites &ndash; Add a product to my favorites</li>
+</ul>
+
 
 <p>All methods are asynchronous using GCD and will return immediately. The application will be informed about the outcome
 of a method by providing a completion block.</p>
+
+<h3>Item id</h3>
+
+<p>Each method must include a unique item/product id provided by the application. It is applications responsibilty to provide
+this id and ensure uniqueness and consistency through requests.</p>
+
+<h3>Anonymous users</h3>
+
+<p>The application can perform all functions either anonymoulsy or providing a unique user identifier. The SDK provide
+functionality for automatically generating a unique user identifier that will persist through application starts.</p>
+
+<h3>Location tagged</h3>
+
+<p>The application can optionally supply a position (latitude and longitude) of the product being rated. This will allow
+the application to perform nearby operations of stored data.</p>
 					</div>
 					
 					
@@ -275,15 +344,15 @@ of a method by providing a completion block.</p>
 	
 </li><li>
 	<span class="tooltip">
-		<code><a href="#//api/name/nearbyTopAverageRatingsWithinRadius:maxNumberOfResults:completionBlock:">&ndash;&nbsp;nearbyTopAverageRatingsWithinRadius:maxNumberOfResults:completionBlock:</a></code>
+		<code><a href="#//api/name/topNearbyAverageRatingsWithinRadius:maxNumberOfResults:completionBlock:">&ndash;&nbsp;topNearbyAverageRatingsWithinRadius:maxNumberOfResults:completionBlock:</a></code>
 		<span class="tooltip"><p>Get top nearby average ratings using the device location provided by Google.</p></span>
 	</span>
 	
 	
 </li><li>
 	<span class="tooltip">
-		<code><a href="#//api/name/nearbyTopAverageRatingsForLatitude:longitude:withinRadius:maxNumberOfResults:completionBlock:">&ndash;&nbsp;nearbyTopAverageRatingsForLatitude:longitude:withinRadius:maxNumberOfResults:completionBlock:</a></code>
-		<span class="tooltip"><p>Get nearby items with a minimum average rating using the device location provided by the application.</p></span>
+		<code><a href="#//api/name/topNearbyAverageRatingsForLatitude:longitude:withinRadius:maxNumberOfResults:completionBlock:">&ndash;&nbsp;topNearbyAverageRatingsForLatitude:longitude:withinRadius:maxNumberOfResults:completionBlock:</a></code>
+		<span class="tooltip"><p>Get top nearby average ratings using the device location provided by the application.</p></span>
 	</span>
 	
 	
@@ -327,6 +396,92 @@ of a method by providing a completion block.</p>
 	<span class="tooltip">
 		<code><a href="#//api/name/myReviewsWithCompletionBlock:">&ndash;&nbsp;myReviewsWithCompletionBlock:</a></code>
 		<span class="tooltip"><p>Get all my reviews.</p></span>
+	</span>
+	
+	
+</li>
+						</ul>
+						
+						
+						<a title="Likes" name="task_Likes"></a>
+						<h3 class="subsubtitle task-title">Likes</h3>
+
+						<ul class="task-list">
+							<li>
+	<span class="tooltip">
+		<code><a href="#//api/name/likeItem:completionBlock:">&ndash;&nbsp;likeItem:completionBlock:</a></code>
+		<span class="tooltip"><p>Like an item.</p></span>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/likeItem:withLatitude:longitude:completionBlock:">&ndash;&nbsp;likeItem:withLatitude:longitude:completionBlock:</a></code>
+		<span class="tooltip"><p>Like an item with a specified latitude and longitude.</p></span>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/numberOfLikesForItem:completionBlock:">&ndash;&nbsp;numberOfLikesForItem:completionBlock:</a></code>
+		<span class="tooltip"><p>Get the total number of likes for an item.</p></span>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/numberOfLikesForItems:completionBlock:">&ndash;&nbsp;numberOfLikesForItems:completionBlock:</a></code>
+		<span class="tooltip"><p>Get the total number of likes for a list of items.</p></span>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/mostLikedItems:completionBlock:">&ndash;&nbsp;mostLikedItems:completionBlock:</a></code>
+		<span class="tooltip"><p>Get the a list of items with the highest number of likes.</p></span>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/mostLikedNearbyItemsWithinRadius:maxNumberOfResults:completionBlock:">&ndash;&nbsp;mostLikedNearbyItemsWithinRadius:maxNumberOfResults:completionBlock:</a></code>
+		<span class="tooltip"><p>Get the top nearby items with the highest number of likes using the device location provided by Google.</p></span>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/mostLikedNearbyItemsForLatitude:longitude:withinRadius:maxNumberOfResults:completionBlock:">&ndash;&nbsp;mostLikedNearbyItemsForLatitude:longitude:withinRadius:maxNumberOfResults:completionBlock:</a></code>
+		<span class="tooltip"><p>Get the top nearby items with the highest number of likes using the device location provided by the application.</p></span>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/myLikesWithCompletionBlock:">&ndash;&nbsp;myLikesWithCompletionBlock:</a></code>
+		<span class="tooltip"><p>Get all my Likes.</p></span>
+	</span>
+	
+	
+</li>
+						</ul>
+						
+						
+						<a title="Favorites" name="task_Favorites"></a>
+						<h3 class="subsubtitle task-title">Favorites</h3>
+
+						<ul class="task-list">
+							<li>
+	<span class="tooltip">
+		<code><a href="#//api/name/addItemToMyFavorite:completionBlock:">&ndash;&nbsp;addItemToMyFavorite:completionBlock:</a></code>
+		<span class="tooltip"><p>Add an item to my favorites.</p></span>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/myFavoritesWithCompletionBlock:">&ndash;&nbsp;myFavoritesWithCompletionBlock:</a></code>
+		<span class="tooltip"><p>Get my favorites.</p></span>
 	</span>
 	
 	
@@ -515,6 +670,57 @@ If the application have a better way of uniquely indentifing users, e.g. through
 						<h2 class="subtitle subtitle-methods">Instance Methods</h2>
 						
 						<div class="section-method">
+	<a name="//api/name/addItemToMyFavorite:completionBlock:" title="addItemToMyFavorite:completionBlock:"></a>
+	<h3 class="subsubtitle method-title">addItemToMyFavorite:completionBlock:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Add an item to my favorites.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)addItemToMyFavorite:(NSString *)<em>itemId</em> completionBlock:(void ( ^ ) ( NSError *))<em>block</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>itemId</em></dt>
+			<dd><p>The unique item</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>block</em></dt>
+			<dd><p>A block that will be executed when the request completes or fails</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">PocketReviewer.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
 	<a name="//api/name/averageRatingForItem:completionBlock:" title="averageRatingForItem:completionBlock:"></a>
 	<h3 class="subsubtitle method-title">averageRatingForItem:completionBlock:</h3>
 	
@@ -673,6 +879,421 @@ If the application have a better way of uniquely indentifing users, e.g. through
 </div>
 						
 						<div class="section-method">
+	<a name="//api/name/likeItem:completionBlock:" title="likeItem:completionBlock:"></a>
+	<h3 class="subsubtitle method-title">likeItem:completionBlock:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Like an item.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)likeItem:(NSString *)<em>itemId</em> completionBlock:(void ( ^ ) ( NSError *))<em>block</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>itemId</em></dt>
+			<dd><p>The unique item</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>block</em></dt>
+			<dd><p>A block that will be executed when the request completes or fails</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>The domain can be configured to only allow non-anonymous users to like the same item once at http://pocket-reviews.appspot.com.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">PocketReviewer.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/likeItem:withLatitude:longitude:completionBlock:" title="likeItem:withLatitude:longitude:completionBlock:"></a>
+	<h3 class="subsubtitle method-title">likeItem:withLatitude:longitude:completionBlock:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Like an item with a specified latitude and longitude.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)likeItem:(NSString *)<em>itemId</em> withLatitude:(float)<em>latitude</em> longitude:(float)<em>longitude</em> completionBlock:(void ( ^ ) ( NSError *))<em>block</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>itemId</em></dt>
+			<dd><p>The unique item being rated</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>latitude</em></dt>
+			<dd><p>The latitude of the item being rated</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>longitude</em></dt>
+			<dd><p>The longitude of the item being rated</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>block</em></dt>
+			<dd><p>A block that will be executed when the request completes or fails</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>The domain can be configured to only allow non-anonymous users to like the same item once at http://pocket-reviews.appspot.com.</p>
+
+<p>Only non-anonymous users will be able to get their own likes.</p>
+
+<p>Please note that it is the liked items location what should be provided, not the device current location.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">PocketReviewer.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/mostLikedItems:completionBlock:" title="mostLikedItems:completionBlock:"></a>
+	<h3 class="subsubtitle method-title">mostLikedItems:completionBlock:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Get the a list of items with the highest number of likes.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)mostLikedItems:(NSInteger)<em>maxNumberOfResults</em> completionBlock:(void ( ^ ) ( NSArray *, NSError *))<em>block</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>maxNumberOfResults</em></dt>
+			<dd><p>The maximum number of results the service should return, e.g. specify 10 to get the top 10 list</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>block</em></dt>
+			<dd><p>A block that will be executed when the request completes or fails</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">PocketReviewer.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/mostLikedNearbyItemsForLatitude:longitude:withinRadius:maxNumberOfResults:completionBlock:" title="mostLikedNearbyItemsForLatitude:longitude:withinRadius:maxNumberOfResults:completionBlock:"></a>
+	<h3 class="subsubtitle method-title">mostLikedNearbyItemsForLatitude:longitude:withinRadius:maxNumberOfResults:completionBlock:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Get the top nearby items with the highest number of likes using the device location provided by the application.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)mostLikedNearbyItemsForLatitude:(float)<em>latitude</em> longitude:(float)<em>longitude</em> withinRadius:(NearbyRadius)<em>radius</em> maxNumberOfResults:(NSInteger)<em>maxNumberOfResults</em> completionBlock:(void ( ^ ) ( NSArray *, NSError *))<em>block</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>latitude</em></dt>
+			<dd><p>The devices latitude</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>longitude</em></dt>
+			<dd><p>The device longitude</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>radius</em></dt>
+			<dd><p>The radius to search within</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>maxNumberOfResults</em></dt>
+			<dd><p>The maximum number of results the service should return</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>block</em></dt>
+			<dd><p>A block that will be executed when the request completes or fails</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>Items must be liked using the items latitude and longitude for this method to return the number of likes,
+otherwise en empty list will be returned.</p>
+
+<p>The returned ratings will be sorted on average rating.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">PocketReviewer.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/mostLikedNearbyItemsWithinRadius:maxNumberOfResults:completionBlock:" title="mostLikedNearbyItemsWithinRadius:maxNumberOfResults:completionBlock:"></a>
+	<h3 class="subsubtitle method-title">mostLikedNearbyItemsWithinRadius:maxNumberOfResults:completionBlock:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Get the top nearby items with the highest number of likes using the device location provided by Google.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)mostLikedNearbyItemsWithinRadius:(NearbyRadius)<em>radius</em> maxNumberOfResults:(NSInteger)<em>maxNumberOfResults</em> completionBlock:(void ( ^ ) ( NSArray *, NSError *))<em>block</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>radius</em></dt>
+			<dd><p>The radius to search within</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>maxNumberOfResults</em></dt>
+			<dd><p>The maximum number of results the service should return</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>block</em></dt>
+			<dd><p>A block that will be executed when the request completes or fails</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>The latitude and logitude automatically provided by GAE will be used as the device location.
+The location provided by Google is most likely on city level.</p>
+
+<p>Items must be liked using the items latitude and longitude for this method to return the number of likes,
+otherwise en empty list will be returned.</p>
+
+<p>The returned ratings will be sorted on average rating.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">PocketReviewer.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/myFavoritesWithCompletionBlock:" title="myFavoritesWithCompletionBlock:"></a>
+	<h3 class="subsubtitle method-title">myFavoritesWithCompletionBlock:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Get my favorites.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)myFavoritesWithCompletionBlock:(void ( ^ ) ( NSArray *, NSError *))<em>block</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>block</em></dt>
+			<dd><p>A block that will be executed when the request completes or fails</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">PocketReviewer.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/myLikesWithCompletionBlock:" title="myLikesWithCompletionBlock:"></a>
+	<h3 class="subsubtitle method-title">myLikesWithCompletionBlock:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Get all my Likes.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)myLikesWithCompletionBlock:(void ( ^ ) ( NSArray *, NSError *))<em>block</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>block</em></dt>
+			<dd><p>A block that will be executed when the request completes or fails</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>This method will only return Likes if non-anonymous likes have been used, otherwise nil will be retuned.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">PocketReviewer.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
 	<a name="//api/name/myRatingsWithCompletionBlock:" title="myRatingsWithCompletionBlock:"></a>
 	<h3 class="subsubtitle method-title">myRatingsWithCompletionBlock:</h3>
 	
@@ -757,7 +1378,7 @@ If the application have a better way of uniquely indentifing users, e.g. through
 	
 	<div class="method-subsection discussion-section">
 		<h4 class="method-subtitle">Discussion</h4>
-		<p>This method will only return reviwes if non-anonymous reviews have been used, otherwise nil will be returned</p>
+		<p>This method will only return reviews if non-anonymous reviews have been used, otherwise nil will be returned.</p>
 	</div>
 	
 	
@@ -775,18 +1396,18 @@ If the application have a better way of uniquely indentifing users, e.g. through
 </div>
 						
 						<div class="section-method">
-	<a name="//api/name/nearbyTopAverageRatingsForLatitude:longitude:withinRadius:maxNumberOfResults:completionBlock:" title="nearbyTopAverageRatingsForLatitude:longitude:withinRadius:maxNumberOfResults:completionBlock:"></a>
-	<h3 class="subsubtitle method-title">nearbyTopAverageRatingsForLatitude:longitude:withinRadius:maxNumberOfResults:completionBlock:</h3>
+	<a name="//api/name/numberOfLikesForItem:completionBlock:" title="numberOfLikesForItem:completionBlock:"></a>
+	<h3 class="subsubtitle method-title">numberOfLikesForItem:completionBlock:</h3>
 	
 	
 	
 	<div class="method-subsection brief-description">
-		<p>Get nearby items with a minimum average rating using the device location provided by the application.</p>
+		<p>Get the total number of likes for an item.</p>
 	</div>		
 	
     
 
-	<div class="method-subsection method-declaration"><code>- (void)nearbyTopAverageRatingsForLatitude:(float)<em>latitude</em> longitude:(float)<em>longitude</em> withinRadius:(NearbyRadius)<em>radius</em> maxNumberOfResults:(NSInteger)<em>maxNumberOfResults</em> completionBlock:(void ( ^ ) ( NSArray *, NSError *))<em>block</em></code></div>
+	<div class="method-subsection method-declaration"><code>- (void)numberOfLikesForItem:(NSString *)<em>itemId</em> completionBlock:(void ( ^ ) ( Likes *, NSError *))<em>block</em></code></div>
 
     
 	
@@ -794,23 +1415,8 @@ If the application have a better way of uniquely indentifing users, e.g. through
 		<h4 class="method-subtitle parameter-title">Parameters</h4>
 		
 		<dl class="argument-def parameter-def">
-			<dt><em>latitude</em></dt>
-			<dd><p>The devices latitude</p></dd>
-		</dl>
-		
-		<dl class="argument-def parameter-def">
-			<dt><em>longitude</em></dt>
-			<dd><p>The device longitude</p></dd>
-		</dl>
-		
-		<dl class="argument-def parameter-def">
-			<dt><em>radius</em></dt>
-			<dd><p>The radius to search within</p></dd>
-		</dl>
-		
-		<dl class="argument-def parameter-def">
-			<dt><em>maxNumberOfResults</em></dt>
-			<dd><p>The maximum number of results the service should return</p></dd>
+			<dt><em>itemId</em></dt>
+			<dd><p>The unique item</p></dd>
 		</dl>
 		
 		<dl class="argument-def parameter-def">
@@ -825,14 +1431,6 @@ If the application have a better way of uniquely indentifing users, e.g. through
 	
 	
 	
-	
-	<div class="method-subsection discussion-section">
-		<h4 class="method-subtitle">Discussion</h4>
-		<p>Items must be rated using the items latitude and longitude for this method to return the average ratings,
-otherwise en empty list will be returned.</p>
-
-<p>The returned ratings will be sorted on average rating.</p>
-	</div>
 	
 	
 	
@@ -849,18 +1447,18 @@ otherwise en empty list will be returned.</p>
 </div>
 						
 						<div class="section-method">
-	<a name="//api/name/nearbyTopAverageRatingsWithinRadius:maxNumberOfResults:completionBlock:" title="nearbyTopAverageRatingsWithinRadius:maxNumberOfResults:completionBlock:"></a>
-	<h3 class="subsubtitle method-title">nearbyTopAverageRatingsWithinRadius:maxNumberOfResults:completionBlock:</h3>
+	<a name="//api/name/numberOfLikesForItems:completionBlock:" title="numberOfLikesForItems:completionBlock:"></a>
+	<h3 class="subsubtitle method-title">numberOfLikesForItems:completionBlock:</h3>
 	
 	
 	
 	<div class="method-subsection brief-description">
-		<p>Get top nearby average ratings using the device location provided by Google.</p>
+		<p>Get the total number of likes for a list of items.</p>
 	</div>		
 	
     
 
-	<div class="method-subsection method-declaration"><code>- (void)nearbyTopAverageRatingsWithinRadius:(NearbyRadius)<em>radius</em> maxNumberOfResults:(NSInteger)<em>maxNumberOfResults</em> completionBlock:(void ( ^ ) ( NSArray *, NSError *))<em>block</em></code></div>
+	<div class="method-subsection method-declaration"><code>- (void)numberOfLikesForItems:(NSArray *)<em>itemIds</em> completionBlock:(void ( ^ ) ( NSArray *, NSError *))<em>block</em></code></div>
 
     
 	
@@ -868,13 +1466,8 @@ otherwise en empty list will be returned.</p>
 		<h4 class="method-subtitle parameter-title">Parameters</h4>
 		
 		<dl class="argument-def parameter-def">
-			<dt><em>radius</em></dt>
-			<dd><p>The radius to search within</p></dd>
-		</dl>
-		
-		<dl class="argument-def parameter-def">
-			<dt><em>maxNumberOfResults</em></dt>
-			<dd><p>The maximum number of results the service should return</p></dd>
+			<dt><em>itemIds</em></dt>
+			<dd><p>A list if items</p></dd>
 		</dl>
 		
 		<dl class="argument-def parameter-def">
@@ -889,17 +1482,6 @@ otherwise en empty list will be returned.</p>
 	
 	
 	
-	
-	<div class="method-subsection discussion-section">
-		<h4 class="method-subtitle">Discussion</h4>
-		<p>The latitude and logitude automatically provided by GAE will be used as the device location.
-The location provided by Google is most likely on city level.</p>
-
-<p>Items must be rated using the items latitude and longitude for this method to return the average ratings,
-otherwise en empty list will be returned.</p>
-
-<p>The returned ratings will be sorted on average rating.</p>
-	</div>
 	
 	
 	
@@ -1258,8 +1840,7 @@ If NO a unique user id will be generated that will be used in all requests. The 
 		
 		<dl class="argument-def parameter-def">
 			<dt><em>block</em></dt>
-			<dd><p>A block that will be executed when the request completes or fails
-@</p></dd>
+			<dd><p>A block that will be executed when the request completes or fails</p></dd>
 		</dl>
 		
 	</div>
@@ -1289,6 +1870,147 @@ If NO a unique user id will be generated that will be used in all requests. The 
 	
 </div>
 						
+						<div class="section-method">
+	<a name="//api/name/topNearbyAverageRatingsForLatitude:longitude:withinRadius:maxNumberOfResults:completionBlock:" title="topNearbyAverageRatingsForLatitude:longitude:withinRadius:maxNumberOfResults:completionBlock:"></a>
+	<h3 class="subsubtitle method-title">topNearbyAverageRatingsForLatitude:longitude:withinRadius:maxNumberOfResults:completionBlock:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Get top nearby average ratings using the device location provided by the application.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)topNearbyAverageRatingsForLatitude:(float)<em>latitude</em> longitude:(float)<em>longitude</em> withinRadius:(NearbyRadius)<em>radius</em> maxNumberOfResults:(NSInteger)<em>maxNumberOfResults</em> completionBlock:(void ( ^ ) ( NSArray *, NSError *))<em>block</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>latitude</em></dt>
+			<dd><p>The devices latitude</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>longitude</em></dt>
+			<dd><p>The device longitude</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>radius</em></dt>
+			<dd><p>The radius to search within</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>maxNumberOfResults</em></dt>
+			<dd><p>The maximum number of results the service should return</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>block</em></dt>
+			<dd><p>A block that will be executed when the request completes or fails</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>Items must be rated using the items latitude and longitude for this method to return the average ratings,
+otherwise en empty list will be returned.</p>
+
+<p>The returned ratings will be sorted on average rating.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">PocketReviewer.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/topNearbyAverageRatingsWithinRadius:maxNumberOfResults:completionBlock:" title="topNearbyAverageRatingsWithinRadius:maxNumberOfResults:completionBlock:"></a>
+	<h3 class="subsubtitle method-title">topNearbyAverageRatingsWithinRadius:maxNumberOfResults:completionBlock:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Get top nearby average ratings using the device location provided by Google.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)topNearbyAverageRatingsWithinRadius:(NearbyRadius)<em>radius</em> maxNumberOfResults:(NSInteger)<em>maxNumberOfResults</em> completionBlock:(void ( ^ ) ( NSArray *, NSError *))<em>block</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>radius</em></dt>
+			<dd><p>The radius to search within</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>maxNumberOfResults</em></dt>
+			<dd><p>The maximum number of results the service should return</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>block</em></dt>
+			<dd><p>A block that will be executed when the request completes or fails</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>The latitude and logitude automatically provided by GAE will be used as the device location.
+The location provided by Google is most likely on city level.</p>
+
+<p>Items must be rated using the items latitude and longitude for this method to return the average ratings,
+otherwise en empty list will be returned.</p>
+
+<p>The returned ratings will be sorted on average rating.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">PocketReviewer.h</code><br />
+	</div>				
+	
+	
+</div>
+						
 					</div>
 					
 					
@@ -1302,7 +2024,7 @@ If NO a unique user id will be generated that will be used in all requests. The 
 				<div id="footer">
 					<hr />
 					<div class="footer-copyright">
-						<p><span class="copyright">&copy; 2012 Wadpam. All rights reserved. (Last updated: 2012-06-07)</span><br />
+						<p><span class="copyright">&copy; 2012 Wadpam. All rights reserved. (Last updated: 2012-06-20)</span><br />
 						
 						<span class="generator">Generated by <a href="http://appledoc.gentlebytes.com">appledoc 2.0.5 (build 789)</a>.</span></p>
 						

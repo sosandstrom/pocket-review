@@ -367,7 +367,7 @@
 
 
 // Get nearby items using Google provided latitude and langitude
-- (void)nearbyTopAverageRatingsWithinRadius:(NearbyRadius)radius maxNumberOfResults:(NSInteger)maxNumberOfResults 
+- (void)topNearbyAverageRatingsWithinRadius:(NearbyRadius)radius maxNumberOfResults:(NSInteger)maxNumberOfResults 
                             completionBlock:(void(^)(NSArray*, NSError*))block {
   [self doNearbyAverageRatingsForLatitude:nil longitude:nil withinRadius:radius maxNumberOfResults:maxNumberOfResults 
                  completionBlock:block];
@@ -376,7 +376,7 @@
 
 
 // Get nearby items 
-- (void)nearbyTopAverageRatingsForLatitude:(float)latitude longitude:(float)longitude withinRadius:(NearbyRadius)radius 
+- (void)topNearbyAverageRatingsForLatitude:(float)latitude longitude:(float)longitude withinRadius:(NearbyRadius)radius 
                         maxNumberOfResults:(NSInteger)maxNumberOfResults completionBlock:(void(^)(NSArray*, NSError*))block {
   [self doNearbyAverageRatingsForLatitude:[NSNumber numberWithFloat:latitude] longitude:[NSNumber numberWithFloat:longitude] 
                     withinRadius:radius maxNumberOfResults:maxNumberOfResults completionBlock:block];
@@ -467,6 +467,68 @@
 
 // Get all my reviews
 - (void)myReviewsWithCompletionBlock:(void(^)(NSArray*, NSError*))block {
+  // TODO
+}
+
+
+// Like an item
+- (void)likeItem:(NSString*)itemId completionBlock:(void(^)(NSError*))block {
+  //T TODO
+}
+
+
+// LIke an item with a specified position
+- (void)likeItem:(NSString *)itemId withLatitude:(float)latitude longitude:(float)longitude completionBlock:(void (^)(NSError *))block {
+  // TODO
+}
+
+
+// Get the number of likes for an item
+- (void)numberOfLikesForItem:(NSString*)itemId completionBlock:(void(^)(Likes*, NSError*))block {
+  // TODO
+}
+
+
+// Get the number of likes for a list of items
+- (void)numberOfLikesForItems:(NSArray*)itemIds completionBlock:(void(^)(NSArray*, NSError*))block {
+  // TODO
+}
+
+
+// Get most liked items
+- (void)mostLikedItems:(NSInteger)maxNumberOfResults completionBlock:(void(^)(NSArray*, NSError*))block {
+  // TODO
+}
+
+
+//  Get most liked nearby items using device location provided by Google
+- (void)mostLikedNearbyItemsWithinRadius:(NearbyRadius)radius maxNumberOfResults:(NSInteger)maxNumberOfResults 
+                         completionBlock:(void(^)(NSArray*, NSError*))block {
+  // TODO
+}
+
+
+//  Get most liked nearby items using device location provided by the application
+- (void)mostLikedNearbyItemsForLatitude:(float)latitude longitude:(float)longitude withinRadius:(NearbyRadius)radius 
+                     maxNumberOfResults:(NSInteger)maxNumberOfResults completionBlock:(void(^)(NSArray*, NSError*))block {
+  // TODO
+}
+
+
+// Get my likes
+- (void)myLikesWithCompletionBlock:(void(^)(NSArray*, NSError*))block {
+  // TODO
+}
+
+
+// Add item to favorites 
+- (void)addItemToMyFavorite:(NSString*)itemId completionBlock:(void(^)(NSError*))block {
+  // TODO
+}
+
+
+// Get my favorite items
+- (void)myFavoritesWithCompletionBlock:(void(^)(NSArray*, NSError*))block {
   // TODO
 }
 

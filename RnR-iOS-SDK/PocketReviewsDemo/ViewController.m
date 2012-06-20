@@ -144,7 +144,7 @@
 - (IBAction)nearbyRatings:(id)sender {
   NSLog(@"Get nearby ratings");
   
-  [self.reviewer nearbyTopAverageRatingsWithinRadius:kDefaultRadius maxNumberOfResults:10 completionBlock:^(NSArray* ratings, NSError* error) {
+  [self.reviewer topNearbyAverageRatingsWithinRadius:kDefaultRadius maxNumberOfResults:10 completionBlock:^(NSArray* ratings, NSError* error) {
     if (!error) {
       NSLog(@"Get nearby ratins for items was successful");
       NSLog(@"Ratings %@", ratings);

@@ -53,6 +53,8 @@
 		CD29396D157A030100DE309E /* PocketReviewer.m in Sources */ = {isa = PBXBuildFile; fileRef = CD293967157A030100DE309E /* PocketReviewer.m */; };
 		CD29396E157A030100DE309E /* Rating.m in Sources */ = {isa = PBXBuildFile; fileRef = CD293969157A030100DE309E /* Rating.m */; };
 		CD29396F157A030100DE309E /* Rating.m in Sources */ = {isa = PBXBuildFile; fileRef = CD293969157A030100DE309E /* Rating.m */; };
+		CD4F87191590E58300830ED0 /* Likes.m in Sources */ = {isa = PBXBuildFile; fileRef = CD4F87181590E58300830ED0 /* Likes.m */; };
+		CD4F871A1590E58300830ED0 /* Likes.m in Sources */ = {isa = PBXBuildFile; fileRef = CD4F87181590E58300830ED0 /* Likes.m */; };
 		CDB49729158462BA00C2157F /* ObjectMapper.m in Sources */ = {isa = PBXBuildFile; fileRef = CDB49727158462BA00C2157F /* ObjectMapper.m */; };
 /* End PBXBuildFile section */
 
@@ -100,6 +102,8 @@
 		CD293967157A030100DE309E /* PocketReviewer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PocketReviewer.m; sourceTree = "<group>"; };
 		CD293968157A030100DE309E /* Rating.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Rating.h; sourceTree = "<group>"; };
 		CD293969157A030100DE309E /* Rating.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Rating.m; sourceTree = "<group>"; };
+		CD4F87171590E58300830ED0 /* Likes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Likes.h; sourceTree = "<group>"; };
+		CD4F87181590E58300830ED0 /* Likes.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Likes.m; sourceTree = "<group>"; };
 		CDB49727158462BA00C2157F /* ObjectMapper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ObjectMapper.m; sourceTree = "<group>"; };
 		CDB49728158462BA00C2157F /* ObjectMapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ObjectMapper.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -210,6 +214,8 @@
 				CD293967157A030100DE309E /* PocketReviewer.m */,
 				CD293968157A030100DE309E /* Rating.h */,
 				CD293969157A030100DE309E /* Rating.m */,
+				CD4F87171590E58300830ED0 /* Likes.h */,
+				CD4F87181590E58300830ED0 /* Likes.m */,
 				CD293964157A030100DE309E /* JSONKit.h */,
 				CD293965157A030100DE309E /* JSONKit.m */,
 				CDB49727158462BA00C2157F /* ObjectMapper.m */,
@@ -360,6 +366,7 @@
 				CD29396C157A030100DE309E /* PocketReviewer.m in Sources */,
 				CD29396E157A030100DE309E /* Rating.m in Sources */,
 				CDB49729158462BA00C2157F /* ObjectMapper.m in Sources */,
+				CD4F87191590E58300830ED0 /* Likes.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -371,6 +378,7 @@
 				CD29396B157A030100DE309E /* JSONKit.m in Sources */,
 				CD29396D157A030100DE309E /* PocketReviewer.m in Sources */,
 				CD29396F157A030100DE309E /* Rating.m in Sources */,
+				CD4F871A1590E58300830ED0 /* Likes.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
