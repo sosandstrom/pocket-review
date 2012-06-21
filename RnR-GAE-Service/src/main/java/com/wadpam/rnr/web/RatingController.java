@@ -86,7 +86,7 @@ public class RatingController {
         }
         
         final Collection<JRating> body = rnrService.findNearbyRatings(
-                latitude, longitude, bits, minRating);
+                latitude, longitude, bits);
         return new ResponseEntity<Collection<JRating>>(body, HttpStatus.OK);
     }
 
@@ -95,8 +95,7 @@ public class RatingController {
      * @param latitude optional, 
      * @param longitude optional
      * @param bits optional, default is 15 for a 1224m box.
-     * @param minRating optional, should be 1..100, default is 50.
-     * @return a Collection of JRatings, where rating is minRating..100
+     * @return a KML of JRatings
      */
     @RestReturn(value=JRating.class, entity=JRating.class, code={
         @RestCode(code=200, message="OK", description="Ratings found")
@@ -106,8 +105,7 @@ public class RatingController {
             HttpServletResponse response,
             @RequestParam(required=false) Float latitude,
             @RequestParam(required=false) Float longitude,
-            @RequestParam(defaultValue="15") int bits,
-            @RequestParam(defaultValue="50") int minRating) throws IOException {
+            @RequestParam(defaultValue="15") int bits) throws IOException {
         if (null == latitude) {
             final String cityLatLong = request.getHeader("X-AppEngine-CityLatLong");
             if (null != cityLatLong) {
@@ -120,7 +118,7 @@ public class RatingController {
         response.setContentType("application/vnd.google-earth.kml+xml");
         final PrintWriter out = response.getWriter();
         rnrService.nearbyRatingsKml(
-                latitude, longitude, bits, minRating, out);
+                latitude, longitude, bits, out);
         out.flush();
         out.close();
     }

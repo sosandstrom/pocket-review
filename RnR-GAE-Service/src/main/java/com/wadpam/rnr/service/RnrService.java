@@ -41,18 +41,18 @@ public class RnrService {
     public void init() {
         geoRatingDao = new GeoDaoImpl<DRating, DRating>(ratingDao);
 
-        doInDomain("dev", new Runnable() {
-
-            @Override
-            public void run() {
-                for (DRating rating : ratingDao.findAll()) {
-                    if (null != rating.getLocation()) {
-                        geoRatingDao.save(rating);
-                    }
-                }
-            }
-            
-        });
+//        doInDomain("dev", new Runnable() {
+//
+//            @Override
+//            public void run() {
+//                for (DRating rating : ratingDao.findAll()) {
+//                    if (null != rating.getLocation()) {
+//                        geoRatingDao.save(rating);
+//                    }
+//                }
+//            }
+//            
+//        });
     }
     
     public static void doInDomain(String domain, Runnable task) {
@@ -211,11 +211,9 @@ public class RnrService {
         return to;
     }
 
-    public Collection<JRating> findNearbyRatings(Float latitude, Float longitude, int bits, int minRating) {
-        final Expression ratingFilter = new Expression(ratingDao.COLUMN_NAME_RATING, 
-                Query.FilterOperator.GREATER_THAN_OR_EQUAL, minRating);
+    public Collection<JRating> findNearbyRatings(Float latitude, Float longitude, int bits) {
         final Collection<DRating> list = geoRatingDao.findInGeobox(latitude, longitude, 
-                bits, null, false, 0, -1, ratingFilter);
+                bits, ratingDao.COLUMN_NAME_RATING, false, 0, 10);
         return (Collection<JRating>) convert(list);
     }
 
@@ -250,12 +248,8 @@ public class RnrService {
         return (Collection<JResult>) convert(map.values());
     }
 
-    public void nearbyRatingsKml(Float latitude, Float longitude, int bits, int minRating, PrintWriter out) {
-        final int resolution = 3;
-        final Expression ratingFilter = new Expression(ratingDao.COLUMN_NAME_RATING, 
-                Query.FilterOperator.GREATER_THAN_OR_EQUAL, new Rating(minRating));
-        final Collection<DRating> list = geoRatingDao.findInGeobox(latitude, longitude, 
-                bits, null, false, 0, -1, ratingFilter);
+    public void nearbyRatingsKml(Float latitude, Float longitude, int bits, PrintWriter out) {
+        Collection<JRating> list = findNearbyRatings(latitude, longitude, bits);
         writeRatingsKml(out, list);
     }
 
@@ -313,35 +307,40 @@ public class RnrService {
         return to;
     }
 
-    protected void writeRatingsKml(PrintWriter kmlDest, Collection<DRating> list) {
+    protected void writeRatingsKml(PrintWriter kmlDest, Collection<JRating> list) {
         kmlDest.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
         kmlDest.println("<kml xmlns=\"http://www.opengis.net/kml/2.2\">");
         kmlDest.println("<Document>");
         kmlDest.println("   <name>Nearby ratings</name>");
         kmlDest.println("   <description>This is the description tag of the KML document</description>");
 
-        
+        for (JRating rating : list) {
+            writePlacemarkKml(kmlDest, rating);
+        }
 
         kmlDest.println("</Document>");
         kmlDest.println("</kml>");
     }
     
-    protected void writePlacemarkKml(PrintWriter kmlDest, DRating rating) {
-        kmlDest.println("   <Placemark>");
-        kmlDest.println("      <name>" + rating.getProductId() + "</name>");
-//                        kmlDest.println("      <address>" + area + ", " + loc + "</address>");
+    protected void writePlacemarkKml(PrintWriter kmlDest, JRating rating) {
+        if (null != rating.getLocation()) {
+            kmlDest.println("   <Placemark>");
+            kmlDest.println("      <name>" + rating.getProductId() + "</name>");
+    //                        kmlDest.println("      <address>" + area + ", " + loc + "</address>");
 
-//        StringBuffer desc = new StringBuffer("<![CDATA[<p>");
-//        desc.append("]]>");
-//
-//        kmlDest.println("      <description>" + desc.toString() + "</description>");
-        kmlDest.println("      <description>" + rating.getUsername() + "</description>");
-        kmlDest.println("      <Point>");
-        kmlDest.println(String.format("         <coordinates>%s,%s,0</coordinates>", 
-                Double.toString(rating.getLongitude()), Double.toString(rating.getLatitude())));
-        kmlDest.println("      </Point>");
-        kmlDest.println("   </Placemark>");
-        
+            StringBuffer desc = new StringBuffer("<![CDATA[rating: ");
+            desc.append(rating.getRating());
+            desc.append("/100]]>");
+    
+            kmlDest.println("      <description>" + desc.toString() + "</description>");
+            kmlDest.println("      <description>" + rating.getUsername() + "</description>");
+            kmlDest.println("      <Point>");
+            kmlDest.println(String.format("         <coordinates>%s,%s,0</coordinates>", 
+                    Float.toString(rating.getLocation().getLongitude()), 
+                    Float.toString(rating.getLocation().getLatitude())));
+            kmlDest.println("      </Point>");
+            kmlDest.println("   </Placemark>");
+        }        
     }
 
     public void setRatingDao(DRatingDao ratingDao) {

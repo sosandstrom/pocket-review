@@ -2,6 +2,6 @@
 <datastore-indexes autoGenerate="true">
     <datastore-index kind="DRating" ancestor="false" source="manual">
         <property name="geoboxes" direction="asc"/>
-        <property name="rating" direction="asc"/>
+        <property name="rating" direction="desc"/>
     </datastore-index>
 </datastore-indexes>
