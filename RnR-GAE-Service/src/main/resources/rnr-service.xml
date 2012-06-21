@@ -6,16 +6,6 @@
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
                 http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd">
                 
-        <!-- properties --> 
-        <bean id="applicationPropertyResource" class="org.springframework.core.io.ClassPathResource">
-                <constructor-arg value="application.properties" />
-        </bean>
-        <bean  
-                class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-                <property name="location" ref="applicationPropertyResource"/>
-                <property name="ignoreUnresolvablePlaceholders" value="true"/>
-        </bean>
-                    
         <!--           Service             -->
 
         <import resource="classpath*:spring-dao.xml" />
@@ -30,6 +20,4 @@
         <bean id="ratingController" class="com.wadpam.rnr.web.RatingController">
             <property name="rnrService" ref="rnrService" />
         </bean>
-
-        <bean class="com.wadpam.rnr.web.MonitorController" />
 </beans>

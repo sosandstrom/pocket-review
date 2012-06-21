@@ -8,8 +8,9 @@ import com.wadpam.rnr.json.JResultPage;
 import com.wadpam.rnr.service.RnrService;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.security.Principal;
 import java.util.Collection;
-import javax.servlet.ServletOutputStream;
+import java.util.Collections;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
@@ -36,7 +37,9 @@ public class RatingController {
     /**
      * Adds the rating for specified productId and username
      * @param productId domain-unique id for the product to rate
-     * @param username optional
+     * @param username optional. 
+     * If authenticated, and RnrService.fallbackPrincipalName, 
+     * principal.name will be used if username is null.
      * @param latitude optional, -90..90
      * @param longitude optional, -180..180
      * @param review optional review text
@@ -48,6 +51,7 @@ public class RatingController {
     })
     @RequestMapping(value="{productId}", method= RequestMethod.POST)
     public ResponseEntity<JResult> addRating(HttpServletRequest request,
+            Principal principal,
             @PathVariable String productId,
             @RequestParam(required=false) String username,
             @RequestParam(required=false) Float latitude,
@@ -55,6 +59,7 @@ public class RatingController {
             @RequestParam(required=false) String review,
             @RequestParam int rating) {
         final JResult body = rnrService.addRating(productId, username, 
+                null != principal ? principal.getName() : null,
                 latitude, longitude, rating);
         return new ResponseEntity<JResult>(body, HttpStatus.OK);
     }
@@ -172,6 +177,27 @@ public class RatingController {
             @RequestParam(value="ids") String ids[]) {
         final Collection<JResult> body = rnrService.getAverageRatings(ids);
         return new ResponseEntity<Collection<JResult>>(body, HttpStatus.OK);
+    }
+
+    /**
+     * Returns a Collection of my JRatings
+     * @param username optional. 
+     * If authenticated, and RnrService.fallbackPrincipalName, 
+     * principal.name will be used if username is null.
+     * @return a Collection of my JRatings, where rating is minRating..100
+     */
+    @RestReturn(value=JRating.class, entity=JRating.class, code={
+        @RestCode(code=200, message="OK", description="Ratings found")
+    })
+    @RequestMapping(value="me", method= RequestMethod.GET)
+    public ResponseEntity<Collection<JRating>> getMyRatings(HttpServletRequest request,
+            Principal principal,
+            @RequestParam(required=false) String username) {
+
+        // TODO: implement
+        
+        final Collection<JRating> body = Collections.EMPTY_LIST;
+        return new ResponseEntity<Collection<JRating>>(body, HttpStatus.OK);
     }
 
     public void setRnrService(RnrService rnrService) {

@@ -33,6 +33,8 @@ import org.slf4j.LoggerFactory;
  */
 public class RnrService {
     static final Logger LOG = LoggerFactory.getLogger(RnrService.class);
+    
+    private static boolean fallbackPrincipalName = true;
 
     private DRatingDao ratingDao;
     private DResultDao resultDao;
@@ -71,7 +73,13 @@ public class RnrService {
      * @return the average rating for specified productId
      */
     public JResult addRating(String productId, String username,
+            String principalName,
             Float latitude, Float longitude, int rating) {
+        
+        // fallback on principal name?
+        if (null == username && fallbackPrincipalName) {
+            username = principalName;
+        }
         
         DRating dr = null;
         int existing = -1;
@@ -349,6 +357,10 @@ public class RnrService {
 
     public void setResultDao(DResultDao resultDao) {
         this.resultDao = resultDao;
+    }
+
+    public static void setFallbackPrincipalName(boolean fallbackPrincipalName) {
+        RnrService.fallbackPrincipalName = fallbackPrincipalName;
     }
 
 }
