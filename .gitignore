@@ -1,1 +1,4 @@
 target/
+*.releaseBackup
+release.properties
+
