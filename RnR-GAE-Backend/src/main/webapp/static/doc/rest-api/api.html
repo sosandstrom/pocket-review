@@ -16,6 +16,7 @@
                     <li><a href="api.html#com.wadpam.rnr.web.RatingController.getAverageRating" class="link">getAverageRating()</a></li>
                     <li><a href="api.html#com.wadpam.rnr.web.RatingController.getAverageRatings" class="link">getAverageRatings()</a></li>
                     <li><a href="api.html#com.wadpam.rnr.web.RatingController.getAverageRatings" class="link">getAverageRatings()</a></li>
+                    <li><a href="api.html#com.wadpam.rnr.web.RatingController.getMyRatings" class="link">getMyRatings()</a></li>
                 </ul>
             </li>
             <li>JSON objects
@@ -68,7 +69,9 @@
                                 <td>path</td><td>productId</td><td>String</td><td>domain-unique id for the product to rate</td>
                             </tr>
                             <tr>
-                                <td>query</td><td>username</td><td>String</td><td>optional</td>
+                                <td>query</td><td>username</td><td>String</td><td>optional. 
+ If authenticated, and RnrService.fallbackPrincipalName, 
+ principal.name will be used if username is null.</td>
                             </tr>
                             <tr>
                                 <td>query</td><td>latitude</td><td>Float</td><td>optional, -90..90</td>
@@ -408,6 +411,63 @@
 		<h3>Response Example</h3>
 		<p class="code">
 			<pre>{<div>&nbsp;&nbsp;&nbsp;<b>"average"</b>&nbsp;:&nbsp;int,</div><div>&nbsp;&nbsp;&nbsp;<b>"createdDate"</b>&nbsp;:&nbsp;Long,</div><div>&nbsp;&nbsp;&nbsp;<b>"id"</b>&nbsp;:&nbsp;String,</div><div>&nbsp;&nbsp;&nbsp;<b>"ratingCount"</b>&nbsp;:&nbsp;Long,</div><div>&nbsp;&nbsp;&nbsp;<b>"ratingSum"</b>&nbsp;:&nbsp;Long,</div><div>&nbsp;&nbsp;&nbsp;<b>"updatedDate"</b>&nbsp;:&nbsp;Long,</div>}</pre>
+		</p>
+				
+<!-- Method: findByName() ---------------------------------------------------->		
+        <a name="com.wadpam.rnr.web.RatingController.getMyRatings" />
+
+        <h2 class="methodHeader">getMyRatings()</h2>
+
+        <p>
+            <b>Description</b>:Returns a Collection of my JRatings
+        </p>
+
+        <p>
+            <b>Implementing Class</b>: com.wadpam.rnr.web.RatingController
+        </p>
+
+        <p class="restPath">
+            <b>REST path</b>: GET&nbsp;
+    /{domain}/rating/me
+
+		<h3>Request parameters</h3>
+		<table>
+			<thead>
+	    		<td class="column1">Where</th>
+	    		<td class="column2">Name</th>
+	    		<td class="column3">Type</th>
+	    		<td class="columnAuto">Description</th>
+			</thead>
+			<tbody>
+                            <tr>
+                                <td>query</td><td>username</td><td>String</td><td>optional. 
+ If authenticated, and RnrService.fallbackPrincipalName, 
+ principal.name will be used if username is null.</td>
+                            </tr>
+			</tbody>
+		</table>
+
+		<h3>Response Codes</h3>
+			<table>
+				<thead>
+	   				<td class="column1">HTTP Response Code</td>
+	   				<td class="column2">Message</td>
+	   				<td class="columnAuto">Description</td>
+				</thead>
+				<tbody>
+               <tr>
+                <td>200</td><td>OK</td><td colspan="2">Ratings found</td>
+            </tr>
+				</tbody>
+			</table>
+
+			<p>
+                            <b>Response Type</b>: <a href="api.html#com.wadpam.rnr.json.JRating" class="link">com.wadpam.rnr.json.JRating</a>
+                        </p>
+
+		<h3>Response Example</h3>
+		<p class="code">
+			<pre>{<div>&nbsp;&nbsp;&nbsp;<b>"createdDate"</b>&nbsp;:&nbsp;Long,</div><div>&nbsp;&nbsp;&nbsp;<b>"id"</b>&nbsp;:&nbsp;String,</div><div>&nbsp;&nbsp;&nbsp;<b>"location"</b>&nbsp;:&nbsp;{<div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>"latitude"</b>&nbsp;:&nbsp;float,</div><div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>"longitude"</b>&nbsp;:&nbsp;float,</div>&nbsp;&nbsp;&nbsp;},</div><div>&nbsp;&nbsp;&nbsp;<b>"productId"</b>&nbsp;:&nbsp;String,</div><div>&nbsp;&nbsp;&nbsp;<b>"rating"</b>&nbsp;:&nbsp;Integer,</div><div>&nbsp;&nbsp;&nbsp;<b>"updatedDate"</b>&nbsp;:&nbsp;Long,</div><div>&nbsp;&nbsp;&nbsp;<b>"username"</b>&nbsp;:&nbsp;String,</div>}</pre>
 		</p>
 				
 
