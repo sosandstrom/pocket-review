@@ -72,11 +72,11 @@ public class RatingController {
      * @param minRating optional, should be 1..100, default is 50.
      * @return a Collection of JRatings, where rating is minRating..100
      */
-    @RestReturn(value=JRating.class, entity=JRating.class, code={
+    @RestReturn(value=JResult.class, entity=JResult.class, code={
         @RestCode(code=200, message="OK", description="Ratings found")
     })
     @RequestMapping(value="nearby", method= RequestMethod.GET)
-    public ResponseEntity<Collection<JRating>> findNearbyRatings(HttpServletRequest request,
+    public ResponseEntity<Collection<JResult>> findNearbyRatings(HttpServletRequest request,
             @RequestParam(required=false) Float latitude,
             @RequestParam(required=false) Float longitude,
             @RequestParam(defaultValue="15") int bits,
@@ -90,9 +90,9 @@ public class RatingController {
             }
         }
         
-        final Collection<JRating> body = rnrService.findNearbyRatings(
+        final Collection<JResult> body = rnrService.findNearbyRatings(
                 latitude, longitude, bits);
-        return new ResponseEntity<Collection<JRating>>(body, HttpStatus.OK);
+        return new ResponseEntity<Collection<JResult>>(body, HttpStatus.OK);
     }
 
     /**
@@ -194,10 +194,15 @@ public class RatingController {
             Principal principal,
             @RequestParam(required=false) String username) {
 
-        // TODO: implement
-        
-        final Collection<JRating> body = Collections.EMPTY_LIST;
-        return new ResponseEntity<Collection<JRating>>(body, HttpStatus.OK);
+        try {
+            final Collection<JRating> body = rnrService.getMyRatings(username, 
+                    null != principal ? principal.getName() : null);
+
+            return new ResponseEntity<Collection<JRating>>(body, HttpStatus.OK);
+        }
+        catch (IllegalArgumentException usernameNull) {
+            return new ResponseEntity<Collection<JRating>>(HttpStatus.UNAUTHORIZED);
+        }
     }
 
     public void setRnrService(RnrService rnrService) {

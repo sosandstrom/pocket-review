@@ -10,6 +10,10 @@ public class JResult extends JBaseObject {
 
     private Long ratingCount = 0L;
 
+    /** Where was this product rated */
+    private JLocation location;
+
+    
     @Override
     protected String subString() {
         return String.format("ratings:%d, average:%d",
@@ -34,6 +38,14 @@ public class JResult extends JBaseObject {
 
     public void setRatingSum(Long ratingSum) {
         this.ratingSum = ratingSum;
+    }
+
+    public JLocation getLocation() {
+        return location;
+    }
+
+    public void setLocation(JLocation location) {
+        this.location = location;
     }
 
 }
