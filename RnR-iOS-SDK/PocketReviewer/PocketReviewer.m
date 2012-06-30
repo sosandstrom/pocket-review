@@ -294,9 +294,14 @@
       });
       return;
     }
+
+    // Build the query string
+    NSMutableDictionary *query = [NSMutableDictionary dictionary];
+    [query setObject:self.userId forKey:USER_ID];
     
     // Build the request path
     NSURL *requestUrl = APPEND_PATH(@"me", self.url);
+    requestUrl = APPEND_QUERY([self toStringFromDict:query], requestUrl);
     
     // Make the request
     int responseCode = [self serviceRequestWithUrl:requestUrl body:nil completionBlock:block];

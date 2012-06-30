@@ -32,6 +32,13 @@
 {
   [super viewDidLoad];
 	// Do any additional setup after loading the view, typically from a nib.
+  
+  NSLog(@"Start rating");
+  self.reviewer = [PocketReviewer sharedReviewer];
+  NSURL *serviceURL = [NSURL URLWithString:@"http://pocket-reviews.appspot.com/api/"];
+  BOOL result = [self.reviewer startReviewingWithServiceUrl:serviceURL domain:@"dev" anonymousUser:NO withError:nil];
+  NSAssert(result, @"Failed to start rating");
+  
 }
 
 - (void)viewDidUnload
@@ -55,12 +62,17 @@
   }
 }
 
-- (IBAction)statRating:(id)sender {
-  NSLog(@"Start rating");
-  self.reviewer = [PocketReviewer sharedReviewer];
-  NSURL *serviceURL = [NSURL URLWithString:@"http://pocket-reviews.appspot.com/api/"];
-  BOOL result = [self.reviewer startReviewingWithServiceUrl:serviceURL domain:@"dev" anonymousUser:YES withError:nil];
-  NSAssert(result, @"Failed to start rating");
+
+- (IBAction)myRatings:(id)sender {
+  
+  [self.reviewer myRatingsWithCompletionBlock:^(NSArray* ratings, NSError* error) {
+    if (!error) {
+      NSLog(@"Get my ratings for items was successful with %d results returned", [ratings count]);
+      NSLog(@"Ratings %@", ratings);
+    } else 
+      NSLog(@"Get my rated items failed");
+  }];
+
 }
 
 

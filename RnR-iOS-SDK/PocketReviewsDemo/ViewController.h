@@ -19,7 +19,7 @@
 @property (retain, nonatomic) IBOutlet UILabel *A002Label;
 @property (retain, nonatomic) IBOutlet UILabel *A003Label;
 
-- (IBAction)statRating:(id)sender;
+- (IBAction)myRatings:(id)sender;
 
 - (IBAction)rateItem:(UIButton *)sender;
 
