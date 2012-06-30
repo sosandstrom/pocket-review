@@ -18,11 +18,20 @@
 ANNOTATE_PROPERTY_FOR_KEY(itemId, id)
 @synthesize itemId = itemId_;
 
+ANNOTATE_PROPERTY_FOR_KEY(latitude, latitude)
+@synthesize latitude = latitude_;
+
+ANNOTATE_PROPERTY_FOR_KEY(longitude, longitude)
+@synthesize longitude = longitude_;
+
 ANNOTATE_PROPERTY_FOR_KEY(totalSumOfRatings, ratingSum)
 @synthesize totalSumOfRatings = totalSumOfRatings_;
 
 ANNOTATE_PROPERTY_FOR_KEY(numberOfRatings, ratingCount)
 @synthesize numberOfRatings = numberOfRatings_;
+
+ANNOTATE_PROPERTY_FOR_KEY(averageRating, average)
+@synthesize averageRating = averageRating_;
 
 
 // Release instance variables
@@ -40,7 +49,7 @@ ANNOTATE_PROPERTY_FOR_KEY(numberOfRatings, ratingCount)
 
 // Getter for average rating
 - (float) averageRating {
-  return (float)self.totalSumOfRatings / (float)self.numberOfRatings / RATING_SCALE;
+  return averageRating_ / RATING_SCALE;
 }
 
 

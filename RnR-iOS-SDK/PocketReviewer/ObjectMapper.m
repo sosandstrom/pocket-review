@@ -167,6 +167,7 @@ typedef enum {
   if (*error) {
     // An error was raised during the recursive mapping
     DLOG(@"Mapping failed with error %@", [*error description]);
+    [*error autorelease];
     return nil;
   } else {   
     // Mapping was successful
@@ -211,6 +212,7 @@ typedef enum {
     if (property == NULL) {
       NSString *selectorName = [PROPERTY_FOR_KEY_PREFIX stringByAppendingString:key];
       if ([target respondsToSelector:NSSelectorFromString(selectorName)]) {
+        DLOG(@"Found matching annotation for key %@", key);
         NSString *propertyName = [target performSelector:NSSelectorFromString(selectorName)]; 
         property = class_getProperty([target class], [propertyName cStringUsingEncoding:NSASCIIStringEncoding]);
       }
@@ -219,6 +221,11 @@ typedef enum {
     if (property == NULL) {
       // The property does not exist, skip mapping
       DLOG(@"**INFO** property with key name: %@ does not exists in target, skip", key);
+      // Print all methods and properties for debugging purpose
+      //NSArray *allMethodNames = [ObjectMapper methodNamesForClass:[target class]];
+      //NSArray *allPropertyNames = [ObjectMapper propertyNamesForClass:[target class]];
+      //DLOG(@"All methods names: %@", allMethodsNames);
+      //DLOG(@"All property names: %@", allPropertyNames);
       continue;
     }
       
@@ -270,9 +277,11 @@ typedef enum {
           [self map:valueArray toArray:&targetPropertyValue withBasicType:[[valueArray objectAtIndex:0] class] error:error];
         
         break;
+      case Null:
+        value = nil;
+        break;
       case String:               
       case Number:              
-      case Null:
         DLOG(@"Value is of basic type");        
         targetPropertyValue = [self mapToBasicType:[source valueForKey:key] error:error];
         if(targetPropertyValue == nil) { 
@@ -344,10 +353,7 @@ typedef enum {
       break;
     case Number:
       DLOG(@"Basic type is a Number of type %s", [source objCType]);
-      break;
-    case Null:
-      DLOG(@"Basic type is a Null value");
-      break;            
+      break;  
     default:
       *error = [self parsingErrorWithDescription:@"Basic type is of unkonw type %@", source];
       return nil;
@@ -437,7 +443,7 @@ typedef enum {
   NSDictionary *errorInfo = [NSDictionary dictionaryWithObjectsAndKeys: 
                              NSLocalizedDescriptionKey, formatString,
                              nil];
-  return [NSError errorWithDomain:@"com.wadpam.JsonORM.ErrorDomain" code:1 userInfo:errorInfo];
+  return [[NSError errorWithDomain:@"com.wadpam.ObjectMapper.ErrorDomain" code:1 userInfo:errorInfo] retain];
 }
 
 

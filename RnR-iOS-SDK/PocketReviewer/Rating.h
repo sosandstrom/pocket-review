@@ -20,11 +20,29 @@
  */
 + (Rating*)rating;
 
+/**
+ The unique item id.
+ */
+@property (nonatomic, retain) NSString *itemId;
+
+
+/**
+ The items latitue.
+ */
+@property (nonatomic) float latitude;
+
+
+/**
+ The items longitude.
+ */
+@property (nonatomic) float longitude;
+
 
 /**
  The average rating.
  */
-@property (nonatomic, readonly) float averageRating;
+@property (nonatomic) float averageRating;
+
 
 /**
  The total sum of all ratings.
@@ -38,10 +56,7 @@
 @property (nonatomic) NSInteger numberOfRatings;
 
 
-/**
- The unique item id.
- */
-@property (nonatomic, retain) NSString *itemId;
+
 
 
 @end

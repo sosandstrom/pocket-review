@@ -69,24 +69,31 @@
   NSLog(@"Rate item %@", item);
   
   UISegmentedControl *segment = nil;
+  UILabel *label = nil;
   switch (sender.tag) {
     case 1:
       segment = self.A001Segment;
+      label = self.A001Label;
       break;
     case 2:
       segment = self.A002Segment;
+      label = self.A002Label;
       break;
     case 3:
       segment = self.A003Segment;
+      label = self.A003Label;
       break;
     default:
       break;
   }
   
   NSInteger rating = segment.selectedSegmentIndex + 1;
-  [self.reviewer rateItem:item withRating:rating completionBlock:^(NSError* error) {
-    if (!error)
+  [self.reviewer rateItem:item withRating:rating completionBlock:^(Rating* newRating, NSError* error) {
+    if (!error) {
       NSLog(@"Rate method was successful");
+      label.text = [NSString stringWithFormat:@"%.1f (%d)", newRating.averageRating, newRating.numberOfRatings];
+    }
+    
     else 
       NSLog(@"Rate method failed with error %@", [error userInfo]);
   }];
@@ -146,7 +153,7 @@
   
   [self.reviewer topNearbyAverageRatingsWithinRadius:kDefaultRadius maxNumberOfResults:10 completionBlock:^(NSArray* ratings, NSError* error) {
     if (!error) {
-      NSLog(@"Get nearby ratins for items was successful");
+      NSLog(@"Get nearby ratings for items was successful with %d results returned", [ratings count]);
       NSLog(@"Ratings %@", ratings);
     } else 
       NSLog(@"Get nearby items failed");

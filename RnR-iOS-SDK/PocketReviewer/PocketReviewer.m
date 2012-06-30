@@ -31,8 +31,6 @@
 #define USER_AGENT @"Mozilla/5.0 (iPhone; CPU iPhone OS 5_0 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) Version/5.1 Mobile/9A334 Safari/7534.48.3"
 #define REQUEST_TIMEOUT 10
 
-#define RUN_IN_MAIN_THREAD(func) dispatch_async(dispatch_get_main_queue(), ^{ func ;})
-
 // http parameter names
 #define ITEM_ID @"itemid"
 #define RATING @"rating"
@@ -50,20 +48,6 @@
 #define RATING_COUNT @"ratingCount"
 #define ID @"id"
 
-// Parameter validation rules
-#define CHECK_URL(url, err) [self checkUrl:url error:err]
-#define CHECK_DOMAIN(domain, err) [self checkDomain:domain error:err]
-#define CHECK_ITEM_ID(itemId, err) [self checkItemId:itemId error:err]
-#define CHECK_USER_ID(userId, err) [self checkUserId:userId error:err]
-#define CHECK_RATING(rating, err) [self checkRating:rating error:err]
-#define CHECK_REVIEW(review, err) [self checkReview:review error:err]
-#define CHECK_LATITUDE(latitude, err) [self checkLatitude:latitude error:err]
-#define CHECK_LONGITUDE(longitude, err) [self checkLongitude:latitude error:err]
-#define CHECK_RADIUS(rating, err) [self checkRadius:radius error:err]
-#define CHECK_ITEM_IDS(itemIds, err) [self checkItemIds:itemIds error:err]
-#define CHECK_MAX_NUMBER_OF_RESULTS(maxNumberOfResults, err) [self checkMaxNumberOfResults:maxNumberOfResults error:err]
-
-
 // Append paths and query string
 #define APPEND_PATH(path, url) [NSURL URLWithString:[[url URLByAppendingPathComponent:path] absoluteString]]
 #define APPEND_QUERY(query, url) [NSURL URLWithString:[NSString stringWithFormat:@"%@?%@", [url absoluteString], query]]
@@ -73,11 +57,11 @@
 @interface PocketReviewer ()
 
 - (void)doRateAndReviewItem:(NSString*)itemId forLatitude:(NSNumber*)latitude longitude:(NSNumber*)longitude 
-                     rating:(NSNumber*)rating review:(NSString*)review completionBlock:(void(^)(NSError*))block;
+                     rating:(NSNumber*)rating review:(NSString*)review completionBlock:(void(^)(Rating*, NSError*))block;
 - (void)doNearbyAverageRatingsForLatitude:(NSNumber*)latitude longitude:(NSNumber*)longitude withinRadius:(NearbyRadius)radius 
                        maxNumberOfResults:(NSInteger)maxNumberOfResults completionBlock:(void(^)(NSArray*, NSError*))block;
 
-- (NSInteger)serviceRequestWithUrl:(NSURL*)url body:(NSDictionary*)body responseData:(NSData**)data error:(NSError**)error;
+- (NSInteger)serviceRequestWithUrl:(NSURL*)url body:(NSDictionary*)body completionBlock:(void(^)(id result, NSError* error))block;
 - (NSString*)toStringFromDict:(NSDictionary*)dict;
 - (NSError*)parsingErrorWithDescription:(NSString*)format, ...;
 
@@ -150,8 +134,8 @@
   DLOG(@"Start rating");
 
   // Check paramters
-  if (!CHECK_URL(url, error) || 
-      !CHECK_DOMAIN(domain, error)) {
+  if (![self checkUrl:url error:error] || 
+      ![self checkDomain:domain error:error]) {
     return NO;
   }
   
@@ -165,7 +149,7 @@
 
 
 // Rate an item
-- (void)rateItem:(NSString*)itemId withRating:(NSInteger)rating completionBlock:(void(^)(NSError*))block {
+- (void)rateItem:(NSString*)itemId withRating:(NSInteger)rating completionBlock:(void(^)(Rating*, NSError*))block {
   [self doRateAndReviewItem:itemId forLatitude:nil longitude:nil rating:[NSNumber numberWithInteger:rating] 
                      review:nil completionBlock:block];
 }
@@ -173,7 +157,7 @@
 
 // Rate an item with latitude and longitude
 - (void)rateItem:(NSString*)itemId forLatitude:(float)latitude longitude:(float)longitude 
-      withRating:(NSInteger)rating completionBlock:(void(^)(NSError*))block {
+      withRating:(NSInteger)rating completionBlock:(void(^)(Rating*, NSError*))block {
   
   [self doRateAndReviewItem:itemId forLatitude:[NSNumber numberWithFloat:latitude] 
                   longitude:[NSNumber numberWithFloat:longitude] rating:[NSNumber numberWithInteger:rating] 
@@ -183,7 +167,7 @@
 
 // Internal rating and review method
 - (void)doRateAndReviewItem:(NSString*)itemId forLatitude:(NSNumber*)latitude longitude:(NSNumber*)longitude 
-                     rating:(NSNumber*)rating review:(NSString*)review completionBlock:(void(^)(NSError*))block {
+                     rating:(NSNumber*)rating review:(NSString*)review completionBlock:(void(^)(Rating*, NSError*))block {
   
   // Use GCD
   dispatch_async(self.queue, ^{
@@ -193,13 +177,15 @@
     NSError *error = nil;
     
     // Check parameters
-    if (!CHECK_URL(self.url, &error) || 
-        !CHECK_ITEM_ID(itemId, &error) || 
-        !CHECK_LATITUDE(latitude, &error) || 
-        !CHECK_LONGITUDE(longitude, &error) ||
-        !CHECK_RATING(rating, &error) ||
-        !CHECK_REVIEW(review, &error)) {
-      RUN_IN_MAIN_THREAD(block(error));
+    if (![self checkUrl:self.url error:&error] || 
+        ![self checkItemId:itemId error:&error] || 
+        ![self checkLatitude:latitude error:&error] || 
+        ![self checkLongitude:longitude error:&error] ||
+        ![self checkRating:rating error:&error]||
+        ![self checkReview:review error:&error]) {
+      dispatch_async(dispatch_get_main_queue(), ^{ 
+        block(nil, error);
+      });
       return;
     }
     
@@ -216,20 +202,9 @@
     if (longitude) [body setObject:longitude forKey:LONGITUDE];
     
     // Make the request
-    NSData *data = nil;
-    int responseCode = [self serviceRequestWithUrl:requestUrl body:body responseData:&data error:&error];
+    int responseCode = [self serviceRequestWithUrl:requestUrl body:body completionBlock:block];
     DLOG(@"Rating and review request executed with response code %d", responseCode);
     
-    // Handle the http response code
-    if (responseCode == 200) {
-      // Run the completion block
-      RUN_IN_MAIN_THREAD(block(nil));
-    } else {
-      // Run the complition block with error
-      RUN_IN_MAIN_THREAD(block([self parsingErrorWithDescription:@"HTTP rating and review request failed with respose code %d and error message %@", 
-             responseCode, [error userInfo]]));
-    }
-  
   });
 }
 
@@ -245,9 +220,11 @@
     NSError *error = nil;
     
     // Check parameters
-    if (!CHECK_URL(self.url, &error) || 
-        !CHECK_ITEM_ID(itemId, &error)) {
-      RUN_IN_MAIN_THREAD(block(nil, error));
+    if (![self checkUrl:self.url error:&error] || 
+        ![self checkItemId:itemId error:&error]) {
+      dispatch_async(dispatch_get_main_queue(), ^{ 
+        block(nil, error);
+      });
       return;
     }
     
@@ -257,30 +234,9 @@
     requestUrl = APPEND_PATH(itemId, requestUrl);
     
     // Make the request
-    NSData *data = nil;
-    int responseCode = [self serviceRequestWithUrl:requestUrl body:nil responseData:&data error:&error];
+    int responseCode = [self serviceRequestWithUrl:requestUrl body:nil completionBlock:block];
     DLOG(@"Get rating request executed with response code %d", responseCode);
-      
-    // Handle the http response
-    if (responseCode == 200) {
-      // Parse the JSON
-      NSDictionary *ratingJSON = [data objectFromJSONData];
-      
-      // Map JSON into domain object
-      Rating *rating = [ratingJSON mapToClass:[Rating class] withError:&error];
-      if (rating)
-        // Run the completion block
-        RUN_IN_MAIN_THREAD(block(rating, nil)); 
-      else
-        // Mapping failed, Run the completion block with error
-        RUN_IN_MAIN_THREAD(block(nil, [self parsingErrorWithDescription:@"Not possible to map the parsed JSON, got error %@", [error userInfo]]));
-      
-    } else {
-      // Run the completion block with error
-      RUN_IN_MAIN_THREAD(block(nil, [self parsingErrorWithDescription:@"HTTP get rating request failed with respose code %d and error message %@",
-                                     responseCode, [error userInfo]]));
-    }
-    
+  
   });
 }
 
@@ -296,9 +252,11 @@
     NSError *error = nil;
     
     // Check parameters
-    if (!CHECK_URL(self.url, &error) || 
-        !CHECK_ITEM_IDS(itemIds, &error)) {
-      RUN_IN_MAIN_THREAD(block(nil, error));
+    if (![self checkUrl:self.url error:&error] || 
+        ![self checkItemIds:itemIds error:&error]) {
+      dispatch_async(dispatch_get_main_queue(), ^{ 
+        block(nil, error);
+      });
       return;
     }
     
@@ -313,29 +271,8 @@
     requestUrl = APPEND_QUERY([itemParameters componentsJoinedByString:@"&"], requestUrl);
     
     // Make the request
-    NSData *data = nil;
-    int responseCode = [self serviceRequestWithUrl:requestUrl body:nil responseData:&data error:&error];
+    int responseCode = [self serviceRequestWithUrl:requestUrl body:nil completionBlock:block];
     DLOG(@"Get ratings request executed with response code %d", responseCode);
-    
-    // Handle the http response
-    if (responseCode == 200) {
-      // Parse the JSON
-      NSArray *ratingsJSON = [data objectFromJSONData];
-      
-      // Map JSON into domain object
-      NSArray *ratings = [ratingsJSON mapToClass:[Rating class] withError:&error];
-      if (ratings)
-        // Run the completion block
-        RUN_IN_MAIN_THREAD(block(ratings, nil));
-      else
-        // Mapping failed, Run the completion block with error
-        RUN_IN_MAIN_THREAD(block(nil, [self parsingErrorWithDescription:@"Not possible to map the parsed JSON, got error %@", [error userInfo]]));
-
-    } else {
-      // Run the completion block with error
-      RUN_IN_MAIN_THREAD(block(nil, [self parsingErrorWithDescription:@"HTTP get rating request failed with respose code %d and error message %@", 
-                                     responseCode, [error userInfo]]));
-    }
     
   });
 }
@@ -344,18 +281,28 @@
 // Get my ratings
 - (void)myRatingsWithCompletionBlock:(void(^)(NSArray*, NSError*))block {
   DLOG(@"Get my ratings");
-  
-  // Track errors
-  NSError *error = nil;
-  
-  // Check parameters
-  if (!CHECK_URL(self.url, &error) || 
-      !CHECK_USER_ID(self.userId, &error)) {
-    RUN_IN_MAIN_THREAD(block(nil, error));
-    return;
-  }
-  
-  // TODO
+
+  dispatch_async(self.queue, ^{    
+    // Track errors
+    NSError *error = nil;
+    
+    // Check parameters
+    if (![self checkUrl:self.url error:&error] || 
+        ![self checkUserId:self.userId error:&error]) {
+      dispatch_async(dispatch_get_main_queue(), ^{ 
+        block(nil, error);
+      });
+      return;
+    }
+    
+    // Build the request path
+    NSURL *requestUrl = APPEND_PATH(@"me", self.url);
+    
+    // Make the request
+    int responseCode = [self serviceRequestWithUrl:requestUrl body:nil completionBlock:block];
+    DLOG(@"Get my ratings executed with response code %d", responseCode);
+    
+  });
 }
 
 
@@ -395,11 +342,13 @@
     NSError *error = nil;
     
     // Check parameters
-    if (!CHECK_URL(self.url, &error) || 
-        !CHECK_LATITUDE(latitude, &error) || 
-        !CHECK_LONGITUDE(longitude, &error) ||
-        !CHECK_MAX_NUMBER_OF_RESULTS(maxNumberOfResults, &error)) {
-      RUN_IN_MAIN_THREAD(block(nil, error));
+    if (![self checkUrl:self.url error:&error] || 
+        ![self checkLatitude:latitude error:&error] || 
+        ![self checkLongitude:longitude error:&error] ||
+        ![self checkMaxNumberOfResults:maxNumberOfResults error:&error]) {
+      dispatch_async(dispatch_get_main_queue(), ^{ 
+        block(nil, error);
+      });
       return;
     }
     
@@ -419,29 +368,8 @@
     requestUrl = APPEND_QUERY([self toStringFromDict:query], requestUrl);
     
     // Make the request
-    NSData *data = nil;
-    int responseCode = [self serviceRequestWithUrl:requestUrl body:nil responseData:&data error:&error];
-    DLOG(@"Get ratings request executed with response code %d", responseCode);
-    
-    // Handle the http response
-    if (responseCode == 200) {
-      // Parse the JSON
-      NSArray *ratingsJSON = [data objectFromJSONData];
-      
-      // Map JSON into domain object
-      NSArray *ratings = [ratingsJSON mapToClass:[Rating class] withError:&error];
-      if (ratings)
-        // Run the completion block
-        RUN_IN_MAIN_THREAD(block(ratings, nil));
-      else
-        // Mapping failed, Run the completion block with error
-        RUN_IN_MAIN_THREAD(block(nil, [self parsingErrorWithDescription:@"Not possible to map the parsed JSON, got error %@", [error userInfo]]));
-      
-    } else {
-      // Run the completion block with error
-      RUN_IN_MAIN_THREAD(block(nil, [self parsingErrorWithDescription:@"HTTP get rating request failed with respose code %d and error message %@", 
-                                     responseCode, [error userInfo]]));
-    }
+    int responseCode = [self serviceRequestWithUrl:requestUrl body:nil completionBlock:block];
+    DLOG(@"Get ratings nearby request executed with response code %d", responseCode);
     
   });
 }
@@ -449,7 +377,7 @@
 
 // Add a review
 - (void)reviewItem:(NSString*)itemId withReview:(NSString*)review completionBlock:(void(^)(NSError*))block {
-  [self doRateAndReviewItem:itemId forLatitude:nil longitude:nil rating:nil review:review completionBlock:block];
+  // TODO
 }
 
 
@@ -573,8 +501,8 @@
 
 
 // Send a request to the backend service
-- (NSInteger)serviceRequestWithUrl:(NSURL*)url body:(NSDictionary*)body responseData:(NSData**)data error:(NSError**)error {
-  
+- (NSInteger)serviceRequestWithUrl:(NSURL*)url body:(NSDictionary*)body completionBlock:(void(^)(id result, NSError* error))block; {
+    
   // Check if dry run
   if (self.dryRun) {
     NSMutableString *prettyURL = [NSMutableString stringWithString:[url description]];
@@ -615,12 +543,41 @@
       [httpRequest setHTTPBody:[[self toStringFromDict:body] dataUsingEncoding:NSUTF8StringEncoding]];
     
     // Make the request
-    NSURLResponse *response = nil;
     DLOG(@"Sending backend request %@", httpRequest);
-    *data = [NSURLConnection sendSynchronousRequest:httpRequest returningResponse:&response error:error];
+    NSURLResponse *response = nil;
+    NSError *error = nil;
+    NSData *data = [NSURLConnection sendSynchronousRequest:httpRequest returningResponse:&response error:&error];
     
+    // Handle the http response
+    int responseCode = [(NSHTTPURLResponse*)response statusCode];
+    if (responseCode == 200) {
+      // Parse the JSON
+      id ratingsJSON = [data objectFromJSONData];
+      //NSLog(@"****JSON dict %@", ratingsJSON);
+      
+      // Map JSON into domain object
+      id result = [ratingsJSON mapToClass:[Rating class] withError:&error];
+      if (result)
+        // Run the completion block
+        dispatch_async(dispatch_get_main_queue(), ^{ 
+          block(result, nil);
+        });
+      else
+        // Mapping failed, Run the completion block with error
+        dispatch_async(dispatch_get_main_queue(), ^{ 
+          block(nil, [self parsingErrorWithDescription:@"Not possible to map the parsed JSON, got error %@", [error userInfo]]);
+        });
+      
+    } else {
+      // Run the complition block with error
+      dispatch_async(dispatch_get_main_queue(), ^{ 
+        block(nil, [self parsingErrorWithDescription:@"Network request failed with respose code %d and error message %@", 
+                    responseCode, [error userInfo]]);
+      });
+    }
+
     // Return the http response code
-    return [(NSHTTPURLResponse*)response statusCode];
+    return responseCode;
   }
   
 }

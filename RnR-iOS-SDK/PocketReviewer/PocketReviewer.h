@@ -85,7 +85,7 @@ typedef enum {
  @param rating The rating value 1-5
  @param block A block that will be executed when the request completes or fails
  */
-- (void)rateItem:(NSString*)itemId withRating:(NSInteger)rating completionBlock:(void(^)(NSError*))block;
+- (void)rateItem:(NSString*)itemId withRating:(NSInteger)rating completionBlock:(void(^)(Rating*, NSError*))block;
 
 
 /**
@@ -103,7 +103,7 @@ typedef enum {
  @param block A block that will be executed when the request completes or fails
  */
 - (void)rateItem:(NSString*)itemId forLatitude:(float)latitude longitude:(float)longitude 
-      withRating:(NSInteger)rating completionBlock:(void(^)(NSError*))block;
+      withRating:(NSInteger)rating completionBlock:(void(^)(Rating*, NSError*))block;
  
 
 /**
@@ -353,12 +353,6 @@ typedef enum {
 @property (nonatomic) BOOL dryRun;
 
 
-/** 
- Future methods
- - (void)likeItem:(NSString*)itemId completionBlock:(void(^)(NSError*))block;
- - (void)likesForItem:(NSString*)itemId completionBlock:(void(^)(NSNumber*, NSError*))block;
- - (void)likesForItems:(NSArray*)itemIds completionBlock:(void(^)(NSArray*, NSError*))block;
- */
 
 
 // TODO Inconsistency for what data is returned in different REST endpoints. There is only one rating and review response o
