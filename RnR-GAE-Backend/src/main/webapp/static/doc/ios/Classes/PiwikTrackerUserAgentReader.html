@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="html/html; charset=utf-8" />
-		<title>Likes Class Reference</title>
+		<title>PiwikTrackerUserAgentReader Class Reference</title>
 		<meta id="xcode-display" name="xcode-display" content="render"/>
 		<meta name="viewport" content="width=550" />
 		<link rel="stylesheet" type="text/css" href="../css/styles.css" media="all" />
@@ -17,7 +17,7 @@
 			</div>
 			
 			<div id="title" role="banner">
-				<h1 class="hideInXcode">Likes Class Reference</h1>
+				<h1 class="hideInXcode">PiwikTrackerUserAgentReader Class Reference</h1>
 			</div>
 			<ul id="headerButtons" role="toolbar">
 				<li id="toc_button">
@@ -32,24 +32,10 @@
 	
 	
 	
-	<option value="tasks">Tasks</option>
 	
 	
 	
 	
-	
-	<option value="properties">Properties</option>
-	
-	<option value="//api/name/itemId">&nbsp;&nbsp;&nbsp;&nbsp;itemId</option>
-	
-	<option value="//api/name/numberOfLikes">&nbsp;&nbsp;&nbsp;&nbsp;numberOfLikes</option>
-	
-	
-	
-	
-	<option value="class_methods">Class Methods</option>
-	
-	<option value="//api/name/likes">&nbsp;&nbsp;&nbsp;&nbsp;+ likes</option>
 	
 	
 	
@@ -67,29 +53,11 @@
 
 
 
-<li role="treeitem" id="task_treeitem"><span class="nodisclosure"></span><span class="sectionName"><a href="#tasks">Tasks</a></span><ul>
-	
-</ul></li>
 
 
 
 
 
-<li role="treeitem" class="children"><span class="disclosure"></span><span class="sectionName"><a href="#properties">Properties</a></span><ul>
-	
-	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/itemId">itemId</a></span></li>
-	
-	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/numberOfLikes">numberOfLikes</a></span></li>
-	
-</ul></li>
-
-
-
-<li role="treeitem" class="children"><span class="disclosure"></span><span class="sectionName"><a href="#class_methods">Class Methods</a></span><ul>
-	
-	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/likes">likes</a></span></li>
-	
-</ul></li>
 
 
 
@@ -98,7 +66,7 @@
 		</nav>
 		<article>
 			<div id="contents" class="isShowingTOC" role="main">
-				<a title="Likes Class Reference" name="top"></a>
+				<a title="PiwikTrackerUserAgentReader Class Reference" name="top"></a>
 				<div class="main-navigation navigation-top">
 					<ul>
 	<li><a href="../index.html">Index</a></li>
@@ -107,7 +75,7 @@
 				</div>
 				<div id="header">
 					<div class="section-header">
-						<h1 class="title title-header">Likes Class Reference</h1>
+						<h1 class="title title-header">PiwikTrackerUserAgentReader Class Reference</h1>
 					</div>		
 				</div>
 				<div id="container">	
@@ -117,8 +85,11 @@
 	<td class="specification-title">Inherits from</td>
 	<td class="specification-value">NSObject</td>
 </tr><tr>
+	<td class="specification-title">Conforms to</td>
+	<td class="specification-value">UIWebViewDelegate</td>
+</tr><tr>
 	<td class="specification-title">Declared in</td>
-	<td class="specification-value">Likes.h<br />Likes.m</td>
+	<td class="specification-value">PiwikTrackerUserAgentReader.h<br />PiwikTrackerUserAgentReader.m</td>
 </tr>
 						</tbody></table></div>
 					
@@ -128,178 +99,19 @@
 					<div class="section section-overview">
 						<a title="Overview" name="overview"></a>
 						<h2 class="subtitle subtitle-overview">Overview</h2>
-						<p>The likes for an item.</p>
+						<p>Get the device user agent profile by launching a web view and reading the http header.
+No content is actaully loaded in the web view.</p>
 					</div>
 					
 					
 					
 					
 					
-					<div class="section section-tasks">
-						<a title="Tasks" name="tasks"></a>
-						<h2 class="subtitle subtitle-tasks">Tasks</h2>
-						
-						
-						
-						
-
-						<ul class="task-list">
-							<li>
-	<span class="tooltip">
-		<code><a href="#//api/name/likes">+&nbsp;likes</a></code>
-		<span class="tooltip"><p>Create a new Likes object</p></span>
-	</span>
-	
-	
-</li><li>
-	<span class="tooltip">
-		<code><a href="#//api/name/itemId">&nbsp;&nbsp;itemId</a></code>
-		<span class="tooltip"><p>The unique item id.</p></span>
-	</span>
-	<span class="task-item-suffix">property</span>
-	
-</li><li>
-	<span class="tooltip">
-		<code><a href="#//api/name/numberOfLikes">&nbsp;&nbsp;numberOfLikes</a></code>
-		<span class="tooltip"><p>The total number of likes for the item.</p></span>
-	</span>
-	<span class="task-item-suffix">property</span>
-	
-</li>
-						</ul>
-						
-					</div>
 					
 					
 					
 					
 					
-					<div class="section section-methods">
-						<a title="Properties" name="properties"></a>
-						<h2 class="subtitle subtitle-methods">Properties</h2>
-						
-						<div class="section-method">
-	<a name="//api/name/itemId" title="itemId"></a>
-	<h3 class="subsubtitle method-title">itemId</h3>
-	
-	
-	
-	<div class="method-subsection brief-description">
-		<p>The unique item id.</p>
-	</div>		
-	
-    
-
-	<div class="method-subsection method-declaration"><code>@property (nonatomic, retain) NSString *itemId</code></div>
-
-    
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	<div class="method-subsection declared-in-section">
-		<h4 class="method-subtitle">Declared In</h4>
-		<code class="declared-in-ref">Likes.h</code><br />
-	</div>				
-	
-	
-</div>
-						
-						<div class="section-method">
-	<a name="//api/name/numberOfLikes" title="numberOfLikes"></a>
-	<h3 class="subsubtitle method-title">numberOfLikes</h3>
-	
-	
-	
-	<div class="method-subsection brief-description">
-		<p>The total number of likes for the item.</p>
-	</div>		
-	
-    
-
-	<div class="method-subsection method-declaration"><code>@property (nonatomic) NSInteger numberOfLikes</code></div>
-
-    
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	<div class="method-subsection declared-in-section">
-		<h4 class="method-subtitle">Declared In</h4>
-		<code class="declared-in-ref">Likes.h</code><br />
-	</div>				
-	
-	
-</div>
-						
-					</div>
-					
-					
-					
-					<div class="section section-methods">
-						<a title="Class Methods" name="class_methods"></a>
-						<h2 class="subtitle subtitle-methods">Class Methods</h2>
-						
-						<div class="section-method">
-	<a name="//api/name/likes" title="likes"></a>
-	<h3 class="subsubtitle method-title">likes</h3>
-	
-	
-	
-	<div class="method-subsection brief-description">
-		<p>Create a new Likes object</p>
-	</div>		
-	
-    
-
-	<div class="method-subsection method-declaration"><code>+ (Likes *)likes</code></div>
-
-    
-	
-	
-	
-	<div class="method-subsection return">
-		<h4 class="method-subtitle parameter-title">Return Value</h4>
-		<p>A new likes object</p>
-	</div>
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	<div class="method-subsection declared-in-section">
-		<h4 class="method-subtitle">Declared In</h4>
-		<code class="declared-in-ref">Likes.h</code><br />
-	</div>				
-	
-	
-</div>
-						
-					</div>
 					
 					
 					

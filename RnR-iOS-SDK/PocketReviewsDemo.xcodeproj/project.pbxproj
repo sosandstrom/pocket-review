@@ -47,15 +47,15 @@
 		CD29394F157A028E00DE309E /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CD29392D157A028E00DE309E /* Foundation.framework */; };
 		CD293957157A028E00DE309E /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = CD293955157A028E00DE309E /* InfoPlist.strings */; };
 		CD29395A157A028E00DE309E /* PocketReviewsDemoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CD293959157A028E00DE309E /* PocketReviewsDemoTests.m */; };
-		CD29396A157A030100DE309E /* JSONKit.m in Sources */ = {isa = PBXBuildFile; fileRef = CD293965157A030100DE309E /* JSONKit.m */; };
-		CD29396B157A030100DE309E /* JSONKit.m in Sources */ = {isa = PBXBuildFile; fileRef = CD293965157A030100DE309E /* JSONKit.m */; };
 		CD29396C157A030100DE309E /* PocketReviewer.m in Sources */ = {isa = PBXBuildFile; fileRef = CD293967157A030100DE309E /* PocketReviewer.m */; };
 		CD29396D157A030100DE309E /* PocketReviewer.m in Sources */ = {isa = PBXBuildFile; fileRef = CD293967157A030100DE309E /* PocketReviewer.m */; };
 		CD29396E157A030100DE309E /* Rating.m in Sources */ = {isa = PBXBuildFile; fileRef = CD293969157A030100DE309E /* Rating.m */; };
 		CD29396F157A030100DE309E /* Rating.m in Sources */ = {isa = PBXBuildFile; fileRef = CD293969157A030100DE309E /* Rating.m */; };
 		CD4F87191590E58300830ED0 /* Likes.m in Sources */ = {isa = PBXBuildFile; fileRef = CD4F87181590E58300830ED0 /* Likes.m */; };
 		CD4F871A1590E58300830ED0 /* Likes.m in Sources */ = {isa = PBXBuildFile; fileRef = CD4F87181590E58300830ED0 /* Likes.m */; };
-		CDB49729158462BA00C2157F /* ObjectMapper.m in Sources */ = {isa = PBXBuildFile; fileRef = CDB49727158462BA00C2157F /* ObjectMapper.m */; };
+		CD88E05715A81D54005F8C1B /* JSONKit.m in Sources */ = {isa = PBXBuildFile; fileRef = CD88E05415A81D54005F8C1B /* JSONKit.m */; };
+		CD88E05815A81D54005F8C1B /* ObjectMapper.m in Sources */ = {isa = PBXBuildFile; fileRef = CD88E05615A81D54005F8C1B /* ObjectMapper.m */; };
+		CD88E05F15A81EAB005F8C1B /* PiwikTrackerUserAgentReader.m in Sources */ = {isa = PBXBuildFile; fileRef = CD88E05E15A81EAB005F8C1B /* PiwikTrackerUserAgentReader.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -96,16 +96,18 @@
 		CD293956157A028E00DE309E /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		CD293958157A028E00DE309E /* PocketReviewsDemoTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PocketReviewsDemoTests.h; sourceTree = "<group>"; };
 		CD293959157A028E00DE309E /* PocketReviewsDemoTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PocketReviewsDemoTests.m; sourceTree = "<group>"; };
-		CD293964157A030100DE309E /* JSONKit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSONKit.h; sourceTree = "<group>"; };
-		CD293965157A030100DE309E /* JSONKit.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JSONKit.m; sourceTree = "<group>"; };
 		CD293966157A030100DE309E /* PocketReviewer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PocketReviewer.h; sourceTree = "<group>"; };
 		CD293967157A030100DE309E /* PocketReviewer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PocketReviewer.m; sourceTree = "<group>"; };
 		CD293968157A030100DE309E /* Rating.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Rating.h; sourceTree = "<group>"; };
 		CD293969157A030100DE309E /* Rating.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Rating.m; sourceTree = "<group>"; };
 		CD4F87171590E58300830ED0 /* Likes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Likes.h; sourceTree = "<group>"; };
 		CD4F87181590E58300830ED0 /* Likes.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Likes.m; sourceTree = "<group>"; };
-		CDB49727158462BA00C2157F /* ObjectMapper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ObjectMapper.m; sourceTree = "<group>"; };
-		CDB49728158462BA00C2157F /* ObjectMapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ObjectMapper.h; sourceTree = "<group>"; };
+		CD88E05315A81D54005F8C1B /* JSONKit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSONKit.h; sourceTree = "<group>"; };
+		CD88E05415A81D54005F8C1B /* JSONKit.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JSONKit.m; sourceTree = "<group>"; };
+		CD88E05515A81D54005F8C1B /* ObjectMapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ObjectMapper.h; sourceTree = "<group>"; };
+		CD88E05615A81D54005F8C1B /* ObjectMapper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ObjectMapper.m; sourceTree = "<group>"; };
+		CD88E05D15A81EAB005F8C1B /* PiwikTrackerUserAgentReader.h */ = {isa = PBXFileReference; fileEncoding = 4; path = PiwikTrackerUserAgentReader.h; sourceTree = "<group>"; };
+		CD88E05E15A81EAB005F8C1B /* PiwikTrackerUserAgentReader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PiwikTrackerUserAgentReader.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -216,12 +218,22 @@
 				CD293969157A030100DE309E /* Rating.m */,
 				CD4F87171590E58300830ED0 /* Likes.h */,
 				CD4F87181590E58300830ED0 /* Likes.m */,
-				CD293964157A030100DE309E /* JSONKit.h */,
-				CD293965157A030100DE309E /* JSONKit.m */,
-				CDB49727158462BA00C2157F /* ObjectMapper.m */,
-				CDB49728158462BA00C2157F /* ObjectMapper.h */,
+				CD88E05215A81D54005F8C1B /* Vendor */,
 			);
 			path = PocketReviewer;
+			sourceTree = "<group>";
+		};
+		CD88E05215A81D54005F8C1B /* Vendor */ = {
+			isa = PBXGroup;
+			children = (
+				CD88E05D15A81EAB005F8C1B /* PiwikTrackerUserAgentReader.h */,
+				CD88E05E15A81EAB005F8C1B /* PiwikTrackerUserAgentReader.m */,
+				CD88E05315A81D54005F8C1B /* JSONKit.h */,
+				CD88E05415A81D54005F8C1B /* JSONKit.m */,
+				CD88E05515A81D54005F8C1B /* ObjectMapper.h */,
+				CD88E05615A81D54005F8C1B /* ObjectMapper.m */,
+			);
+			path = Vendor;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -362,11 +374,12 @@
 				CD293938157A028E00DE309E /* main.m in Sources */,
 				CD29393C157A028E00DE309E /* AppDelegate.m in Sources */,
 				CD29393F157A028E00DE309E /* ViewController.m in Sources */,
-				CD29396A157A030100DE309E /* JSONKit.m in Sources */,
 				CD29396C157A030100DE309E /* PocketReviewer.m in Sources */,
 				CD29396E157A030100DE309E /* Rating.m in Sources */,
-				CDB49729158462BA00C2157F /* ObjectMapper.m in Sources */,
 				CD4F87191590E58300830ED0 /* Likes.m in Sources */,
+				CD88E05715A81D54005F8C1B /* JSONKit.m in Sources */,
+				CD88E05815A81D54005F8C1B /* ObjectMapper.m in Sources */,
+				CD88E05F15A81EAB005F8C1B /* PiwikTrackerUserAgentReader.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -375,7 +388,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				CD29395A157A028E00DE309E /* PocketReviewsDemoTests.m in Sources */,
-				CD29396B157A030100DE309E /* JSONKit.m in Sources */,
 				CD29396D157A030100DE309E /* PocketReviewer.m in Sources */,
 				CD29396F157A030100DE309E /* Rating.m in Sources */,
 				CD4F871A1590E58300830ED0 /* Likes.m in Sources */,

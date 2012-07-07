@@ -44,9 +44,11 @@
 	
 	<option value="//api/name/itemId">&nbsp;&nbsp;&nbsp;&nbsp;itemId</option>
 	
-	<option value="//api/name/numberOfRatings">&nbsp;&nbsp;&nbsp;&nbsp;numberOfRatings</option>
+	<option value="//api/name/latitude">&nbsp;&nbsp;&nbsp;&nbsp;latitude</option>
 	
-	<option value="//api/name/totalSumOfRatings">&nbsp;&nbsp;&nbsp;&nbsp;totalSumOfRatings</option>
+	<option value="//api/name/longitude">&nbsp;&nbsp;&nbsp;&nbsp;longitude</option>
+	
+	<option value="//api/name/numberOfRatings">&nbsp;&nbsp;&nbsp;&nbsp;numberOfRatings</option>
 	
 	
 	
@@ -85,9 +87,11 @@
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/itemId">itemId</a></span></li>
 	
-	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/numberOfRatings">numberOfRatings</a></span></li>
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/latitude">latitude</a></span></li>
 	
-	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/totalSumOfRatings">totalSumOfRatings</a></span></li>
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/longitude">longitude</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/numberOfRatings">numberOfRatings</a></span></li>
 	
 </ul></li>
 
@@ -161,6 +165,27 @@
 	
 </li><li>
 	<span class="tooltip">
+		<code><a href="#//api/name/itemId">&nbsp;&nbsp;itemId</a></code>
+		<span class="tooltip"><p>The unique item id.</p></span>
+	</span>
+	<span class="task-item-suffix">property</span>
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/latitude">&nbsp;&nbsp;latitude</a></code>
+		<span class="tooltip"><p>The items latitue.</p></span>
+	</span>
+	<span class="task-item-suffix">property</span>
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/longitude">&nbsp;&nbsp;longitude</a></code>
+		<span class="tooltip"><p>The items longitude.</p></span>
+	</span>
+	<span class="task-item-suffix">property</span>
+	
+</li><li>
+	<span class="tooltip">
 		<code><a href="#//api/name/averageRating">&nbsp;&nbsp;averageRating</a></code>
 		<span class="tooltip"><p>The average rating.</p></span>
 	</span>
@@ -168,22 +193,8 @@
 	
 </li><li>
 	<span class="tooltip">
-		<code><a href="#//api/name/totalSumOfRatings">&nbsp;&nbsp;totalSumOfRatings</a></code>
-		<span class="tooltip"><p>The total sum of all ratings.</p></span>
-	</span>
-	<span class="task-item-suffix">property</span>
-	
-</li><li>
-	<span class="tooltip">
 		<code><a href="#//api/name/numberOfRatings">&nbsp;&nbsp;numberOfRatings</a></code>
 		<span class="tooltip"><p>The total number of ratings.</p></span>
-	</span>
-	<span class="task-item-suffix">property</span>
-	
-</li><li>
-	<span class="tooltip">
-		<code><a href="#//api/name/itemId">&nbsp;&nbsp;itemId</a></code>
-		<span class="tooltip"><p>The unique item id.</p></span>
 	</span>
 	<span class="task-item-suffix">property</span>
 	
@@ -212,7 +223,7 @@
 	
     
 
-	<div class="method-subsection method-declaration"><code>@property (nonatomic, readonly) float averageRating</code></div>
+	<div class="method-subsection method-declaration"><code>@property (nonatomic) float averageRating</code></div>
 
     
 	
@@ -273,18 +284,18 @@
 </div>
 						
 						<div class="section-method">
-	<a name="//api/name/numberOfRatings" title="numberOfRatings"></a>
-	<h3 class="subsubtitle method-title">numberOfRatings</h3>
+	<a name="//api/name/latitude" title="latitude"></a>
+	<h3 class="subsubtitle method-title">latitude</h3>
 	
 	
 	
 	<div class="method-subsection brief-description">
-		<p>The total number of ratings.</p>
+		<p>The items latitue.</p>
 	</div>		
 	
     
 
-	<div class="method-subsection method-declaration"><code>@property (nonatomic) NSInteger numberOfRatings</code></div>
+	<div class="method-subsection method-declaration"><code>@property (nonatomic) float latitude</code></div>
 
     
 	
@@ -309,18 +320,54 @@
 </div>
 						
 						<div class="section-method">
-	<a name="//api/name/totalSumOfRatings" title="totalSumOfRatings"></a>
-	<h3 class="subsubtitle method-title">totalSumOfRatings</h3>
+	<a name="//api/name/longitude" title="longitude"></a>
+	<h3 class="subsubtitle method-title">longitude</h3>
 	
 	
 	
 	<div class="method-subsection brief-description">
-		<p>The total sum of all ratings.</p>
+		<p>The items longitude.</p>
 	</div>		
 	
     
 
-	<div class="method-subsection method-declaration"><code>@property (nonatomic) NSInteger totalSumOfRatings</code></div>
+	<div class="method-subsection method-declaration"><code>@property (nonatomic) float longitude</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">Rating.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/numberOfRatings" title="numberOfRatings"></a>
+	<h3 class="subsubtitle method-title">numberOfRatings</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>The total number of ratings.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>@property (nonatomic) NSInteger numberOfRatings</code></div>
 
     
 	
@@ -408,7 +455,7 @@
 				<div id="footer">
 					<hr />
 					<div class="footer-copyright">
-						<p><span class="copyright">&copy; 2012 Wadpam. All rights reserved. (Last updated: 2012-06-20)</span><br />
+						<p><span class="copyright">&copy; 2012 Wadpam. All rights reserved. (Last updated: 2012-07-07)</span><br />
 						
 						<span class="generator">Generated by <a href="http://appledoc.gentlebytes.com">appledoc 2.0.5 (build 789)</a>.</span></p>
 						

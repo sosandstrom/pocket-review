@@ -36,7 +36,7 @@
   NSLog(@"Start rating");
   self.reviewer = [PocketReviewer sharedReviewer];
   NSURL *serviceURL = [NSURL URLWithString:@"http://pocket-reviews.appspot.com/api/"];
-  BOOL result = [self.reviewer startReviewingWithServiceUrl:serviceURL domain:@"dev" anonymousUser:NO withError:nil];
+  BOOL result = [self.reviewer startReviewingWithServiceUrl:serviceURL domain:@"dev" anonymousUser:YES withError:nil];
   NSAssert(result, @"Failed to start rating");
   
 }

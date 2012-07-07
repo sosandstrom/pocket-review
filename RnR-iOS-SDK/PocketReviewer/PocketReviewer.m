@@ -8,9 +8,10 @@
 #import "PocketReviewer.h"
 #import "JSONKit.h"
 #import "ObjectMapper.h"
+#import "PiwikTrackerUserAgentReader.h"
 
 
-// Macros
+# pragma mark - Marcos
 
 // Uncomment the line below to get debug statements
 #define PRINT_DEBUG
@@ -24,11 +25,7 @@
 // ALog always displays output regardless of the DEBUG setting
 #define ALOG(fmt, ...) NSLog( (@"%s [Line %d] " fmt), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__);
 
-// The service accept ratings from 0..100. This API only accept from 0..5
-#define RATING_SCALE 20
-
 // http request config
-#define USER_AGENT @"Mozilla/5.0 (iPhone; CPU iPhone OS 5_0 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) Version/5.1 Mobile/9A334 Safari/7534.48.3"
 #define REQUEST_TIMEOUT 10
 
 // http parameter names
@@ -53,16 +50,19 @@
 #define APPEND_QUERY(query, url) [NSURL URLWithString:[NSString stringWithFormat:@"%@?%@", [url absoluteString], query]]
 
 
+# pragma mark - Private declarations
+
 // Private stuff
 @interface PocketReviewer ()
 
-- (void)doRateAndReviewItem:(NSString*)itemId forLatitude:(NSNumber*)latitude longitude:(NSNumber*)longitude 
-                     rating:(NSNumber*)rating review:(NSString*)review completionBlock:(void(^)(Rating*, NSError*))block;
-- (void)doNearbyAverageRatingsForLatitude:(NSNumber*)latitude longitude:(NSNumber*)longitude withinRadius:(NearbyRadius)radius 
-                       maxNumberOfResults:(NSInteger)maxNumberOfResults completionBlock:(void(^)(NSArray*, NSError*))block;
+- (void)performRateAndReviewItem:(NSString*)itemId forLatitude:(NSNumber*)latitude longitude:(NSNumber*)longitude 
+                          rating:(NSNumber*)rating review:(NSString*)review completionBlock:(void(^)(Rating*, NSError*))block;
+- (void)performNearbyAverageRatingsForLatitude:(NSNumber*)latitude longitude:(NSNumber*)longitude withinRadius:(NearbyRadius)radius 
+                            maxNumberOfResults:(NSInteger)maxNumberOfResults completionBlock:(void(^)(NSArray*, NSError*))block;
 
 - (NSInteger)serviceRequestWithUrl:(NSURL*)url body:(NSDictionary*)body completionBlock:(void(^)(id result, NSError* error))block;
 - (NSString*)toStringFromDict:(NSDictionary*)dict;
+- (NSInteger)toServerRating:(NSInteger)userRating;
 - (NSError*)parsingErrorWithDescription:(NSString*)format, ...;
 
 - (BOOL)checkUrl:(NSURL*)url error:(NSError**)error;
@@ -80,6 +80,7 @@
 @property (nonatomic, retain) NSURL *url;
 @property (nonatomic) BOOL anonymous;
 @property (nonatomic) dispatch_queue_t queue;
+@property (nonatomic, readonly) NSString* userAgent;
 
 @end
 
@@ -88,21 +89,18 @@
 @implementation PocketReviewer
 
 
+# pragma mark - Synthesize
+
+@synthesize maximumRating = maximumRating_;
 @synthesize userId = userId_;
 @synthesize url = url_;
 @synthesize dryRun = dryRun_;
 @synthesize anonymous = anonymous_;
 @synthesize queue = queue_;
+@synthesize userAgent = userAgent_;
 
 
-// Release instance variables
-- (void)dealloc {
-  [userId_ release];
-  [url_ release];
-  dispatch_release(self.queue);
-  [super dealloc];
-}
-
+# pragma mark - init and dealloc
 
 // Init
 - (id)init {
@@ -110,10 +108,23 @@
   if (self) {        
     // Initialise instance variables
     self.queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    self.maximumRating = 5; // Set detfault rating range to 0 to 5 (inclusive)
   }
   return self;
 }
 
+
+// Release instance variables
+- (void)dealloc {
+  [userId_ release];
+  [url_ release];
+  dispatch_release(self.queue);
+  [userAgent_ release];
+  [super dealloc];
+}
+
+
+# pragma mark - Start the rater
 
 // Create a shared rater
 + (PocketReviewer*)sharedReviewer {
@@ -144,13 +155,19 @@
 
   self.anonymous = anonymous;
   
+  // Cache the user agent profile already when the service is started
+  NSString *userAgent = self.userAgent;
+  #pragma unused(userAgent) // Supress compiler warning
+  
   return YES;
 }
 
 
+# pragma mark - Rating methods
+
 // Rate an item
 - (void)rateItem:(NSString*)itemId withRating:(NSInteger)rating completionBlock:(void(^)(Rating*, NSError*))block {
-  [self doRateAndReviewItem:itemId forLatitude:nil longitude:nil rating:[NSNumber numberWithInteger:rating] 
+  [self performRateAndReviewItem:itemId forLatitude:nil longitude:nil rating:[NSNumber numberWithInteger:rating] 
                      review:nil completionBlock:block];
 }
 
@@ -159,15 +176,15 @@
 - (void)rateItem:(NSString*)itemId forLatitude:(float)latitude longitude:(float)longitude 
       withRating:(NSInteger)rating completionBlock:(void(^)(Rating*, NSError*))block {
   
-  [self doRateAndReviewItem:itemId forLatitude:[NSNumber numberWithFloat:latitude] 
+  [self performRateAndReviewItem:itemId forLatitude:[NSNumber numberWithFloat:latitude] 
                   longitude:[NSNumber numberWithFloat:longitude] rating:[NSNumber numberWithInteger:rating] 
                      review:nil completionBlock:block];
 }
 
 
 // Internal rating and review method
-- (void)doRateAndReviewItem:(NSString*)itemId forLatitude:(NSNumber*)latitude longitude:(NSNumber*)longitude 
-                     rating:(NSNumber*)rating review:(NSString*)review completionBlock:(void(^)(Rating*, NSError*))block {
+- (void)performRateAndReviewItem:(NSString*)itemId forLatitude:(NSNumber*)latitude longitude:(NSNumber*)longitude 
+                          rating:(NSNumber*)rating review:(NSString*)review completionBlock:(void(^)(Rating*, NSError*))block {
   
   // Use GCD
   dispatch_async(self.queue, ^{
@@ -196,7 +213,7 @@
     // Collect body paramters
     NSMutableDictionary *body = [NSMutableDictionary dictionary];
     if (self.userId) [body setObject:self.userId forKey:USER_ID];
-    if (rating) [body setObject:[NSNumber numberWithInteger:[rating integerValue] * RATING_SCALE] forKey:RATING];
+    if (rating) [body setObject:[NSNumber numberWithInteger:[self toServerRating:[rating integerValue]]] forKey:RATING];
     if (review) [body setObject:review forKey:REVIEW];
     if (latitude) [body setObject:latitude forKey:LATITUDE];
     if (longitude) [body setObject:longitude forKey:LONGITUDE];
@@ -321,7 +338,7 @@
 // Get nearby items using Google provided latitude and langitude
 - (void)topNearbyAverageRatingsWithinRadius:(NearbyRadius)radius maxNumberOfResults:(NSInteger)maxNumberOfResults 
                             completionBlock:(void(^)(NSArray*, NSError*))block {
-  [self doNearbyAverageRatingsForLatitude:nil longitude:nil withinRadius:radius maxNumberOfResults:maxNumberOfResults 
+  [self performNearbyAverageRatingsForLatitude:nil longitude:nil withinRadius:radius maxNumberOfResults:maxNumberOfResults 
                  completionBlock:block];
   
 }
@@ -330,14 +347,14 @@
 // Get nearby items 
 - (void)topNearbyAverageRatingsForLatitude:(float)latitude longitude:(float)longitude withinRadius:(NearbyRadius)radius 
                         maxNumberOfResults:(NSInteger)maxNumberOfResults completionBlock:(void(^)(NSArray*, NSError*))block {
-  [self doNearbyAverageRatingsForLatitude:[NSNumber numberWithFloat:latitude] longitude:[NSNumber numberWithFloat:longitude] 
+  [self performNearbyAverageRatingsForLatitude:[NSNumber numberWithFloat:latitude] longitude:[NSNumber numberWithFloat:longitude] 
                     withinRadius:radius maxNumberOfResults:maxNumberOfResults completionBlock:block];
   
 }
 
 
-- (void)doNearbyAverageRatingsForLatitude:(NSNumber*)latitude longitude:(NSNumber*)longitude withinRadius:(NearbyRadius)radius 
-                       maxNumberOfResults:(NSInteger)maxNumberOfResults completionBlock:(void(^)(NSArray*, NSError*))block {
+- (void)performNearbyAverageRatingsForLatitude:(NSNumber*)latitude longitude:(NSNumber*)longitude withinRadius:(NearbyRadius)radius 
+                            maxNumberOfResults:(NSInteger)maxNumberOfResults completionBlock:(void(^)(NSArray*, NSError*))block {
   
   // Use GCD
   dispatch_async(self.queue, ^{    
@@ -365,7 +382,7 @@
     if (latitude) [query setObject:latitude forKey:LATITUDE];
     if (longitude) [query setObject:longitude forKey:LONGITUDE];
     if (searchRadius) [query setObject:[NSNumber numberWithInteger:radius] forKey:RADIUS];
-    //[query setObject:[NSNumber numberWithInteger:maxNumberOfResults] forKey:MAX_NUMBER_OF_RESULTS]; // TODO uncomment when backend has been updated
+    //[query setObject:[NSNumber numberWithInteger:maxNumberOfResults] forKey:MAX_NUMBER_OF_RESULTS]; // TODO: uncomment when backend has been updated
       
     // Build the request path
     NSURL *requestUrl = APPEND_PATH(@"rating", self.url);
@@ -379,6 +396,8 @@
   });
 }
 
+
+# pragma mark - Review methods
 
 // Add a review
 - (void)reviewItem:(NSString*)itemId withReview:(NSString*)review completionBlock:(void(^)(NSError*))block {
@@ -404,13 +423,15 @@
 }
 
 
+# pragma mark - Like methods
+
 // Like an item
 - (void)likeItem:(NSString*)itemId completionBlock:(void(^)(NSError*))block {
   //T TODO
 }
 
 
-// LIke an item with a specified position
+// Like an item with a specified position
 - (void)likeItem:(NSString *)itemId withLatitude:(float)latitude longitude:(float)longitude completionBlock:(void (^)(NSError *))block {
   // TODO
 }
@@ -454,6 +475,8 @@
 }
 
 
+# pragma mark - Favorites methods
+
 // Add item to favorites 
 - (void)addItemToMyFavorite:(NSString*)itemId completionBlock:(void(^)(NSError*))block {
   // TODO
@@ -478,6 +501,8 @@
   }
 }
 
+
+# pragma mark - Getters and setters
 
 - (NSString*)userId {
 
@@ -504,6 +529,31 @@
   return userId_;
 }
 
+
+#define USER_AGENT @"Mozilla/5.0 (iPhone; CPU iPhone OS 5_0 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) Version/5.1 Mobile/9A334 Safari/7534.48.3"
+// Getter for the user agent
+- (NSString*)userAgent {
+  static PiwikTrackerUserAgentReader *userAgentReader = nil;
+  
+  if (!userAgent_) {
+    
+    if (!userAgentReader) {
+      userAgentReader = [[PiwikTrackerUserAgentReader alloc] init];
+      [userAgentReader userAgentStringWithCallbackBlock:^(NSString *userAgent) {
+        userAgent_ = userAgent;
+        [userAgent retain];
+        [userAgentReader release];
+      }];
+    }
+    
+    return USER_AGENT;
+  }
+  
+  return userAgent_;
+}
+
+
+# pragma mark - Helper methods
 
 // Send a request to the backend service
 - (NSInteger)serviceRequestWithUrl:(NSURL*)url body:(NSDictionary*)body completionBlock:(void(^)(id result, NSError* error))block; {
@@ -541,7 +591,7 @@
     [httpRequest setTimeoutInterval:REQUEST_TIMEOUT];
     
     // Set User-Agent header
-    [httpRequest setValue:USER_AGENT forHTTPHeaderField:@"User-Agent"];
+    [httpRequest setValue:self.userAgent forHTTPHeaderField:@"User-Agent"];
     
     // If POST add body
     if ([httpRequest.HTTPMethod isEqualToString:@"POST"])
@@ -558,7 +608,6 @@
     if (responseCode == 200) {
       // Parse the JSON
       id ratingsJSON = [data objectFromJSONData];
-      //NSLog(@"****JSON dict %@", ratingsJSON);
       
       // Map JSON into domain object
       id result = [ratingsJSON mapToClass:[Rating class] withError:&error];
@@ -600,6 +649,12 @@
 }
 
 
+// Convert the user rating into the range supported by the backend service 0..100
+- (NSInteger)toServerRating:(NSInteger)userRating {
+  return userRating * (100 / self.maximumRating);
+}
+
+
 // Format an error message
 - (NSError*)parsingErrorWithDescription:(NSString*)format, ... {   
   // Create a formatted string from input parameters
@@ -618,7 +673,8 @@
 }
 
 
-// Validation of parameters
+# pragma mark - Validation of input parameters
+
 - (BOOL)checkUrl:(NSURL*)url error:(NSError**)error {
   if (!url) {
     *error = [self parsingErrorWithDescription:@"Service URL can not been nil, can not start reviewer"];
@@ -651,8 +707,8 @@
 }
 
 - (BOOL)checkRating:(NSNumber*)rating error:(NSError**)error {
-  if (rating != nil && [rating integerValue] < 1 && [rating integerValue] > 5) {
-    *error = [self parsingErrorWithDescription:@"Rating value must be between 1..5"];
+  if (rating != nil && [rating integerValue] < 1 && [rating integerValue] > self.maximumRating) {
+    *error = [self parsingErrorWithDescription:[NSString stringWithFormat:@"Rating value must be between 1..%d", self.maximumRating]];
     return NO;
   } else
     return YES;

@@ -45,17 +45,9 @@
 
 
 /**
- The total sum of all ratings.
- */
-@property (nonatomic) NSInteger totalSumOfRatings;
-
-
-/**
  The total number of ratings.
  */
 @property (nonatomic) NSInteger numberOfRatings;
-
-
 
 
 

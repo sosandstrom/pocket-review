@@ -7,9 +7,8 @@
 
 #import "Rating.h"
 #import "ObjectMapper.h"
+#import "PocketReviewer.h"
 
-
-#define RATING_SCALE 20
 
 // Implementation
 @implementation Rating
@@ -23,9 +22,6 @@ ANNOTATE_PROPERTY_FOR_KEY(latitude, latitude)
 
 ANNOTATE_PROPERTY_FOR_KEY(longitude, longitude)
 @synthesize longitude = longitude_;
-
-ANNOTATE_PROPERTY_FOR_KEY(totalSumOfRatings, ratingSum)
-@synthesize totalSumOfRatings = totalSumOfRatings_;
 
 ANNOTATE_PROPERTY_FOR_KEY(numberOfRatings, ratingCount)
 @synthesize numberOfRatings = numberOfRatings_;
@@ -49,7 +45,7 @@ ANNOTATE_PROPERTY_FOR_KEY(averageRating, average)
 
 // Getter for average rating
 - (float) averageRating {
-  return averageRating_ / RATING_SCALE;
+  return (float)averageRating_ / (100 / [PocketReviewer sharedReviewer].maximumRating);
 }
 
 

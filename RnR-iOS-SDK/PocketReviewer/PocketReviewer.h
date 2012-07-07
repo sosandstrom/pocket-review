@@ -35,7 +35,7 @@
  functionality for automatically generating a unique user identifier that will persist through application starts.
  
  ###Location tagged
- The application can optionally supply a position (latitude and longitude) of the product being rated. This will allow 
+ The application can optionally supply a position (latitude and longitude) of the item being rated. This will allow 
  the application to perform nearby operations of stored data.
  */
 @interface PocketReviewer : NSObject
@@ -332,6 +332,17 @@ typedef enum {
 
 /** @name Properties */
 
+
+/**
+ Maximum rating.
+ 
+ The maximal rating an item can get in this application context. 
+ 
+ Default value is 5 meaning that an item can have rating between 0 and 5 (inclusive). Other common value would be 10 allowing a rating between 0 and 10 (inclusive). The SDK will normalize the rating received and send from the server taking the maxumum rating into account.
+ */
+@property (nonatomic) NSInteger maximumRating;
+
+
 /**
  A unique user id. 
  
@@ -351,18 +362,6 @@ typedef enum {
  The result will be written to the console and default/random data will be returned. Useful during development and debugging.
  */
 @property (nonatomic) BOOL dryRun;
-
-
-
-
-// TODO Inconsistency for what data is returned in different REST endpoints. There is only one rating and review response o
-// TODO When to retun nil and empty array? Maybe combine get rating and get ratings
-// TODO Method that returns a combined average rating and all reviews. Maybe an inner object?
-// TODO delete review
-// TODO Ids for reviews? rating? like?
-// TODO use jsonORM
-
-
 
 
 @end
