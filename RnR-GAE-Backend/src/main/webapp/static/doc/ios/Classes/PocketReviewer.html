@@ -598,7 +598,7 @@ the application to perform nearby operations of stored data.</p>
 		<h4 class="method-subtitle">Discussion</h4>
 		<p>The maximal rating an item can get in this application context.</p>
 
-<p>Default value is 5 meaning that an item can have rating between 0 and 5 (inclusive). Other common value would be 10 allowing a rating between 0 and 10 (inclusive). The SDK will normalize the rating received and send from the server taking the maxumum rating into account.</p>
+<p>Default value is 5 meaning that an item can have a rating between 1 and 5 (inclusive). Other common value would be 10, allowing a rating between 1 and 10 (inclusive). The SDK will normalize the rating received from and sent to the backend service taking the maxumum rating into account.</p>
 	</div>
 	
 	
@@ -1587,7 +1587,7 @@ otherwise en empty list will be returned.</p>
 		
 		<dl class="argument-def parameter-def">
 			<dt><em>rating</em></dt>
-			<dd><p>The rating value 1-5</p></dd>
+			<dd><p>The rating value. Default value is 1-5 unless another range is set explicitly</p></dd>
 		</dl>
 		
 		<dl class="argument-def parameter-def">
@@ -1652,7 +1652,7 @@ otherwise en empty list will be returned.</p>
 		
 		<dl class="argument-def parameter-def">
 			<dt><em>rating</em></dt>
-			<dd><p>The rating value 1-5</p></dd>
+			<dd><p>The rating value. Default value is 1-5 unless another range is set explicitly</p></dd>
 		</dl>
 		
 		<dl class="argument-def parameter-def">

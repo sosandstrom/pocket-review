@@ -82,7 +82,7 @@ typedef enum {
  
  The domain can be configured to only allow non-anonymous users to rate the same item once at http://pocket-reviews.appspot.com.
  @param itemId The unique item being rated
- @param rating The rating value 1-5
+ @param rating The rating value. Default value is 1-5 unless another range is set explicitly
  @param block A block that will be executed when the request completes or fails
  */
 - (void)rateItem:(NSString*)itemId withRating:(NSInteger)rating completionBlock:(void(^)(Rating*, NSError*))block;
@@ -99,7 +99,7 @@ typedef enum {
  @param itemId The unique item being rated
  @param latitude The latitude of the item being rated
  @param longitude The longitude of the item being rated
- @param rating The rating value 1-5
+ @param rating The rating value. Default value is 1-5 unless another range is set explicitly
  @param block A block that will be executed when the request completes or fails
  */
 - (void)rateItem:(NSString*)itemId forLatitude:(float)latitude longitude:(float)longitude 
@@ -338,7 +338,7 @@ typedef enum {
  
  The maximal rating an item can get in this application context. 
  
- Default value is 5 meaning that an item can have rating between 0 and 5 (inclusive). Other common value would be 10 allowing a rating between 0 and 10 (inclusive). The SDK will normalize the rating received and send from the server taking the maxumum rating into account.
+ Default value is 5 meaning that an item can have a rating between 1 and 5 (inclusive). Other common value would be 10, allowing a rating between 1 and 10 (inclusive). The SDK will normalize the rating received from and sent to the backend service taking the maxumum rating into account.
  */
 @property (nonatomic) NSInteger maximumRating;
 
