@@ -541,7 +541,7 @@
       userAgentReader = [[PiwikTrackerUserAgentReader alloc] init];
       [userAgentReader userAgentStringWithCallbackBlock:^(NSString *userAgent) {
         userAgent_ = userAgent;
-        [userAgent retain];
+        [userAgent_ retain];
         [userAgentReader release];
       }];
     }
