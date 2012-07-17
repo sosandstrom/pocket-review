@@ -14,19 +14,24 @@
 @implementation Rating
 
 
-ANNOTATE_PROPERTY_FOR_KEY(itemId, id)
+MAP_KEY_TO_PROPERY(id, itemId)
 @synthesize itemId = itemId_;
 
-ANNOTATE_PROPERTY_FOR_KEY(latitude, latitude)
+MAP_KEY_TO_PROPERY(latitude, latitude)
 @synthesize latitude = latitude_;
 
-ANNOTATE_PROPERTY_FOR_KEY(longitude, longitude)
+MAP_KEY_TO_PROPERY(longitude, longitude)
 @synthesize longitude = longitude_;
 
-ANNOTATE_PROPERTY_FOR_KEY(numberOfRatings, ratingCount)
+MAP_KEY_TO_PROPERY(ratingCount, numberOfRatings)
 @synthesize numberOfRatings = numberOfRatings_;
 
-ANNOTATE_PROPERTY_FOR_KEY(averageRating, average)
+MAP_KEY_TO_PROPERY(average, averageRating)
+MAP_KEY_TO_BLOCK(average, ^(NSNumber *serverAverage) {
+  //NSLog(@"Convert average %@", serverAverage);
+  double clientAverage = [serverAverage doubleValue];
+  return [NSNumber numberWithFloat:((float)clientAverage / (100 / [PocketReviewer sharedReviewer].maximumRating))];
+};)
 @synthesize averageRating = averageRating_;
 
 
@@ -40,12 +45,6 @@ ANNOTATE_PROPERTY_FOR_KEY(averageRating, average)
 // Create autoreleased Rating object
 + (Rating*)rating {
   return [[[Rating alloc] init] autorelease];
-}
-
-
-// Getter for average rating
-- (float) averageRating {
-  return (float)averageRating_ / (100 / [PocketReviewer sharedReviewer].maximumRating);
 }
 
 
