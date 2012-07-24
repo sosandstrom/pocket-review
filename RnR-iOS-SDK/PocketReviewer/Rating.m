@@ -14,20 +14,20 @@
 @implementation Rating
 
 
-MAP_KEY_TO_PROPERY(id, itemId)
+MapKeyToProperty(id, itemId)
 @synthesize itemId = itemId_;
 
-MAP_KEY_TO_PROPERY(latitude, latitude)
+MapKeyToProperty(latitude, latitude)
 @synthesize latitude = latitude_;
 
-MAP_KEY_TO_PROPERY(longitude, longitude)
+MapKeyToProperty(longitude, longitude)
 @synthesize longitude = longitude_;
 
-MAP_KEY_TO_PROPERY(ratingCount, numberOfRatings)
+MapKeyToProperty(ratingCount, numberOfRatings)
 @synthesize numberOfRatings = numberOfRatings_;
 
-MAP_KEY_TO_PROPERY(average, averageRating)
-MAP_KEY_TO_BLOCK(average, ^(NSNumber *serverAverage) {
+MapKeyToProperty(average, averageRating)
+MapKeyToBlock(average, ^(NSNumber *serverAverage) {
   //NSLog(@"Convert average %@", serverAverage);
   double clientAverage = [serverAverage doubleValue];
   return [NSNumber numberWithFloat:((float)clientAverage / (100 / [PocketReviewer sharedReviewer].maximumRating))];

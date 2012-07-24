@@ -587,8 +587,8 @@
       httpRequest.HTTPMethod = @"GET";
       
      // Cache policy and timeout value 
-    [httpRequest setCachePolicy:NSURLRequestReloadIgnoringLocalAndRemoteCacheData];
-    [httpRequest setTimeoutInterval:REQUEST_TIMEOUT];
+    httpRequest.cachePolicy = NSURLRequestReloadIgnoringLocalAndRemoteCacheData;
+    httpRequest.timeoutInterval = REQUEST_TIMEOUT;
     
     // Set User-Agent header
     [httpRequest setValue:self.userAgent forHTTPHeaderField:@"User-Agent"];
