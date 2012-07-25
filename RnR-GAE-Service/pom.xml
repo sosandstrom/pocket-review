@@ -151,6 +151,15 @@
     </build>
 
     <dependencies>
+
+        <dependency>
+            <groupId>com.sun</groupId>
+            <artifactId>tools</artifactId>
+            <version>1.7</version>
+            <scope>system</scope>
+            <systemPath>${java.home}/../Classes/classes.jar</systemPath>
+        </dependency>
+
         <dependency>
             <groupId>net.sf.mardao</groupId>
             <artifactId>mardao-aed</artifactId>

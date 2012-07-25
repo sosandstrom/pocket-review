@@ -14,10 +14,20 @@
             <property name="ratingDao" ref="dRatingDao" />
             <property name="resultDao" ref="dResultDao" />
         </bean>
+
+         <bean id="likeService" class="com.wadpam.rnr.service.LikeService" init-method="init">
+            <property name="resultDao" ref="dResultDao" />
+            <property name="likeDao" ref="dLikeDao" />
+         </bean>
         
         <!--           Controllers             -->
 
         <bean id="ratingController" class="com.wadpam.rnr.web.RatingController">
             <property name="rnrService" ref="rnrService" />
         </bean>
+
+        <bean id="likeController" class="com.wadpam.rnr.web.LikeController">
+        <property name="likeService" ref="likeService" />
+    </bean>
+
 </beans>

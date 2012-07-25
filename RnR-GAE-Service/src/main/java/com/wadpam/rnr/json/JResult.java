@@ -6,22 +6,47 @@ package com.wadpam.rnr.json;
  */
 public class JResult extends JBaseObject {
 
-    private Long ratingSum = 0L;
+    /** The Many-To-One productId (unconstrained) */
+    private String      productId;
 
-    private Long ratingCount = 0L;
+    /** The location of the product */
+    // TODO: Never populated
+    private JLocation   location;
 
-    /** Where was this product rated */
-    private JLocation location;
+    /** The total sum or all ratings */
+    private Long        ratingSum = 0L;
 
-    
+    /** The total number of ratings */
+    private Long        ratingCount = 0L;
+
+    /** The total number of likes */
+    private Long        numberOfLikes = 0L;
+
+
     @Override
     protected String subString() {
-        return String.format("ratings:%d, average:%d",
-                ratingCount, getAverage());
+        return String.format("productId:%s, location:%s, ratings:%d, average:%d, likes:%d",
+                productId, location, ratingCount, getAverage(), getNumberOfLikes());
     }
-    
+
+    public String getProductId() {
+        return productId;
+    }
+
+    public void setProductId(String productId) {
+        this.productId = productId;
+    }
+
+    public JLocation getLocation() {
+        return location;
+    }
+
+    public void setLocation(JLocation location) {
+        this.location = location;
+    }
+
     public int getAverage() {
-        return 0 < ratingCount ? (int) (ratingSum / ratingCount) : -1;
+        return 0 < ratingCount ? (int) (ratingSum / ratingCount) : 0;
     }
 
     public Long getRatingCount() {
@@ -40,12 +65,11 @@ public class JResult extends JBaseObject {
         this.ratingSum = ratingSum;
     }
 
-    public JLocation getLocation() {
-        return location;
+    public Long getNumberOfLikes() {
+        return numberOfLikes;
     }
 
-    public void setLocation(JLocation location) {
-        this.location = location;
+    public void setNumberOfLikes(Long numberOfLikes) {
+        this.numberOfLikes = numberOfLikes;
     }
-
 }

@@ -19,7 +19,7 @@ public class MonitorController {
     static final Logger LOG = LoggerFactory.getLogger(MonitorController.class);
     
     static final String PREFIX = "Current IP Address: ";
-    
+
     @RequestMapping(value={"", "v10"}, method=RequestMethod.GET)
     public ResponseEntity<JMonitor> getV10() {
         final JMonitor body = new JMonitor();

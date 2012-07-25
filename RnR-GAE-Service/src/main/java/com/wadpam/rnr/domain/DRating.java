@@ -25,6 +25,7 @@ import net.sf.mardao.api.geo.aed.GeoModel;
 @Entity
 @Table(uniqueConstraints={@UniqueConstraint(columnNames={"productId", "username"})})
 public class DRating extends AEDLongEntity implements GeoModel {
+
     /** Generated primary key */
     @Id
     private Long               id;
@@ -37,14 +38,15 @@ public class DRating extends AEDLongEntity implements GeoModel {
     @Basic
     private String             username;
 
-    /** Where was this product rated */
+    /** The location of the product */
+    // TODO: The location should be move to the DResult domain object
     @Basic
     private GeoPt location;
 
     /** A user-provided integer rating for a piece of content. Normalized to a 0-100 scale. */
     @Basic
     private Rating rating;
-    
+
     @Basic
     /** used by GeoDao to index boxes */
     private Collection<Long> geoboxes;
@@ -60,6 +62,7 @@ public class DRating extends AEDLongEntity implements GeoModel {
                 id, productId, username, location, rating);
     }
 
+    // Needed for geoloaction
     @Override
     public float getLatitude() {
         return null != location ? location.getLatitude() : 0;
@@ -79,20 +82,13 @@ public class DRating extends AEDLongEntity implements GeoModel {
         return geoboxes;
     }
 
+    // Setters and getters
     public Long getId() {
         return id;
     }
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public GeoPt getLocation() {
-        return location;
-    }
-
-    public void setLocation(GeoPt location) {
-        this.location = location;
     }
 
     public String getProductId() {
@@ -103,14 +99,6 @@ public class DRating extends AEDLongEntity implements GeoModel {
         this.productId = productId;
     }
 
-    public Rating getRating() {
-        return rating;
-    }
-
-    public void setRating(Rating rating) {
-        this.rating = rating;
-    }
-
     public String getUsername() {
         return username;
     }
@@ -119,5 +107,20 @@ public class DRating extends AEDLongEntity implements GeoModel {
         this.username = username;
     }
 
-    
+    public GeoPt getLocation() {
+        return location;
+    }
+
+    public void setLocation(GeoPt location) {
+        this.location = location;
+    }
+
+    public Rating getRating() {
+        return rating;
+    }
+
+    public void setRating(Rating rating) {
+        this.rating = rating;
+    }
+
 }

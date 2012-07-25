@@ -1,18 +1,14 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.wadpam.rnr.json;
 
-import com.google.appengine.api.datastore.GeoPt;
-import com.google.appengine.api.datastore.Rating;
-import javax.persistence.Basic;
-
 /**
- *
- * @author os
+ * Created with IntelliJ IDEA.
+ * User: mattias
+ * Date: 7/24/12
+ * Time: 9:15 PM
+ * To change this template use File | Settings | File Templates.
  */
-public class JRating extends JBaseObject {
+public class JLike extends JBaseObject {
+
     /** The Many-To-One productId (unconstrained) */
     private String             productId;
 
@@ -20,25 +16,23 @@ public class JRating extends JBaseObject {
     private String             username;
 
     /** The location of the product */
-    private JLocation           location;
-
-    /** A user-provided integer rating for a piece of content. Normalized to a 0-100 scale. */
-    private Integer             rating;
+    private JLocation location;
 
 
     // Constructors
-    public JRating() {
+     public JLike() {
+         // Do nothing
     }
 
-    public JRating(String id, Long createdDate, Long updatedDate) {
+    public JLike(String id, Long createdDate, Long updatedDate) {
         super(id, createdDate, updatedDate, updatedDate);
     }
 
 
     @Override
     protected String subString() {
-        return String.format("productId:%s, username:%s, location:%s, rating:%s",
-                productId, username, location, rating);
+        return String.format("productId:%s, username:%s, location:%s",
+                productId, username, location);
     }
 
 
@@ -57,6 +51,7 @@ public class JRating extends JBaseObject {
 
     public void setUsername(String username) {
         this.username = username;
+
     }
 
     public JLocation getLocation() {
@@ -66,13 +61,4 @@ public class JRating extends JBaseObject {
     public void setLocation(JLocation location) {
         this.location = location;
     }
-
-    public Integer getRating() {
-        return rating;
-    }
-
-    public void setRating(Integer rating) {
-        this.rating = rating;
-    }
-
 }

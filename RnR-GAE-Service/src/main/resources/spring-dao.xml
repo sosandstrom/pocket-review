@@ -17,6 +17,9 @@
 	<bean id="dResultDao" 
 		class="com.wadpam.rnr.dao.DResultDaoBean">
 	</bean>
+    <bean id="dLikeDao"
+          class="com.wadpam.rnr.dao.DLikeDaoBean">
+    </bean>
 	
 
 </beans>
