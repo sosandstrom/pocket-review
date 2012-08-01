@@ -3,14 +3,11 @@ package com.wadpam.rnr.json;
 /**
  * Created with IntelliJ IDEA.
  * User: mattias
- * Date: 7/24/12
- * Time: 9:15 PM
+ * Date: 7/27/12
+ * Time: 10:53 PM
  * To change this template use File | Settings | File Templates.
  */
-public class JLike extends JBaseObject {
-
-    /**  The unique id of the like */
-    private String               id;
+public class JComment {
 
     /** The Many-To-One productId (unconstrained) */
     private String             productId;
@@ -21,32 +18,9 @@ public class JLike extends JBaseObject {
     /** The location of the product */
     private JLocation          location;
 
+    /** A user-provided comment */
+    private String             comment;
 
-    // Constructors
-     public JLike() {
-         // Do nothing
-    }
-
-    public JLike(String id, Long createdDate, Long updatedDate) {
-        super(id, createdDate, updatedDate, updatedDate);
-    }
-
-
-    @Override
-    protected String subString() {
-        return String.format("productId:%s, username:%s, location:%s",
-                productId, username, location);
-    }
-
-
-    // Setters and getters
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
 
     public String getProductId() {
         return productId;
@@ -71,4 +45,13 @@ public class JLike extends JBaseObject {
     public void setLocation(JLocation location) {
         this.location = location;
     }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
 }
+

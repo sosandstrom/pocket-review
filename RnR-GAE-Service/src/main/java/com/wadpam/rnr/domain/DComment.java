@@ -1,30 +1,19 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.wadpam.rnr.domain;
-
-
-import javax.persistence.Basic;
-import javax.persistence.Entity;
-import javax.persistence.Id;
 
 import net.sf.mardao.api.domain.AEDLongEntity;
 
-import com.google.appengine.api.datastore.GeoPt;
-import com.google.appengine.api.datastore.Rating;
-import java.util.Collection;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
-import net.sf.mardao.api.geo.aed.GeoModel;
+import javax.persistence.*;
 
 /**
- *
- * @author os
+ * Created with IntelliJ IDEA.
+ * User: mattias
+ * Date: 7/27/12
+ * Time: 10:46 PM
+ * To change this template use File | Settings | File Templates.
  */
 @Entity
 @Table(uniqueConstraints={@UniqueConstraint(columnNames={"productId", "username"})})
-public class DRating extends AEDLongEntity {
+public class DComment extends AEDLongEntity {
 
     /** Generated primary key */
     @Id
@@ -38,27 +27,22 @@ public class DRating extends AEDLongEntity {
     @Basic
     private String             username;
 
-    /** A user-provided integer rating for a piece of content. Normalized to a 0-100 scale. */
-    @Basic
-    private Rating             rating;
-
-    /** A user-provided review comment */
+    /** A user-provided comment */
     @Basic
     private String             comment;
 
     @Override
     public Long getSimpleKey() {
-        return id;
+        return getId();
     }
 
     @Override
     public String toString() {
-        return String.format("{id:%d, productId:%s, username:%s, rating:%s, comment:%s}",
-                id, productId, username, rating, comment);
+        return String.format("{id:%d, productId:%s, username:%s, comment:%s}",
+                getId(), getProductId(), getUsername(), getComment());
     }
 
 
-    // Setters and getters
     public Long getId() {
         return id;
     }
@@ -81,14 +65,6 @@ public class DRating extends AEDLongEntity {
 
     public void setUsername(String username) {
         this.username = username;
-    }
-
-    public Rating getRating() {
-        return rating;
-    }
-
-    public void setRating(Rating rating) {
-        this.rating = rating;
     }
 
     public String getComment() {

@@ -11,23 +11,40 @@
         <import resource="classpath*:spring-dao.xml" />
         
         <bean id="rnrService" class="com.wadpam.rnr.service.RnrService" init-method="init">
+            <property name="persistenceManager" ref="persistenceManager" />
+            <property name="productDao" ref="dProductDao" />
             <property name="ratingDao" ref="dRatingDao" />
-            <property name="resultDao" ref="dResultDao" />
+            <property name="likeDao" ref="dLikeDao" />
+            <property name="commentDao" ref="dCommentDao" />
         </bean>
 
-         <bean id="likeService" class="com.wadpam.rnr.service.LikeService" init-method="init">
-            <property name="resultDao" ref="dResultDao" />
-            <property name="likeDao" ref="dLikeDao" />
-         </bean>
-        
+        <bean id="persistenceManager" class="com.wadpam.rnr.service.PersistenceManager">
+            <property name="productDao" ref="dProductDao" />
+        </bean>
+
+
         <!--           Controllers             -->
+
+        <bean id="productController" class="com.wadpam.rnr.web.ProductController">
+            <property name="rnrService" ref="rnrService" />
+        </bean>
 
         <bean id="ratingController" class="com.wadpam.rnr.web.RatingController">
             <property name="rnrService" ref="rnrService" />
         </bean>
 
+        <bean id="rating15Controller" class="com.wadpam.rnr.web.Rating15Controller">
+            <property name="rnrService" ref="rnrService" />
+        </bean>
+
+
         <bean id="likeController" class="com.wadpam.rnr.web.LikeController">
-        <property name="likeService" ref="likeService" />
-    </bean>
+            <property name="rnrService" ref="rnrService" />
+        </bean>
+
+        <bean id="CommentController" class="com.wadpam.rnr.web.CommentController">
+            <property name="rnrService" ref="rnrService" />
+        </bean>
+
 
 </beans>

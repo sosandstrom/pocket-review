@@ -11,15 +11,17 @@
 <!-- Bean managed transactions -->
 
 	<!-- ============== DaoBeans for entities in package com.wadpam.rnr.domain ============ -->
-	<bean id="dRatingDao" 
+    <bean id="dProductDao"
+          class="com.wadpam.rnr.dao.DProductDaoBean">
+    </bean>
+    <bean id="dRatingDao"
 		class="com.wadpam.rnr.dao.DRatingDaoBean">
-	</bean>
-	<bean id="dResultDao" 
-		class="com.wadpam.rnr.dao.DResultDaoBean">
-	</bean>
+    </bean>
     <bean id="dLikeDao"
           class="com.wadpam.rnr.dao.DLikeDaoBean">
     </bean>
-	
+    <bean id="dCommentDao"
+          class="com.wadpam.rnr.dao.DCommentDaoBean">
+    </bean>
 
 </beans>

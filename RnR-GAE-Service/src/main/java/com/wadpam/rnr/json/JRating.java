@@ -13,6 +13,10 @@ import javax.persistence.Basic;
  * @author os
  */
 public class JRating extends JBaseObject {
+
+    /**  The unique id of the rating */
+    private String              id;
+
     /** The Many-To-One productId (unconstrained) */
     private String             productId;
 
@@ -20,10 +24,13 @@ public class JRating extends JBaseObject {
     private String             username;
 
     /** The location of the product */
-    private JLocation           location;
+    private JLocation          location;
 
     /** A user-provided integer rating for a piece of content. Normalized to a 0-100 scale. */
-    private Integer             rating;
+    private Integer            rating;
+
+    /** A user-provided review comment */
+    private String             comment;
 
 
     // Constructors
@@ -37,12 +44,20 @@ public class JRating extends JBaseObject {
 
     @Override
     protected String subString() {
-        return String.format("productId:%s, username:%s, location:%s, rating:%s",
-                productId, username, location, rating);
+        return String.format("productId:%s, username:%s, location:%s, rating:%s, comment:%s",
+                productId, username, location, rating, comment);
     }
 
 
     // Setters and getters
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
     public String getProductId() {
         return productId;
     }
@@ -75,4 +90,11 @@ public class JRating extends JBaseObject {
         this.rating = rating;
     }
 
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
 }

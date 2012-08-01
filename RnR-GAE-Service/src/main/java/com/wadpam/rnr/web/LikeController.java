@@ -2,9 +2,11 @@ package com.wadpam.rnr.web;
 
 import com.wadpam.docrest.domain.RestCode;
 import com.wadpam.docrest.domain.RestReturn;
-import com.wadpam.rnr.dao.DResultDao;
-import com.wadpam.rnr.json.JResult;
-import com.wadpam.rnr.service.LikeService;
+import com.wadpam.rnr.domain.DLike;
+import com.wadpam.rnr.json.JLike;
+import com.wadpam.rnr.json.JProductV15;
+import com.wadpam.rnr.json.JRating;
+import com.wadpam.rnr.service.RnrService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpServletRequest;
 import java.security.Principal;
+import java.util.Collection;
 
 /**
  * Created with IntelliJ IDEA.
@@ -32,62 +35,108 @@ public class LikeController {
 
     static final Logger LOG = LoggerFactory.getLogger(LikeController.class);
 
-    private LikeService likeService;
-
+    private RnrService rnrService;
 
     /**
-     * Adds a Like to a product.
+     * Add a like to a product.
      * @param productId domain-unique id for the product to like
      * @param username optional.
      * If authenticated, and RnrService.fallbackPrincipalName,
      * principal.name will be used if username is null.
      * @param latitude optional, -90..90
      * @param longitude optional, -180..180
-     * @return the new total number of Likes for this product
+     * @return the newly create like
      */
-    // TODO: What to return from this operation. A JResult with a new property - numberOfLikes
-    @RestReturn(value=JResult.class, entity=JResult.class, code={
-            @RestCode(code=200, message="OK", description="Like added to product")
+    @RestReturn(value=JLike.class, entity=JLike.class, code={
+            @RestCode(code=200, message="OK", description="Like created")
     })
-    @RequestMapping(value="{productId}", method= RequestMethod.POST)
-    public ResponseEntity<JResult> addLike(HttpServletRequest request,
+    @RequestMapping(value="", method= RequestMethod.POST)
+    public ResponseEntity<JLike> addLike(HttpServletRequest request,
                                              Principal principal,
-                                             @PathVariable String productId,
+                                             @RequestParam(required=true) String productId,
                                              @RequestParam(required=false) String username,
                                              @RequestParam(required=false) Float latitude,
                                              @RequestParam(required=false) Float longitude) {
 
-        final JResult body = likeService.addLike(productId, username,
+        final JLike body = rnrService.addLike(productId, username,
                 null != principal ? principal.getName() : null, latitude, longitude);
 
-        return new ResponseEntity<JResult>(body, HttpStatus.OK);
+        return new ResponseEntity<JLike>(body, HttpStatus.OK);
     }
-
 
     /**
-     * Returns the number of Likes for a product.
-     * @param productId domain-unique id for the product
-     * @return the total number of Likes for the specified productId
+     * Delete a like with a specific id.
+     * @param id The unique like id
+     * @return the and http response code indicating the outcome of the operation
      */
-    @RestReturn(value=JResult.class, entity=JResult.class, code={
-            @RestCode(code=200, message="OK", description="Number of Likes found for product"),
-            @RestCode(code=404, message="Not Found", description="Product not found")
+    @RestReturn(value=JLike.class, entity=JLike.class, code={
+            @RestCode(code=200, message="OK", description="Like deleted"),
+            @RestCode(code=404, message="NOK", description="Like not found and can not be deleted")
     })
-    @RequestMapping(value="{productId}", method= RequestMethod.GET)
-    public ResponseEntity<JResult> getNumberOfLikes(
-            @PathVariable String productId) {
+    @RequestMapping(value="{id}", method= RequestMethod.DELETE)
+    public ResponseEntity<JLike> deleteLike(HttpServletRequest request,
+                                                      Principal principal,
+                                                      @PathVariable long id) {
 
-        final JResult body = likeService.getNumberOfLikes(productId);
-        if (null == body) {
+        final JLike body = rnrService.deleteLike(id);
+
+        if (null == body)
             return new ResponseEntity(HttpStatus.NOT_FOUND);
+        else
+            return new ResponseEntity<JLike>(HttpStatus.OK);
+    }
+
+    /**
+     * Get like details for a specific id.
+     * @param id The unique like id
+     * @return the like details
+     */
+    @RestReturn(value=JLike.class, entity=JLike.class, code={
+            @RestCode(code=200, message="OK", description="Like found"),
+            @RestCode(code=404, message="NOK", description="Like not found")
+    })
+    @RequestMapping(value="{id}", method= RequestMethod.GET)
+    public ResponseEntity<JLike> getLike(HttpServletRequest request,
+                                            Principal principal,
+                                            @PathVariable long id) {
+
+        final JLike body = rnrService.getLike(id);
+
+        if (null == body)
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
+        else
+            return new ResponseEntity<JLike>(body, HttpStatus.OK);
+    }
+
+    /**
+     * Returns all likes done by a specific user.
+     * @param username optional.
+     * If authenticated, and RnrService.fallbackPrincipalName,
+     * principal.name will be used if username is null.
+     * @return a list of my likes
+     */
+    @RestReturn(value=JLike.class, entity=JLike.class, code={
+            @RestCode(code=200, message="OK", description="Likes found for user")
+    })
+    @RequestMapping(value="my", method= RequestMethod.POST)
+    public ResponseEntity<Collection<JLike>> getMyLikes(HttpServletRequest request,
+                                                        Principal principal,
+                                                        @RequestParam(required=false) String username) {
+
+        try {
+            final Collection<JLike> body = rnrService.getMyLikes(username,
+                    null != principal ? principal.getName() : null);
+
+            return new ResponseEntity<Collection<JLike>>(body, HttpStatus.OK);
         }
-
-        return new ResponseEntity<JResult>(body, HttpStatus.OK);
+        catch (IllegalArgumentException usernameNull) {
+            return new ResponseEntity<Collection<JLike>>(HttpStatus.UNAUTHORIZED);
+        }
     }
 
-    // Setters for Spring
-    public void setLikeService(LikeService likeService) {
-        this.likeService = likeService;
-    }
 
+    // Setters and Getters
+    public void setRnrService(RnrService rnrService) {
+        this.rnrService = rnrService;
+    }
 }

@@ -4,13 +4,12 @@ package com.wadpam.rnr.json;
  *
  * @author os
  */
-public class JResult extends JBaseObject {
+public class JProduct extends JBaseObject {
 
     /** The Many-To-One productId (unconstrained) */
     private String      productId;
 
     /** The location of the product */
-    // TODO: Never populated
     private JLocation   location;
 
     /** The total sum or all ratings */
@@ -19,16 +18,14 @@ public class JResult extends JBaseObject {
     /** The total number of ratings */
     private Long        ratingCount = 0L;
 
-    /** The total number of likes */
-    private Long        numberOfLikes = 0L;
-
 
     @Override
     protected String subString() {
-        return String.format("productId:%s, location:%s, ratings:%d, average:%d, likes:%d",
-                productId, location, ratingCount, getAverage(), getNumberOfLikes());
+        return String.format("productId:%s, location:%s, ratings:%d, average:%d",
+                productId, location, ratingCount, getAverage());
     }
 
+    // Setters and Getters
     public String getProductId() {
         return productId;
     }
@@ -63,13 +60,5 @@ public class JResult extends JBaseObject {
 
     public void setRatingSum(Long ratingSum) {
         this.ratingSum = ratingSum;
-    }
-
-    public Long getNumberOfLikes() {
-        return numberOfLikes;
-    }
-
-    public void setNumberOfLikes(Long numberOfLikes) {
-        this.numberOfLikes = numberOfLikes;
     }
 }

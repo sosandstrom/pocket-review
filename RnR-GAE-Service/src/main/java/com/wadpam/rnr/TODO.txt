@@ -1,0 +1,90 @@
+
+Ola
+// TODO: The Ratint15Controller have issues with the namespace. Probably due to the versioning and the DomainFilter
+// TODO: Add datastore indexes (I deleted the one that existed and added new). How do I ask for most liked DProduct using Mardao? I can not find any methods.
+// TODO: Add geolocation to DProduct (Ola)
+// TODO: Implement nearby search methods with sort order (Ola)
+// TODO: Move location to a separate entity? Ola? Do not think it is necessary. Will we ever have anything else then the location on this entity
+// TODO: Move the convert from D-objects to J-objects to Controllers?  Ola?
+// TODO: Updating the product counters are not thread safe. Nor is the creating of new entities. Can we wrap them in a transaction?
+// TODO: Possible to turn the "old" rating controller OFF (RatingController) based on a setting. Should by default be OFF. Is this a build time or run time setting? Where do we enforce it (in the spring-security.xml or some filter)?
+
+
+
+
+
+// TODO: Add links in the return JSON to make it REST.
+
+// TODO: Add all product methods
+
+// TODO: Return distance in nearby requests
+
+// TODO: Support comments
+
+// TODO: Support favorites
+
+// TODO: Simple backoffice interface (sigin, get all registered apps, new, delete, update)
+// TODO: Add some basic authentication using a kind of AppKey that you get when register
+
+
+DONE
+
+// TODO: Implement Olas comments
+// TODO: Rename Result to Product?
+// TODO: Migrate all product requests to ProductController
+// TODO: Make a RatingV15Controller + ResultV15 , retain backwards compatibilty
+// TODO: Add sort order parameter to getNearbyProduct
+// TODO: Add cache to Products. Where?
+// TODO: Implement all Like methods
+// TODO: Implement all rating methods
+// TODO: Support review comments (think about how this should work 1) together with ratings or as something separate)
+// TODO: Add ids in JRating, JLike and JProduct
+// TODO: Support pagination
+
+
+
+
+REST end-points
+
+
+api/{version}/{domain}/product (POST)                   Get all products                            X  OK (should be migrated to Mardao)
+api/{version}/{domain}/product/{product} (GET)          Get one product                             X  OK
+api/{version}/{domain}/product?ids= GET                 Get several products                        X  OK
+api/{version}/{domain}/product/nearby (POST)            Get products nearby
+api/{version}/{domain}/product/mostliked (GET)          Get most liked products
+api/{version}/{domain}/product/mostcommented (GET)      Get most commented
+api/{version}/{domain}/product/mostrated (GET)          Get most rated
+api/{version}/{domain}/product/toprated (GET)           Get top rated products
+api/{version}/{domain}/product/{product}/likes (GET)    Get all likes for a product                 X  OK (missing pagination support)
+api/{version}/{domain}/product/{product}/ratings (GET)  Get all ratings for a product               X  OK (missing pagination support)
+api/{version}/{domain}/product/{product}/comments (GET) Get all comments for a product
+api/{version}/{domain}/product/my/liked (POST)          Get all products I have likes               X  OK
+api/{version}/{domain}/product/my/rated (POST)          Get all products I have rated               X  OK
+api/{version}/{domain}/product/my/commented (GET)       Get all products I have commented
+
+api/{version}/{domain}/like (POST)                      Like a product                              X  OK
+api/{version}/{domain}/like/{id} (GET)                  Get like details                            X  OK
+api/{version}/{domain}/like/{id} (DELETE)               Delete a like                               X  OK
+api/{version}/{domain}/like/my (GET)                    Get my likes                                X  OK
+
+api/{version}/{domain}/rating (POST)                    Rate a product                              X  OK
+api/{version}/{domain}/rating/{id} (GET)                Get rating details                          X  OK
+api/{version}/{domain}/rating/{id} (DELETE)             Delete a rating                             X  OK
+api/{version}/{domain}/rating/my (GET)                  Get my ratings                              x  OK
+
+
+api/{version}/{domain}/comment (POST)                    Comment a product
+api/{version}/{domain}/comment/{id} (GET)                Get Comment details
+api/{version}/{domain}/comment/{id} (DELETE)             Delete a Comment
+api/{version}/{domain}/comment/my (GET)                  Get my Comments
+
+api/{version}/{domain}/favorite (POST)                   Make a product a favorite
+api/{version}/{domain}/favorite/{id} (GET)               Get favorite details
+api/{version}/{domain}/favorite/{id} (DELETE)            Delete a favorite product
+api/{version}/{domain}/favorite/my (GET)                 Get my favorite products
+
+
+
+
+
+

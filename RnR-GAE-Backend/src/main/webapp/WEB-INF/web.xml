@@ -22,7 +22,8 @@
 
     <filter>
         <filter-name>optionsFilter</filter-name>
-        <filter-class>com.goldengekko.serverutils.security.AccessControlAllowFilter</filter-class>
+        <filter-class>com.goldengekko.serverutils.security.AccessControlAllowFilter
+        </filter-class>
     </filter>
     <filter-mapping>
         <filter-name>optionsFilter</filter-name>
@@ -55,6 +56,7 @@
             <role-name>admin</role-name>
         </auth-constraint>
     </security-constraint>
+
     <filter>
         <filter-name>jsonp</filter-name>
         <filter-class>com.goldengekko.serverutils.jsonp.JsonpCallbackFilter</filter-class>
