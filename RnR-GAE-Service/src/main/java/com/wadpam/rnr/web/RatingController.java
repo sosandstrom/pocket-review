@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.security.Principal;
 import java.util.Collection;
-import java.util.Collections;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
@@ -22,6 +21,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.view.RedirectView;
 
 /**
  * The rating controller implements all REST methods related to ratings and reviews
@@ -50,7 +50,7 @@ public class RatingController {
         @RestCode(code=200, message="OK", description="Rating added")
     })
     @RequestMapping(value="{productId}", method= RequestMethod.POST)
-    public ResponseEntity<JResult> addRating(HttpServletRequest request,
+    public RedirectView addRating(HttpServletRequest request,
             Principal principal,
             @PathVariable String productId,
             @RequestParam(required=false) String username,
@@ -61,7 +61,7 @@ public class RatingController {
         final JResult body = rnrService.addRating(productId, username, 
                 null != principal ? principal.getName() : null,
                 latitude, longitude, rating);
-        return new ResponseEntity<JResult>(body, HttpStatus.OK);
+        return new RedirectView(productId, true);
     }
     
     /**
