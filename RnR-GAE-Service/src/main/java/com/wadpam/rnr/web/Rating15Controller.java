@@ -2,6 +2,7 @@ package com.wadpam.rnr.web;
 
 import com.wadpam.docrest.domain.RestCode;
 import com.wadpam.docrest.domain.RestReturn;
+import com.wadpam.rnr.domain.DRating;
 import com.wadpam.rnr.json.JLike;
 import com.wadpam.rnr.json.JProductV15;
 import com.wadpam.rnr.json.JRating;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.view.RedirectView;
 
 import javax.servlet.http.HttpServletRequest;
 import java.security.Principal;
@@ -41,14 +43,14 @@ public class Rating15Controller {
      * @param latitude optional, -90..90
      * @param longitude optional, -180..180
      * @param rating mandatory, the rating 0..100
-     * @param comment options review comment
+     * @param comment optional. review comment
      * @return the new rating
      */
     @RestReturn(value=JRating.class, entity=JRating.class, code={
         @RestCode(code=200, message="OK", description="Rating created")
     })
     @RequestMapping(value="", method= RequestMethod.POST)
-    public ResponseEntity<JRating> addRating(HttpServletRequest request,
+    public RedirectView addRating(HttpServletRequest request,
                                              Principal principal,
                                              @RequestParam(required=true) String productId,
                                              @RequestParam(required=false) String username,
@@ -57,10 +59,10 @@ public class Rating15Controller {
                                              @RequestParam int rating,
                                              @RequestParam(required=false) String comment) {
 
-        final JRating body = rnrService.addRating(productId, username,
+        final DRating body = rnrService.addRating(productId, username,
                 null != principal ? principal.getName() : null, latitude, longitude, rating, comment);
 
-        return new ResponseEntity<JRating>(body, HttpStatus.OK);
+        return new RedirectView(request.getRequestURI() + "/" + body.getId().toString());
     }
 
     /**
@@ -77,7 +79,7 @@ public class Rating15Controller {
                                             Principal principal,
                                             @PathVariable long id) {
 
-        final JRating body = rnrService.deleteRating(id);
+        final DRating body = rnrService.deleteRating(id);
 
         if (null == body)
             return new ResponseEntity(HttpStatus.NOT_FOUND);
@@ -99,12 +101,12 @@ public class Rating15Controller {
                                          Principal principal,
                                          @PathVariable long id) {
 
-        final JRating body = rnrService.getRating(id);
+        final DRating body = rnrService.getRating(id);
 
         if (null == body)
             return new ResponseEntity(HttpStatus.NOT_FOUND);
         else
-            return new ResponseEntity<JRating>(body, HttpStatus.OK);
+            return new ResponseEntity<JRating>(Converter.convert(body, request), HttpStatus.OK);
     }
 
     /**
@@ -112,7 +114,7 @@ public class Rating15Controller {
      * @param username optional. 
      * If authenticated, and RnrService.fallbackPrincipalName, 
      * principal.name will be used if username is null.
-     * @return a Collection of my JRatings
+     * @return a list of ratings
      */
     @RestReturn(value=JRating.class, entity=JRating.class, code={
         @RestCode(code=200, message="OK", description="Ratings found for user")
@@ -123,10 +125,11 @@ public class Rating15Controller {
                                                             @RequestParam(required=false) String username) {
 
         try {
-            final Collection<JRating> body = rnrService.getMyRatings(username, 
+            final Collection<DRating> body = rnrService.getMyRatings(username,
                     null != principal ? principal.getName() : null);
 
-            return new ResponseEntity<Collection<JRating>>(body, HttpStatus.OK);
+            return new ResponseEntity<Collection<JRating>>((Collection<JRating>)Converter.convert(body, request),
+                    HttpStatus.OK);
         }
         catch (IllegalArgumentException usernameNull) {
             return new ResponseEntity<Collection<JRating>>(HttpStatus.UNAUTHORIZED);

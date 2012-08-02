@@ -1,7 +1,8 @@
-package com.wadpam.rnr.service;
+package com.wadpam.rnr.web;
 
 import com.google.appengine.api.datastore.GeoPt;
 import com.google.appengine.api.datastore.Key;
+import com.wadpam.rnr.domain.DComment;
 import com.wadpam.rnr.domain.DLike;
 import com.wadpam.rnr.domain.DProduct;
 import com.wadpam.rnr.domain.DRating;
@@ -10,9 +11,12 @@ import net.sf.mardao.api.domain.AEDPrimaryKeyEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created with IntelliJ IDEA.
@@ -21,13 +25,13 @@ import java.util.Date;
  * Time: 11:02 PM
  * To change this template use File | Settings | File Templates.
  */
-public class Converters {
+public class Converter {
 
-    static final Logger LOG = LoggerFactory.getLogger(Converters.class);
+    static final Logger LOG = LoggerFactory.getLogger(Converter.class);
 
 
     // Various convert methods for converting between domain to json objects
-    protected static JProductV15 convert(DProduct from) {
+    protected static JProductV15 convert(DProduct from, HttpServletRequest request) {
         if (null == from) {
             return null;
         }
@@ -38,16 +42,26 @@ public class Converters {
         to.setLocation(convert(from.getLocation()));
         to.setRatingCount(from.getRatingCount());
         to.setRatingSum(from.getRatingSum());
-        to.setRatingsURL(""); // TODO: where and how to set this value
         to.setLikeCount(from.getLikeCount());
-        to.setLikesURL(""); // TODO: where and how to set this value
         to.setCommentCount(from.getCommentCount());
-        to.setCommentsURL(""); // TODO: where and how to set this value
+
+        // Figure out the base url
+        String url = null;
+        Pattern pattern = Pattern.compile("^.*/product");
+        Matcher matcher = pattern.matcher(request.getRequestURL().toString());
+        if (matcher.find()) {
+            url = matcher.group() + "/" + from.getProductId();
+
+            // Set links
+            to.setRatingsURL(url + "/ratings");
+            to.setLikesURL(url + "/likes");
+            to.setCommentsURL(url + "/comments");
+        }
 
         return to;
     }
 
-    protected static JRating convert(DRating from) {
+    protected static JRating convert(DRating from, HttpServletRequest request) {
         if (null == from) {
             return null;
         }
@@ -63,7 +77,7 @@ public class Converters {
         return to;
     }
 
-    protected static JLike convert(DLike from) {
+    protected static JLike convert(DLike from, HttpServletRequest request) {
         if (null == from) {
             return null;
         }
@@ -73,6 +87,21 @@ public class Converters {
         to.setId(from.getId().toString());
         to.setProductId(from.getProductId());
         to.setUsername(from.getUsername());
+
+        return to;
+    }
+
+    protected static JComment convert(DComment from, HttpServletRequest request) {
+        if (null == from) {
+            return null;
+        }
+        final JComment to = new JComment();
+        convert(from, to);
+
+        to.setId(from.getId().toString());
+        to.setProductId(from.getProductId());
+        to.setUsername(from.getUsername());
+        to.setComment(from.getComment());
 
         return to;
     }
@@ -87,30 +116,23 @@ public class Converters {
         return to;
     }
 
-    protected static <T extends AEDPrimaryKeyEntity> void convert(T from, JBaseObject to) {
-        if (null == from || null == to) {
-            return;
-        }
-
-        to.setId(null != from.getSimpleKey() ? from.getSimpleKey().toString() : null);
-        to.setCreatedDate(toLong(from.getCreatedDate()));
-        to.setUpdatedDate(toLong(from.getUpdatedDate()));
-    }
-
-    protected static <T extends AEDPrimaryKeyEntity> JBaseObject convert(T from) {
+    protected static <T extends AEDPrimaryKeyEntity> JBaseObject convert(T from, HttpServletRequest request) {
         if (null == from) {
             return null;
         }
 
         JBaseObject returnValue;
         if (from instanceof DProduct) {
-            returnValue = convert((DProduct) from);
+            returnValue = convert((DProduct) from, request);
         }
         else if (from instanceof DRating) {
-            returnValue = convert((DRating) from);
+            returnValue = convert((DRating) from, request);
         }
         else if (from instanceof DLike) {
-            returnValue = convert((DLike) from);
+            returnValue = convert((DLike) from, request);
+        }
+        else if (from instanceof DComment) {
+            returnValue = convert((DComment) from, request);
         }
         else {
             throw new UnsupportedOperationException("No converter for " + from.getKind());
@@ -119,7 +141,8 @@ public class Converters {
         return returnValue;
     }
 
-    protected static <T extends AEDPrimaryKeyEntity> Collection<?> convert(Collection<T> from) {
+    protected static <T extends AEDPrimaryKeyEntity> Collection<?> convert(Collection<T> from,
+                                                                           HttpServletRequest request) {
         if (null == from) {
             return null;
         }
@@ -127,10 +150,20 @@ public class Converters {
         final Collection<Object> to = new ArrayList<Object>(from.size());
 
         for(T wf : from) {
-            to.add(convert(wf));
+            to.add(convert(wf, request));
         }
 
         return to;
+    }
+
+    protected static <T extends AEDPrimaryKeyEntity> void convert(T from, JBaseObject to) {
+        if (null == from || null == to) {
+            return;
+        }
+
+        to.setId(null != from.getSimpleKey() ? from.getSimpleKey().toString() : null);
+        to.setCreatedDate(toLong(from.getCreatedDate()));
+        to.setUpdatedDate(toLong(from.getUpdatedDate()));
     }
 
     private static Long toLong(Key from) {
@@ -186,4 +219,5 @@ public class Converters {
 
         return to;
     }
+
 }

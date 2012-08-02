@@ -11,19 +11,15 @@
     </context-param>
 
     <listener>
-        <listener-class>org.springframework.web.context.ContextLoaderListener
-        </listener-class>
+        <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
     </listener>
     <listener>
-        <listener-class>
-            org.springframework.web.context.request.RequestContextListener
-        </listener-class>
+        <listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>
     </listener>
 
     <filter>
         <filter-name>optionsFilter</filter-name>
-        <filter-class>com.goldengekko.serverutils.security.AccessControlAllowFilter
-        </filter-class>
+        <filter-class>com.goldengekko.serverutils.security.AccessControlAllowFilter</filter-class>
     </filter>
     <filter-mapping>
         <filter-name>optionsFilter</filter-name>
@@ -32,8 +28,7 @@
     
     <filter>
         <filter-name>domainFilter</filter-name>
-        <filter-class>org.springframework.web.filter.DelegatingFilterProxy
-        </filter-class>
+        <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
     </filter>
     <filter-mapping>
         <filter-name>domainFilter</filter-name>

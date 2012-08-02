@@ -2,9 +2,11 @@ package com.wadpam.rnr.web;
 
 import com.wadpam.docrest.domain.RestCode;
 import com.wadpam.docrest.domain.RestReturn;
+import com.wadpam.rnr.domain.DProduct;
+import com.wadpam.rnr.domain.DRating;
+import com.wadpam.rnr.json.JLocation;
 import com.wadpam.rnr.json.JProduct;
 import com.wadpam.rnr.json.JProductV15;
-import com.wadpam.rnr.json.JRating;
 import com.wadpam.rnr.service.RnrService;
 import java.security.Principal;
 import java.util.ArrayList;
@@ -64,13 +66,13 @@ public class RatingController {
                                               @RequestParam(required=false) Float longitude,
                                               @RequestParam int rating) {
 
-        final JRating jRating = rnrService.addRating(productId, username,
+        final DRating dRating = rnrService.addRating(productId, username,
                 null != principal ? principal.getName() : null, latitude, longitude, rating, "");
 
         // Get a product from the rating, needed to retain backwards compatibility
-        final JProduct body = convertFromV15(rnrService.getProduct(jRating.getProductId()));
+        final DProduct body = rnrService.getProduct(dRating.getProductId());
 
-        return new ResponseEntity<JProduct>(body, HttpStatus.OK);
+        return new ResponseEntity<JProduct>(convert(body), HttpStatus.OK);
     }
 
     /**
@@ -89,11 +91,14 @@ public class RatingController {
     @Deprecated
     public ResponseEntity<JProduct> getAverageRating(
             @PathVariable String productId) {
-        final JProduct body = convertFromV15(rnrService.getProduct(productId));
+
+        final DProduct body = rnrService.getProduct(productId);
+
         if (null == body) {
             return new ResponseEntity(HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<JProduct>(body, HttpStatus.OK);
+
+        return new ResponseEntity<JProduct>(convert(body), HttpStatus.OK);
     }
 
     /**
@@ -112,29 +117,30 @@ public class RatingController {
     @Deprecated
     public ResponseEntity<Collection<JProduct>> getAverageRatings(
             @RequestParam(value="ids") String ids[]) {
-        final Collection<JProduct> body = convertFromV15(rnrService.getProducts(ids));
-        return new ResponseEntity<Collection<JProduct>>(body, HttpStatus.OK);
+        final Collection<DProduct> body = rnrService.getProducts(ids);
+        return new ResponseEntity<Collection<JProduct>>(convert(body), HttpStatus.OK);
     }
 
 
-    // Convert from V15 to v10 Json results. Needed to retain backwards compatibility
-    private static JProduct convertFromV15(JProductV15 resultV15) {
+    // Convert to v10 Json results. Needed to retain backwards compatibility
+    private static JProduct convert(DProduct dProduct) {
         JProduct resultV10 = new JProduct();
 
-        resultV10.setProductId(resultV15.getId());
-        resultV10.setLocation(resultV15.getLocation());
-        resultV10.setRatingCount(resultV15.getRatingCount());
-        resultV10.setRatingSum(resultV15.getRatingSum());
+        resultV10.setProductId(dProduct.getId());
+        resultV10.setLocation(new JLocation(dProduct.getLocation().getLatitude(),
+                dProduct.getLocation().getLongitude()));
+        resultV10.setRatingCount(dProduct.getRatingCount());
+        resultV10.setRatingSum(dProduct.getRatingSum());
 
         return resultV10;
     }
 
     // Convert array
-    private static Collection<JProduct> convertFromV15(Collection<JProductV15> resultV15List) {
-        Collection<JProduct> resultV10List = new ArrayList<JProduct>(resultV15List.size());
+    private static Collection<JProduct> convert(Collection<DProduct> products) {
+        Collection<JProduct> resultV10List = new ArrayList<JProduct>(products.size());
 
-        for (JProductV15 resultV15 : resultV15List)  {
-            resultV10List.add(convertFromV15(resultV15));
+        for (DProduct dProduct : products)  {
+            resultV10List.add(convert(dProduct));
         }
 
         return resultV10List;

@@ -55,12 +55,12 @@
 // Private stuff
 @interface PocketReviewer ()
 
-- (void)performRateAndReviewItem:(NSString*)itemId forLatitude:(NSNumber*)latitude longitude:(NSNumber*)longitude 
-                          rating:(NSNumber*)rating review:(NSString*)review completionBlock:(void(^)(Rating*, NSError*))block;
-- (void)performNearbyAverageRatingsForLatitude:(NSNumber*)latitude longitude:(NSNumber*)longitude withinRadius:(NearbyRadius)radius 
-                            maxNumberOfResults:(NSInteger)maxNumberOfResults completionBlock:(void(^)(NSArray*, NSError*))block;
+- (void)rateAndReviewItem:(NSString*)itemId forLatitude:(NSNumber*)latitude longitude:(NSNumber*)longitude 
+                   rating:(NSNumber*)rating review:(NSString*)review completionBlock:(void(^)(Rating*, NSError*))block;
+- (void)nearbyAverageRatingsForLatitude:(NSNumber*)latitude andLongitude:(NSNumber*)longitude withinRadius:(NearbyRadius)radius 
+                     maxNumberOfResults:(NSInteger)maxNumberOfResults completionBlock:(void(^)(NSArray*, NSError*))block;
 
-- (NSInteger)serviceRequestWithUrl:(NSURL*)url body:(NSDictionary*)body completionBlock:(void(^)(id result, NSError* error))block;
+- (NSInteger)requestWithUrl:(NSURL*)url body:(NSDictionary*)body completionBlock:(void(^)(id result, NSError* error))block;
 - (NSString*)toStringFromDict:(NSDictionary*)dict;
 - (NSInteger)toServerRating:(NSInteger)userRating;
 - (NSError*)parsingErrorWithDescription:(NSString*)format, ...;
@@ -167,23 +167,22 @@
 
 // Rate an item
 - (void)rateItem:(NSString*)itemId withRating:(NSInteger)rating completionBlock:(void(^)(Rating*, NSError*))block {
-  [self performRateAndReviewItem:itemId forLatitude:nil longitude:nil rating:[NSNumber numberWithInteger:rating] 
+  [self rateAndReviewItem:itemId forLatitude:nil longitude:nil rating:[NSNumber numberWithInteger:rating] 
                      review:nil completionBlock:block];
 }
 
 
 // Rate an item with latitude and longitude
-- (void)rateItem:(NSString*)itemId forLatitude:(float)latitude longitude:(float)longitude 
+- (void)rateItem:(NSString*)itemId withLatitude:(float)latitude andLongitude:(float)longitude 
       withRating:(NSInteger)rating completionBlock:(void(^)(Rating*, NSError*))block {
-  
-  [self performRateAndReviewItem:itemId forLatitude:[NSNumber numberWithFloat:latitude] 
+  [self rateAndReviewItem:itemId forLatitude:[NSNumber numberWithFloat:latitude] 
                   longitude:[NSNumber numberWithFloat:longitude] rating:[NSNumber numberWithInteger:rating] 
                      review:nil completionBlock:block];
 }
 
 
 // Internal rating and review method
-- (void)performRateAndReviewItem:(NSString*)itemId forLatitude:(NSNumber*)latitude longitude:(NSNumber*)longitude 
+- (void)rateAndReviewItem:(NSString*)itemId forLatitude:(NSNumber*)latitude longitude:(NSNumber*)longitude 
                           rating:(NSNumber*)rating review:(NSString*)review completionBlock:(void(^)(Rating*, NSError*))block {
   
   // Use GCD
@@ -219,14 +218,14 @@
     if (longitude) [body setObject:longitude forKey:LONGITUDE];
     
     // Make the request
-    int responseCode = [self serviceRequestWithUrl:requestUrl body:body completionBlock:block];
+    int responseCode = [self requestWithUrl:requestUrl body:body completionBlock:block];
     DLOG(@"Rating and review request executed with response code %d", responseCode);
     
   });
 }
 
 
-// Get the rating for an item
+// Get the average rating for an item
 - (void)averageRatingForItem:(NSString*)itemId completionBlock:(void(^)(Rating*, NSError*))block {
   
   // Use GCD
@@ -251,14 +250,14 @@
     requestUrl = APPEND_PATH(itemId, requestUrl);
     
     // Make the request
-    int responseCode = [self serviceRequestWithUrl:requestUrl body:nil completionBlock:block];
+    int responseCode = [self requestWithUrl:requestUrl body:nil completionBlock:block];
     DLOG(@"Get rating request executed with response code %d", responseCode);
   
   });
 }
 
 
-// Get raings for a list of items
+// Get average ratings for a list of items
 - (void)averageRatingForItems:(NSArray*)itemIds completionBlock:(void(^)(NSArray*, NSError*))block {
   
   // Use GCD
@@ -288,10 +287,16 @@
     requestUrl = APPEND_QUERY([itemParameters componentsJoinedByString:@"&"], requestUrl);
     
     // Make the request
-    int responseCode = [self serviceRequestWithUrl:requestUrl body:nil completionBlock:block];
+    int responseCode = [self requestWithUrl:requestUrl body:nil completionBlock:block];
     DLOG(@"Get ratings request executed with response code %d", responseCode);
     
   });
+}
+
+
+// Get the individual ratings for an item
+- (void)ratingsForItem:(NSString*)itemId completionBlock:(void(^)(NSArray*, NSError*))block {
+  // TODO
 }
 
 
@@ -321,7 +326,7 @@
     requestUrl = APPEND_QUERY([self toStringFromDict:query], requestUrl);
     
     // Make the request
-    int responseCode = [self serviceRequestWithUrl:requestUrl body:nil completionBlock:block];
+    int responseCode = [self requestWithUrl:requestUrl body:nil completionBlock:block];
     DLOG(@"Get my ratings executed with response code %d", responseCode);
     
   });
@@ -338,22 +343,22 @@
 // Get nearby items using Google provided latitude and langitude
 - (void)topNearbyAverageRatingsWithinRadius:(NearbyRadius)radius maxNumberOfResults:(NSInteger)maxNumberOfResults 
                             completionBlock:(void(^)(NSArray*, NSError*))block {
-  [self performNearbyAverageRatingsForLatitude:nil longitude:nil withinRadius:radius maxNumberOfResults:maxNumberOfResults 
+  [self nearbyAverageRatingsForLatitude:nil andLongitude:nil withinRadius:radius maxNumberOfResults:maxNumberOfResults 
                  completionBlock:block];
   
 }
 
 
 // Get nearby items 
-- (void)topNearbyAverageRatingsForLatitude:(float)latitude longitude:(float)longitude withinRadius:(NearbyRadius)radius 
+- (void)topNearbyAverageRatingsForLatitude:(float)latitude andLongitude:(float)longitude withinRadius:(NearbyRadius)radius 
                         maxNumberOfResults:(NSInteger)maxNumberOfResults completionBlock:(void(^)(NSArray*, NSError*))block {
-  [self performNearbyAverageRatingsForLatitude:[NSNumber numberWithFloat:latitude] longitude:[NSNumber numberWithFloat:longitude] 
+  [self nearbyAverageRatingsForLatitude:[NSNumber numberWithFloat:latitude] andLongitude:[NSNumber numberWithFloat:longitude] 
                     withinRadius:radius maxNumberOfResults:maxNumberOfResults completionBlock:block];
   
 }
 
 
-- (void)performNearbyAverageRatingsForLatitude:(NSNumber*)latitude longitude:(NSNumber*)longitude withinRadius:(NearbyRadius)radius 
+- (void)nearbyAverageRatingsForLatitude:(NSNumber*)latitude andLongitude:(NSNumber*)longitude withinRadius:(NearbyRadius)radius 
                             maxNumberOfResults:(NSInteger)maxNumberOfResults completionBlock:(void(^)(NSArray*, NSError*))block {
   
   // Use GCD
@@ -390,7 +395,7 @@
     requestUrl = APPEND_QUERY([self toStringFromDict:query], requestUrl);
     
     // Make the request
-    int responseCode = [self serviceRequestWithUrl:requestUrl body:nil completionBlock:block];
+    int responseCode = [self requestWithUrl:requestUrl body:nil completionBlock:block];
     DLOG(@"Get ratings nearby request executed with response code %d", responseCode);
     
   });
@@ -427,12 +432,12 @@
 
 // Like an item
 - (void)likeItem:(NSString*)itemId completionBlock:(void(^)(NSError*))block {
-  //T TODO
+  // TODO
 }
 
 
 // Like an item with a specified position
-- (void)likeItem:(NSString *)itemId withLatitude:(float)latitude longitude:(float)longitude completionBlock:(void (^)(NSError *))block {
+- (void)likeItem:(NSString *)itemId withLatitude:(float)latitude andLongitude:(float)longitude completionBlock:(void (^)(NSError *))block {
   // TODO
 }
 
@@ -445,6 +450,12 @@
 
 // Get the number of likes for a list of items
 - (void)numberOfLikesForItems:(NSArray*)itemIds completionBlock:(void(^)(NSArray*, NSError*))block {
+  // TODO
+}
+
+
+// Get the individual ratings for an item
+- (void)likesForItem:(NSString*)itemId completionBlock:(void(^)(NSArray*, NSError*))block {
   // TODO
 }
 
@@ -463,7 +474,7 @@
 
 
 //  Get most liked nearby items using device location provided by the application
-- (void)mostLikedNearbyItemsForLatitude:(float)latitude longitude:(float)longitude withinRadius:(NearbyRadius)radius 
+- (void)mostLikedNearbyItemsForLatitude:(float)latitude andLongitude:(float)longitude withinRadius:(NearbyRadius)radius 
                      maxNumberOfResults:(NSInteger)maxNumberOfResults completionBlock:(void(^)(NSArray*, NSError*))block {
   // TODO
 }
@@ -479,6 +490,12 @@
 
 // Add item to favorites 
 - (void)addItemToMyFavorite:(NSString*)itemId completionBlock:(void(^)(NSError*))block {
+  // TODO
+}
+
+
+// Remove item from favorites 
+- (void)removeItemsFromMyFavorites:(NSString*)itemId completionBlock:(void(^)(NSError*))block {
   // TODO
 }
 
@@ -556,7 +573,7 @@
 # pragma mark - Helper methods
 
 // Send a request to the backend service
-- (NSInteger)serviceRequestWithUrl:(NSURL*)url body:(NSDictionary*)body completionBlock:(void(^)(id result, NSError* error))block; {
+- (NSInteger)requestWithUrl:(NSURL*)url body:(NSDictionary*)body completionBlock:(void(^)(id result, NSError* error))block; {
     
   // Check if dry run
   if (self.dryRun) {

@@ -19,19 +19,19 @@ public class JProductV15 extends JBaseObject {
     private Long        ratingCount = 0L;
 
     /** The deep link to the individual ratings */
-    private String      ratingsURL = null;
+    private String      ratingsURL;
 
     /** The total number of Likes */
     private Long        likeCount = 0L;
 
     /** The deep link to the individual likes */
-    private String      likesURL = null;
+    private String      likesURL;
 
     /** The total number of Comments */
     private Long        commentCount = 0L;
 
     /** The deep link to the individual likes */
-    private String      commentsURL = null;
+    private String      commentsURL;
 
 
     @Override

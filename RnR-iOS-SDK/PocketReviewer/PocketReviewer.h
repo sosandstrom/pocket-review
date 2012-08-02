@@ -102,7 +102,7 @@ typedef enum {
  @param rating The rating value. Default value is 1-5 unless another range is set explicitly
  @param block A block that will be executed when the request completes or fails
  */
-- (void)rateItem:(NSString*)itemId forLatitude:(float)latitude longitude:(float)longitude 
+- (void)rateItem:(NSString*)itemId withLatitude:(float)latitude andLongitude:(float)longitude 
       withRating:(NSInteger)rating completionBlock:(void(^)(Rating*, NSError*))block;
  
 
@@ -120,6 +120,14 @@ typedef enum {
  @param block A block that will be executed when the request completes or fails
   */
 - (void)averageRatingForItems:(NSArray*)itemIds completionBlock:(void(^)(NSArray*, NSError*))block;
+
+
+/**
+ Get all individual ratings for an item.
+ @param itemId The unique item id
+ @param block A block that will be executed when the request completes or fails
+ */
+- (void)ratingsForItem:(NSString*)itemId completionBlock:(void(^)(NSArray*, NSError*))block;
 
 
 /**
@@ -163,7 +171,7 @@ typedef enum {
  @param maxNumberOfResults The maximum number of results the service should return
  @param block A block that will be executed when the request completes or fails
  */
-- (void)topNearbyAverageRatingsForLatitude:(float)latitude longitude:(float)longitude withinRadius:(NearbyRadius)radius 
+- (void)topNearbyAverageRatingsForLatitude:(float)latitude andLongitude:(float)longitude withinRadius:(NearbyRadius)radius 
                         maxNumberOfResults:(NSInteger)maxNumberOfResults completionBlock:(void(^)(NSArray*, NSError*))block;
 
 
@@ -243,7 +251,7 @@ typedef enum {
  @param longitude The longitude of the item being rated
  @param block A block that will be executed when the request completes or fails
  */
-- (void)likeItem:(NSString *)itemId withLatitude:(float)latitude longitude:(float)longitude completionBlock:(void (^)(NSError *))block;
+- (void)likeItem:(NSString *)itemId withLatitude:(float)latitude andLongitude:(float)longitude completionBlock:(void (^)(NSError *))block;
 
 
 /**
@@ -260,6 +268,14 @@ typedef enum {
  @param block A block that will be executed when the request completes or fails
  */
 - (void)numberOfLikesForItems:(NSArray*)itemIds completionBlock:(void(^)(NSArray*, NSError*))block;
+
+
+/**
+ Get all individual likes for an item.
+ @param itemId The unique item id
+ @param block A block that will be executed when the request completes or fails
+ */
+- (void)likesForItem:(NSString*)itemId completionBlock:(void(^)(NSArray*, NSError*))block;
 
 
 /**
@@ -301,7 +317,7 @@ typedef enum {
  @param maxNumberOfResults The maximum number of results the service should return
  @param block A block that will be executed when the request completes or fails
  */
-- (void)mostLikedNearbyItemsForLatitude:(float)latitude longitude:(float)longitude withinRadius:(NearbyRadius)radius 
+- (void)mostLikedNearbyItemsForLatitude:(float)latitude andLongitude:(float)longitude withinRadius:(NearbyRadius)radius 
                      maxNumberOfResults:(NSInteger)maxNumberOfResults completionBlock:(void(^)(NSArray*, NSError*))block;
 
 /**
@@ -321,6 +337,24 @@ typedef enum {
  @param block A block that will be executed when the request completes or fails
  */
 - (void)addItemToMyFavorite:(NSString*)itemId completionBlock:(void(^)(NSError*))block;
+
+
+/**
+ Remove an item to my favorites.
+ @param itemId The unique item
+ @param block A block that will be executed when the request completes or fails
+ */
+- (void)removeItemsFromMyFavorites:(NSString*)itemId completionBlock:(void(^)(NSError*))block;
+
+
+/* TODO: Should we support this or not
+- (void)nearbyFavoriteItemsWithinRadius:(NearbyRadius)radius maxNumberOfResults:(NSInteger)maxNumberOfResults 
+                        completionBlock:(void(^)(NSArray*, NSError*))block;
+
+
+- (void)nearbyFavoriteItemsForLatitude:(float)latitude andLongitude:(float)longitude withinRadius:(NearbyRadius)radius 
+                     maxNumberOfResults:(NSInteger)maxNumberOfResults completionBlock:(void(^)(NSArray*, NSError*))block;
+*/
 
 
 /**

@@ -7,7 +7,10 @@ package com.wadpam.rnr.json;
  * Time: 10:53 PM
  * To change this template use File | Settings | File Templates.
  */
-public class JComment {
+public class JComment extends JBaseObject {
+
+    /**  The unique id of the Comment */
+    private String             id;
 
     /** The Many-To-One productId (unconstrained) */
     private String             productId;
@@ -21,6 +24,14 @@ public class JComment {
     /** A user-provided comment */
     private String             comment;
 
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public String getProductId() {
         return productId;

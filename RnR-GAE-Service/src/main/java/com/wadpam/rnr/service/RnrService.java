@@ -17,6 +17,7 @@ import com.wadpam.rnr.json.*;
 import java.io.PrintWriter;
 import java.util.*;
 
+import com.wadpam.rnr.web.Converter;
 import net.sf.mardao.api.geo.aed.GeoDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,7 +76,7 @@ public class RnrService {
     /* Like related methods */
 
     // Like a product
-    public JLike addLike(String productId, String username, String principalName, Float latitude, Float longitude) {
+    public DLike addLike(String productId, String username, String principalName, Float latitude, Float longitude) {
         LOG.debug("Add new like to product " + productId);
 
         // Fallback on principal name?
@@ -127,21 +128,21 @@ public class RnrService {
             persistenceManager.storeProductWithCache(dProduct);
         }
 
-        return Converters.convert(dLike);
+        return dLike;
     }
 
 
     // Get a like with a specific id
-    public JLike getLike(long id) {
-        LOG.debug("Get a like with id " + id);
+    public DLike getLike(long id) {
+        LOG.debug("Get like with id " + id);
 
         DLike dLike = likeDao.findByPrimaryKey(id);
 
-        return Converters.convert(dLike);
+        return dLike;
     }
 
     // Delete a like with a specific id
-    public JLike deleteLike(long id) {
+    public DLike deleteLike(long id) {
         LOG.debug("Delete like with id " + id);
 
         DLike dLike = likeDao.findByPrimaryKey(id);
@@ -160,11 +161,11 @@ public class RnrService {
             // Should not happen, log error
             LOG.error("Like exist but not the product " + dLike.getProductId());
 
-        return Converters.convert(dLike);
+        return dLike;
     }
 
     // Get all likes for a specific user
-    public Collection<JLike> getMyLikes(String username, String principalName) {
+    public Collection<DLike> getMyLikes(String username, String principalName) {
 
         // Fallback on principal name?
         if (null == username && fallbackPrincipalName) {
@@ -176,17 +177,18 @@ public class RnrService {
 
         LOG.debug("Get all likes for user " + username);
 
-        final List<DLike> myLikes = likeDao.findByUsername(username);
+        final Collection<DLike> myLikes = likeDao.findByUsername(username);
 
-        return (Collection<JLike>)Converters.convert(myLikes);
+        return myLikes;
     }
 
 
     /* Rating related methods */
 
     // Rate a product
-    public JRating addRating(String productId, String username, String principalName,
+    public DRating addRating(String productId, String username, String principalName,
                              Float latitude, Float longitude, int rating, String comment) {
+        LOG.debug("Add new rating to product " + productId);
 
         // fallback on principal name?
         if (null == username && fallbackPrincipalName) {
@@ -251,20 +253,20 @@ public class RnrService {
             persistenceManager.storeProductWithCache(dProduct);
         }
 
-        return Converters.convert(dRating);
+        return dRating;
     }
 
     // Get a rating with a specific id
-    public JRating getRating(long id) {
-        LOG.debug("Get a rating with id " + id);
+    public DRating getRating(long id) {
+        LOG.debug("Get rating with id " + id);
 
-        DRating dLike = ratingDao.findByPrimaryKey(id);
+        DRating dRating = ratingDao.findByPrimaryKey(id);
 
-        return Converters.convert(dLike);
+        return dRating;
     }
 
     // Delete a ratings with a specific id
-    public JRating deleteRating(long id) {
+    public DRating deleteRating(long id) {
         LOG.debug("Delete ratings with id " + id);
 
         DRating dRating = ratingDao.findByPrimaryKey(id);
@@ -284,11 +286,11 @@ public class RnrService {
             // Should not happen, log error
             LOG.error("Rating exist but not the product " + dRating.getProductId());
 
-        return Converters.convert(dRating);
+        return dRating;
     }
 
     // Get all ratings done by a specific user
-    public Collection<JRating> getMyRatings(String username, String principalName) {
+    public Collection<DRating> getMyRatings(String username, String principalName) {
 
         // fallback on principal name?
         if (null == username && fallbackPrincipalName) {
@@ -300,53 +302,135 @@ public class RnrService {
 
         LOG.debug("Get all ratings for user " + username);
 
-        final Collection<DRating> myRatings = ratingDao.findByUsername(username);
+        final Collection<DRating> dRatings = ratingDao.findByUsername(username);
 
-        return (Collection<JRating>)Converters.convert(myRatings);
+        return dRatings;
+    }
+
+
+    /* Comment related methods */
+
+    // Add a comment to a product
+    public DComment addComment(String productId, String username, String principalName, Float latitude,
+                               Float longitude, String comment) {
+        LOG.debug("Add new comment to product " + productId);
+
+        // fallback on principal name?
+        if (null == username && fallbackPrincipalName) {
+            username = principalName;
+        }
+
+        // Create new comment. Do not check if user have commented before
+        DComment dComment = new DComment();
+        dComment.setProductId(productId);
+        dComment.setUsername(username);
+        dComment.setComment(comment);
+        commentDao.persist(dComment);
+
+        // update product info
+        DProduct dProduct = productDao.findByPrimaryKey(productId);
+        if (null == dProduct) {
+            dProduct = new DProduct();
+            dProduct.setProductId(productId);
+            dProduct.setCommentCount(1L);
+        }
+        else
+            dProduct.setCommentCount(dProduct.getCommentCount() + 1);
+
+        // Update product location if provided in the request
+        // TODO: DB write not thread safe
+        if (null != latitude && null != longitude) {
+            final GeoPt location = new GeoPt(latitude, longitude);
+            dProduct.setLocation(location);
+            //geoResultDao.save(dProduct);   // TODO: Uncomment once geoResultDao is declared
+        }
+        else {
+            persistenceManager.storeProductWithCache(dProduct);
+        }
+
+        return dComment;
+    }
+
+    // Get a comment with a specific id
+    public DComment getComment(long id) {
+        LOG.debug("Get comment with id " + id);
+
+        DComment dComment = commentDao.findByPrimaryKey(id);
+
+        return dComment;
+    }
+
+    // Delete a comment with a specific id
+    public DComment deleteComment(long id) {
+        LOG.debug("Delete comment with id " + id);
+
+        DComment dComment = commentDao.findByPrimaryKey(id);
+        if (null == dComment)
+            return null;
+
+        // Delete the comment
+        commentDao.delete(dComment);
+
+        // Update the product
+        DProduct dProduct = productDao.findByPrimaryKey(dComment.getProductId());
+        if (null != dProduct) {
+            dProduct.setCommentCount(dProduct.getCommentCount() - 1);
+            persistenceManager.storeProductWithCache(dProduct);
+        } else
+            // Should not happen, log error
+            LOG.error("Comment exist but not the product " + dComment.getProductId());
+
+        return dComment;
+    }
+
+    // Get all comments done by a specific user
+    public Collection<DComment> getMyComments(String username, String principalName) {
+
+        // fallback on principal name?
+        if (null == username && fallbackPrincipalName) {
+            username = principalName;
+        }
+
+        if (null == username)
+            throw new IllegalArgumentException("Username must be specified or authenticated");
+
+        LOG.debug("Get all comments for user " + username);
+
+        final Collection<DComment> dComments = commentDao.findByUsername(username);
+
+        return dComments;
     }
 
 
     /* Product related methods */
 
     // Get a specific product
-    public JProductV15 getProduct(String productId) {
+    public DProduct getProduct(String productId) {
         LOG.debug("Get product " + productId);
 
         final DProduct dProduct = persistenceManager.getProductWithCache(productId);
 
-        return Converters.convert(dProduct);
+        return dProduct;
     }
 
     // Get a list of products
-    public Collection<JProductV15> getProducts(String[] ids) {
+    public Collection<DProduct> getProducts(String[] ids) {
         LOG.debug("Get a list of products " + ids);
 
         Map<String, DProduct> map = persistenceManager.getProductsWithCache(Arrays.asList(ids));
 
-        return (Collection<JProductV15>)Converters.convert(map.values());
+        return map.values();
     }
 
     // Get all products
-    public JProductPage getProductPage(String cursor, int pageSize) {
+    public String getProductPage(String cursor, int pageSize, Collection<DProduct> resultList) {
         LOG.debug("Get product page, cursor:" + cursor + " page size:" + pageSize);
 
-        Collection<DProduct> dProducts = new ArrayList<DProduct>(pageSize);
-        String newCursor = persistenceManager.getProductPage(cursor, pageSize, dProducts);
-
-        if (dProducts.size() == 0)
-            return null;
-
-        // Create a Json response
-        JProductPage productPage = new JProductPage();
-        productPage.setCursor(newCursor);
-        productPage.setPageSize(pageSize);
-        productPage.setProducts((Collection<JProductV15>) Converters.convert(dProducts));
-
-       return productPage;
+       return persistenceManager.getProductPage(cursor, pageSize, resultList);
     }
 
     // Find nearby products with different sort order
-    public Collection<JProductV15> findNearbyProducts(Float latitude, Float longitude, int bits, int sortOrder, int limit) {
+    public Collection<DProduct> findNearbyProducts(Float latitude, Float longitude, int bits, int sortOrder, int limit) {
         // TODO: The location should be a property on DResult (not DRating). Needs refactoring
         //final Collection<DRating> list = geoRatingDao.findInGeobox(latitude, longitude, bits, ratingDao.COLUMN_NAME_RATING, false, 0, 10);
 
@@ -359,78 +443,87 @@ public class RnrService {
 
     // Find nearby products and return in KML format
     public void findNearbyProductsKml(Float latitude, Float longitude, int bits, int sortOrder, int limit, PrintWriter out) {
-        Collection<JProductV15> list = findNearbyProducts(latitude, longitude, bits, limit, sortOrder);
-        writeRatingsKml(out, list);
+        Collection<DProduct> productList = findNearbyProducts(latitude, longitude, bits, limit, sortOrder);
+        writeRatingsKml(out, productList);
     }
 
     // Various help methods for generating KML format
-    protected void writeRatingsKml(PrintWriter kmlDest, Collection<JProductV15> list) {
+    protected void writeRatingsKml(PrintWriter kmlDest, Collection<DProduct> products) {
         kmlDest.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
         kmlDest.println("<kml xmlns=\"http://www.opengis.net/kml/2.2\">");
         kmlDest.println("<Document>");
         kmlDest.println("   <name>Nearby results</name>");
         kmlDest.println("   <description>This is the description tag of the KML document</description>");
 
-        for (JProductV15 result : list) {
-            writePlacemarkKml(kmlDest, result);
+        for (DProduct product : products) {
+            writePlacemarkKml(kmlDest, product);
         }
 
         kmlDest.println("</Document>");
         kmlDest.println("</kml>");
     }
 
-    protected void writePlacemarkKml(PrintWriter kmlDest, JProductV15 result) {
-        if (null != result.getLocation()) {
+    protected void writePlacemarkKml(PrintWriter kmlDest, DProduct product) {
+        if (null != product.getLocation()) {
             kmlDest.println("   <Placemark>");
-            kmlDest.println("      <name>" + result.getId() + "</name>");
+            kmlDest.println("      <name>" + product.getId() + "</name>");
     //                        kmlDest.println("      <address>" + area + ", " + loc + "</address>");
 
             StringBuffer desc = new StringBuffer("<![CDATA[rating: ");
-            desc.append(result.getRatingAverage());
+            desc.append(product.getRatingAverage());
             desc.append("/100]]>");
             // TODO: include like and comment information in the KML
 
             kmlDest.println("      <description>" + desc.toString() + "</description>");
             kmlDest.println("      <Point>");
             kmlDest.println(String.format("         <coordinates>%s,%s,0</coordinates>",
-                    Float.toString(result.getLocation().getLongitude()),
-                    Float.toString(result.getLocation().getLatitude())));
+                    Float.toString(product.getLocation().getLongitude()),
+                    Float.toString(product.getLocation().getLatitude())));
             kmlDest.println("      </Point>");
             kmlDest.println("   </Placemark>");
         }
     }
 
+
     // Get the most liked products
-    public Collection<JProductV15> getMostLikedProducts(int limit) {
+    public Collection<DProduct> getMostLikedProducts(int limit) {
         LOG.debug("Get most liked products");
 
         // TODO: Implementation missing
         //Collection<DProduct> dProducts = productDao.
 
-
         throw new UnsupportedOperationException("Not yet implemented");
     }
 
      // Get all likes for a product
-    public Collection<JLike> getAllLikesForProduct(String productId, String principalName) {
+    public Collection<DLike> getAllLikesForProduct(String productId, String principalName) {
         LOG.debug("Get all likes for product " + productId);
 
         Collection<DLike> dLikes = likeDao.findByProductId(productId);
 
-        return (Collection<JLike>)Converters.convert(dLikes);
+        return dLikes;
     }
 
     // Get all ratings for a product
-    public Collection<JRating> getAllRatingsForProduct(String productId, String principalName) {
+    public Collection<DRating> getAllRatingsForProduct(String productId, String principalName) {
         LOG.debug("Get all ratings for product " + productId);
 
         Collection<DRating> dRatings = ratingDao.findByProductId(productId);
 
-        return (Collection<JRating>)Converters.convert(dRatings);
+        return dRatings;
+    }
+
+    // Get all comments for a product
+    public Collection<DComment> getAllCommentsForProduct(String productId, String principalName) {
+        LOG.debug("Get all comments for product " + productId);
+
+        Collection<DComment> dComments = commentDao.findByProductId(productId);
+
+        return dComments;
     }
 
     // Get all products a user have liked
-    public Collection<JProductV15> getProductsLikedByUser(String username, String principalName) {
+    public Collection<DProduct> getProductsLikedByUser(String username, String principalName) {
 
         // Fallback on principal name?
         if (null == username && fallbackPrincipalName)
@@ -450,13 +543,11 @@ public class RnrService {
 
         final Collection<DProduct> dProducts = productDao.findByPrimaryKeys(null, productIds).values();
 
-        return (Collection<JProductV15>)Converters.convert(dProducts);
+        return dProducts;
     }
 
-
     // Get all products a user have rated
-    public Collection<JProductV15> getProductsRatedByUser(String username, String principalName) {
-        LOG.debug("Get all products rated by user " + username);
+    public Collection<DProduct> getProductsRatedByUser(String username, String principalName) {
 
         // Fallback on principal name?
         if (null == username && fallbackPrincipalName)
@@ -476,8 +567,33 @@ public class RnrService {
 
         final Collection<DProduct> dProducts = productDao.findByPrimaryKeys(null, productIds).values();
 
-        return (Collection<JProductV15>)Converters.convert(dProducts);
+        return dProducts;
     }
+
+    // Get all products a user have commented
+    public Collection<DProduct> getProductsCommentedByUser(String username, String principalName) {
+
+        // Fallback on principal name?
+        if (null == username && fallbackPrincipalName)
+            username = principalName;
+
+        if (null == username)
+            throw new IllegalArgumentException("Username must be specified or authenticated");
+
+        LOG.debug("Get all products commented by user " + username);
+
+        final Collection<DComment> myComments = commentDao.findByUsername(username);
+
+        // Collect all unique product ids and get their products
+        Set<String> productIds = new HashSet<String>(myComments.size());
+        for (DComment dComment : myComments)
+            productIds.add(dComment.getProductId());
+
+        final Collection<DProduct> dProducts = productDao.findByPrimaryKeys(null, productIds).values();
+
+        return dProducts;
+    }
+
 
     // Setters and getters
     public void setRatingDao(DRatingDao ratingDao) {

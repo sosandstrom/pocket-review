@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.view.RedirectView;
 
 import javax.servlet.http.HttpServletRequest;
 import java.security.Principal;
@@ -51,17 +52,17 @@ public class LikeController {
             @RestCode(code=200, message="OK", description="Like created")
     })
     @RequestMapping(value="", method= RequestMethod.POST)
-    public ResponseEntity<JLike> addLike(HttpServletRequest request,
+    public RedirectView addLike(HttpServletRequest request,
                                              Principal principal,
                                              @RequestParam(required=true) String productId,
                                              @RequestParam(required=false) String username,
                                              @RequestParam(required=false) Float latitude,
                                              @RequestParam(required=false) Float longitude) {
 
-        final JLike body = rnrService.addLike(productId, username,
+        final DLike body = rnrService.addLike(productId, username,
                 null != principal ? principal.getName() : null, latitude, longitude);
 
-        return new ResponseEntity<JLike>(body, HttpStatus.OK);
+        return new RedirectView(request.getRequestURI() + "/" + body.getId().toString());
     }
 
     /**
@@ -78,7 +79,7 @@ public class LikeController {
                                                       Principal principal,
                                                       @PathVariable long id) {
 
-        final JLike body = rnrService.deleteLike(id);
+        final DLike body = rnrService.deleteLike(id);
 
         if (null == body)
             return new ResponseEntity(HttpStatus.NOT_FOUND);
@@ -100,12 +101,12 @@ public class LikeController {
                                             Principal principal,
                                             @PathVariable long id) {
 
-        final JLike body = rnrService.getLike(id);
+        final DLike body = rnrService.getLike(id);
 
         if (null == body)
             return new ResponseEntity(HttpStatus.NOT_FOUND);
         else
-            return new ResponseEntity<JLike>(body, HttpStatus.OK);
+            return new ResponseEntity<JLike>(Converter.convert(body, request), HttpStatus.OK);
     }
 
     /**
@@ -124,10 +125,11 @@ public class LikeController {
                                                         @RequestParam(required=false) String username) {
 
         try {
-            final Collection<JLike> body = rnrService.getMyLikes(username,
+            final Collection<DLike> body = rnrService.getMyLikes(username,
                     null != principal ? principal.getName() : null);
 
-            return new ResponseEntity<Collection<JLike>>(body, HttpStatus.OK);
+            return new ResponseEntity<Collection<JLike>>((Collection<JLike>)Converter.convert(body, request),
+                    HttpStatus.OK);
         }
         catch (IllegalArgumentException usernameNull) {
             return new ResponseEntity<Collection<JLike>>(HttpStatus.UNAUTHORIZED);

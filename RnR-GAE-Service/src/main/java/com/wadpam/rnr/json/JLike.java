@@ -10,7 +10,7 @@ package com.wadpam.rnr.json;
 public class JLike extends JBaseObject {
 
     /**  The unique id of the like */
-    private String               id;
+    private String             id;
 
     /** The Many-To-One productId (unconstrained) */
     private String             productId;

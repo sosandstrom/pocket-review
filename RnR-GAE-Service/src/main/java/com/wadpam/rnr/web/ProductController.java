@@ -2,10 +2,11 @@ package com.wadpam.rnr.web;
 
 import com.wadpam.docrest.domain.RestCode;
 import com.wadpam.docrest.domain.RestReturn;
-import com.wadpam.rnr.json.JLike;
-import com.wadpam.rnr.json.JProductPage;
-import com.wadpam.rnr.json.JProductV15;
-import com.wadpam.rnr.json.JRating;
+import com.wadpam.rnr.domain.DComment;
+import com.wadpam.rnr.domain.DLike;
+import com.wadpam.rnr.domain.DProduct;
+import com.wadpam.rnr.domain.DRating;
+import com.wadpam.rnr.json.*;
 import com.wadpam.rnr.service.RnrService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +23,10 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created with IntelliJ IDEA.
@@ -52,12 +56,12 @@ public class ProductController {
     public ResponseEntity<JProductV15> getProductInfo(HttpServletRequest request,
                                                       @PathVariable String productId) {
 
-        final JProductV15 body = rnrService.getProduct(productId);
+        final DProduct body = rnrService.getProduct(productId);
 
         if (null == body) {
             return new ResponseEntity(HttpStatus.NOT_FOUND);
         } else {
-            return new ResponseEntity<JProductV15>(body, HttpStatus.OK);
+            return new ResponseEntity<JProductV15>(Converter.convert(body, request), HttpStatus.OK);
         }
     }
 
@@ -74,9 +78,10 @@ public class ProductController {
     public ResponseEntity<Collection<JProductV15>> getProducts(HttpServletRequest request,
                                                                @RequestParam(value = "ids") String ids[]) {
 
-        final Collection<JProductV15> body = rnrService.getProducts(ids);
+        final Collection<DProduct> body = rnrService.getProducts(ids);
 
-        return new ResponseEntity<Collection<JProductV15>>(body, HttpStatus.OK);
+        return new ResponseEntity<Collection<JProductV15>>((Collection<JProductV15>)Converter.convert(body, request),
+                HttpStatus.OK);
     }
 
     /**
@@ -99,12 +104,20 @@ public class ProductController {
         // Just in case
         if (null != cursor && cursor.isEmpty()) cursor = null;
 
-        final JProductPage body = rnrService.getProductPage(cursor, pagesize);
+        Collection<DProduct> dProducts = new ArrayList<DProduct>();
+        String newCursor = rnrService.getProductPage(cursor, pagesize, dProducts);
 
-        if (null == body)
+        if (null == dProducts || dProducts.isEmpty())
             return new ResponseEntity(HttpStatus.NOT_FOUND);
-        else
+        else {
+
+            JProductPage body = new JProductPage();
+            body.setCursor(newCursor);
+            body.setPageSize(pagesize);
+            body.setProducts((Collection<JProductV15>) Converter.convert(dProducts, request));
+
             return new ResponseEntity<JProductPage>(body, HttpStatus.OK);
+        }
     }
 
     /**
@@ -139,9 +152,10 @@ public class ProductController {
             }
         }
 
-        final Collection<JProductV15> body = rnrService.findNearbyProducts(latitude, longitude, bits, sort, limit);
+        final Collection<DProduct> body = rnrService.findNearbyProducts(latitude, longitude, bits, sort, limit);
 
-        return new ResponseEntity<Collection<JProductV15>>(body, HttpStatus.OK);
+        return new ResponseEntity<Collection<JProductV15>>((Collection<JProductV15>)Converter.convert(body, request),
+                HttpStatus.OK);
     }
 
     /**
@@ -198,12 +212,13 @@ public class ProductController {
     public ResponseEntity<Collection<JProductV15>> getMostLikedProducts(HttpServletRequest request,
                                                                    @RequestParam(defaultValue = "10") int limit) {
 
-        final Collection<JProductV15> body = rnrService.getMostLikedProducts(limit);
+        final Collection<DProduct> body = rnrService.getMostLikedProducts(limit);
 
         if (body.isEmpty())
             return new ResponseEntity(HttpStatus.NOT_FOUND);
         else
-            return new ResponseEntity<Collection<JProductV15>>(body, HttpStatus.OK);
+            return new ResponseEntity<Collection<JProductV15>>((Collection<JProductV15>)Converter.convert(body, request),
+                    HttpStatus.OK);
     }
 
     /**
@@ -217,17 +232,19 @@ public class ProductController {
     })
     @RequestMapping(value="{productId}/likes", method= RequestMethod.GET)
     // TODO: Add pagination support
+    // TODO: Maybe move to Like resource
     public ResponseEntity<Collection<JLike>> getAllLikesForProduct(HttpServletRequest request,
                                                                    Principal principal,
                                                                    @PathVariable String productId) {
 
-        final Collection<JLike> body = rnrService.getAllLikesForProduct(productId,
+        final Collection<DLike> body = rnrService.getAllLikesForProduct(productId,
                 null != principal ? principal.getName() : null);
 
         if (body.isEmpty())
             return new ResponseEntity(HttpStatus.NOT_FOUND);
         else
-            return new ResponseEntity<Collection<JLike>>(body, HttpStatus.OK);
+            return new ResponseEntity<Collection<JLike>>((Collection<JLike>)Converter.convert(body, request),
+                    HttpStatus.OK);
     }
 
     /**
@@ -245,13 +262,39 @@ public class ProductController {
                                                                        Principal principal,
                                                                        @PathVariable String productId) {
 
-        final Collection<JRating> body = rnrService.getAllRatingsForProduct(productId,
+        final Collection<DRating> body = rnrService.getAllRatingsForProduct(productId,
                 null != principal ? principal.getName() : null);
 
         if (body.isEmpty())
             return new ResponseEntity(HttpStatus.NOT_FOUND);
         else
-            return new ResponseEntity<Collection<JRating>>(body, HttpStatus.OK);
+            return new ResponseEntity<Collection<JRating>>((Collection<JRating>)Converter.convert(body, request),
+                    HttpStatus.OK);
+    }
+
+    /**
+     * Get all comments for a product.
+     * @param productId domain-unique id for the product
+     * @return a list of comments for the product
+     */
+    @RestReturn(value=JComment.class, entity=JComment.class, code={
+            @RestCode(code=200, message="OK", description="Product found"),
+            @RestCode(code=404, message="NOK", description="Product not found")
+    })
+    @RequestMapping(value="{productId}/comments", method= RequestMethod.GET)
+    // TODO: Add pagination support
+    public ResponseEntity<Collection<JComment>> getAllCommentsForProduct(HttpServletRequest request,
+                                                                       Principal principal,
+                                                                       @PathVariable String productId) {
+
+        final Collection<DComment> body = rnrService.getAllCommentsForProduct(productId,
+                null != principal ? principal.getName() : null);
+
+        if (body.isEmpty())
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
+        else
+            return new ResponseEntity<Collection<JComment>>((Collection<JComment>)Converter.convert(body, request),
+                    HttpStatus.OK);
     }
 
     /**
@@ -271,10 +314,11 @@ public class ProductController {
                                                                           @RequestParam(required=false) String username) {
 
         try {
-            final Collection<JProductV15> body = rnrService.getProductsLikedByUser(username,
+            final Collection<DProduct> body = rnrService.getProductsLikedByUser(username,
                     null != principal ? principal.getName() : null);
 
-            return new ResponseEntity<Collection<JProductV15>>(body, HttpStatus.OK);
+            return new ResponseEntity<Collection<JProductV15>>((Collection<JProductV15>)Converter.convert(body, request),
+                    HttpStatus.OK);
         }
         catch (IllegalArgumentException usernameNull) {
             return new ResponseEntity<Collection<JProductV15>>(HttpStatus.UNAUTHORIZED);
@@ -297,16 +341,43 @@ public class ProductController {
                                                                           Principal principal,
                                                                           @RequestParam(required=false) String username) {
         try {
-            final Collection<JProductV15> body = rnrService.getProductsRatedByUser(username,
+            final Collection<DProduct> body = rnrService.getProductsRatedByUser(username,
                     null != principal ? principal.getName() : null);
 
-            return new ResponseEntity<Collection<JProductV15>>(body, HttpStatus.OK);
+            return new ResponseEntity<Collection<JProductV15>>((Collection<JProductV15>)Converter.convert(body, request),
+                    HttpStatus.OK);
         }
         catch (IllegalArgumentException usernameNull) {
             return new ResponseEntity<Collection<JProductV15>>(HttpStatus.UNAUTHORIZED);
         }
     }
 
+    /**
+     * Get all products a user have commented.
+     * @param username optional.
+     * If authenticated, and RnrService.fallbackPrincipalName,
+     * principal.name will be used if username is null.
+     * @return a list of products
+     */
+    @RestReturn(value=JProductV15.class, entity=JProductV15.class, code={
+            @RestCode(code=200, message="OK", description="Products found"),
+    })
+    @RequestMapping(value="my/commented", method= RequestMethod.POST)
+    // TODO: Add pagination support
+    public ResponseEntity<Collection<JProductV15>> getProductsCommentedByUser(HttpServletRequest request,
+                                                                          Principal principal,
+                                                                          @RequestParam(required=false) String username) {
+        try {
+            final Collection<DProduct> body = rnrService.getProductsCommentedByUser(username,
+                    null != principal ? principal.getName() : null);
+
+            return new ResponseEntity<Collection<JProductV15>>((Collection<JProductV15>)Converter.convert(body, request),
+                    HttpStatus.OK);
+        }
+        catch (IllegalArgumentException usernameNull) {
+            return new ResponseEntity<Collection<JProductV15>>(HttpStatus.UNAUTHORIZED);
+        }
+    }
 
     // Setters and Getters
     public void setRnrService(RnrService rnrService) {

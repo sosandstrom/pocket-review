@@ -15,7 +15,7 @@ import javax.persistence.Basic;
 public class JRating extends JBaseObject {
 
     /**  The unique id of the rating */
-    private String              id;
+    private String             id;
 
     /** The Many-To-One productId (unconstrained) */
     private String             productId;

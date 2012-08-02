@@ -89,8 +89,9 @@ public class PersistenceManager {
 
         // Find all products id missing from the cache
         Collection<String> missingProductIds =  new ArrayList<String>(productIds);
-        for (String key : cachedProductsMap.keySet())
-            missingProductIds.remove(key);
+//        for (String key : cachedProductsMap.keySet())
+//            missingProductIds.remove(key);
+        missingProductIds.removeAll(cachedProductsMap.keySet());
 
         // Get the remaining products that was not in the cache from the db
         Map<String, DProduct> missingProductsMap = null;
