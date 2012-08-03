@@ -9,20 +9,22 @@ Ola
 // TODO: Possible to turn the "old" rating controller OFF (RatingController) based on a setting. Should by default be OFF. Is this a build time or run time setting? Where do we enforce it (in the spring-security.xml or some filter)?
 
 
-// TODO: Maven move classes.class to settings.xml
-// TODO: Rebase from master branch
-// TODO: Move get all ratings/likes/comments for a product to the respective controller (away from the product controller)
 
-// TODO: Better way to get the base URL when generating URLs, try the servlet context
+// TODO: How to know and indicate end of pagination?
 
-// TODO: Return distance in nearby requests
 
 // TODO: Support favorites
+
+// TODO: Merge branch to master after Olas reviewed and approved changed.
 
 // TODO: Add all product methods
 
 // TODO: Simple backoffice interface (sigin, get all registered apps, new, delete, update)
 // TODO: Add some basic authentication using a kind of AppKey that you get when register
+// TODO: Add domain DApplication and DApplicationAdmin
+// TODO: Add Application controller
+// TODO: Add application admin controller
+
 
 
 DONE
@@ -42,6 +44,15 @@ DONE
 // TODO: Add links in the return JSON to make it REST.
 // TODO: Support comments
 // TODO: Create and update methods should redirect to the get
+// TODO: Rebase from master branch
+// TODO: Maven move classes.class to settings.xml (using profiles instead)
+// TODO: Review returning 404. When to do it?
+// TODO: Return distance in nearby requests
+
+
+// TODO: Better way to get the base URL when generating URLs, try the servlet context - NO, looks ok as is
+// TODO: Move get all ratings/likes/comments for a product to the respective controller (away from the product controller) - NO. Not able for find a good REST URL for this.
+
 
 
 

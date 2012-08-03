@@ -49,7 +49,7 @@ public class LikeController {
      * @return the newly create like
      */
     @RestReturn(value=JLike.class, entity=JLike.class, code={
-            @RestCode(code=200, message="OK", description="Like created")
+            @RestCode(code=302, message="OK", description="Redirect to the newly created like")
     })
     @RequestMapping(value="", method= RequestMethod.POST)
     public RedirectView addLike(HttpServletRequest request,
@@ -117,7 +117,7 @@ public class LikeController {
      * @return a list of my likes
      */
     @RestReturn(value=JLike.class, entity=JLike.class, code={
-            @RestCode(code=200, message="OK", description="Likes found for user")
+            @RestCode(code=200, message="OK", description="All likes for user")
     })
     @RequestMapping(value="my", method= RequestMethod.POST)
     public ResponseEntity<Collection<JLike>> getMyLikes(HttpServletRequest request,

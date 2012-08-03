@@ -152,10 +152,38 @@ public class ProductController {
             }
         }
 
-        final Collection<DProduct> body = rnrService.findNearbyProducts(latitude, longitude, bits, sort, limit);
+        final Collection<DProduct> dProducts = rnrService.findNearbyProducts(latitude, longitude, bits, sort, limit);
 
-        return new ResponseEntity<Collection<JProductV15>>((Collection<JProductV15>)Converter.convert(body, request),
-                HttpStatus.OK);
+        Collection<JProductV15> body = (Collection<JProductV15>)Converter.convert(dProducts, request);
+
+        // Calculate the distance between the provided device position and each product in km
+        for (JProductV15 jProductV15 : body) {
+            // Check that both the device and product position is available
+            if (null != latitude && null != longitude && null != jProductV15.getLocation()) {
+                double distance = distFrom(latitude, longitude,
+                        jProductV15.getLocation().getLatitude(), jProductV15.getLocation().getLongitude());
+                jProductV15.setDistance(new Float(distance));
+            }
+        }
+
+
+
+        return new ResponseEntity<Collection<JProductV15>>(body, HttpStatus.OK);
+    }
+
+    // Calculate the distance between two points using the Harversine formula.
+    // This calculation is not 100% correct but good enough and fast.
+    private static double distFrom(double lat1, double long1, double lat2, double long2) {
+        double earthRadius = 6371; // In km
+        double dLat = Math.toRadians(lat2-lat1);
+        double dLng = Math.toRadians(long2-long1);
+        double sindLat = Math.sin(dLat / 2);
+        double sindLng = Math.sin(dLng / 2);
+        double a = Math.pow(sindLat, 2) + Math.pow(sindLng, 2) * Math.cos(lat1) * Math.cos(lat2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        double dist = earthRadius * c;
+
+        return dist;
     }
 
     /**
@@ -172,7 +200,7 @@ public class ProductController {
      * @return a KML of JRatings
      */
     @RestReturn(value=JRating.class, entity=JRating.class, code={
-            @RestCode(code=200, message="OK", description="Nearby average ratings found")
+            @RestCode(code=200, message="OK", description="Nearby products found")
     })
     @RequestMapping(value="nearby.kml", method= RequestMethod.GET)
     public void findNearbyProductsKml(HttpServletRequest request,
@@ -204,21 +232,16 @@ public class ProductController {
      * @return a list of products sorted in most liked order
      */
     @RestReturn(value=JProductV15.class, entity=JProductV15.class, code={
-            @RestCode(code=200, message="OK", description="Product found"),
-            @RestCode(code=404, message="NOK", description="Product not found")
+            @RestCode(code=200, message="OK", description="Most liked products found"),
     })
     @RequestMapping(value="mostLiked", method= RequestMethod.GET)
-    // TODO: Add pagination support
     public ResponseEntity<Collection<JProductV15>> getMostLikedProducts(HttpServletRequest request,
                                                                    @RequestParam(defaultValue = "10") int limit) {
 
         final Collection<DProduct> body = rnrService.getMostLikedProducts(limit);
 
-        if (body.isEmpty())
-            return new ResponseEntity(HttpStatus.NOT_FOUND);
-        else
-            return new ResponseEntity<Collection<JProductV15>>((Collection<JProductV15>)Converter.convert(body, request),
-                    HttpStatus.OK);
+        return new ResponseEntity<Collection<JProductV15>>((Collection<JProductV15>)Converter.convert(body, request),
+                HttpStatus.OK);
     }
 
     /**
@@ -227,12 +250,9 @@ public class ProductController {
      * @return a list of likes for the product
      */
     @RestReturn(value=JLike.class, entity=JLike.class, code={
-            @RestCode(code=200, message="OK", description="Product found"),
-            @RestCode(code=404, message="NOK", description="Product not found")
+            @RestCode(code=200, message="OK", description="Likes for product found")
     })
     @RequestMapping(value="{productId}/likes", method= RequestMethod.GET)
-    // TODO: Add pagination support
-    // TODO: Maybe move to Like resource
     public ResponseEntity<Collection<JLike>> getAllLikesForProduct(HttpServletRequest request,
                                                                    Principal principal,
                                                                    @PathVariable String productId) {
@@ -240,11 +260,8 @@ public class ProductController {
         final Collection<DLike> body = rnrService.getAllLikesForProduct(productId,
                 null != principal ? principal.getName() : null);
 
-        if (body.isEmpty())
-            return new ResponseEntity(HttpStatus.NOT_FOUND);
-        else
-            return new ResponseEntity<Collection<JLike>>((Collection<JLike>)Converter.convert(body, request),
-                    HttpStatus.OK);
+        return new ResponseEntity<Collection<JLike>>((Collection<JLike>)Converter.convert(body, request),
+                HttpStatus.OK);
     }
 
     /**
@@ -253,11 +270,9 @@ public class ProductController {
      * @return a list of ratings for the product
      */
     @RestReturn(value=JRating.class, entity=JRating.class, code={
-            @RestCode(code=200, message="OK", description="Product found"),
-            @RestCode(code=404, message="NOK", description="Product not found")
+            @RestCode(code=200, message="OK", description="Ratings for product found")
     })
     @RequestMapping(value="{productId}/ratings", method= RequestMethod.GET)
-    // TODO: Add pagination support
     public ResponseEntity<Collection<JRating>> getAllRatingsForProduct(HttpServletRequest request,
                                                                        Principal principal,
                                                                        @PathVariable String productId) {
@@ -265,11 +280,8 @@ public class ProductController {
         final Collection<DRating> body = rnrService.getAllRatingsForProduct(productId,
                 null != principal ? principal.getName() : null);
 
-        if (body.isEmpty())
-            return new ResponseEntity(HttpStatus.NOT_FOUND);
-        else
-            return new ResponseEntity<Collection<JRating>>((Collection<JRating>)Converter.convert(body, request),
-                    HttpStatus.OK);
+        return new ResponseEntity<Collection<JRating>>((Collection<JRating>)Converter.convert(body, request),
+                HttpStatus.OK);
     }
 
     /**
@@ -278,11 +290,9 @@ public class ProductController {
      * @return a list of comments for the product
      */
     @RestReturn(value=JComment.class, entity=JComment.class, code={
-            @RestCode(code=200, message="OK", description="Product found"),
-            @RestCode(code=404, message="NOK", description="Product not found")
+            @RestCode(code=200, message="OK", description="Comment for product found")
     })
     @RequestMapping(value="{productId}/comments", method= RequestMethod.GET)
-    // TODO: Add pagination support
     public ResponseEntity<Collection<JComment>> getAllCommentsForProduct(HttpServletRequest request,
                                                                        Principal principal,
                                                                        @PathVariable String productId) {
@@ -290,11 +300,8 @@ public class ProductController {
         final Collection<DComment> body = rnrService.getAllCommentsForProduct(productId,
                 null != principal ? principal.getName() : null);
 
-        if (body.isEmpty())
-            return new ResponseEntity(HttpStatus.NOT_FOUND);
-        else
-            return new ResponseEntity<Collection<JComment>>((Collection<JComment>)Converter.convert(body, request),
-                    HttpStatus.OK);
+        return new ResponseEntity<Collection<JComment>>((Collection<JComment>)Converter.convert(body, request),
+                HttpStatus.OK);
     }
 
     /**
@@ -305,7 +312,7 @@ public class ProductController {
      * @return a list of products
      */
     @RestReturn(value=JProductV15.class, entity=JProductV15.class, code={
-            @RestCode(code=200, message="OK", description="Products found"),
+            @RestCode(code=200, message="OK", description="Products liked by user")
     })
     @RequestMapping(value="my/liked", method= RequestMethod.POST)
     // TODO: Add pagination support
@@ -333,7 +340,7 @@ public class ProductController {
      * @return a list of products
      */
     @RestReturn(value=JProductV15.class, entity=JProductV15.class, code={
-            @RestCode(code=200, message="OK", description="Products found"),
+            @RestCode(code=200, message="OK", description="Products rated by user")
     })
     @RequestMapping(value="my/rated", method= RequestMethod.POST)
     // TODO: Add pagination support
@@ -360,7 +367,7 @@ public class ProductController {
      * @return a list of products
      */
     @RestReturn(value=JProductV15.class, entity=JProductV15.class, code={
-            @RestCode(code=200, message="OK", description="Products found"),
+            @RestCode(code=200, message="OK", description="Products commented by user")
     })
     @RequestMapping(value="my/commented", method= RequestMethod.POST)
     // TODO: Add pagination support
@@ -378,6 +385,7 @@ public class ProductController {
             return new ResponseEntity<Collection<JProductV15>>(HttpStatus.UNAUTHORIZED);
         }
     }
+
 
     // Setters and Getters
     public void setRnrService(RnrService rnrService) {

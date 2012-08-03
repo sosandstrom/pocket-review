@@ -12,6 +12,13 @@ public class JProductV15 extends JBaseObject {
     /** The location of the product */
     private JLocation   location;
 
+    /**
+     * The distance in km between the product location and the device provided position.
+     * If either the device position or product location is unknown the distance will not be calculated.
+     * This property will be set in nearby searches.
+     */
+    private Float       distance;
+
     /** The total sum or all ratings */
     private Long        ratingSum = 0L;
 
@@ -55,6 +62,14 @@ public class JProductV15 extends JBaseObject {
 
     public void setLocation(JLocation location) {
         this.location = location;
+    }
+
+    public Float getDistance() {
+        return distance;
+    }
+
+    public void setDistance(Float distance) {
+        this.distance = distance;
     }
 
     public int getRatingAverage() {

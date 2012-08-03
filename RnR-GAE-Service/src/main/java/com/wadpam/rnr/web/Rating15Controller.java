@@ -47,7 +47,7 @@ public class Rating15Controller {
      * @return the new rating
      */
     @RestReturn(value=JRating.class, entity=JRating.class, code={
-        @RestCode(code=200, message="OK", description="Rating created")
+        @RestCode(code=302, message="OK", description="Redirect to newly created rating")
     })
     @RequestMapping(value="", method= RequestMethod.POST)
     public RedirectView addRating(HttpServletRequest request,

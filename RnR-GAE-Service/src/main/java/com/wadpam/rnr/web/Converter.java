@@ -46,16 +46,16 @@ public class Converter {
         to.setCommentCount(from.getCommentCount());
 
         // Figure out the base url
-        String url = null;
+        String baseUrl = null;
         Pattern pattern = Pattern.compile("^.*/product");
         Matcher matcher = pattern.matcher(request.getRequestURL().toString());
         if (matcher.find()) {
-            url = matcher.group() + "/" + from.getProductId();
+            baseUrl = matcher.group() + "/" + from.getProductId();
 
             // Set links
-            to.setRatingsURL(url + "/ratings");
-            to.setLikesURL(url + "/likes");
-            to.setCommentsURL(url + "/comments");
+            to.setRatingsURL(baseUrl + "/ratings");
+            to.setLikesURL(baseUrl + "/likes");
+            to.setCommentsURL(baseUrl + "/comments");
         }
 
         return to;

@@ -51,7 +51,7 @@ public class CommentController {
      * @return the new comment
      */
     @RestReturn(value=JComment.class, entity=JComment.class, code={
-            @RestCode(code=200, message="OK", description="Comment created")
+            @RestCode(code=302, message="OK", description="Redirect to newly create comment")
     })
     @RequestMapping(value="", method= RequestMethod.POST)
     public RedirectView addComment(HttpServletRequest request,
@@ -120,7 +120,7 @@ public class CommentController {
      * @return a list of comments
      */
     @RestReturn(value=JComment.class, entity=JComment.class, code={
-            @RestCode(code=200, message="OK", description="Comment found for user")
+            @RestCode(code=200, message="OK", description="All comments for user")
     })
     @RequestMapping(value="my", method= RequestMethod.POST)
     public ResponseEntity<Collection<JComment>> getMyComments(HttpServletRequest request,
