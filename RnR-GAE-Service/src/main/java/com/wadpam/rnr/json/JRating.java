@@ -33,19 +33,10 @@ public class JRating extends JBaseObject {
     private String             comment;
 
 
-    // Constructors
-    public JRating() {
-    }
-
-    public JRating(String id, Long createdDate, Long updatedDate) {
-        super(id, createdDate, updatedDate, updatedDate);
-    }
-
-
     @Override
     protected String subString() {
-        return String.format("productId:%s, username:%s, location:%s, rating:%s, comment:%s",
-                productId, username, location, rating, comment);
+        return String.format("id:%s productId:%s, username:%s, location:%s, rating:%d, comment:%s",
+                id, productId, username, location, rating, comment);
     }
 
 

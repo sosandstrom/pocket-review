@@ -23,5 +23,8 @@
     <bean id="dCommentDao"
           class="com.wadpam.rnr.dao.DCommentDaoBean">
     </bean>
+    <bean id="dFavoritesDao"
+          class="com.wadpam.rnr.dao.DFavoritesDaoBean">
+    </bean>
 
 </beans>

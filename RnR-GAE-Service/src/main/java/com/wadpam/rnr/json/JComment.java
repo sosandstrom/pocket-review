@@ -25,6 +25,13 @@ public class JComment extends JBaseObject {
     private String             comment;
 
 
+    @Override
+    protected String subString() {
+        return String.format("id:%s productId:%s, username:%s, location:%s, comment:%s",
+                id, productId, username, location, comment);
+    }
+
+    // Setters and Getters
     public String getId() {
         return id;
     }

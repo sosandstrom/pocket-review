@@ -2,6 +2,7 @@ package com.wadpam.rnr.web;
 
 import com.wadpam.docrest.domain.RestCode;
 import com.wadpam.docrest.domain.RestReturn;
+import com.wadpam.rnr.domain.DLike;
 import com.wadpam.rnr.domain.DRating;
 import com.wadpam.rnr.json.JLike;
 import com.wadpam.rnr.json.JProductV15;
@@ -119,7 +120,7 @@ public class Rating15Controller {
     @RestReturn(value=JRating.class, entity=JRating.class, code={
         @RestCode(code=200, message="OK", description="Ratings found for user")
     })
-    @RequestMapping(value="my", method= RequestMethod.POST)
+    @RequestMapping(value="", method= RequestMethod.GET, params="username")
     public ResponseEntity<Collection<JRating>> getMyRatings(HttpServletRequest request,
                                                             Principal principal,
                                                             @RequestParam(required=false) String username) {
@@ -134,6 +135,25 @@ public class Rating15Controller {
         catch (IllegalArgumentException usernameNull) {
             return new ResponseEntity<Collection<JRating>>(HttpStatus.UNAUTHORIZED);
         }
+    }
+
+    /**
+     * Returns all ratings for a specific product.
+     * @param productId the product to looks for
+     * @return a list of ratings
+     */
+    @RestReturn(value=JRating.class, entity=JRating.class, code={
+            @RestCode(code=200, message="OK", description="All ratings for product")
+    })
+    @RequestMapping(value="", method= RequestMethod.GET, params="productId")
+    public ResponseEntity<Collection<JRating>> getAllRatingsForProduct(HttpServletRequest request,
+                                                                       Principal principal,
+                                                                       @RequestParam(required=true) String productId) {
+
+        final Collection<DRating> body = rnrService.getAllRatingsForProduct(productId);
+
+        return new ResponseEntity<Collection<JRating>>((Collection<JRating>)Converter.convert(body, request),
+                HttpStatus.OK);
     }
 
 

@@ -8,12 +8,23 @@ import java.util.Collection;
  */
 public class JProductPage {
 
+    /** The cursor used to return the next page of products */
     private String cursor;
 
+    /** The number of products to return */
     private long pageSize;
 
+    /** The products */
     private Collection<JProductV15> products;
 
+
+    @Override
+    public String toString() {
+        return String.format("cursor:%s page size:%d products:%s", cursor, pageSize, getProducts());
+    }
+
+
+    // Setters and Getters
     public String getCursor() {
         return cursor;
     }

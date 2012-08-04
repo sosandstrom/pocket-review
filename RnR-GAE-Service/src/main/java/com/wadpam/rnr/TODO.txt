@@ -12,12 +12,10 @@ Ola
 
 // TODO: How to know and indicate end of pagination?
 
-
-// TODO: Support favorites
+// TODO: Favorites memcache (check in multitenancy and tags fo different type of data). Also check when getting products
 
 // TODO: Merge branch to master after Olas reviewed and approved changed.
 
-// TODO: Add all product methods
 
 // TODO: Simple backoffice interface (sigin, get all registered apps, new, delete, update)
 // TODO: Add some basic authentication using a kind of AppKey that you get when register
@@ -48,10 +46,12 @@ DONE
 // TODO: Maven move classes.class to settings.xml (using profiles instead)
 // TODO: Review returning 404. When to do it?
 // TODO: Return distance in nearby requests
+// TODO: Move get all ratings/likes/comments for a product to the respective controller (away from the product controller) - NO. Not able for find a good REST URL for this.
+// TODO: Support favorites
+
 
 
 // TODO: Better way to get the base URL when generating URLs, try the servlet context - NO, looks ok as is
-// TODO: Move get all ratings/likes/comments for a product to the respective controller (away from the product controller) - NO. Not able for find a good REST URL for this.
 
 
 
@@ -61,42 +61,47 @@ DONE
 
 REST end-points
 
+api/{version}/{domain}/monitor (GET)                    Get all products                            X  OK  Y
 
-api/{version}/{domain}/product (POST)                   Get all products                            X  OK (should be migrated to Mardao)
-api/{version}/{domain}/product/{product} (GET)          Get one product                             X  OK
-api/{version}/{domain}/product?ids= GET                 Get several products                        X  OK
+api/{version}/{domain}/product (POST)                   Get all products                            X  OK  Y (should be migrated to Mardao)
+api/{version}/{domain}/product/{product} (GET)          Get one product                             X  OK  Y
+api/{version}/{domain}/product?ids= GET                 Get several products                        X  OK  Y
 api/{version}/{domain}/product/nearby (POST)            Get products nearby
 api/{version}/{domain}/product/mostliked (GET)          Get most liked products
 api/{version}/{domain}/product/mostcommented (GET)      Get most commented
 api/{version}/{domain}/product/mostrated (GET)          Get most rated
 api/{version}/{domain}/product/toprated (GET)           Get top rated products
-api/{version}/{domain}/product/{product}/likes (GET)    Get all likes for a product                 X  OK (missing pagination support)
-api/{version}/{domain}/product/{product}/ratings (GET)  Get all ratings for a product               X  OK (missing pagination support)
-api/{version}/{domain}/product/{product}/comments (GET) Get all comments for a product              X  OK
-api/{version}/{domain}/product/my/liked (POST)          Get all products I have likes               X  OK
-api/{version}/{domain}/product/my/rated (POST)          Get all products I have rated               X  OK
-api/{version}/{domain}/product/my/commented (GET)       Get all products I have commented           X  OK
-
-api/{version}/{domain}/like (POST)                      Like a product                              X  OK
-api/{version}/{domain}/like/{id} (GET)                  Get like details                            X  OK
-api/{version}/{domain}/like/{id} (DELETE)               Delete a like                               X  OK
-api/{version}/{domain}/like/my (GET)                    Get my likes                                X  OK
-
-api/{version}/{domain}/rating (POST)                    Rate a product                              X  OK
-api/{version}/{domain}/rating/{id} (GET)                Get rating details                          X  OK
-api/{version}/{domain}/rating/{id} (DELETE)             Delete a rating                             X  OK
-api/{version}/{domain}/rating/my (GET)                  Get my ratings                              x  OK
+api/{version}/{domain}/product/my/liked (GET)           Get all products I have liked               X  OK  Y
+api/{version}/{domain}/product/my/rated (GET)           Get all products I have rated               X  OK  Y
+api/{version}/{domain}/product/my/commented (GET)       Get all products I have commented           X  OK  Y
+api/{version}/{domain}/product/my/favorites (GET)       Get all favorites products                  X  OK  Y
 
 
-api/{version}/{domain}/comment (POST)                    Comment a product                          x  OK
-api/{version}/{domain}/comment/{id} (GET)                Get Comment details                        x  OK
-api/{version}/{domain}/comment/{id} (DELETE)             Delete a Comment                           x  OK
-api/{version}/{domain}/comment/my (GET)                  Get my Comments                            x  OK
+api/{version}/{domain}/like (POST)                      Like a product                              X  OK  Y
+api/{version}/{domain}/like/{id} (GET)                  Get like details                            X  OK  Y
+api/{version}/{domain}/like/{id} (DELETE)               Delete a like                               X  OK  Y
+api/{version}/{domain}/like?username= (GET)             Get my likes                                X  OK  Y
+api/{version}/{domain}/like?productId= (GET)            Get all likes for product                   X  OK  Y
 
-api/{version}/{domain}/favorite (POST)                   Make a product a favorite
-api/{version}/{domain}/favorite/{id} (GET)               Get favorite details
-api/{version}/{domain}/favorite/{id} (DELETE)            Delete a favorite product
-api/{version}/{domain}/favorite/my (GET)                 Get my favorite products
+
+api/{version}/{domain}/rating (POST)                    Rate a product                              X  OK  Y
+api/{version}/{domain}/rating/{id} (GET)                Get rating details                          X  OK  Y
+api/{version}/{domain}/rating/{id} (DELETE)             Delete a rating                             X  OK  Y
+api/{version}/{domain}/rating?username= (GET)           Get my ratings                              X  OK  Y
+api/{version}/{domain}/rating?productId= (GET)          Get all ratings for product                 X  OK  Y
+
+
+
+api/{version}/{domain}/comment (POST)                    Comment a product                          x  OK  Y
+api/{version}/{domain}/comment/{id} (GET)                Get Comment details                        x  OK  Y
+api/{version}/{domain}/comment/{id} (DELETE)             Delete a Comment                           x  OK  Y
+api/{version}/{domain}/comment?username= (GET)           Get my Comments                            x  OK  Y
+api/{version}/{domain}/comment?productId= (GET)          Get all Comments for product               X  OK  Y
+
+
+api/{version}/{domain}/favorites/{username} (PUT)                   Make a product a favorite                  X  X
+api/{version}/{domain}/favorites/{username} (GET)                   Get get all favorites                      X  X
+api/{version}/{domain}/favorites/{username}?productId= (DELETE)     Delete a favorite product for user         X  X
 
 
 

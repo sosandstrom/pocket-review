@@ -34,8 +34,8 @@ public class JLike extends JBaseObject {
 
     @Override
     protected String subString() {
-        return String.format("productId:%s, username:%s, location:%s",
-                productId, username, location);
+        return String.format("id:%s productId:%s, username:%s, location:%s",
+                id, productId, username, location);
     }
 
 

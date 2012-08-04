@@ -2,10 +2,7 @@ package com.wadpam.rnr.web;
 
 import com.google.appengine.api.datastore.GeoPt;
 import com.google.appengine.api.datastore.Key;
-import com.wadpam.rnr.domain.DComment;
-import com.wadpam.rnr.domain.DLike;
-import com.wadpam.rnr.domain.DProduct;
-import com.wadpam.rnr.domain.DRating;
+import com.wadpam.rnr.domain.*;
 import com.wadpam.rnr.json.*;
 import net.sf.mardao.api.domain.AEDPrimaryKeyEntity;
 import org.slf4j.Logger;
@@ -47,15 +44,15 @@ public class Converter {
 
         // Figure out the base url
         String baseUrl = null;
-        Pattern pattern = Pattern.compile("^.*/product");
+        Pattern pattern = Pattern.compile("(^.*)/product");
         Matcher matcher = pattern.matcher(request.getRequestURL().toString());
         if (matcher.find()) {
-            baseUrl = matcher.group() + "/" + from.getProductId();
+            baseUrl = matcher.group(1);
 
             // Set links
-            to.setRatingsURL(baseUrl + "/ratings");
-            to.setLikesURL(baseUrl + "/likes");
-            to.setCommentsURL(baseUrl + "/comments");
+            to.setRatingsURL(baseUrl + "/rating?productId=" + to.getId());
+            to.setLikesURL(baseUrl + "/like?productId=" + to.getId());
+            to.setCommentsURL(baseUrl + "/comment?productId=" + to.getId());
         }
 
         return to;
@@ -106,6 +103,19 @@ public class Converter {
         return to;
     }
 
+    protected static JFavorites convert(DFavorites from, HttpServletRequest request) {
+        if (null == from) {
+            return null;
+        }
+        final JFavorites to = new JFavorites();
+        convert(from, to);
+
+        to.setUsername(from.getUsername());
+        to.setProductIds(from.getProductIds());
+
+        return to;
+    }
+
     protected static JLocation convert(GeoPt from) {
         if (null == from) {
             return null;
@@ -133,6 +143,9 @@ public class Converter {
         }
         else if (from instanceof DComment) {
             returnValue = convert((DComment) from, request);
+        }
+        else if (from instanceof DFavorites) {
+            returnValue = convert((DFavorites) from, request);
         }
         else {
             throw new UnsupportedOperationException("No converter for " + from.getKind());

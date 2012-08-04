@@ -5,19 +5,12 @@
 package com.wadpam.rnr.service;
 
 import com.google.appengine.api.datastore.*;
-import com.wadpam.rnr.dao.DCommentDao;
-import com.wadpam.rnr.dao.DLikeDao;
-import com.wadpam.rnr.dao.DProductDao;
-import com.wadpam.rnr.dao.DRatingDao;
-import com.wadpam.rnr.domain.DComment;
-import com.wadpam.rnr.domain.DLike;
-import com.wadpam.rnr.domain.DProduct;
-import com.wadpam.rnr.domain.DRating;
-import com.wadpam.rnr.json.*;
+import com.wadpam.rnr.dao.*;
+import com.wadpam.rnr.domain.*;
+
 import java.io.PrintWriter;
 import java.util.*;
 
-import com.wadpam.rnr.web.Converter;
 import net.sf.mardao.api.geo.aed.GeoDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +33,7 @@ public class RnrService {
     private DRatingDao ratingDao;
     private DLikeDao likeDao;
     private DCommentDao commentDao;
+    private DFavoritesDao favoritesDao;
     private GeoDao geoResultDao;
 
 
@@ -402,6 +396,83 @@ public class RnrService {
     }
 
 
+    /* Favorite related methods */
+
+    // Add new favorite product
+    public DFavorites addFavorite(String productId, String username, String principalName) {
+        LOG.debug("Add product " + productId + " as favorites for user " + username);
+
+        // fallback on principal name?
+        if (null == username && fallbackPrincipalName) {
+            username = principalName;
+        }
+
+        // User name must be provided
+        if (null == username)
+            throw new IllegalArgumentException("Username must be specified or authenticated");
+
+        DFavorites dFavorites = favoritesDao.findByPrimaryKey(username); // TODO: Store favorites in the cache
+        if (null == dFavorites) {
+            // User does not have any existing favorites
+            dFavorites = new DFavorites();
+            dFavorites.setUsername(username);
+            ArrayList<String> productIds = new ArrayList<String>(1);
+            productIds.add(productId);
+            dFavorites.setProductIds(productIds);
+        } else
+            // Update existing list of favorites if it is not already a favorite
+            if (dFavorites.getProductIds().contains(productId) == false)
+                dFavorites.getProductIds().add(productId);
+
+        // Store
+        favoritesDao.persist(dFavorites); // TODO: Store favorites in the cache
+
+        return dFavorites;
+    }
+
+    // Delete a product from favorites
+    public DFavorites deleteFavorite(String productId, String username, String principalName) {
+        LOG.debug("Delete product " + productId + " from favorites for user "  + username);
+
+        // fallback on principal name?
+        if (null == username && fallbackPrincipalName) {
+            username = principalName;
+        }
+
+        // User name must be provided
+        if (null == username)
+            throw new IllegalArgumentException("Username must be specified or authenticated");
+
+        DFavorites dFavorites = favoritesDao.findByPrimaryKey(username);
+        // If the favorite is not found return null
+        if (null == dFavorites || dFavorites.getProductIds().remove(productId) == false)
+            return null;
+
+        // Store
+        favoritesDao.update(dFavorites);
+
+        return dFavorites;
+    }
+
+    // Get all user favorites
+    public DFavorites getFavorites(String username, String principalName) {
+        LOG.debug("Get favorites for user "  + username);
+
+        // fallback on principal name?
+        if (null == username && fallbackPrincipalName) {
+            username = principalName;
+        }
+
+        // User name must be provided
+        if (null == username)
+            throw new IllegalArgumentException("Username must be specified or authenticated");
+
+        DFavorites dFavorites = favoritesDao.findByPrimaryKey(username);
+
+        return dFavorites;
+    }
+
+
     /* Product related methods */
 
     // Get a specific product
@@ -440,6 +511,7 @@ public class RnrService {
 
         throw new UnsupportedOperationException("Not yet implemented");
     }
+
 
     // Find nearby products and return in KML format
     public void findNearbyProductsKml(Float latitude, Float longitude, int bits, int sortOrder, int limit, PrintWriter out) {
@@ -484,7 +556,6 @@ public class RnrService {
         }
     }
 
-
     // Get the most liked products
     public Collection<DProduct> getMostLikedProducts(int limit) {
         LOG.debug("Get most liked products");
@@ -496,7 +567,7 @@ public class RnrService {
     }
 
      // Get all likes for a product
-    public Collection<DLike> getAllLikesForProduct(String productId, String principalName) {
+    public Collection<DLike> getAllLikesForProduct(String productId) {
         LOG.debug("Get all likes for product " + productId);
 
         Collection<DLike> dLikes = likeDao.findByProductId(productId);
@@ -505,7 +576,7 @@ public class RnrService {
     }
 
     // Get all ratings for a product
-    public Collection<DRating> getAllRatingsForProduct(String productId, String principalName) {
+    public Collection<DRating> getAllRatingsForProduct(String productId) {
         LOG.debug("Get all ratings for product " + productId);
 
         Collection<DRating> dRatings = ratingDao.findByProductId(productId);
@@ -514,13 +585,14 @@ public class RnrService {
     }
 
     // Get all comments for a product
-    public Collection<DComment> getAllCommentsForProduct(String productId, String principalName) {
+    public Collection<DComment> getAllCommentsForProduct(String productId) {
         LOG.debug("Get all comments for product " + productId);
 
         Collection<DComment> dComments = commentDao.findByProductId(productId);
 
         return dComments;
     }
+
 
     // Get all products a user have liked
     public Collection<DProduct> getProductsLikedByUser(String username, String principalName) {
@@ -541,7 +613,7 @@ public class RnrService {
         for (DLike like : myLikes)
             productIds.add(like.getProductId());
 
-        final Collection<DProduct> dProducts = productDao.findByPrimaryKeys(null, productIds).values();
+        final Collection<DProduct> dProducts = productDao.findByPrimaryKeys(productIds).values(); // TODO: Use cache
 
         return dProducts;
     }
@@ -565,7 +637,7 @@ public class RnrService {
         for (DRating rating : myRatings)
             productIds.add(rating.getProductId());
 
-        final Collection<DProduct> dProducts = productDao.findByPrimaryKeys(null, productIds).values();
+        final Collection<DProduct> dProducts = productDao.findByPrimaryKeys(productIds).values(); // TODO: Use cache
 
         return dProducts;
     }
@@ -589,9 +661,28 @@ public class RnrService {
         for (DComment dComment : myComments)
             productIds.add(dComment.getProductId());
 
-        final Collection<DProduct> dProducts = productDao.findByPrimaryKeys(null, productIds).values();
+        final Collection<DProduct> dProducts = productDao.findByPrimaryKeys(productIds).values(); // TODO: Use cache
 
         return dProducts;
+    }
+
+    // Get all users favorite products
+    public Collection<DProduct> geUserFavoriteProducts(String username, String principalName) {
+
+        // Fallback on principal name?
+        if (null == username && fallbackPrincipalName)
+            username = principalName;
+
+        if (null == username)
+            throw new IllegalArgumentException("Username must be specified or authenticated");
+
+        LOG.debug("Get favorite products for user " + username);
+
+        final DFavorites dFavorites = favoritesDao.findByPrimaryKey(username);
+
+        final Collection<DProduct> dProducts = productDao.findByPrimaryKeys(dFavorites.getProductIds()).values(); // TODO: Use cache
+
+        return  dProducts;
     }
 
 
@@ -610,6 +701,10 @@ public class RnrService {
 
     public void setCommentDao(DCommentDao commentDao) {
         this.commentDao = commentDao;
+    }
+
+    public void setFavoritesDao(DFavoritesDao favoritesDao) {
+        this.favoritesDao = favoritesDao;
     }
 
     public void setPersistenceManager(PersistenceManager persistenceManager) {

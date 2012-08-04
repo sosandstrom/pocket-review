@@ -16,6 +16,7 @@
             <property name="ratingDao" ref="dRatingDao" />
             <property name="likeDao" ref="dLikeDao" />
             <property name="commentDao" ref="dCommentDao" />
+            <property name="favoritesDao" ref="dFavoritesDao" />
         </bean>
 
         <bean id="persistenceManager" class="com.wadpam.rnr.service.PersistenceManager">
@@ -37,12 +38,15 @@
             <property name="rnrService" ref="rnrService" />
         </bean>
 
-
         <bean id="likeController" class="com.wadpam.rnr.web.LikeController">
             <property name="rnrService" ref="rnrService" />
         </bean>
 
-        <bean id="CommentController" class="com.wadpam.rnr.web.CommentController">
+        <bean id="commentController" class="com.wadpam.rnr.web.CommentController">
+            <property name="rnrService" ref="rnrService" />
+        </bean>
+
+        <bean id="favoritesController" class="com.wadpam.rnr.web.FavoritesController">
             <property name="rnrService" ref="rnrService" />
         </bean>
 

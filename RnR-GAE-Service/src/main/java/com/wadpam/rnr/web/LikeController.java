@@ -4,8 +4,6 @@ import com.wadpam.docrest.domain.RestCode;
 import com.wadpam.docrest.domain.RestReturn;
 import com.wadpam.rnr.domain.DLike;
 import com.wadpam.rnr.json.JLike;
-import com.wadpam.rnr.json.JProductV15;
-import com.wadpam.rnr.json.JRating;
 import com.wadpam.rnr.service.RnrService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -119,7 +117,7 @@ public class LikeController {
     @RestReturn(value=JLike.class, entity=JLike.class, code={
             @RestCode(code=200, message="OK", description="All likes for user")
     })
-    @RequestMapping(value="my", method= RequestMethod.POST)
+    @RequestMapping(value="", method= RequestMethod.GET, params="username")
     public ResponseEntity<Collection<JLike>> getMyLikes(HttpServletRequest request,
                                                         Principal principal,
                                                         @RequestParam(required=false) String username) {
@@ -134,6 +132,25 @@ public class LikeController {
         catch (IllegalArgumentException usernameNull) {
             return new ResponseEntity<Collection<JLike>>(HttpStatus.UNAUTHORIZED);
         }
+    }
+
+    /**
+     * Returns all likes for a specific product.
+     * @param productId the product to looks for
+     * @return a list of likes
+     */
+    @RestReturn(value=JLike.class, entity=JLike.class, code={
+            @RestCode(code=200, message="OK", description="All likes for product")
+    })
+    @RequestMapping(value="", method= RequestMethod.GET, params="productId")
+    public ResponseEntity<Collection<JLike>> getAllLikesForProduct(HttpServletRequest request,
+                                                                   Principal principal,
+                                                                    @RequestParam(required=true) String productId) {
+
+        final Collection<DLike> body = rnrService.getAllLikesForProduct(productId);
+
+        return new ResponseEntity<Collection<JLike>>((Collection<JLike>)Converter.convert(body, request),
+                HttpStatus.OK);
     }
 
 

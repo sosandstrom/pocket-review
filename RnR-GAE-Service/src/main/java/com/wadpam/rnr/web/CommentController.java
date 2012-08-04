@@ -122,7 +122,7 @@ public class CommentController {
     @RestReturn(value=JComment.class, entity=JComment.class, code={
             @RestCode(code=200, message="OK", description="All comments for user")
     })
-    @RequestMapping(value="my", method= RequestMethod.POST)
+    @RequestMapping(value="", method= RequestMethod.GET, params="username")
     public ResponseEntity<Collection<JComment>> getMyComments(HttpServletRequest request,
                                                             Principal principal,
                                                             @RequestParam(required=false) String username) {
@@ -137,6 +137,24 @@ public class CommentController {
         catch (IllegalArgumentException usernameNull) {
             return new ResponseEntity<Collection<JComment>>(HttpStatus.UNAUTHORIZED);
         }
+    }
+    /**
+     * Returns all comments for a specific product.
+     * @param productId the product to looks for
+     * @return a list of comments
+     */
+    @RestReturn(value=JComment.class, entity=JComment.class, code={
+            @RestCode(code=200, message="OK", description="All comments for product")
+    })
+    @RequestMapping(value="", method= RequestMethod.GET, params="productId")
+    public ResponseEntity<Collection<JComment>> getAllCommentsForProduct(HttpServletRequest request,
+                                                    Principal principal,
+                                                    @RequestParam(required=true) String productId) {
+
+        final Collection<DComment> body = rnrService.getAllCommentsForProduct(productId);
+
+        return new ResponseEntity<Collection<JComment>>((Collection<JComment>)Converter.convert(body, request),
+                HttpStatus.OK);
     }
 
 

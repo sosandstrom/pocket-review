@@ -25,8 +25,6 @@ import java.io.PrintWriter;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Created with IntelliJ IDEA.
@@ -96,7 +94,7 @@ public class ProductController {
             @RestCode(code=200, message="OK", description="Products found"),
             @RestCode(code=404, message="Not Found", description="No products founds")
     })
-    @RequestMapping(value="", method= RequestMethod.POST)
+    @RequestMapping(value="", method=RequestMethod.GET)
     public ResponseEntity<JProductPage> getAllProducts(HttpServletRequest request,
                                                        @RequestParam(defaultValue = "10") int pagesize,
                                                        @RequestParam(required = false) String cursor) {
@@ -136,7 +134,7 @@ public class ProductController {
     @RestReturn(value=JProductV15.class, entity=JProductV15.class, code={
             @RestCode(code=200, message="OK", description="Nearby products found")
     })
-    @RequestMapping(value="nearby", method= RequestMethod.GET)
+    @RequestMapping(value="nearby", method=RequestMethod.GET)
     public ResponseEntity<Collection<JProductV15>> findNearbyProducts(HttpServletRequest request,
                                                                  @RequestParam(required=false) Float latitude,
                                                                  @RequestParam(required=false) Float longitude,
@@ -244,65 +242,9 @@ public class ProductController {
                 HttpStatus.OK);
     }
 
-    /**
-     * Get all likes for a product.
-     * @param productId domain-unique id for the product
-     * @return a list of likes for the product
-     */
-    @RestReturn(value=JLike.class, entity=JLike.class, code={
-            @RestCode(code=200, message="OK", description="Likes for product found")
-    })
-    @RequestMapping(value="{productId}/likes", method= RequestMethod.GET)
-    public ResponseEntity<Collection<JLike>> getAllLikesForProduct(HttpServletRequest request,
-                                                                   Principal principal,
-                                                                   @PathVariable String productId) {
 
-        final Collection<DLike> body = rnrService.getAllLikesForProduct(productId,
-                null != principal ? principal.getName() : null);
+    // TODO: Most rated, most top rated, most commented
 
-        return new ResponseEntity<Collection<JLike>>((Collection<JLike>)Converter.convert(body, request),
-                HttpStatus.OK);
-    }
-
-    /**
-     * Get all ratings for a product.
-     * @param productId domain-unique id for the product
-     * @return a list of ratings for the product
-     */
-    @RestReturn(value=JRating.class, entity=JRating.class, code={
-            @RestCode(code=200, message="OK", description="Ratings for product found")
-    })
-    @RequestMapping(value="{productId}/ratings", method= RequestMethod.GET)
-    public ResponseEntity<Collection<JRating>> getAllRatingsForProduct(HttpServletRequest request,
-                                                                       Principal principal,
-                                                                       @PathVariable String productId) {
-
-        final Collection<DRating> body = rnrService.getAllRatingsForProduct(productId,
-                null != principal ? principal.getName() : null);
-
-        return new ResponseEntity<Collection<JRating>>((Collection<JRating>)Converter.convert(body, request),
-                HttpStatus.OK);
-    }
-
-    /**
-     * Get all comments for a product.
-     * @param productId domain-unique id for the product
-     * @return a list of comments for the product
-     */
-    @RestReturn(value=JComment.class, entity=JComment.class, code={
-            @RestCode(code=200, message="OK", description="Comment for product found")
-    })
-    @RequestMapping(value="{productId}/comments", method= RequestMethod.GET)
-    public ResponseEntity<Collection<JComment>> getAllCommentsForProduct(HttpServletRequest request,
-                                                                       Principal principal,
-                                                                       @PathVariable String productId) {
-
-        final Collection<DComment> body = rnrService.getAllCommentsForProduct(productId,
-                null != principal ? principal.getName() : null);
-
-        return new ResponseEntity<Collection<JComment>>((Collection<JComment>)Converter.convert(body, request),
-                HttpStatus.OK);
-    }
 
     /**
      * Get all products a user have liked.
@@ -314,7 +256,7 @@ public class ProductController {
     @RestReturn(value=JProductV15.class, entity=JProductV15.class, code={
             @RestCode(code=200, message="OK", description="Products liked by user")
     })
-    @RequestMapping(value="my/liked", method= RequestMethod.POST)
+    @RequestMapping(value="my/liked", method= RequestMethod.GET)
     // TODO: Add pagination support
     public ResponseEntity<Collection<JProductV15>> getProductsLikedByUser(HttpServletRequest request,
                                                                           Principal principal,
@@ -342,7 +284,7 @@ public class ProductController {
     @RestReturn(value=JProductV15.class, entity=JProductV15.class, code={
             @RestCode(code=200, message="OK", description="Products rated by user")
     })
-    @RequestMapping(value="my/rated", method= RequestMethod.POST)
+    @RequestMapping(value="my/rated", method= RequestMethod.GET)
     // TODO: Add pagination support
     public ResponseEntity<Collection<JProductV15>> getProductsRatedByUser(HttpServletRequest request,
                                                                           Principal principal,
@@ -369,13 +311,42 @@ public class ProductController {
     @RestReturn(value=JProductV15.class, entity=JProductV15.class, code={
             @RestCode(code=200, message="OK", description="Products commented by user")
     })
-    @RequestMapping(value="my/commented", method= RequestMethod.POST)
+    @RequestMapping(value="my/commented", method= RequestMethod.GET)
     // TODO: Add pagination support
     public ResponseEntity<Collection<JProductV15>> getProductsCommentedByUser(HttpServletRequest request,
                                                                           Principal principal,
                                                                           @RequestParam(required=false) String username) {
         try {
             final Collection<DProduct> body = rnrService.getProductsCommentedByUser(username,
+                    null != principal ? principal.getName() : null);
+
+            return new ResponseEntity<Collection<JProductV15>>((Collection<JProductV15>)Converter.convert(body, request),
+                    HttpStatus.OK);
+        }
+        catch (IllegalArgumentException usernameNull) {
+            return new ResponseEntity<Collection<JProductV15>>(HttpStatus.UNAUTHORIZED);
+        }
+    }
+
+    /**
+     * Get favorite products for a user.
+     *
+     * This method not only returns the product ids but all product information.
+     * @param username optional.
+     * If authenticated, and RnrService.fallbackPrincipalName,
+     * principal.name will be used if username is null.
+     * @return a list of products
+     */
+    @RestReturn(value=JProductV15.class, entity=JProductV15.class, code={
+            @RestCode(code=200, message="OK", description="Users favorite products")
+    })
+    @RequestMapping(value="my/favorites", method= RequestMethod.GET)
+    // TODO: Add pagination support
+    public ResponseEntity<Collection<JProductV15>> geUserFavoriteProducts(HttpServletRequest request,
+                                                                 Principal principal,
+                                                                 @RequestParam(required=false) String username) {
+        try {
+            final Collection<DProduct> body = rnrService.geUserFavoriteProducts(username,
                     null != principal ? principal.getName() : null);
 
             return new ResponseEntity<Collection<JProductV15>>((Collection<JProductV15>)Converter.convert(body, request),

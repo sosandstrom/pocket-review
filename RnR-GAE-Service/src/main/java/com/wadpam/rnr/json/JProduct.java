@@ -21,7 +21,7 @@ public class JProduct extends JBaseObject {
 
     @Override
     protected String subString() {
-        return String.format("productId:%s, location:%s, ratings:%d, average:%d",
+        return String.format("productId:%s, location:%s, ratingCount:%d, average:%d",
                 productId, location, ratingCount, getAverage());
     }
 
