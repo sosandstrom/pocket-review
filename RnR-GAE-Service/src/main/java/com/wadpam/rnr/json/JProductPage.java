@@ -15,7 +15,7 @@ public class JProductPage {
     private long pageSize;
 
     /** The products */
-    private Collection<JProductV15> products;
+    private Collection<JProduct> products;
 
 
     @Override
@@ -41,11 +41,11 @@ public class JProductPage {
         this.pageSize = pageSize;
     }
 
-    public Collection<JProductV15> getProducts() {
+    public Collection<JProduct> getProducts() {
         return products;
     }
 
-    public void setProducts(Collection<JProductV15> products) {
+    public void setProducts(Collection<JProduct> products) {
         this.products = products;
     }
     

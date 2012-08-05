@@ -3,10 +3,7 @@ package com.wadpam.rnr.web;
 import com.wadpam.docrest.domain.RestCode;
 import com.wadpam.docrest.domain.RestReturn;
 import com.wadpam.rnr.domain.DFavorites;
-import com.wadpam.rnr.domain.DLike;
 import com.wadpam.rnr.json.JFavorites;
-import com.wadpam.rnr.json.JLike;
-import com.wadpam.rnr.json.JProductV15;
 import com.wadpam.rnr.service.RnrService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,22 +15,18 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.view.RedirectView;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.Principal;
-import java.util.Collection;
 
 /**
- * Created with IntelliJ IDEA.
- * User: mattias
- * Date: 7/24/12
- * Time: 7:20 PM
- * To change this template use File | Settings | File Templates.
+ * The favorites controller implements all REST methods related to favorites.
+ * @author mlv
  */
-
 @Controller
 @RequestMapping(value="{domain}/favorites")
 public class FavoritesController {
@@ -55,20 +48,26 @@ public class FavoritesController {
     })
     @RequestMapping(value="{username}", method=RequestMethod.POST)
     public ResponseEntity<JFavorites> addFavorite(HttpServletRequest request,
+                                             HttpServletResponse response,
                                              Principal principal,
                                              @PathVariable String username,
                                              @RequestParam(required=true) String productId) {
 
-
         try {
             final DFavorites body = rnrService.addFavorite(productId, username,
                     null != principal ? principal.getName() : null);
+
+            if (null != body)
+                    response.sendRedirect(request.getRequestURI());
+            return null; // No need to return anything, the redirect takes care of it
         }
         catch (IllegalArgumentException usernameNull) {
             return new ResponseEntity<JFavorites>(HttpStatus.UNAUTHORIZED);
         }
-
-        return redirectResponseEntity(request.getRequestURI());
+        catch (IOException e) {
+            LOG.error("Not possible to create redirect to url " + request.getRequestURI() + "after creating a new favorite");
+            return new ResponseEntity<JFavorites>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     /**
@@ -84,7 +83,8 @@ public class FavoritesController {
     })
     @RequestMapping(value="{username}", method= RequestMethod.DELETE)
     public ResponseEntity<JFavorites> deleteFavorite(HttpServletRequest request,
-                                                      Principal principal,
+                                                     HttpServletResponse response,
+                                                     Principal principal,
                                                       @PathVariable String username,
                                                       @RequestParam(required=true) String productId) {
 
@@ -95,17 +95,23 @@ public class FavoritesController {
             if (null == body)
                 return new ResponseEntity(HttpStatus.NOT_FOUND);
             else {
-
+                // Derive the redirect url
                 String redirectUrl = request.getRequestURI();
                 int i = redirectUrl.indexOf("?");
                 if (i > -1)
                     redirectUrl = redirectUrl.substring(0, i-1);
 
-                return redirectResponseEntity(redirectUrl);
+                // Do the redirect
+                response.sendRedirect(request.getRequestURI());
+                return null; // No need to return anything, the redirect takes care of it
             }
         }
         catch (IllegalArgumentException usernameNull) {
             return new ResponseEntity<JFavorites>(HttpStatus.UNAUTHORIZED);
+        }
+        catch (IOException e) {
+            LOG.error("Not possible to create redirect to url " + request.getRequestURI() + "after deleting a favorite");
+            return new ResponseEntity<JFavorites>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -130,22 +136,6 @@ public class FavoritesController {
         catch (IllegalArgumentException usernameNull) {
             return new ResponseEntity<JFavorites>(HttpStatus.UNAUTHORIZED);
         }
-    }
-
-    // Create a Response entity that redirect to an URL
-    private static <T> ResponseEntity<T> redirectResponseEntity(String redirectURL) {
-
-        // Manually build the redirect
-        HttpHeaders headers = new HttpHeaders();
-        try {
-            headers.setLocation(new URI(redirectURL));
-
-        } catch (URISyntaxException e) {
-            LOG.error("Not possible to create redirect url from string " + redirectURL);
-            return new ResponseEntity<T>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-
-        return new ResponseEntity<T>(headers, HttpStatus.MOVED_TEMPORARILY);
     }
 
 

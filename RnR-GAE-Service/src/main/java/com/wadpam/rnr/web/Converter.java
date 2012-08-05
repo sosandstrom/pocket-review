@@ -28,17 +28,18 @@ public class Converter {
 
 
     // Various convert methods for converting between domain to json objects
-    protected static JProductV15 convert(DProduct from, HttpServletRequest request) {
+    protected static JProduct convert(DProduct from, HttpServletRequest request) {
         if (null == from) {
             return null;
         }
-        final JProductV15 to = new JProductV15();
+        final JProduct to = new JProduct();
         convert(from, to);
 
         to.setId(from.getProductId());
         to.setLocation(convert(from.getLocation()));
         to.setRatingCount(from.getRatingCount());
         to.setRatingSum(from.getRatingSum());
+        to.setRatingAverage(from.getRatingAverage().getRating());
         to.setLikeCount(from.getLikeCount());
         to.setCommentCount(from.getCommentCount());
 

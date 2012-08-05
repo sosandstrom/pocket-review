@@ -25,11 +25,8 @@ import java.security.Principal;
 import java.util.Collection;
 
 /**
- * Created with IntelliJ IDEA.
- * User: mattias
- * Date: 7/27/12
- * Time: 2:27 PM
- * To change this template use File | Settings | File Templates.
+ * The comment controller implements all REST methods related to commenting.
+ * @author mlv
  */
 @Controller
 @RequestMapping(value="{domain}/comment")

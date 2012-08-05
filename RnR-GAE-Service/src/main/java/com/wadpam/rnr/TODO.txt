@@ -1,27 +1,47 @@
 
 Ola
-// TODO: The Ratint15Controller have issues with the namespace. Probably due to the versioning and the DomainFilter
-// TODO: Add datastore indexes (I deleted the one that existed and added new). How do I ask for most liked DProduct using Mardao? I can not find any methods.
 // TODO: Add geolocation to DProduct (Ola)
 // TODO: Implement nearby search methods with sort order (Ola)
 // TODO: Move location to a separate entity? Ola? Do not think it is necessary. Will we ever have anything else then the location on this entity
-// TODO: Updating the product counters are not thread safe. Nor is the creating of new entities. Can we wrap them in a transaction?
-// TODO: Possible to turn the "old" rating controller OFF (RatingController) based on a setting. Should by default be OFF. Is this a build time or run time setting? Where do we enforce it (in the spring-security.xml or some filter)?
 
+
+
+// TODO: Updating the product counters are not thread safe. Nor is the creating of new entities. Can we wrap them in a transaction?
+// TODO: Configure in Spring context as transaction or just grab
 
 
 // TODO: How to know and indicate end of pagination?
 
-// TODO: Favorites memcache (check in multitenancy and tags fo different type of data). Also check when getting products
 
 // TODO: Merge branch to master after Olas reviewed and approved changed.
 
+// TODO: Add domain DAppDomain, DAppSettings and DAppAdmin
+// TODO: Add Application controller
+// TODO: Add application admin controller
 
 // TODO: Simple backoffice interface (sigin, get all registered apps, new, delete, update)
 // TODO: Add some basic authentication using a kind of AppKey that you get when register
-// TODO: Add domain DApplication and DApplicationAdmin
-// TODO: Add Application controller
-// TODO: Add application admin controller
+
+
+The backoffice will work like this:
+-The user signs in with gmail account
+-If it is a new user a new DApplicationAdmin will be create
+    -State will be set to pending
+    -An email will be sent to X telling there is a pending user
+    -The new user will get a screen telling them to wait for approval
+-A GAE project admin logs in and browse all pending users
+    -Admin can approve, this will send an email to the pending user
+    -admin can Suspend and Delete (users can no longer access the app admin page, will the app still work for the service?)
+-The new approved user login and will see a list of all their registered app domains (DAppDomain)
+-The user can select to:
+    -Create a new domain. Must be unique and will be stored in DAppDomain
+    -Select and existing app domain and be taken to the Application settings (stored in DApplication)
+
+The DAppDomain and DAppAdmin will reside in a special namespace the same for all applications (in order to access all data at the same time)
+The DAppSettings will reside under each domains namespace (will thus only be one per domain)
+
+
+
 
 
 
@@ -30,7 +50,7 @@ DONE
 // TODO: Implement Olas comments
 // TODO: Rename Result to Product?
 // TODO: Migrate all product requests to ProductController
-// TODO: Make a RatingV15Controller + ResultV15 , retain backwards compatibilty
+// TODO: Make a RatingV11Controller + ResultV11 , retain backwards compatibility
 // TODO: Add sort order parameter to getNearbyProduct
 // TODO: Add cache to Products. Where?
 // TODO: Implement all Like methods
@@ -48,7 +68,15 @@ DONE
 // TODO: Return distance in nearby requests
 // TODO: Move get all ratings/likes/comments for a product to the respective controller (away from the product controller) - NO. Not able for find a good REST URL for this.
 // TODO: Support favorites
+// TODO: Favorites memcache (check in multitenancy and tags fo different type of data). Also check when getting products
 
+// TODO: Moved the instantiation of the "old" rating controller to the backend spring context, will default not be started, only if the backend need to be backwards compatible.
+// TODO: Add average rating to DB as a property
+// TODO: Add datastore indexes (I deleted the one that existed and added new). How do I ask for most liked DProduct using Mardao? I can not find any methods.
+// TODO: The Rating15Controller have issues with the namespace. Probably due to the versioning and the DomainFilter
+// TODO: Move version further back, start with v11
+// TODO: Implement the "most" operations
+// TODO: Remove support for Old RatingController, changes are so big it is not possible to maintain backwards compatibility
 
 
 // TODO: Better way to get the base URL when generating URLs, try the servlet context - NO, looks ok as is
@@ -67,10 +95,10 @@ api/{version}/{domain}/product (POST)                   Get all products        
 api/{version}/{domain}/product/{product} (GET)          Get one product                             X  OK  Y
 api/{version}/{domain}/product?ids= GET                 Get several products                        X  OK  Y
 api/{version}/{domain}/product/nearby (POST)            Get products nearby
-api/{version}/{domain}/product/mostliked (GET)          Get most liked products
-api/{version}/{domain}/product/mostcommented (GET)      Get most commented
-api/{version}/{domain}/product/mostrated (GET)          Get most rated
-api/{version}/{domain}/product/toprated (GET)           Get top rated products
+api/{version}/{domain}/product/mostliked (GET)          Get most liked products                     X  OK
+api/{version}/{domain}/product/mostcommented (GET)      Get most commented                          X  OK
+api/{version}/{domain}/product/mostrated (GET)          Get most rated                              X  OK
+api/{version}/{domain}/product/toprated (GET)           Get top rated products                      X  OK
 api/{version}/{domain}/product/my/liked (GET)           Get all products I have liked               X  OK  Y
 api/{version}/{domain}/product/my/rated (GET)           Get all products I have rated               X  OK  Y
 api/{version}/{domain}/product/my/commented (GET)       Get all products I have commented           X  OK  Y

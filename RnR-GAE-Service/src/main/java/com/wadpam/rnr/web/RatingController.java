@@ -2,16 +2,9 @@ package com.wadpam.rnr.web;
 
 import com.wadpam.docrest.domain.RestCode;
 import com.wadpam.docrest.domain.RestReturn;
-import com.wadpam.rnr.domain.DProduct;
 import com.wadpam.rnr.domain.DRating;
-import com.wadpam.rnr.json.JLocation;
-import com.wadpam.rnr.json.JProduct;
-import com.wadpam.rnr.json.JProductV15;
+import com.wadpam.rnr.json.JRating;
 import com.wadpam.rnr.service.RnrService;
-import java.security.Principal;
-import java.util.ArrayList;
-import java.util.Collection;
-import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -21,15 +14,15 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.view.RedirectView;
+
+import javax.servlet.http.HttpServletRequest;
+import java.security.Principal;
+import java.util.Collection;
 
 
 /**
  * The rating controller implements all REST methods related to ratings and reviews
- *
- * All of the methods supported by this controller is deprecated. Developers should
- * use the REST end-points provided by Rating15Controller instead. This controller is
- * still support in order to provide backwards compatibility towards existing apps.
- *
  * @author os
  */
 @Controller
@@ -41,9 +34,6 @@ public class RatingController {
 
     /**
      * Add a rating to a product.
-     *
-     * This method has been deprecated in favour of the /v15/{domain}/rating/{productId} method.
-     *
      * @param productId domain-unique id for the product to rate
      * @param username optional. 
      * If authenticated, and RnrService.fallbackPrincipalName, 
@@ -51,99 +41,116 @@ public class RatingController {
      * @param latitude optional, -90..90
      * @param longitude optional, -180..180
      * @param rating mandatory, the rating 0..100
-     * @return the new result for this product
+     * @param comment optional. review comment
+     * @return the new rating
      */
-    @RestReturn(value=JProduct.class, entity=JProduct.class, code={
-        @RestCode(code=200, message="OK", description="Rating added to product")
+    @RestReturn(value=JRating.class, entity=JRating.class, code={
+        @RestCode(code=302, message="OK", description="Redirect to newly created rating")
     })
-    @RequestMapping(value="{productId}", method= RequestMethod.POST)
-    @Deprecated
-    public ResponseEntity<JProduct> addRating(HttpServletRequest request,
-                                              Principal principal,
-                                              @PathVariable String productId,
-                                              @RequestParam(required=false) String username,
-                                              @RequestParam(required=false) Float latitude,
-                                              @RequestParam(required=false) Float longitude,
-                                              @RequestParam int rating) {
+    @RequestMapping(value="", method= RequestMethod.POST)
+    public RedirectView addRating(HttpServletRequest request,
+                                             Principal principal,
+                                             @RequestParam(required=true) String productId,
+                                             @RequestParam(required=false) String username,
+                                             @RequestParam(required=false) Float latitude,
+                                             @RequestParam(required=false) Float longitude,
+                                             @RequestParam int rating,
+                                             @RequestParam(required=false) String comment) {
 
-        final DRating dRating = rnrService.addRating(productId, username,
-                null != principal ? principal.getName() : null, latitude, longitude, rating, "");
+        final DRating body = rnrService.addRating(productId, username,
+                null != principal ? principal.getName() : null, latitude, longitude, rating, comment);
 
-        // Get a product from the rating, needed to retain backwards compatibility
-        final DProduct body = rnrService.getProduct(dRating.getProductId());
-
-        return new ResponseEntity<JProduct>(convert(body), HttpStatus.OK);
+        return new RedirectView(request.getRequestURI() + "/" + body.getId().toString());
     }
 
     /**
-     * Returns the product summary, including the average rating.
-     *
-     * This method has been deprecated in favour of the /{domain}/product/{productId} method.
-     *
-     * @param productId domain-unique id for the product
-     * @return the average rating for specified productId
+     * Delete a rating with a specific id.
+     * @param id The unique rating id
+     * @return the and http response code indicating the outcome of the operation
      */
-    @RestReturn(value=JProduct.class, entity=JProduct.class, code={
-            @RestCode(code=200, message="OK", description="Product summary found"),
-            @RestCode(code=404, message="Not Found", description="Product not found")
+    @RestReturn(value=JRating.class, entity=JRating.class, code={
+            @RestCode(code=200, message="OK", description="Rating deleted"),
+            @RestCode(code=404, message="NOK", description="Rating not found and can not be deleted")
     })
-    @RequestMapping(value="{productId}", method= RequestMethod.GET)
-    @Deprecated
-    public ResponseEntity<JProduct> getAverageRating(
-            @PathVariable String productId) {
+    @RequestMapping(value="{id}", method= RequestMethod.DELETE)
+    public ResponseEntity<JRating> deleteLike(HttpServletRequest request,
+                                            Principal principal,
+                                            @PathVariable long id) {
 
-        final DProduct body = rnrService.getProduct(productId);
+        final DRating body = rnrService.deleteRating(id);
 
-        if (null == body) {
+        if (null == body)
+            return new ResponseEntity<JRating>(HttpStatus.NOT_FOUND);
+        else
+            return new ResponseEntity<JRating>(HttpStatus.OK);
+    }
+
+    /**
+     * Get rating details for a specific id.
+     * @param id The unique like id
+     * @return the rating details
+     */
+    @RestReturn(value=JRating.class, entity=JRating.class, code={
+            @RestCode(code=200, message="OK", description="Rating found"),
+            @RestCode(code=404, message="NOK", description="Rating not found")
+    })
+    @RequestMapping(value="{id}", method= RequestMethod.GET)
+    public ResponseEntity<JRating> getLike(HttpServletRequest request,
+                                         Principal principal,
+                                         @PathVariable long id) {
+
+        final DRating body = rnrService.getRating(id);
+
+        if (null == body)
             return new ResponseEntity(HttpStatus.NOT_FOUND);
-        }
-
-        return new ResponseEntity<JProduct>(convert(body), HttpStatus.OK);
+        else
+            return new ResponseEntity<JRating>(Converter.convert(body, request), HttpStatus.OK);
     }
 
     /**
-     * Returns the average rating for a list of products.
-     *
-     * This method has been deprecated in favour of the /{domain}/product/{productId} method.
-     *
-     * @param ids a list of productIds
-     * @return a list of average rating for specified products
+     * Returns all ratings done by a specific user.
+     * @param username optional. 
+     * If authenticated, and RnrService.fallbackPrincipalName, 
+     * principal.name will be used if username is null.
+     * @return a list of ratings
      */
-    // TODO: How to document the ids parameter?
-    @RestReturn(value=JProduct.class, entity=JProduct.class, code={
-            @RestCode(code=200, message="OK", description="Product summaries not found")
+    @RestReturn(value=JRating.class, entity=JRating.class, code={
+        @RestCode(code=200, message="OK", description="Ratings found for user")
     })
-    @RequestMapping(value="", method= RequestMethod.GET, params="ids")
-    @Deprecated
-    public ResponseEntity<Collection<JProduct>> getAverageRatings(
-            @RequestParam(value="ids") String ids[]) {
-        final Collection<DProduct> body = rnrService.getProducts(ids);
-        return new ResponseEntity<Collection<JProduct>>(convert(body), HttpStatus.OK);
-    }
+    @RequestMapping(value="", method= RequestMethod.GET, params="username")
+    public ResponseEntity<Collection<JRating>> getMyRatings(HttpServletRequest request,
+                                                            Principal principal,
+                                                            @RequestParam(required=false) String username) {
 
+        try {
+            final Collection<DRating> body = rnrService.getMyRatings(username,
+                    null != principal ? principal.getName() : null);
 
-    // Convert to v10 Json results. Needed to retain backwards compatibility
-    private static JProduct convert(DProduct dProduct) {
-        JProduct resultV10 = new JProduct();
-
-        resultV10.setProductId(dProduct.getId());
-        resultV10.setLocation(new JLocation(dProduct.getLocation().getLatitude(),
-                dProduct.getLocation().getLongitude()));
-        resultV10.setRatingCount(dProduct.getRatingCount());
-        resultV10.setRatingSum(dProduct.getRatingSum());
-
-        return resultV10;
-    }
-
-    // Convert array
-    private static Collection<JProduct> convert(Collection<DProduct> products) {
-        Collection<JProduct> resultV10List = new ArrayList<JProduct>(products.size());
-
-        for (DProduct dProduct : products)  {
-            resultV10List.add(convert(dProduct));
+            return new ResponseEntity<Collection<JRating>>((Collection<JRating>)Converter.convert(body, request),
+                    HttpStatus.OK);
         }
+        catch (IllegalArgumentException usernameNull) {
+            return new ResponseEntity<Collection<JRating>>(HttpStatus.UNAUTHORIZED);
+        }
+    }
 
-        return resultV10List;
+    /**
+     * Returns all ratings for a specific product.
+     * @param productId the product to looks for
+     * @return a list of ratings
+     */
+    @RestReturn(value=JRating.class, entity=JRating.class, code={
+            @RestCode(code=200, message="OK", description="All ratings for product")
+    })
+    @RequestMapping(value="", method= RequestMethod.GET, params="productId")
+    public ResponseEntity<Collection<JRating>> getAllRatingsForProduct(HttpServletRequest request,
+                                                                       Principal principal,
+                                                                       @RequestParam(required=true) String productId) {
+
+        final Collection<DRating> body = rnrService.getAllRatingsForProduct(productId);
+
+        return new ResponseEntity<Collection<JRating>>((Collection<JRating>)Converter.convert(body, request),
+                HttpStatus.OK);
     }
 
 

@@ -1,5 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<datastore-indexes autoGenerate="true">
+<datastore-indexes autoGenerate="true" source="manual">
 
+    <datastore-index kind="DProduct" ancestor="false">
+        <property name="likeCount" direction="desc" />
+    </datastore-index>
+
+    <datastore-index kind="DProduct" ancestor="false">
+        <property name="ratingCount" direction="desc" />
+    </datastore-index>
+
+    <datastore-index kind="DProduct" ancestor="false">
+        <property name="commentCount" direction="desc" />
+    </datastore-index>
+
+    <datastore-index kind="DProduct" ancestor="false">
+        <property name="ratingAverage" direction="desc" />
+    </datastore-index>
 
 </datastore-indexes>

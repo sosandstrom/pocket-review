@@ -20,14 +20,11 @@ import javax.servlet.http.HttpServletRequest;
 import java.security.Principal;
 import java.util.Collection;
 
-/**
- * Created with IntelliJ IDEA.
- * User: mattias
- * Date: 7/24/12
- * Time: 7:20 PM
- * To change this template use File | Settings | File Templates.
- */
 
+/**
+ * The like controller implements all REST methods related to likes.
+ * @author mlv
+ */
 @Controller
 @RequestMapping(value="{domain}/like")
 public class LikeController {
@@ -59,6 +56,8 @@ public class LikeController {
 
         final DLike body = rnrService.addLike(productId, username,
                 null != principal ? principal.getName() : null, latitude, longitude);
+
+
 
         return new RedirectView(request.getRequestURI() + "/" + body.getId().toString());
     }

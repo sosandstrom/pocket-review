@@ -5,6 +5,7 @@ import net.sf.mardao.api.domain.AEDStringEntity;
 import javax.persistence.Basic;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Set;
 
@@ -16,7 +17,9 @@ import java.util.Set;
  * To change this template use File | Settings | File Templates.
  */
 @Entity
-public class DFavorites extends AEDStringEntity  {
+public class DFavorites extends AEDStringEntity implements Serializable {
+
+    private static final long serialVersionUID = 6873407503201116079L;
 
     /** The user name */
     @Id

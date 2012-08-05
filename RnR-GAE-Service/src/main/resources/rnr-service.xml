@@ -6,49 +6,46 @@
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
                 http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd">
                 
-        <!--           Service             -->
+    <!--           Service             -->
 
-        <import resource="classpath*:spring-dao.xml" />
-        
-        <bean id="rnrService" class="com.wadpam.rnr.service.RnrService" init-method="init">
-            <property name="persistenceManager" ref="persistenceManager" />
-            <property name="productDao" ref="dProductDao" />
-            <property name="ratingDao" ref="dRatingDao" />
-            <property name="likeDao" ref="dLikeDao" />
-            <property name="commentDao" ref="dCommentDao" />
-            <property name="favoritesDao" ref="dFavoritesDao" />
-        </bean>
+    <import resource="classpath*:spring-dao.xml" />
 
-        <bean id="persistenceManager" class="com.wadpam.rnr.service.PersistenceManager">
-            <property name="productDao" ref="dProductDao" />
-        </bean>
+    <bean id="rnrService" class="com.wadpam.rnr.service.RnrService" init-method="init">
+        <property name="persistenceManager" ref="persistenceManager" />
+        <property name="productDao" ref="dProductDao" />
+        <property name="ratingDao" ref="dRatingDao" />
+        <property name="likeDao" ref="dLikeDao" />
+        <property name="commentDao" ref="dCommentDao" />
+        <property name="favoritesDao" ref="dFavoritesDao" />
+    </bean>
+
+    <bean id="persistenceManager" class="com.wadpam.rnr.service.PersistenceManager">
+        <property name="productDao" ref="dProductDao" />
+        <property name="favoritesDao" ref="dFavoritesDao" />
+    </bean>
 
 
-        <!--           Controllers             -->
+    <!--           Controllers             -->
 
-        <bean id="productController" class="com.wadpam.rnr.web.ProductController">
-            <property name="rnrService" ref="rnrService" />
-        </bean>
+    <bean id="productController" class="com.wadpam.rnr.web.ProductController">
+        <property name="rnrService" ref="rnrService" />
+    </bean>
 
-        <bean id="ratingController" class="com.wadpam.rnr.web.RatingController">
-            <property name="rnrService" ref="rnrService" />
-        </bean>
+    <bean id="rating15Controller" class="com.wadpam.rnr.web.RatingController">
+        <property name="rnrService" ref="rnrService" />
+    </bean>
 
-        <bean id="rating15Controller" class="com.wadpam.rnr.web.Rating15Controller">
-            <property name="rnrService" ref="rnrService" />
-        </bean>
+    <bean id="likeController" class="com.wadpam.rnr.web.LikeController">
+        <property name="rnrService" ref="rnrService" />
+    </bean>
 
-        <bean id="likeController" class="com.wadpam.rnr.web.LikeController">
-            <property name="rnrService" ref="rnrService" />
-        </bean>
+    <bean id="commentController" class="com.wadpam.rnr.web.CommentController">
+        <property name="rnrService" ref="rnrService" />
+    </bean>
 
-        <bean id="commentController" class="com.wadpam.rnr.web.CommentController">
-            <property name="rnrService" ref="rnrService" />
-        </bean>
-
-        <bean id="favoritesController" class="com.wadpam.rnr.web.FavoritesController">
-            <property name="rnrService" ref="rnrService" />
-        </bean>
+    <bean id="favoritesController" class="com.wadpam.rnr.web.FavoritesController">
+        <property name="rnrService" ref="rnrService" />
+    </bean>
 
 
 </beans>

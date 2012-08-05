@@ -6,6 +6,7 @@ package com.wadpam.rnr.domain;
 
 
 import com.google.appengine.api.datastore.GeoPt;
+import com.google.appengine.api.datastore.Rating;
 import net.sf.mardao.api.domain.AEDStringEntity;
 
 import javax.persistence.Basic;
@@ -19,9 +20,10 @@ import java.util.Collection;
  * @author os
  */
 @Entity
-public class DProduct extends AEDStringEntity implements Serializable {   // TODO: Implement GeoModel
+public class DProduct extends AEDStringEntity implements Serializable {
 
-    private static final long serialVersionUID = -7313484361958303203L;
+    private static final long serialVersionUID = -2815964311490330922L;   // TODO: Implement GeoModel
+
 
     /** The Many-To-One productId (unconstrained) */
     @Id
@@ -34,6 +36,10 @@ public class DProduct extends AEDStringEntity implements Serializable {   // TOD
     /** The total number of ratings */
     @Basic
     private Long        ratingCount = 0L;
+
+    /** The calculated average rating. Normalize to a 0-100 scale. */
+    @Basic
+    private Rating      ratingAverage;
 
     /** The total number of likes */
     @Basic
@@ -59,7 +65,7 @@ public class DProduct extends AEDStringEntity implements Serializable {   // TOD
 
     @Override
     public String toString() {
-        return String.format("{productId:%s, ratings:%d, average:%d, likes:%d, location:%s}",
+        return String.format("{productId:%s, ratings:%d, average:%s, likes:%d, location:%s}",
                 productId, ratingCount, getRatingAverage(), likeCount, location);
     }
 
@@ -88,10 +94,6 @@ public class DProduct extends AEDStringEntity implements Serializable {   // TOD
     }
 
     // Getters and setters
-    public int getRatingAverage() {
-        return 0 < ratingCount ? (int) (ratingSum / ratingCount) : -1;
-    }
-
     public String getProductId() {
         return productId;
     }
@@ -114,6 +116,14 @@ public class DProduct extends AEDStringEntity implements Serializable {   // TOD
 
     public void setRatingCount(Long ratingCount) {
         this.ratingCount = ratingCount;
+    }
+
+    public Rating getRatingAverage() {
+        return ratingAverage;
+    }
+
+    public void setRatingAverage(Rating ratingAverage) {
+        this.ratingAverage = ratingAverage;
     }
 
     public Long getLikeCount() {

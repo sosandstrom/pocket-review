@@ -1,16 +1,25 @@
 package com.wadpam.rnr.json;
 
+import javax.persistence.Basic;
+
 /**
  *
  * @author os
  */
 public class JProduct extends JBaseObject {
 
-    /** The Many-To-One productId (unconstrained) */
-    private String      productId;
+    /** The Many-To-One id (unconstrained) */
+    private String      id;
 
     /** The location of the product */
     private JLocation   location;
+
+    /**
+     * The distance in km between the product location and the device provided position.
+     * If either the device position or product location is unknown the distance will not be calculated.
+     * This property will be set in nearby searches.
+     */
+    private Float       distance;
 
     /** The total sum or all ratings */
     private Long        ratingSum = 0L;
@@ -18,20 +27,38 @@ public class JProduct extends JBaseObject {
     /** The total number of ratings */
     private Long        ratingCount = 0L;
 
+    /** The calculated average rating. Normalize to a 0-100 scale. */
+    private Integer     ratingAverage = 0;
+
+    /** The deep link to the individual ratings */
+    private String      ratingsURL;
+
+    /** The total number of Likes */
+    private Long        likeCount = 0L;
+
+    /** The deep link to the individual likes */
+    private String      likesURL;
+
+    /** The total number of Comments */
+    private Long        commentCount = 0L;
+
+    /** The deep link to the individual likes */
+    private String      commentsURL;
+
 
     @Override
     protected String subString() {
-        return String.format("productId:%s, location:%s, ratingCount:%d, average:%d",
-                productId, location, ratingCount, getAverage());
+        return String.format("id:%s, location:%s, ratings:%d, average:%d, likes:%d, comments:%d",
+                id, location, ratingCount, getRatingAverage(), likeCount, commentCount);
     }
 
     // Setters and Getters
-    public String getProductId() {
-        return productId;
+    public String getId() {
+        return id;
     }
 
-    public void setProductId(String productId) {
-        this.productId = productId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public JLocation getLocation() {
@@ -42,8 +69,12 @@ public class JProduct extends JBaseObject {
         this.location = location;
     }
 
-    public int getAverage() {
-        return 0 < ratingCount ? (int) (ratingSum / ratingCount) : 0;
+    public Float getDistance() {
+        return distance;
+    }
+
+    public void setDistance(Float distance) {
+        this.distance = distance;
     }
 
     public Long getRatingCount() {
@@ -60,5 +91,53 @@ public class JProduct extends JBaseObject {
 
     public void setRatingSum(Long ratingSum) {
         this.ratingSum = ratingSum;
+    }
+
+    public Integer getRatingAverage() {
+        return ratingAverage;
+    }
+
+    public void setRatingAverage(Integer ratingAverage) {
+        this.ratingAverage = ratingAverage;
+    }
+
+    public String getRatingsURL() {
+        return ratingsURL;
+    }
+
+    public void setRatingsURL(String ratingsURL) {
+        this.ratingsURL = ratingsURL;
+    }
+
+    public Long getLikeCount() {
+        return likeCount;
+    }
+
+    public void setLikeCount(Long likeCount) {
+        this.likeCount = likeCount;
+    }
+
+    public String getLikesURL() {
+        return likesURL;
+    }
+
+    public void setLikesURL(String likesURL) {
+        this.likesURL = likesURL;
+    }
+
+    public Long getCommentCount() {
+        return commentCount;
+    }
+
+    public void setCommentCount(Long commentCount) {
+        this.commentCount = commentCount;
+    }
+
+    public String getCommentsURL() {
+        return commentsURL;
+    }
+
+    public void setCommentsURL(String commentsURL) {
+        this.commentsURL = commentsURL;
     }
 }
