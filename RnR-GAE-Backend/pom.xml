@@ -271,6 +271,11 @@
                 <configuration>
                     <port>8888</port>
                     <monitorPort>8789</monitorPort>
+
+                    <jvmFlags>
+                        <jvmFlag>-Ddatastore.default_high_rep_job_policy_unapplied_job_pct=20</jvmFlag>
+                    </jvmFlags>
+
 <!--                    <serverId>appengine.google.com</serverId>-->
                 </configuration>
                 <dependencies>

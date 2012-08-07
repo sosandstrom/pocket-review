@@ -16,11 +16,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Created with IntelliJ IDEA.
- * User: mattias
- * Date: 7/28/12
- * Time: 11:02 PM
- * To change this template use File | Settings | File Templates.
+ * This class implement various methods for converting from domain object to JSON objects
+ * @author mlv
  */
 public class Converter {
 

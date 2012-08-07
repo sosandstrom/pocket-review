@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -48,11 +49,11 @@ public class LikeController {
     })
     @RequestMapping(value="", method= RequestMethod.POST)
     public RedirectView addLike(HttpServletRequest request,
-                                             Principal principal,
-                                             @RequestParam(required=true) String productId,
-                                             @RequestParam(required=false) String username,
-                                             @RequestParam(required=false) Float latitude,
-                                             @RequestParam(required=false) Float longitude) {
+                                Principal principal,
+                                @RequestParam(required=true) String productId,
+                                @RequestParam(required=false) String username,
+                                @RequestParam(required=false) Float latitude,
+                                @RequestParam(required=false) Float longitude) {
 
         final DLike body = rnrService.addLike(productId, username,
                 null != principal ? principal.getName() : null, latitude, longitude);
@@ -73,8 +74,8 @@ public class LikeController {
     })
     @RequestMapping(value="{id}", method= RequestMethod.DELETE)
     public ResponseEntity<JLike> deleteLike(HttpServletRequest request,
-                                                      Principal principal,
-                                                      @PathVariable long id) {
+                                            Principal principal,
+                                            @PathVariable long id) {
 
         final DLike body = rnrService.deleteLike(id);
 
@@ -95,8 +96,8 @@ public class LikeController {
     })
     @RequestMapping(value="{id}", method= RequestMethod.GET)
     public ResponseEntity<JLike> getLike(HttpServletRequest request,
-                                            Principal principal,
-                                            @PathVariable long id) {
+                                         Principal principal,
+                                         @PathVariable long id) {
 
         final DLike body = rnrService.getLike(id);
 
@@ -144,7 +145,7 @@ public class LikeController {
     @RequestMapping(value="", method= RequestMethod.GET, params="productId")
     public ResponseEntity<Collection<JLike>> getAllLikesForProduct(HttpServletRequest request,
                                                                    Principal principal,
-                                                                    @RequestParam(required=true) String productId) {
+                                                                   @RequestParam(required=true) String productId) {
 
         final Collection<DLike> body = rnrService.getAllLikesForProduct(productId);
 

@@ -47,7 +47,7 @@ public class ProductController {
     })
     @RequestMapping(value="{productId}", method= RequestMethod.GET)
     public ResponseEntity<JProduct> getProductInfo(HttpServletRequest request,
-                                                      @PathVariable String productId) {
+                                                   @PathVariable String productId) {
 
         final DProduct body = rnrService.getProduct(productId);
 
@@ -69,7 +69,7 @@ public class ProductController {
     })
     @RequestMapping(value="", method= RequestMethod.GET, params="ids")
     public ResponseEntity<Collection<JProduct>> getProducts(HttpServletRequest request,
-                                                               @RequestParam(value = "ids") String ids[]) {
+                                                            @RequestParam(value = "ids") String ids[]) {
 
         final Collection<DProduct> body = rnrService.getProducts(ids);
 
@@ -131,11 +131,11 @@ public class ProductController {
     })
     @RequestMapping(value="nearby", method=RequestMethod.GET)
     public ResponseEntity<Collection<JProduct>> findNearbyProducts(HttpServletRequest request,
-                                                                 @RequestParam(required=false) Float latitude,
-                                                                 @RequestParam(required=false) Float longitude,
-                                                                 @RequestParam(defaultValue="15") int bits,
-                                                                 @RequestParam(defaultValue="0") int sort,
-                                                                 @RequestParam(defaultValue="10") int limit)   {
+                                                                   @RequestParam(required=false) Float latitude,
+                                                                   @RequestParam(required=false) Float longitude,
+                                                                   @RequestParam(defaultValue="15") int bits,
+                                                                   @RequestParam(defaultValue="0") int sort,
+                                                                   @RequestParam(defaultValue="10") int limit)   {
         if (null == latitude) {
             final String cityLatLong = request.getHeader("X-AppEngine-CityLatLong");
             if (null != cityLatLong) {
@@ -281,7 +281,7 @@ public class ProductController {
     })
     @RequestMapping(value="mostCommented", method= RequestMethod.GET)
     public ResponseEntity<Collection<JProduct>> getMostcommentedProducts(HttpServletRequest request,
-                                                                     @RequestParam(defaultValue = "10") int limit) {
+                                                                         @RequestParam(defaultValue = "10") int limit) {
 
         final Collection<DProduct> body = rnrService.getMostCommentedProducts(limit);
 
@@ -302,8 +302,8 @@ public class ProductController {
     @RequestMapping(value="my/liked", method= RequestMethod.GET)
     // TODO: Add pagination support
     public ResponseEntity<Collection<JProduct>> getProductsLikedByUser(HttpServletRequest request,
-                                                                          Principal principal,
-                                                                          @RequestParam(required=false) String username) {
+                                                                       Principal principal,
+                                                                       @RequestParam(required=false) String username) {
 
         try {
             final Collection<DProduct> body = rnrService.getProductsLikedByUser(username,
@@ -330,8 +330,8 @@ public class ProductController {
     @RequestMapping(value="my/rated", method= RequestMethod.GET)
     // TODO: Add pagination support
     public ResponseEntity<Collection<JProduct>> getProductsRatedByUser(HttpServletRequest request,
-                                                                          Principal principal,
-                                                                          @RequestParam(required=false) String username) {
+                                                                       Principal principal,
+                                                                       @RequestParam(required=false) String username) {
         try {
             final Collection<DProduct> body = rnrService.getProductsRatedByUser(username,
                     null != principal ? principal.getName() : null);
@@ -357,8 +357,8 @@ public class ProductController {
     @RequestMapping(value="my/commented", method= RequestMethod.GET)
     // TODO: Add pagination support
     public ResponseEntity<Collection<JProduct>> getProductsCommentedByUser(HttpServletRequest request,
-                                                                          Principal principal,
-                                                                          @RequestParam(required=false) String username) {
+                                                                           Principal principal,
+                                                                           @RequestParam(required=false) String username) {
         try {
             final Collection<DProduct> body = rnrService.getProductsCommentedByUser(username,
                     null != principal ? principal.getName() : null);
@@ -386,8 +386,8 @@ public class ProductController {
     @RequestMapping(value="my/favorites", method= RequestMethod.GET)
     // TODO: Add pagination support
     public ResponseEntity<Collection<JProduct>> geUserFavoriteProducts(HttpServletRequest request,
-                                                                 Principal principal,
-                                                                 @RequestParam(required=false) String username) {
+                                                                       Principal principal,
+                                                                       @RequestParam(required=false) String username) {
         try {
             final Collection<DProduct> body = rnrService.geUserFavoriteProducts(username,
                     null != principal ? principal.getName() : null);

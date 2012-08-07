@@ -12,7 +12,4 @@ public class DFavoritesDaoBean
 	extends GeneratedDFavoritesDaoImpl
 		implements DFavoritesDao 
 {
-
-	// TODO: implement your Business Methods here
-
 }

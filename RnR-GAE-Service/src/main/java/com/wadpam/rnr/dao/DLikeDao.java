@@ -11,7 +11,4 @@ import com.google.appengine.api.datastore.Key;
  * @author mardao DAO generator (net.sf.mardao.plugin.ProcessDomainMojo)
  */
 public interface DLikeDao extends GeneratedDLikeDao<Key, Key> {
-
-	// TODO: declare your Business Methods here
-	
 }

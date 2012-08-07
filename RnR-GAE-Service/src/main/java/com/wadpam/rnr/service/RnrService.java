@@ -14,6 +14,7 @@ import java.util.*;
 import net.sf.mardao.api.geo.aed.GeoDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
@@ -70,6 +71,8 @@ public class RnrService {
     /* Like related methods */
 
     // Like a product
+    @Idempotent
+    @Transactional
     public DLike addLike(String productId, String username, String principalName, Float latitude, Float longitude) {
         LOG.debug("Add new like to product " + productId);
 
@@ -111,7 +114,6 @@ public class RnrService {
         }
 
         // Update the product location if any is provided
-        // TODO: DB write not thread safe
         if (null != latitude && null != longitude) {
             final GeoPt location = new GeoPt(latitude, longitude);
             dProduct.setLocation(location);
@@ -120,6 +122,10 @@ public class RnrService {
         else {
             persistenceManager.storeProductWithCache(dProduct);
         }
+
+        // Call to generate a datastrore ConcurrentModificationException in order to test the transaction retry mechanism
+        // Uncomment this to run tests
+        //throw(new ConcurrentModificationException());
 
         return dLike;
     }
@@ -135,6 +141,8 @@ public class RnrService {
     }
 
     // Delete a like with a specific id
+    @Idempotent
+    @Transactional
     public DLike deleteLike(long id) {
         LOG.debug("Delete like with id " + id);
 
@@ -179,6 +187,8 @@ public class RnrService {
     /* Rating related methods */
 
     // Rate a product
+    @Idempotent
+    @Transactional
     public DRating addRating(String productId, String username, String principalName,
                              Float latitude, Float longitude, int rating, String comment) {
         LOG.debug("Add new rating to product " + productId);
@@ -239,7 +249,6 @@ public class RnrService {
         }
 
         // Update product location if provided in the request
-        // TODO: DB write not thread safe
         if (null != latitude && null != longitude) {
             final GeoPt location = new GeoPt(latitude, longitude);
             dProduct.setLocation(location);
@@ -262,6 +271,8 @@ public class RnrService {
     }
 
     // Delete a ratings with a specific id
+    @Idempotent
+    @Transactional
     public DRating deleteRating(long id) {
         LOG.debug("Delete ratings with id " + id);
 
@@ -308,6 +319,8 @@ public class RnrService {
     /* Comment related methods */
 
     // Add a comment to a product
+    @Idempotent
+    @Transactional
     public DComment addComment(String productId, String username, String principalName, Float latitude,
                                Float longitude, String comment) {
         LOG.debug("Add new comment to product " + productId);
@@ -335,7 +348,6 @@ public class RnrService {
             dProduct.setCommentCount(dProduct.getCommentCount() + 1);
 
         // Update product location if provided in the request
-        // TODO: DB write not thread safe
         if (null != latitude && null != longitude) {
             final GeoPt location = new GeoPt(latitude, longitude);
             dProduct.setLocation(location);
@@ -358,6 +370,8 @@ public class RnrService {
     }
 
     // Delete a comment with a specific id
+    @Idempotent
+    @Transactional
     public DComment deleteComment(long id) {
         LOG.debug("Delete comment with id " + id);
 
@@ -402,6 +416,8 @@ public class RnrService {
     /* Favorite related methods */
 
     // Add new favorite product
+    @Idempotent
+    @Transactional
     public DFavorites addFavorite(String productId, String username, String principalName) {
         LOG.debug("Add product " + productId + " as favorites for user " + username);
 
@@ -434,6 +450,8 @@ public class RnrService {
     }
 
     // Delete a product from favorites
+    @Idempotent
+    @Transactional
     public DFavorites deleteFavorite(String productId, String username, String principalName) {
         LOG.debug("Delete product " + productId + " from favorites for user "  + username);
 

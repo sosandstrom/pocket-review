@@ -48,10 +48,10 @@ public class FavoritesController {
     })
     @RequestMapping(value="{username}", method=RequestMethod.POST)
     public ResponseEntity<JFavorites> addFavorite(HttpServletRequest request,
-                                             HttpServletResponse response,
-                                             Principal principal,
-                                             @PathVariable String username,
-                                             @RequestParam(required=true) String productId) {
+                                                  HttpServletResponse response,
+                                                  Principal principal,
+                                                  @PathVariable String username,
+                                                  @RequestParam(required=true) String productId) {
 
         try {
             final DFavorites body = rnrService.addFavorite(productId, username,
@@ -85,8 +85,8 @@ public class FavoritesController {
     public ResponseEntity<JFavorites> deleteFavorite(HttpServletRequest request,
                                                      HttpServletResponse response,
                                                      Principal principal,
-                                                      @PathVariable String username,
-                                                      @RequestParam(required=true) String productId) {
+                                                     @PathVariable String username,
+                                                     @RequestParam(required=true) String productId) {
 
         try {
             final DFavorites body = rnrService.deleteFavorite(productId, username,
@@ -125,8 +125,8 @@ public class FavoritesController {
     })
     @RequestMapping(value="{username}", method= RequestMethod.GET)
     public ResponseEntity<JFavorites> getFavorites(HttpServletRequest request,
-                                            Principal principal,
-                                            @PathVariable String username) {
+                                                   Principal principal,
+                                                   @PathVariable String username) {
 
         try {
             final DFavorites body = rnrService.getFavorites(username, null != principal ? principal.getName() : null);;

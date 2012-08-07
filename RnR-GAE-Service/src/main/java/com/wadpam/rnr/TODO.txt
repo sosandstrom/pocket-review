@@ -6,21 +6,26 @@ Ola
 
 
 
-// TODO: Updating the product counters are not thread safe. Nor is the creating of new entities. Can we wrap them in a transaction?
-// TODO: Configure in Spring context as transaction or just grab
+
 
 
 // TODO: How to know and indicate end of pagination?
 
-
 // TODO: Merge branch to master after Olas reviewed and approved changed.
 
-// TODO: Add domain DAppDomain, DAppSettings and DAppAdmin
-// TODO: Add Application controller
-// TODO: Add application admin controller
+// TODO: Add DAppSettings with controller
+// TODO: Add reading from the DAppSettings for some values (rate more then once)
+
+// TODO: Add security (basic authentication) for app rest methods
+
+// TODO: Add DAppAdmin and controller (domain admin)
+
+// TODO: Add DApp and controller
 
 // TODO: Simple backoffice interface (sigin, get all registered apps, new, delete, update)
-// TODO: Add some basic authentication using a kind of AppKey that you get when register
+
+// TODO: Add security to the backoffice
+
 
 
 The backoffice will work like this:
@@ -77,6 +82,8 @@ DONE
 // TODO: Move version further back, start with v11
 // TODO: Implement the "most" operations
 // TODO: Remove support for Old RatingController, changes are so big it is not possible to maintain backwards compatibility
+// TODO: Updating the product counters are not thread safe. Nor is the creating of new entities. Can we wrap them in a transaction?
+// TODO: Configure in Spring context as transaction or just grab
 
 
 // TODO: Better way to get the base URL when generating URLs, try the servlet context - NO, looks ok as is

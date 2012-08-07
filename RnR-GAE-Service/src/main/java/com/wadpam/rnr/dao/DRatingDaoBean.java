@@ -12,7 +12,4 @@ public class DRatingDaoBean
 	extends GeneratedDRatingDaoImpl
 		implements DRatingDao 
 {
-
-	// TODO: implement your Business Methods here
-
 }

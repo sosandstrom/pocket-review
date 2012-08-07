@@ -12,7 +12,4 @@ public class DLikeDaoBean
 	extends GeneratedDLikeDaoImpl
 		implements DLikeDao 
 {
-
-	// TODO: implement your Business Methods here
-
 }

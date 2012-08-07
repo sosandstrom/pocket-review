@@ -49,13 +49,13 @@ public class RatingController {
     })
     @RequestMapping(value="", method= RequestMethod.POST)
     public RedirectView addRating(HttpServletRequest request,
-                                             Principal principal,
-                                             @RequestParam(required=true) String productId,
-                                             @RequestParam(required=false) String username,
-                                             @RequestParam(required=false) Float latitude,
-                                             @RequestParam(required=false) Float longitude,
-                                             @RequestParam int rating,
-                                             @RequestParam(required=false) String comment) {
+                                  Principal principal,
+                                  @RequestParam(required=true) String productId,
+                                  @RequestParam(required=false) String username,
+                                  @RequestParam(required=false) Float latitude,
+                                  @RequestParam(required=false) Float longitude,
+                                  @RequestParam int rating,
+                                  @RequestParam(required=false) String comment) {
 
         final DRating body = rnrService.addRating(productId, username,
                 null != principal ? principal.getName() : null, latitude, longitude, rating, comment);
@@ -74,8 +74,8 @@ public class RatingController {
     })
     @RequestMapping(value="{id}", method= RequestMethod.DELETE)
     public ResponseEntity<JRating> deleteLike(HttpServletRequest request,
-                                            Principal principal,
-                                            @PathVariable long id) {
+                                              Principal principal,
+                                              @PathVariable long id) {
 
         final DRating body = rnrService.deleteRating(id);
 
@@ -96,8 +96,8 @@ public class RatingController {
     })
     @RequestMapping(value="{id}", method= RequestMethod.GET)
     public ResponseEntity<JRating> getLike(HttpServletRequest request,
-                                         Principal principal,
-                                         @PathVariable long id) {
+                                           Principal principal,
+                                           @PathVariable long id) {
 
         final DRating body = rnrService.getRating(id);
 

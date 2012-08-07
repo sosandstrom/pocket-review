@@ -52,12 +52,12 @@ public class CommentController {
     })
     @RequestMapping(value="", method= RequestMethod.POST)
     public RedirectView addComment(HttpServletRequest request,
-                                             Principal principal,
-                                             @RequestParam(required=true) String productId,
-                                             @RequestParam(required=false) String username,
-                                             @RequestParam(required=false) Float latitude,
-                                             @RequestParam(required=false) Float longitude,
-                                             @RequestParam(required=true) String comment) {
+                                   Principal principal,
+                                   @RequestParam(required=true) String productId,
+                                   @RequestParam(required=false) String username,
+                                   @RequestParam(required=false) Float latitude,
+                                   @RequestParam(required=false) Float longitude,
+                                   @RequestParam(required=true) String comment) {
 
         final DComment body = rnrService.addComment(productId, username,
                 null != principal ? principal.getName() : null, latitude, longitude, comment);
@@ -98,8 +98,8 @@ public class CommentController {
     })
     @RequestMapping(value="{id}", method= RequestMethod.GET)
     public ResponseEntity<JComment> getComment(HttpServletRequest request,
-                                              Principal principal,
-                                              @PathVariable long id) {
+                                               Principal principal,
+                                               @PathVariable long id) {
 
         final DComment body = rnrService.getComment(id);
 
@@ -121,8 +121,8 @@ public class CommentController {
     })
     @RequestMapping(value="", method= RequestMethod.GET, params="username")
     public ResponseEntity<Collection<JComment>> getMyComments(HttpServletRequest request,
-                                                            Principal principal,
-                                                            @RequestParam(required=false) String username) {
+                                                              Principal principal,
+                                                              @RequestParam(required=false) String username) {
 
         try {
             final Collection<DComment> body = rnrService.getMyComments(username,

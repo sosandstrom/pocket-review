@@ -11,7 +11,4 @@ import com.google.appengine.api.datastore.Key;
  * @author mardao DAO generator (net.sf.mardao.plugin.ProcessDomainMojo)
  */
 public interface DRatingDao extends GeneratedDRatingDao<Key, Key> {
-
-	// TODO: declare your Business Methods here
-	
 }

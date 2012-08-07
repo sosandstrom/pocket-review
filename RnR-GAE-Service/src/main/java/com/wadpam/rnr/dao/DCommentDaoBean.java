@@ -12,7 +12,4 @@ public class DCommentDaoBean
 	extends GeneratedDCommentDaoImpl
 		implements DCommentDao 
 {
-
-	// TODO: implement your Business Methods here
-
 }
