@@ -1,4 +1,4 @@
-package com.wadpam.rnr.service;
+package com.wadpam.rnr.datastore;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

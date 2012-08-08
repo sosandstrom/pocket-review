@@ -1,11 +1,8 @@
 package com.wadpam.rnr.json;
 
 /**
- * Created with IntelliJ IDEA.
- * User: mattias
- * Date: 7/27/12
- * Time: 10:53 PM
- * To change this template use File | Settings | File Templates.
+ * Json object for comments.
+ * @author mlv
  */
 public class JComment extends JBaseObject {
 

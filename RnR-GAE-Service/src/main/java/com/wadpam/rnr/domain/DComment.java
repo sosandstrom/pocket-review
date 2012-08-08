@@ -5,11 +5,8 @@ import net.sf.mardao.api.domain.AEDLongEntity;
 import javax.persistence.*;
 
 /**
- * Created with IntelliJ IDEA.
- * User: mattias
- * Date: 7/27/12
- * Time: 10:46 PM
- * To change this template use File | Settings | File Templates.
+ * The domain object for Comments.
+ * @author mlv
  */
 @Entity
 @Table(uniqueConstraints={@UniqueConstraint(columnNames={"productId", "username"})})

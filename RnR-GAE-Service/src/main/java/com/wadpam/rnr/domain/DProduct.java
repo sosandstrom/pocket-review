@@ -16,7 +16,7 @@ import java.io.Serializable;
 import java.util.Collection;
 
 /**
- *
+ * The domain object for Products.
  * @author os
  */
 @Entity

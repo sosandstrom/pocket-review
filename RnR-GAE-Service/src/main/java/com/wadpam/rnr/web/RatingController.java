@@ -50,6 +50,7 @@ public class RatingController {
     @RequestMapping(value="", method= RequestMethod.POST)
     public RedirectView addRating(HttpServletRequest request,
                                   Principal principal,
+                                  @PathVariable String domain,
                                   @RequestParam(required=true) String productId,
                                   @RequestParam(required=false) String username,
                                   @RequestParam(required=false) Float latitude,
@@ -57,7 +58,7 @@ public class RatingController {
                                   @RequestParam int rating,
                                   @RequestParam(required=false) String comment) {
 
-        final DRating body = rnrService.addRating(productId, username,
+        final DRating body = rnrService.addRating(domain, productId, username,
                 null != principal ? principal.getName() : null, latitude, longitude, rating, comment);
 
         return new RedirectView(request.getRequestURI() + "/" + body.getId().toString());

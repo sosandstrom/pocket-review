@@ -1,11 +1,8 @@
 package com.wadpam.rnr.json;
 
 /**
- * Created with IntelliJ IDEA.
- * User: mattias
- * Date: 7/24/12
- * Time: 9:15 PM
- * To change this template use File | Settings | File Templates.
+ * Json object for likes.
+ * @author mlv
  */
 public class JLike extends JBaseObject {
 

@@ -23,9 +23,15 @@
         <property name="favoritesDao" ref="dFavoritesDao" />
     </bean>
 
-    <bean id="persistenceManager" class="com.wadpam.rnr.service.PersistenceManager">
+    <bean id="appService" class="com.wadpam.rnr.service.AppService">
+        <property name="persistenceManager" ref="persistenceManager" />
+        <property name="appSettingsDao" ref="dAppSettingsDao" />
+    </bean>
+
+    <bean id="persistenceManager" class="com.wadpam.rnr.datastore.PersistenceManager">
         <property name="productDao" ref="dProductDao" />
         <property name="favoritesDao" ref="dFavoritesDao" />
+        <property name="appSettingsDao" ref="dAppSettingsDao" />
     </bean>
 
     <!--           Controllers             -->
@@ -50,5 +56,8 @@
         <property name="rnrService" ref="rnrService" />
     </bean>
 
+    <bean id="appController" class="com.wadpam.rnr.web.AppController">
+        <property name="appService" ref="appService" />
+    </bean>
 
 </beans>

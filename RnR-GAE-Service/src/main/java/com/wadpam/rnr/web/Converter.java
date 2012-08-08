@@ -36,7 +36,7 @@ public class Converter {
         to.setLocation(convert(from.getLocation()));
         to.setRatingCount(from.getRatingCount());
         to.setRatingSum(from.getRatingSum());
-        to.setRatingAverage(from.getRatingAverage().getRating());
+        to.setRatingAverage(from.getRatingAverage() != null ? from.getRatingAverage().getRating() : -1);
         to.setLikeCount(from.getLikeCount());
         to.setCommentCount(from.getCommentCount());
 
@@ -124,6 +124,22 @@ public class Converter {
         return to;
     }
 
+    protected static JAppSettings convert(DAppSettings from, HttpServletRequest request) {
+        if (null == from) {
+            return null;
+        }
+        final JAppSettings to = new JAppSettings();
+        convert(from, to);
+
+        to.setDomain(from.getDomainName());
+        to.setAppId(from.getAppId());
+        to.setAppKey(from.getAppKey());
+        to.setOnlyLikeOncePerUser(from.getOnlyLikeOncePerUser());
+        to.setOnlyRateOncePerUser(from.getOnlyRateOncePerUser());
+
+        return to;
+    }
+
     protected static <T extends AEDPrimaryKeyEntity> JBaseObject convert(T from, HttpServletRequest request) {
         if (null == from) {
             return null;
@@ -144,6 +160,9 @@ public class Converter {
         }
         else if (from instanceof DFavorites) {
             returnValue = convert((DFavorites) from, request);
+        }
+        else if (from instanceof DAppSettings) {
+            returnValue = convert((DAppSettings) from, request);
         }
         else {
             throw new UnsupportedOperationException("No converter for " + from.getKind());

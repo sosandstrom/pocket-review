@@ -50,12 +50,13 @@ public class LikeController {
     @RequestMapping(value="", method= RequestMethod.POST)
     public RedirectView addLike(HttpServletRequest request,
                                 Principal principal,
+                                @PathVariable String domain,
                                 @RequestParam(required=true) String productId,
                                 @RequestParam(required=false) String username,
                                 @RequestParam(required=false) Float latitude,
                                 @RequestParam(required=false) Float longitude) {
 
-        final DLike body = rnrService.addLike(productId, username,
+        final DLike body = rnrService.addLike(domain, productId, username,
                 null != principal ? principal.getName() : null, latitude, longitude);
 
 

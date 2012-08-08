@@ -6,6 +6,8 @@ package com.wadpam.rnr.service;
 
 import com.google.appengine.api.datastore.*;
 import com.wadpam.rnr.dao.*;
+import com.wadpam.rnr.datastore.Idempotent;
+import com.wadpam.rnr.datastore.PersistenceManager;
 import com.wadpam.rnr.domain.*;
 
 import java.io.PrintWriter;
@@ -22,11 +24,8 @@ import org.springframework.transaction.annotation.Transactional;
  */
 public class RnrService {
     static final Logger LOG = LoggerFactory.getLogger(RnrService.class);
-    
-    private static boolean fallbackPrincipalName = true;
 
-    // TODO: This should be a setting that the admin can do per project
-    private static boolean onlyRateOncePerUser = true;
+    private static boolean fallbackPrincipalName = true;
 
     private PersistenceManager persistenceManager;
 
@@ -73,7 +72,7 @@ public class RnrService {
     // Like a product
     @Idempotent
     @Transactional
-    public DLike addLike(String productId, String username, String principalName, Float latitude, Float longitude) {
+    public DLike addLike(String domain, String productId, String username, String principalName, Float latitude, Float longitude) {
         LOG.debug("Add new like to product " + productId);
 
         // Fallback on principal name?
@@ -81,9 +80,14 @@ public class RnrService {
             username = principalName;
         }
 
-        // Specified user can only Like once
+        // Specified users can only Like once
+        boolean onlyLikeOncePerUser = true; // Use true as default value
+        DAppSettings dAppSettings = (DAppSettings)persistenceManager.getAppSettingsWithCache(domain);
+        if (null != dAppSettings)
+            onlyLikeOncePerUser = dAppSettings.getOnlyLikeOncePerUser().booleanValue();
+
         DLike dLike = null;
-        if (onlyRateOncePerUser && null != username) {
+        if (onlyLikeOncePerUser && null != username) {
             dLike = likeDao.findByProductIdUsername(productId, username);
         }
 
@@ -189,7 +193,7 @@ public class RnrService {
     // Rate a product
     @Idempotent
     @Transactional
-    public DRating addRating(String productId, String username, String principalName,
+    public DRating addRating(String domain, String productId, String username, String principalName,
                              Float latitude, Float longitude, int rating, String comment) {
         LOG.debug("Add new rating to product " + productId);
 
@@ -201,7 +205,12 @@ public class RnrService {
         DRating dRating = null;
         int existing = -1;
 
-        // specified user can only rate once
+        // specified users can only rate once
+        boolean onlyRateOncePerUser = true; // Use true as default value
+        DAppSettings dAppSettings = (DAppSettings)persistenceManager.getAppSettingsWithCache(domain);
+        if (null != dAppSettings)
+            onlyRateOncePerUser = dAppSettings.getOnlyRateOncePerUser().booleanValue();
+
         if (onlyRateOncePerUser && null != username) {
             dRating = ratingDao.findByProductIdUsername(productId, username);
         }

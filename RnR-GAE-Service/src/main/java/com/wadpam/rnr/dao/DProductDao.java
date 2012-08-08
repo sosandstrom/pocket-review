@@ -4,6 +4,7 @@ import com.google.appengine.api.datastore.Key;
 import com.wadpam.rnr.domain.DProduct;
 
 import java.util.Collection;
+import java.util.Map;
 
 /**
  * Business Methods interface for entity DProduct.
@@ -14,6 +15,19 @@ import java.util.Collection;
  * @author mardao DAO generator (net.sf.mardao.plugin.ProcessDomainMojo)
  */
 public interface DProductDao extends GeneratedDProductDao<Key, Key> {
+
+    /** Get a domain object by a GAE datastore key
+     * @param key GAE datastore key
+     * @return a product domain object if key exists in the datastore
+     */
+    public DProduct findByCorePrimaryKey(Key key);
+
+
+    /** Get a domain object by a GAE datastore key
+     * @param keys GAE datastore keys
+     * @return a list of product domain object for the keys that exists in the datastore
+     */
+    public Map<Key, DProduct> findByCorePrimaryKeys(Collection<Key> keys);
 
     /**
      * Find most liked product

@@ -26,5 +26,8 @@
     <bean id="dFavoritesDao"
           class="com.wadpam.rnr.dao.DFavoritesDaoBean">
     </bean>
+    <bean id="dAppSettingsDao"
+          class="com.wadpam.rnr.dao.DAppSettingsDaoBean">
+    </bean>
 
 </beans>

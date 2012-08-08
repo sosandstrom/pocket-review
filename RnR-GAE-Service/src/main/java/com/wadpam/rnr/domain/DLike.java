@@ -8,11 +8,8 @@ import javax.persistence.*;
 import java.util.Collection;
 
 /**
- * Created with IntelliJ IDEA.
- * User: mattias
- * Date: 7/24/12
- * Time: 9:31 PM
- * To change this template use File | Settings | File Templates.
+ * The domain object for Likes.
+ * @author mlv
  */
 @Entity
 @Table(uniqueConstraints={@UniqueConstraint(columnNames={"productId", "username"})})

@@ -2,7 +2,6 @@ package com.wadpam.rnr.json;
 
 /**
  * A JLocation contains the latitude and longitude coordinates.
- * 
  * @author os
  */
 public class JLocation {

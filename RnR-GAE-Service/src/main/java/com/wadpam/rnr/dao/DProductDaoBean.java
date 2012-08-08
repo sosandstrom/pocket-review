@@ -1,8 +1,12 @@
 package com.wadpam.rnr.dao;
 
+import com.google.appengine.api.datastore.Key;
 import com.wadpam.rnr.domain.DProduct;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Implementation of Business Methods related to entity DProduct.
@@ -16,6 +20,31 @@ public class DProductDaoBean
 	extends GeneratedDProductDaoImpl
 		implements DProductDao 
 {
+
+    @Override
+    // Get a domain object by a GAE datastore key
+    public DProduct findByCorePrimaryKey(Key key) {
+        return findByPrimaryKey(key.getName());
+    }
+
+    @Override
+    // Get domain objects for a list of GAE datastore keys
+    public Map<Key, DProduct> findByCorePrimaryKeys(Collection<Key> keys) {
+
+        // Convert from keys to productIds
+        Collection<String> productIds = new ArrayList<String>(keys.size());
+        for (Key key : keys)
+            productIds.add(key.getName());
+
+        Map<String, DProduct> dProducts = findByPrimaryKeys(productIds);
+
+        // Convert from productIds to Keys
+        Map<Key, DProduct> results = new HashMap<Key, DProduct>(dProducts.size());
+        for (Map.Entry<String, DProduct> entry : dProducts.entrySet())
+            results.put(createKey(entry.getKey()), entry.getValue());
+
+        return results;
+    }
 
     // Find most liked products
     @Override

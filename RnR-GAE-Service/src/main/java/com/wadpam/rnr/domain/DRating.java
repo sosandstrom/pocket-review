@@ -19,7 +19,7 @@ import javax.persistence.UniqueConstraint;
 import net.sf.mardao.api.geo.aed.GeoModel;
 
 /**
- *
+ * The domain object for Ratings.
  * @author os
  */
 @Entity

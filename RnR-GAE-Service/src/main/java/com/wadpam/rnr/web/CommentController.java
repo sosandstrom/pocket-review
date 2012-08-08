@@ -48,7 +48,7 @@ public class CommentController {
      * @return the new comment
      */
     @RestReturn(value=JComment.class, entity=JComment.class, code={
-            @RestCode(code=302, message="OK", description="Redirect to newly create comment")
+            @RestCode(code=302, message="OK", description="Redirect to newly created comment")
     })
     @RequestMapping(value="", method= RequestMethod.POST)
     public RedirectView addComment(HttpServletRequest request,

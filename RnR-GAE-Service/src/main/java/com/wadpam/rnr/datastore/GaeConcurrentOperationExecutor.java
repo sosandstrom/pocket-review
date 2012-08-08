@@ -1,4 +1,4 @@
-package com.wadpam.rnr.service;
+package com.wadpam.rnr.datastore;
 
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.slf4j.Logger;

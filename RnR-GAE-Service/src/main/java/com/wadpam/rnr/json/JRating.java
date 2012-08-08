@@ -9,8 +9,8 @@ import com.google.appengine.api.datastore.Rating;
 import javax.persistence.Basic;
 
 /**
- *
- * @author os
+ * Json object for ratings.
+ * @author mlv
  */
 public class JRating extends JBaseObject {
 

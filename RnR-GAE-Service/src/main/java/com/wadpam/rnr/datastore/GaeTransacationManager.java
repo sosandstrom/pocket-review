@@ -1,4 +1,4 @@
-package com.wadpam.rnr.service;
+package com.wadpam.rnr.datastore;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;

@@ -3,7 +3,7 @@ package com.wadpam.rnr.json;
 import java.util.Collection;
 
 /**
- *
+ * The Json object for a page of products.
  * @author os
  */
 public class JProductPage {

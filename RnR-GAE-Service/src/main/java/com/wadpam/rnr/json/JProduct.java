@@ -3,7 +3,7 @@ package com.wadpam.rnr.json;
 import javax.persistence.Basic;
 
 /**
- *
+ * The Json object for products.
  * @author os
  */
 public class JProduct extends JBaseObject {

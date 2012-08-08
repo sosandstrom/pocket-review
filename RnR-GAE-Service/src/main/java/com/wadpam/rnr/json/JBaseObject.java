@@ -5,7 +5,7 @@
 package com.wadpam.rnr.json;
 
 /**
- *
+ * The base object all Json objects must inherit from.
  * @author os
  */
 public class JBaseObject {

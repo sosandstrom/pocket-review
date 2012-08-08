@@ -6,16 +6,12 @@ Ola
 
 
 
-
-
-
 // TODO: How to know and indicate end of pagination?
 
 // TODO: Merge branch to master after Olas reviewed and approved changed.
 
-// TODO: Add DAppSettings with controller
-// TODO: Add reading from the DAppSettings for some values (rate more then once)
 
+Current
 // TODO: Add security (basic authentication) for app rest methods
 
 // TODO: Add DAppAdmin and controller (domain admin)
@@ -25,7 +21,7 @@ Ola
 // TODO: Simple backoffice interface (sigin, get all registered apps, new, delete, update)
 
 // TODO: Add security to the backoffice
-
+// TODO: Max Apps for a AppAdmin
 
 
 The backoffice will work like this:
@@ -85,8 +81,13 @@ DONE
 // TODO: Updating the product counters are not thread safe. Nor is the creating of new entities. Can we wrap them in a transaction?
 // TODO: Configure in Spring context as transaction or just grab
 
-
 // TODO: Better way to get the base URL when generating URLs, try the servlet context - NO, looks ok as is
+
+// TODO: Add DAppSettings with controller
+// TODO: Add support for memcache for app settings
+// TODO: Best way to generate the key for the memcache (namespace switching or getting the key frm the DB)
+// TODO: Add reading from the DAppSettings for some values (rate more then once)
+
 
 
 
