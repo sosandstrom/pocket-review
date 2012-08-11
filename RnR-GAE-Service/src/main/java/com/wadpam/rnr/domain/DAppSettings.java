@@ -14,8 +14,7 @@ import java.io.Serializable;
 @Entity
 public class DAppSettings extends AEDStringEntity implements Serializable {
 
-    private static final long serialVersionUID = -2876261095753959546L;
-
+    private static final long serialVersionUID = -5390529587908700014L;
 
     /** The unique domain name for the app */
     @Id

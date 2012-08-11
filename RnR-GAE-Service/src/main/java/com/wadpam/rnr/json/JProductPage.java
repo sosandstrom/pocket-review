@@ -11,7 +11,10 @@ public class JProductPage {
     /** The cursor used to return the next page of products */
     private String cursor;
 
-    /** The number of products to return */
+    /**
+     * The number of products to return.
+     * If the number of products actually returned are less then the requested page size, end of pagination have been reached.
+     */
     private long pageSize;
 
     /** The products */

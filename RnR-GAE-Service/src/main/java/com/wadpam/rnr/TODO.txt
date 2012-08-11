@@ -4,15 +4,15 @@ Ola
 // TODO: Implement nearby search methods with sort order (Ola)
 // TODO: Move location to a separate entity? Ola? Do not think it is necessary. Will we ever have anything else then the location on this entity
 
+// TODO: I removed several things from the web.xml and spring-security.xml to understand how it works. Add back stuff that is needed as we add security
 
 
-// TODO: How to know and indicate end of pagination?
 
 // TODO: Merge branch to master after Olas reviewed and approved changed.
 
 
 Current
-// TODO: Add security (basic authentication) for app rest methods
+
 
 // TODO: Add DAppAdmin and controller (domain admin)
 
@@ -88,8 +88,9 @@ DONE
 // TODO: Best way to generate the key for the memcache (namespace switching or getting the key frm the DB)
 // TODO: Add reading from the DAppSettings for some values (rate more then once)
 
-
-
+// TODO: Add security (basic authentication) for app rest methods
+// TODO: Split Spring security in a backend and service part?
+// TODO: How to know and indicate end of pagination? When less then the requested number is returned.
 
 
 

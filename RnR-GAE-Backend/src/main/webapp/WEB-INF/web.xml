@@ -16,15 +16,6 @@
     <listener>
         <listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>
     </listener>
-
-    <filter>
-        <filter-name>optionsFilter</filter-name>
-        <filter-class>com.goldengekko.serverutils.security.AccessControlAllowFilter</filter-class>
-    </filter>
-    <filter-mapping>
-        <filter-name>optionsFilter</filter-name>
-        <url-pattern>/*</url-pattern>
-    </filter-mapping>
     
     <filter>
         <filter-name>domainFilter</filter-name>
@@ -32,33 +23,17 @@
     </filter>
     <filter-mapping>
         <filter-name>domainFilter</filter-name>
-        <url-pattern>/signin/*</url-pattern>
-    </filter-mapping>
-    <filter-mapping>
-        <filter-name>domainFilter</filter-name>
         <url-pattern>/api/*</url-pattern>
     </filter-mapping>
-    <filter-mapping>
-        <filter-name>domainFilter</filter-name>
-        <url-pattern>/authenticate</url-pattern>
-    </filter-mapping>
-
-    <security-constraint>
-        <web-resource-collection>
-            <url-pattern>/api/_admin/*</url-pattern>
-        </web-resource-collection>
-        <auth-constraint>
-            <role-name>admin</role-name>
-        </auth-constraint>
-    </security-constraint>
 
     <filter>
-        <filter-name>jsonp</filter-name>
-        <filter-class>com.goldengekko.serverutils.jsonp.JsonpCallbackFilter</filter-class>
+        <filter-name>springSecurityFilterChain</filter-name>
+        <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
     </filter>
+
     <filter-mapping>
-        <filter-name>jsonp</filter-name>
-        <url-pattern>/api/*</url-pattern>
+        <filter-name>springSecurityFilterChain</filter-name>
+        <url-pattern>/*</url-pattern>
     </filter-mapping>
 
     <servlet>
