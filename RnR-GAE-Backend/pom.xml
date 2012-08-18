@@ -21,10 +21,15 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <itest.include>**/*ITest.java</itest.include>
         <surefire.default.skip>true</surefire.default.skip>
-        <mardao.version>1.28</mardao.version>
+        <mardao.version>1.35</mardao.version>
         <javadocExecutable>${java.home}/../bin/javadoc</javadocExecutable>
         <docrest.version>1.13</docrest.version>
         <logging.level>ALL</logging.level>
+
+        <!-- Change the values below to an admin email address -->
+        <email.from.address>mattias.levin@mail.com</email.from.address>
+        <email.from.name>Mattias</email.from.name>
+
     </properties>
 
     <profiles>
@@ -98,6 +103,13 @@
             <artifactId>spring-core</artifactId>
             <version>${spring.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>

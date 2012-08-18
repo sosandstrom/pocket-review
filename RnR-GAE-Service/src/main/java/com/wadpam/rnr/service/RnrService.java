@@ -7,7 +7,6 @@ package com.wadpam.rnr.service;
 import com.google.appengine.api.datastore.*;
 import com.wadpam.rnr.dao.*;
 import com.wadpam.rnr.datastore.Idempotent;
-import com.wadpam.rnr.datastore.PersistenceManager;
 import com.wadpam.rnr.domain.*;
 
 import java.io.PrintWriter;
@@ -27,8 +26,7 @@ public class RnrService {
 
     private static boolean fallbackPrincipalName = true;
 
-    private PersistenceManager persistenceManager;
-
+    private DAppDao appDao;
     private DProductDao productDao;
     private DRatingDao ratingDao;
     private DLikeDao likeDao;
@@ -82,9 +80,9 @@ public class RnrService {
 
         // Specified users can only Like once
         boolean onlyLikeOncePerUser = true; // Use true as default value
-        DAppSettings dAppSettings = (DAppSettings)persistenceManager.getAppSettingsWithCache(domain);
-        if (null != dAppSettings)
-            onlyLikeOncePerUser = dAppSettings.getOnlyLikeOncePerUser().booleanValue();
+        DApp dApp = appDao.findByDomainWithFixedNamespace(domain);
+        if (null != dApp)
+            onlyLikeOncePerUser = dApp.getOnlyLikeOncePerUser().booleanValue();
 
         DLike dLike = null;
         if (onlyLikeOncePerUser && null != username) {
@@ -124,7 +122,7 @@ public class RnrService {
             //geoResultDao.save(dResult);   // TODO: Uncomment once geoResultDao is declared
         }
         else {
-            persistenceManager.storeProductWithCache(dProduct);
+            productDao.persist(dProduct);
         }
 
         // Call to generate a datastrore ConcurrentModificationException in order to test the transaction retry mechanism
@@ -161,7 +159,7 @@ public class RnrService {
         DProduct dProduct = productDao.findByPrimaryKey(dLike.getProductId());
         if (null != dProduct) {
             dProduct.setLikeCount(dProduct.getLikeCount() - 1);
-            persistenceManager.storeProductWithCache(dProduct);
+            productDao.persist(dProduct);
         } else
             // Should not happen, log error
             LOG.error("Like exist but not the product " + dLike.getProductId());
@@ -207,9 +205,9 @@ public class RnrService {
 
         // specified users can only rate once
         boolean onlyRateOncePerUser = true; // Use true as default value
-        DAppSettings dAppSettings = (DAppSettings)persistenceManager.getAppSettingsWithCache(domain);
-        if (null != dAppSettings)
-            onlyRateOncePerUser = dAppSettings.getOnlyRateOncePerUser().booleanValue();
+        DApp dApp = appDao.findByDomainWithFixedNamespace(domain);
+        if (null != dApp)
+            onlyRateOncePerUser = dApp.getOnlyRateOncePerUser().booleanValue();
 
         if (onlyRateOncePerUser && null != username) {
             dRating = ratingDao.findByProductIdUsername(productId, username);
@@ -264,7 +262,7 @@ public class RnrService {
             //geoResultDao.save(dProduct);   // TODO: Uncomment once geoResultDao is declared
         }
         else {
-            persistenceManager.storeProductWithCache(dProduct);
+            productDao.persist(dProduct);
         }
 
         return dRating;
@@ -298,7 +296,7 @@ public class RnrService {
             dProduct.setRatingSum(dProduct.getRatingSum() - dRating.getRating().getRating());
             dProduct.setRatingCount(dProduct.getRatingCount() - 1);
             dProduct.setRatingAverage(new Rating((int)(dProduct.getRatingSum() / dProduct.getRatingCount())));
-            persistenceManager.storeProductWithCache(dProduct);
+            productDao.persist(dProduct);
         } else
             // Should not happen, log error
             LOG.error("Rating exist but not the product " + dRating.getProductId());
@@ -363,7 +361,7 @@ public class RnrService {
             //geoResultDao.save(dProduct);   // TODO: Uncomment once geoResultDao is declared
         }
         else {
-            persistenceManager.storeProductWithCache(dProduct);
+            productDao.persist(dProduct);
         }
 
         return dComment;
@@ -395,7 +393,7 @@ public class RnrService {
         DProduct dProduct = productDao.findByPrimaryKey(dComment.getProductId());
         if (null != dProduct) {
             dProduct.setCommentCount(dProduct.getCommentCount() - 1);
-            persistenceManager.storeProductWithCache(dProduct);
+            productDao.persist(dProduct);
         } else
             // Should not happen, log error
             LOG.error("Comment exist but not the product " + dComment.getProductId());
@@ -439,7 +437,7 @@ public class RnrService {
         if (null == username)
             throw new IllegalArgumentException("Username must be specified or authenticated");
 
-        DFavorites dFavorites = persistenceManager.getFavoritesWithCache(username);
+        DFavorites dFavorites = favoritesDao.findByPrimaryKey(username);
         if (null == dFavorites) {
             // User does not have any existing favorites
             dFavorites = new DFavorites();
@@ -453,7 +451,7 @@ public class RnrService {
                 dFavorites.getProductIds().add(productId);
 
         // Store
-        persistenceManager.storeFavoriteWithCache(dFavorites);
+        favoritesDao.persist(dFavorites);
 
         return dFavorites;
     }
@@ -473,13 +471,13 @@ public class RnrService {
         if (null == username)
             throw new IllegalArgumentException("Username must be specified or authenticated");
 
-        DFavorites dFavorites = persistenceManager.getFavoritesWithCache(username);
+        DFavorites dFavorites = favoritesDao.findByPrimaryKey(username);
         // If the favorite is not found return null
         if (null == dFavorites || dFavorites.getProductIds().remove(productId) == false)
             return null;
 
         // Store
-        persistenceManager.storeFavoriteWithCache(dFavorites);
+        favoritesDao.persist(dFavorites);
 
         return dFavorites;
     }
@@ -497,7 +495,7 @@ public class RnrService {
         if (null == username)
             throw new IllegalArgumentException("Username must be specified or authenticated");
 
-        DFavorites dFavorites = persistenceManager.getFavoritesWithCache(username);
+        DFavorites dFavorites = favoritesDao.findByPrimaryKey(username);
 
         return dFavorites;
     }
@@ -509,7 +507,7 @@ public class RnrService {
     public DProduct getProduct(String productId) {
         LOG.debug("Get product " + productId);
 
-        final DProduct dProduct = persistenceManager.getProductWithCache(productId);
+        final DProduct dProduct = productDao.findByPrimaryKey(productId);
 
         return dProduct;
     }
@@ -518,16 +516,15 @@ public class RnrService {
     public Collection<DProduct> getProducts(String[] ids) {
         LOG.debug("Get a list of products " + ids);
 
-        Collection<DProduct> dProducts = persistenceManager.getProductsWithCache(Arrays.asList(ids));
+        Map<String, DProduct> dProducts = productDao.findByPrimaryKeys(Arrays.asList(ids));
 
-        return dProducts;
+        return dProducts.values();
     }
 
     // Get all products
     public String getProductPage(String cursor, int pageSize, Collection<DProduct> resultList) {
         LOG.debug("Get product page, cursor:" + cursor + " page size:" + pageSize);
-
-       return persistenceManager.getProductPage(cursor, pageSize, resultList);
+       return productDao.getProductPage(cursor, pageSize, resultList);
     }
 
     // Find nearby products with different sort order
@@ -669,9 +666,9 @@ public class RnrService {
         for (DLike like : myLikes)
             productIds.add(like.getProductId());
 
-        final Collection<DProduct> dProducts = persistenceManager.getProductsWithCache(productIds);
+        final Map<String, DProduct> dProducts = productDao.findByPrimaryKeys(productIds);
 
-        return dProducts;
+        return dProducts.values();
     }
 
     // Get all products a user have rated
@@ -693,9 +690,9 @@ public class RnrService {
         for (DRating rating : myRatings)
             productIds.add(rating.getProductId());
 
-        final Collection<DProduct> dProducts = persistenceManager.getProductsWithCache(productIds);
+        final Map<String, DProduct> dProducts = productDao.findByPrimaryKeys(productIds);
 
-        return dProducts;
+        return dProducts.values();
     }
 
     // Get all products a user have commented
@@ -717,9 +714,9 @@ public class RnrService {
         for (DComment dComment : myComments)
             productIds.add(dComment.getProductId());
 
-        final Collection<DProduct> dProducts = persistenceManager.getProductsWithCache(productIds);
+        final Map<String, DProduct> dProducts = productDao.findByPrimaryKeys(productIds);
 
-        return dProducts;
+        return dProducts.values();
     }
 
 
@@ -735,14 +732,19 @@ public class RnrService {
 
         LOG.debug("Get favorite products for user " + username);
 
-        final DFavorites dFavorites = persistenceManager.getFavoritesWithCache(username);
+        final DFavorites dFavorites =favoritesDao.findByPrimaryKey(username);
 
-        final Collection<DProduct> dProducts = persistenceManager.getProductsWithCache(dFavorites.getProductIds());
+        final Map<String, DProduct> dProducts = productDao.findByPrimaryKeys(dFavorites.getProductIds());
 
-        return  dProducts;
+        return  dProducts.values();
     }
 
+
     // Setters and getters
+    public void setAppDao(DAppDao appDao) {
+        this.appDao = appDao;
+    }
+
     public void setRatingDao(DRatingDao ratingDao) {
         this.ratingDao = ratingDao;
     }
@@ -761,10 +763,6 @@ public class RnrService {
 
     public void setFavoritesDao(DFavoritesDao favoritesDao) {
         this.favoritesDao = favoritesDao;
-    }
-
-    public void setPersistenceManager(PersistenceManager persistenceManager) {
-        this.persistenceManager = persistenceManager;
     }
 
     public static void setFallbackPrincipalName(boolean fallbackPrincipalName) {

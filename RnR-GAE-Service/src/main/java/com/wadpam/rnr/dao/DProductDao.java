@@ -16,19 +16,6 @@ import java.util.Map;
  */
 public interface DProductDao extends GeneratedDProductDao<Key, Key> {
 
-    /** Get a domain object by a GAE datastore key
-     * @param key GAE datastore key
-     * @return a product domain object if key exists in the datastore
-     */
-    public DProduct findByCorePrimaryKey(Key key);
-
-
-    /** Get a domain object by a GAE datastore key
-     * @param keys GAE datastore keys
-     * @return a list of product domain object for the keys that exists in the datastore
-     */
-    public Map<Key, DProduct> findByCorePrimaryKeys(Collection<Key> keys);
-
     /**
      * Find most liked product
      * @param limit the number of products to max return
@@ -56,4 +43,13 @@ public interface DProductDao extends GeneratedDProductDao<Key, Key> {
      * @return A list of products sorted according to average rating
      */
     public Collection<DProduct> findTopRated(int limit);
+
+    /**
+     *  Get a page of products using a cursor.
+     * @param cursor The cursor returned from the previous call to this method. If this is the first call, use null.
+     * @param pageSize The number of projects to return
+     * @param result An empty collection of products that will be populated with the results
+     * @return a new cursor that can be used to get the next products.
+     */
+    String getProductPage(String cursor, int pageSize, Collection<DProduct> result);
 }

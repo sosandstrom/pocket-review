@@ -12,13 +12,17 @@ import java.io.Serializable;
  * @author mlv
  */
 @Entity
-public class DAppSettings extends AEDStringEntity implements Serializable {
+public class DApp extends AEDStringEntity implements Serializable {
 
     private static final long serialVersionUID = -5390529587908700014L;
 
     /** The unique domain name for the app */
     @Id
     private String      domainName; // Can not use the name domain, reserved name in String class?
+
+    /** The owner and admin for this app */
+    @Basic
+    private String      admin;
 
     /** An unique appId generated when the app is created. Most be provided in the request from the apps */
     @Basic
@@ -45,8 +49,8 @@ public class DAppSettings extends AEDStringEntity implements Serializable {
 
     @Override
     public String toString() {
-        return String.format("{domain:%s, appId:%s, appKey:%s, likeOncePerUser:%s, rateOncePerUser:%s}",
-                getDomainName(), getAppId(), getAppKey(), getOnlyLikeOncePerUser(), getOnlyRateOncePerUser());
+        return String.format("{domain:%s, admin:%S appId:%s, appKey:%s, likeOncePerUser:%s, rateOncePerUser:%s}",
+                getDomainName(), getAdmin(), getAppId(), getAppKey(), getOnlyLikeOncePerUser(), getOnlyRateOncePerUser());
     }
 
 
@@ -57,6 +61,14 @@ public class DAppSettings extends AEDStringEntity implements Serializable {
 
     public void setDomainName(String domainName) {
         this.domainName = domainName;
+    }
+
+    public String getAdmin() {
+        return admin;
+    }
+
+    public void setAdmin(String admin) {
+        this.admin = admin;
     }
 
     public String getAppId() {

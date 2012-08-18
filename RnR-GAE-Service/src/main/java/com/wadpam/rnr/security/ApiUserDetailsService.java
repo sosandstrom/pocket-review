@@ -1,8 +1,8 @@
 package com.wadpam.rnr.security;
 
 import com.google.appengine.api.NamespaceManager;
-import com.wadpam.rnr.datastore.PersistenceManager;
-import com.wadpam.rnr.domain.DAppSettings;
+import com.wadpam.rnr.dao.DAppDao;
+import com.wadpam.rnr.domain.DApp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.GrantedAuthority;
@@ -16,14 +16,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 /**
- * Implements a UserDetailsService used by Spring security when authenticating
+ * Implements an UserDetailsService used by Spring security when authenticating
  * applications accessing the REST interface.
+ * @author mlv
  */
-public class AppUserDetailsService implements UserDetailsService {
+public class ApiUserDetailsService implements UserDetailsService {
 
-    static final Logger LOG = LoggerFactory.getLogger(AppUserDetailsService.class);
+    static final Logger LOG = LoggerFactory.getLogger(ApiUserDetailsService.class);
 
-    private PersistenceManager persistenceManager;
+    private DAppDao appDao;
 
 
     @Override
@@ -34,13 +35,13 @@ public class AppUserDetailsService implements UserDetailsService {
         final String domain = NamespaceManager.get();
         LOG.debug("Domain/namespace name " + domain);
 
-        DAppSettings dAppSettings = persistenceManager.getAppSettingsWithCache(domain);
-        if (null != dAppSettings) {
+        DApp dApp = appDao.findByDomainWithFixedNamespace(domain);
+        if (null != dApp) {
 
             Collection<GrantedAuthority> grantedAuthorities = new ArrayList<GrantedAuthority>(1);
             grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_APP"));
 
-            UserDetails userDetails = new User(dAppSettings.getAppId(), dAppSettings.getAppKey(), grantedAuthorities);
+            UserDetails userDetails = new User(dApp.getAppId(), dApp.getAppKey(), grantedAuthorities);
 
             return userDetails;
         } else {
@@ -51,7 +52,7 @@ public class AppUserDetailsService implements UserDetailsService {
 
 
     // Setters and getters
-    public void setPersistenceManager(PersistenceManager persistenceManager) {
-        this.persistenceManager = persistenceManager;
+    public void setAppDao(DAppDao appDao) {
+        this.appDao = appDao;
     }
 }

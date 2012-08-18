@@ -124,18 +124,35 @@ public class Converter {
         return to;
     }
 
-    protected static JAppSettings convert(DAppSettings from, HttpServletRequest request) {
+    protected static JApp convert(DApp from, HttpServletRequest request) {
         if (null == from) {
             return null;
         }
-        final JAppSettings to = new JAppSettings();
+        final JApp to = new JApp();
         convert(from, to);
 
         to.setDomain(from.getDomainName());
+        to.setAdmin(from.getAdmin());
         to.setAppId(from.getAppId());
         to.setAppKey(from.getAppKey());
         to.setOnlyLikeOncePerUser(from.getOnlyLikeOncePerUser());
         to.setOnlyRateOncePerUser(from.getOnlyRateOncePerUser());
+
+        return to;
+    }
+
+    protected static JAppAdmin convert(DAppAdmin from, HttpServletRequest request) {
+        if (null == from) {
+            return null;
+        }
+        final JAppAdmin to = new JAppAdmin();
+        convert(from, to);
+
+        to.setUserId(from.getUserId());
+        to.setEmail(from.getEmail().getEmail());
+        to.setName(from.getName());
+        to.setAccountStatus(from.getAccountStatus());
+        to.setMaxNumberOfApps(from.getMaxNumberOfApps());
 
         return to;
     }
@@ -161,8 +178,11 @@ public class Converter {
         else if (from instanceof DFavorites) {
             returnValue = convert((DFavorites) from, request);
         }
-        else if (from instanceof DAppSettings) {
-            returnValue = convert((DAppSettings) from, request);
+        else if (from instanceof DApp) {
+            returnValue = convert((DApp) from, request);
+        }
+        else if (from instanceof DAppAdmin) {
+            returnValue = convert((DAppAdmin) from, request);
         }
         else {
             throw new UnsupportedOperationException("No converter for " + from.getKind());

@@ -4,10 +4,13 @@ package com.wadpam.rnr.json;
  * Json object for app settings.
  * @author mlv
  */
-public class JAppSettings extends JBaseObject {
+public class JApp extends JBaseObject {
 
     /** The unique domain name for the app */
     private String      domain;
+
+    /** The owner and admin for this app */
+    private String      admin;
 
     /** An unique appId generated when the app is created. Most be provided in the request from the apps */
     private String      appId;
@@ -23,7 +26,7 @@ public class JAppSettings extends JBaseObject {
 
 
     @Override
-    public String toString() {
+    public String subString() {
         return String.format("{domain:%s, appId:%s, appKey:%s, likeOncePerUser:%d, rateOncePerUser:%d}",
                 getDomain(), getAppId(), getAppKey(), isOnlyLikeOncePerUser(), isOnlyLikeOncePerUser());
     }
@@ -35,6 +38,14 @@ public class JAppSettings extends JBaseObject {
 
     public void setDomain(String domain) {
         this.domain = domain;
+    }
+
+    public String getAdmin() {
+        return admin;
+    }
+
+    public void setAdmin(String admin) {
+        this.admin = admin;
     }
 
     public String getAppId() {

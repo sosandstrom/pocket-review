@@ -15,10 +15,10 @@ public class DFavoritesDaoBean
 	extends GeneratedDFavoritesDaoImpl
 		implements DFavoritesDao 
 {
-
-    // Get a domain object by a GAE datastore key
-    @Override
-    public DFavorites findByCorePrimaryKey(Key key) {
-        return findByPrimaryKey(key.getName());
+    // Default constructor to enable caching by Mardao
+    public DFavoritesDaoBean() {
+        //this.memCacheEntity = true;
+        //this.memCacheAll = false;
     }
+
 }

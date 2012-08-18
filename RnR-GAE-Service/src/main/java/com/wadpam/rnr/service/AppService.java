@@ -1,16 +1,26 @@
 package com.wadpam.rnr.service;
 
-import com.wadpam.rnr.dao.DAppSettingsDao;
+import com.google.appengine.api.datastore.Email;
+import com.google.appengine.api.users.User;
+import com.google.appengine.api.users.UserService;
+import com.google.appengine.api.users.UserServiceFactory;
+import com.wadpam.rnr.dao.DAppAdminDao;
+import com.wadpam.rnr.dao.DAppDao;
 import com.wadpam.rnr.datastore.Idempotent;
-import com.wadpam.rnr.datastore.PersistenceManager;
-import com.wadpam.rnr.domain.DAppSettings;
+import com.wadpam.rnr.domain.DApp;
+import com.wadpam.rnr.domain.DAppAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.web.authentication.preauth.PreAuthenticatedCredentialsNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Collection;
 import java.util.Random;
 
 /**
@@ -21,39 +31,57 @@ public class AppService {
 
     static final Logger LOG = LoggerFactory.getLogger(AppService.class);
 
-    private PersistenceManager persistenceManager;
-
-    private DAppSettingsDao appSettingsDao;
+    private DAppAdminDao appAdminDao;
+    private DAppDao appDao;
+    private EmailSender emailSender;
 
     static final int APPKEY_LENGTH = 30;
     static final String VALID_APPKEY_CHARS = "1234567890abcdefghijklmnopqrstuvxyzABCDEFGHIJKLMNOPQRSTUVXYZ";
 
+    static final long DEFAULT_MAX_APPS = 5;
 
-    // Create new app settings for a specific domain/app
+    public static final String ACCOUNT_PENDING = "pending";
+    public static final String ACCOUNT_ACTIVE = "active";
+    public static final String ACCOUNT_SUSPENDED = "suspended";
+
+
+    // Create new app for a specific domain
     @Idempotent
     @Transactional
-    public DAppSettings createAppSettings(String domain, boolean onlyLikeOnce, boolean onlyRateOnce) throws NoSuchAlgorithmException, UnsupportedEncodingException {
+    public DApp createApp(String userId, String domain, boolean onlyLikeOnce, boolean onlyRateOnce) throws UnsupportedEncodingException, NoSuchAlgorithmException {
         LOG.debug("Create new app settings for domain " + domain);
 
-        DAppSettings dAppSettings = appSettingsDao.findByPrimaryKey(domain);
+        // Special case, the domain backoffice is reserved as backoffice domain. No apps allowed
+        if ("backoffice".equalsIgnoreCase(domain))
+            throw new IllegalArgumentException("Not allowed to create application in domain with name backoffice");
 
-        if (null == appSettingsDao.findByPrimaryKey(domain)) {
+        DApp dApp = appDao.findByDomainWithFixedNamespace(domain);
+        if (null == dApp) {
+
+            // Check that the user has not reach the max number of apps
+            Collection<DApp> apps = appDao.findByAdmin(userId);
+            DAppAdmin appAdmin = appAdminDao.findByPrimaryKey(userId);
+            if (apps.size() >= appAdmin.getMaxNumberOfApps())
+                // This user is not allowed to create additional apps
+                throw new MaxNumberOfAppsReachedException("User have reached the limit of apps allowed: " + appAdmin.getMaxNumberOfApps());
+
             // Create new app settings
-            dAppSettings = new DAppSettings();
+            dApp = new DApp();
             // Only set these when created first time
-            dAppSettings.setDomainName(domain);
-            dAppSettings.setAppId(generateAppId(domain));
-            dAppSettings.setAppKey(generateAppKey(domain));
+            dApp.setAdmin(userId);
+            dApp.setDomainName(domain);
+            dApp.setAppId(generateAppId(domain));
+            dApp.setAppKey(generateAppKey(domain));
         }
 
         // Update values
-        dAppSettings.setOnlyLikeOncePerUser(onlyLikeOnce);
-        dAppSettings.setOnlyRateOncePerUser(onlyRateOnce);
+        dApp.setOnlyLikeOncePerUser(onlyLikeOnce);
+        dApp.setOnlyRateOncePerUser(onlyRateOnce);
 
         // Store with cache
-        persistenceManager.storeAppSettingsWithCache(dAppSettings);
+        appDao.persistWithFixedNamespace(dApp);
 
-        return dAppSettings;
+        return dApp;
     }
 
     // Generate app id, the MD5 hash of the domain string
@@ -87,50 +115,153 @@ public class AppService {
         return new String(key);
     }
 
-    // Get application settings
-    public DAppSettings getAppSettings(String domain) {
+    // Get app details
+    public DApp getApp(String domain) {
         LOG.debug("Get app settings for domain " + domain);
-
-        // Get from cache or db
-        DAppSettings dAppSettings = persistenceManager.getAppSettingsWithCache(domain);
-
-        return dAppSettings;
+        DApp dApp = appDao.findByDomainWithFixedNamespace(domain);
+        return dApp;
     }
 
-    // Delete app settings
-    public DAppSettings deleteAppSettings(String domain) {
+    // Delete app
+    public DApp deleteApp(String domain) {
         LOG.debug("Delete app settings for domain " + domain);
 
-        DAppSettings dAppSettings = appSettingsDao.findByPrimaryKey(domain);
-        if (null != dAppSettings) {
-            persistenceManager.deleteAppSettingsWithCache(dAppSettings);
-            return dAppSettings;
+        DApp dApp = appDao.findByDomainWithFixedNamespace(domain);
+        if (null != dApp) {
+            appDao.deleteWithFixedNamespace(dApp);
+            return dApp;
         }
         else
             return null;
     }
 
-    // Generate new application key
-    public DAppSettings generateNewAppKey(String domain) {
+    // Get all apps for a user
+    public Collection<DApp> getAllAppsForUser(String userId) {
+        LOG.debug("Get all apps for current user");
+        Collection<DApp> apps = appDao.findByAdmin(userId);
+        return apps;
+    }
+
+    // Get all apps in the system
+    public Collection<DApp> getAllApps() {
+        LOG.debug("Get all apps in the system");
+
+        // TODO: Support pagination
+        Collection<DApp> apps = appDao.findAll();
+        return apps;
+    }
+
+    // Generate new app key
+    public DApp generateNewAppKey(String domain) {
         LOG.debug("Generate new app key for domain " + domain);
 
-        DAppSettings dAppSettings = appSettingsDao.findByPrimaryKey(domain);
-        if (null != dAppSettings) {
+        DApp dApp = appDao.findByDomainWithFixedNamespace(domain);
+        if (null != dApp) {
             // Generate and store a new app key
-            dAppSettings.setAppKey(generateAppKey(domain));
-            persistenceManager.storeAppSettingsWithCache(dAppSettings);
-            return dAppSettings;
+            dApp.setAppKey(generateAppKey(domain));
+            appDao.persistWithFixedNamespace(dApp);
+            return dApp;
         }
         else
             return null;
+    }
+
+    // Create a new user
+    @Idempotent
+    @Transactional
+    public DAppAdmin createUser(String userId, String email, String name, String detailUrl) {
+        LOG.debug("Create app user for Google user with email " + email);
+
+        DAppAdmin dAppAdmin = appAdminDao.findByPrimaryKey(userId);
+        if (null == dAppAdmin) {
+            // User does not exist
+            dAppAdmin = new DAppAdmin();
+            dAppAdmin.setUserId(userId);
+            dAppAdmin.setEmail(new Email(email));
+            dAppAdmin.setAccountStatus(ACCOUNT_PENDING);
+            dAppAdmin.setMaxNumberOfApps(DEFAULT_MAX_APPS);
+
+            // Send email to indicate pending new app admin needs approval
+            StringBuilder sb = new StringBuilder();
+            sb.append("There is a new pending RnR user waiting for approval.\n");
+            sb.append("Name: " + dAppAdmin.getName() + "\n");
+            sb.append("Email: " + dAppAdmin.getEmail() + "\n");
+            sb.append(detailUrl);
+            emailSender.sendEmailToAdmin("Pocket-Review have new pending user", sb.toString());
+        }
+
+        // Update the name each time, not only when first created
+        dAppAdmin.setName(name);
+
+        // Store in datastore
+        appAdminDao.persist(dAppAdmin);
+
+        return dAppAdmin;
+    }
+
+    // Delete specified user
+    public DAppAdmin deleteUser(String userId) {
+        LOG.debug("Remove user with id " + userId);
+
+        DAppAdmin dAppAdmin = appAdminDao.findByPrimaryKey(userId);
+        if (null == dAppAdmin)
+            return null;
+
+        // Delete from datastore
+        appAdminDao.delete(dAppAdmin);
+
+        return dAppAdmin;
+    }
+
+    // Get user details for a specific user
+    public DAppAdmin getUser(String userId) {
+        LOG.debug("Get user details for Google user with id " + userId);
+        DAppAdmin dAppAdmin = appAdminDao.findByPrimaryKey(userId);
+        return dAppAdmin;
+    }
+
+    // Get all users in the system
+    public Collection<DAppAdmin> getAllUsers() {
+        LOG.debug("Get all users in the system");
+        Collection<DAppAdmin> dAppAdmins = appAdminDao.findAll();
+        return dAppAdmins;
+    }
+
+
+    // Update the app admin account status
+    public DAppAdmin setUserStatus(String userId, String accountStatus, String detailUrl) {
+        LOG.debug("Update user status to " + accountStatus + " for Google user with id " + userId);
+
+        DAppAdmin dAppAdmin = appAdminDao.findByPrimaryKey(userId);
+        if (null == dAppAdmin)
+            return null;
+
+        // Update datastore
+        dAppAdmin.setAccountStatus(accountStatus);
+        appAdminDao.persist(dAppAdmin);
+
+        if (accountStatus.equalsIgnoreCase(ACCOUNT_ACTIVE)) {
+            // Send email to user to inform then that the account has been approved
+            StringBuilder sb = new StringBuilder();
+            sb.append("Your Pocket-Review account has been activated.\n");
+            sb.append("Please visit the links below to start managing your applications.\n");
+            sb.append(detailUrl);
+            emailSender.sendEmail(dAppAdmin.getEmail().getEmail(), dAppAdmin.getName(),
+                    "Pocket-Review have activated your account", sb.toString());
+        }
+        return dAppAdmin;
     }
 
     // Setters and Getters
-    public void setPersistenceManager(PersistenceManager persistenceManager) {
-        this.persistenceManager = persistenceManager;
+    public void setAppDao(DAppDao appDao) {
+        this.appDao = appDao;
     }
 
-    public void setAppSettingsDao(DAppSettingsDao appSettingsDao) {
-        this.appSettingsDao = appSettingsDao;
+    public void setAppAdminDao(DAppAdminDao appAdminDao) {
+        this.appAdminDao = appAdminDao;
+    }
+
+    public void setEmailSender(EmailSender emailSender) {
+        this.emailSender = emailSender;
     }
 }

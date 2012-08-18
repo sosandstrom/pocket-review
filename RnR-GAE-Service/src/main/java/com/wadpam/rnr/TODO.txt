@@ -6,22 +6,20 @@ Ola
 
 // TODO: I removed several things from the web.xml and spring-security.xml to understand how it works. Add back stuff that is needed as we add security
 
-
+// TODO: Use session in backoffice security (better performance) - Ola, I guess we should not have session on backoffice users. They are authenticated outside the system.
 
 // TODO: Merge branch to master after Olas reviewed and approved changed.
+
+// TODO: There is a bug in Mardao with caching.
 
 
 Current
 
+// TODO: Create email text using velocity templates instead?
 
-// TODO: Add DAppAdmin and controller (domain admin)
-
-// TODO: Add DApp and controller
+// TODO: Add a common exception handler that translate into HTTP response codes
 
 // TODO: Simple backoffice interface (sigin, get all registered apps, new, delete, update)
-
-// TODO: Add security to the backoffice
-// TODO: Max Apps for a AppAdmin
 
 
 The backoffice will work like this:
@@ -40,9 +38,6 @@ The backoffice will work like this:
 
 The DAppDomain and DAppAdmin will reside in a special namespace the same for all applications (in order to access all data at the same time)
 The DAppSettings will reside under each domains namespace (will thus only be one per domain)
-
-
-
 
 
 
@@ -92,6 +87,32 @@ DONE
 // TODO: Split Spring security in a backend and service part?
 // TODO: How to know and indicate end of pagination? When less then the requested number is returned.
 
+// TODO: Add DAppAdmin and controller (domain admin)
+// TODO: Implement sending email
+
+// TODO: Maybe the GAE entry point should give 403 in all cases and the web app need to run login? No, keep in redirecting to Google login, no 403
+// TODO: Handle pending users (give them special role or how to handle it)?
+// TODO: Go over REST methods and rename + domain objects (AppSettings -> App)
+// TODO: Change to /admin/appSettings and take domain as parameter instead. All methods with the same security should be behind the special domain admin
+// TODO: Reserve the admin domain, make sure no such domain can be created. Change name to "backoffice"?
+// TODO: Add DApp and controller. Same as AppSettings
+// TODO: Add security to the backoffice
+// TODO: Delete DAppAdmin
+// TODO: Max Apps for a AppAdmin
+// TODO: Added owner to Dapp
+// TODO: api/{version}/backoffice/app/my (GET)
+// TODO: api/{version}/backoffice/app/all (GET)
+// TODO: Move any Spring security to the controller, never service layer
+// TODO: 403 vs 401? When to use what? Use 401 when the user is not allowed to access due to credentials. 403 when the user is not allowed, regardless of credentials.
+// TODO: Let the controller check if the user is the owner of an app
+// TODO: How and where do we control what apps an admin can access? In the security layer or service layer?
+// TODO: Update to new version of Mardao (refactor caching)
+// TODO: caching of DAppAdmin, no need after updating Mardao. Refactor
+// TODO: Turn basic authentication on and off per project. More important no app should be needed, use a dummy app. Use Spring anonymous
+// TODO: Create a UserDetails subclass that can also hold the Googer User object. Only you Spring security to get user details. Never GAE.
+
+
+
 
 
 
@@ -139,6 +160,32 @@ api/{version}/{domain}/comment?productId= (GET)          Get all Comments for pr
 api/{version}/{domain}/favorites/{username} (PUT)                   Make a product a favorite                  X  X
 api/{version}/{domain}/favorites/{username} (GET)                   Get get all favorites                      X  X
 api/{version}/{domain}/favorites/{username}?productId= (DELETE)     Delete a favorite product for user         X  X
+
+
+api/{version}/backoffice/user/login (GET)                 login a backoffice user with Google
+api/{version}/backoffice/user/logout (GET)                logout a backoffice user with Google
+
+api/{version}/backoffice/user (POST)                            Create a new pending backoffice user account
+api/{version}/backoffice/user (GET)                             Get backoffice user account details
+api/{version}/backoffice/user/{userId} (GET)                    Get backoffice user account details (only GAE admins)
+api/{version}/backoffice/user/all (GET)                         Get all backoffice user account details (only GAE admins)
+api/{version}/backoffice/user/{userId}/status/{status) (POST)   Update the account status (only GAE admins)
+
+Delete?
+
+api/{version}/backoffice/app/{domain} (POST)                    Create a new app for domain
+api/{version}/backoffice/app/{domain} (GET)                     Get app for domain
+api/{version}/backoffice/app/{domain} (DELETE)                  Delete app for domain
+api/{version}/backoffice/app/{domain}/appKey (DELETE)           Generate a new appKey
+
+api/{version}/backoffice/app/my (GET)                           Get all apps owned for the current user
+api/{version}/backoffice/app/all (GET)                          Get all apps in the system (only GAE admins)
+
+
+
+
+
+
 
 
 

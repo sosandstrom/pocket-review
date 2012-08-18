@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script type="text/javascript">
+    function generateStatusURL()
+    {
+        userId = document.forms["statusForm"]["userId"].value
+        status = document.forms["statusForm"]["status"].value
+        document.forms["statusForm"].action="api/backoffice/user/" + userId + "/status/" + status
+    }
+
+    function generateCreateAppURL()
+    {
+        domain = document.forms["createAppForm"]["domain"].value
+        document.forms["createAppForm"].action="api/backoffice/app/" + domain
+    }
+
+    function generateGetAppURL()
+    {
+        domain = document.forms["getAppForm"]["domain"].value
+        document.forms["getAppForm"].action="api/backoffice/app/" + domain
+    }
+    </script>
+</head>
+<body>
+
+<h1>Ugly forms</h1>
+
+<p>Use the actions below to test the pocket review backoffice functionality.</p>
+
+<h2>User forms</h2>
+
+<form name="input" action="api/backoffice/user/login" method="get">
+    Login <br/>
+    <input type="submit" value="Submit" />
+</form>
+
+<br/>
+
+<form name="input" action="api/backoffice/user/logout" method="get">
+    Logout: <br/>
+    <input type="submit" value="Submit" />
+</form>
+
+<br/>
+
+<form name="input" action="api/backoffice/user" method="post">
+    Create user account <br/>
+    User nickname: <input type="text" name="name" />
+    <input type="submit" value="Submit" />
+</form>
+
+<br/>
+
+<form name="input" action="api/backoffice/user" method="get">
+    Get user account details <br/>
+    <input type="submit" value="Submit" />
+</form>
+
+<br/>
+
+<form name="createAppForm" action="api/backoffice/app/" method="post" onsubmit="generateCreateAppURL()">
+    Create a new app: <br/>
+    Domain: <input type="text" name="domain" />
+    <input type="submit" value="Submit" />
+</form>
+
+<br/>
+
+<form name="input" action="api/backoffice/app/my" method="get">
+    Get all apps for current user: <br/>
+    <input type="submit" value="Submit" />
+</form>
+
+<br/>
+
+<form name="getAppForm" action="api/backoffice/app" method="get" onsubmit="generateGetAppURL()">
+    Get app details: <br/>
+    Domain: <input type="text" name="domain" />
+    <input type="submit" value="Submit" />
+</form>
+
+
+<h2>GAE admin forms</h2>
+
+<form name="input" action="api/backoffice/user/all" method="get">
+    Get all user account details (project admin only): <br/>
+    <input type="submit" value="Submit" />
+</form>
+
+<br/>
+
+<form name="statusForm" action="api/backoffice/user/status/1" method="post" onsubmit="generateStatusURL()">
+    Change account status (project admin only): <br/>
+    Admin user id: <input type="text" name="userId" />
+    <select name="status">
+        <option value="0">Pending</option>
+        <option value="1">Active</option>
+        <option value="2">Suspended</option>
+    </select>  <br/>
+    <input type="submit" value="Submit" />
+</form>
+
+<br/>
+
+<form name="input" action="api/backoffice/app/all" method="get">
+    Get all apps in the system: <br/>
+    <input type="submit" value="Submit" />
+</form>
+
+</body>
+</html>
