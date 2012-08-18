@@ -46,7 +46,7 @@ public class FavoritesController {
     @RestReturn(value=JFavorites.class, entity=JFavorites.class, code={
             @RestCode(code=302, message="OK", description="Redirect to updated users favorites")
     })
-    @RequestMapping(value="{username}", method=RequestMethod.POST)
+    @RequestMapping(value="{username}", method=RequestMethod.PUT)
     public ResponseEntity<JFavorites> addFavorite(HttpServletRequest request,
                                                   HttpServletResponse response,
                                                   Principal principal,
@@ -129,7 +129,7 @@ public class FavoritesController {
                                                    @PathVariable String username) {
 
         try {
-            final DFavorites body = rnrService.getFavorites(username, null != principal ? principal.getName() : null);;
+            final DFavorites body = rnrService.getFavorites(username, null != principal ? principal.getName() : null);
 
             return new ResponseEntity<JFavorites>(Converter.convert(body, request), HttpStatus.OK);
         }

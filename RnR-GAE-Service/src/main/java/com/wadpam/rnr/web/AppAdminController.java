@@ -139,7 +139,7 @@ public class AppAdminController {
     @RestReturn(value=JAppAdmin.class, entity=JAppAdmin.class, code={
             @RestCode(code=302, message="OK", description="Redirect to newly created user details")
     })
-    @RequestMapping(value="", method= RequestMethod.POST)
+    @RequestMapping(value="", method= RequestMethod.PUT)
     public ResponseEntity<JAppAdmin> createUser(HttpServletRequest request,
                                                 HttpServletResponse response,
                                                 Principal principal,
@@ -183,7 +183,7 @@ public class AppAdminController {
 
     /**
      * Delete the currently logged in Google user.
-     * @return the and http response code indicating the outcome of the operation
+     * @return the http response code indicating the outcome of the operation
      */
     @RestReturn(value=JAppAdmin.class, entity=JAppAdmin.class, code={
             @RestCode(code=200, message="OK", description="User deleted"),
@@ -208,7 +208,7 @@ public class AppAdminController {
 
     /**
      * Delete a specified user.
-     * @return the and http response code indicating the outcome of the operation
+     * @return the http response code indicating the outcome of the operation
      */
     @RestReturn(value=JAppAdmin.class, entity=JAppAdmin.class, code={
             @RestCode(code=200, message="OK", description="User deleted"),
@@ -360,6 +360,4 @@ public class AppAdminController {
     public void setAppService(AppService appService) {
         this.appService = appService;
     }
-
-
 }

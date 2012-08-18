@@ -47,7 +47,7 @@ public class LikeController {
     @RestReturn(value=JLike.class, entity=JLike.class, code={
             @RestCode(code=302, message="OK", description="Redirect to the newly created like")
     })
-    @RequestMapping(value="", method= RequestMethod.POST)
+    @RequestMapping(value="", method= RequestMethod.PUT)
     public RedirectView addLike(HttpServletRequest request,
                                 Principal principal,
                                 @PathVariable String domain,

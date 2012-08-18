@@ -178,16 +178,16 @@ public class AppService {
             dAppAdmin = new DAppAdmin();
             dAppAdmin.setUserId(userId);
             dAppAdmin.setEmail(new Email(email));
-            dAppAdmin.setAccountStatus(ACCOUNT_PENDING);
+            dAppAdmin.setAccountStatus(ACCOUNT_ACTIVE);
             dAppAdmin.setMaxNumberOfApps(DEFAULT_MAX_APPS);
 
             // Send email to indicate pending new app admin needs approval
             StringBuilder sb = new StringBuilder();
-            sb.append("There is a new pending RnR user waiting for approval.\n");
+            sb.append("A new user just joined Pocket-Reviews.\n");
             sb.append("Name: " + dAppAdmin.getName() + "\n");
             sb.append("Email: " + dAppAdmin.getEmail() + "\n");
             sb.append(detailUrl);
-            emailSender.sendEmailToAdmin("Pocket-Review have new pending user", sb.toString());
+            emailSender.sendEmailToAdmin("Pocket-Review have a new user", sb.toString());
         }
 
         // Update the name each time, not only when first created
@@ -240,15 +240,6 @@ public class AppService {
         dAppAdmin.setAccountStatus(accountStatus);
         appAdminDao.persist(dAppAdmin);
 
-        if (accountStatus.equalsIgnoreCase(ACCOUNT_ACTIVE)) {
-            // Send email to user to inform then that the account has been approved
-            StringBuilder sb = new StringBuilder();
-            sb.append("Your Pocket-Review account has been activated.\n");
-            sb.append("Please visit the links below to start managing your applications.\n");
-            sb.append(detailUrl);
-            emailSender.sendEmail(dAppAdmin.getEmail().getEmail(), dAppAdmin.getName(),
-                    "Pocket-Review have activated your account", sb.toString());
-        }
         return dAppAdmin;
     }
 

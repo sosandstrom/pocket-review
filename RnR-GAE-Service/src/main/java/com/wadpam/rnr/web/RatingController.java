@@ -47,7 +47,7 @@ public class RatingController {
     @RestReturn(value=JRating.class, entity=JRating.class, code={
         @RestCode(code=302, message="OK", description="Redirect to newly created rating")
     })
-    @RequestMapping(value="", method= RequestMethod.POST)
+    @RequestMapping(value="", method= RequestMethod.PUT)
     public RedirectView addRating(HttpServletRequest request,
                                   Principal principal,
                                   @PathVariable String domain,
@@ -109,7 +109,7 @@ public class RatingController {
     }
 
     /**
-     * Returns all ratings done by a specific user.
+     * Return all ratings done by a specific user.
      * @param username optional. 
      * If authenticated, and RnrService.fallbackPrincipalName, 
      * principal.name will be used if username is null.

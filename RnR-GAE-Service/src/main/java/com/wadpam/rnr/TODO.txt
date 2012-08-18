@@ -15,6 +15,9 @@ Ola
 
 Current
 
+
+
+
 // TODO: Create email text using velocity templates instead?
 
 // TODO: Add a common exception handler that translate into HTTP response codes
@@ -112,7 +115,10 @@ DONE
 // TODO: Create a UserDetails subclass that can also hold the Googer User object. Only you Spring security to get user details. Never GAE.
 
 
-
+// TODO: Do not use pending state, active directly (just send email)
+// TODO: Check the url structure once more, does not seem right
+// TODO: Check all PUT and POST and GET
+// TODO: Only lower case parameter names in the http request
 
 
 
@@ -121,7 +127,7 @@ REST end-points
 
 api/{version}/{domain}/monitor (GET)                    Get all products                            X  OK  Y
 
-api/{version}/{domain}/product (POST)                   Get all products                            X  OK  Y (should be migrated to Mardao)
+api/{version}/{domain}/product (GET)                   Get all products                            X  OK  Y (should be migrated to Mardao)
 api/{version}/{domain}/product/{product} (GET)          Get one product                             X  OK  Y
 api/{version}/{domain}/product?ids= GET                 Get several products                        X  OK  Y
 api/{version}/{domain}/product/nearby (POST)            Get products nearby

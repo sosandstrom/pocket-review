@@ -54,7 +54,7 @@ public class AppController {
             @RestCode(code=302, message="OK", description="Redirect to newly created app"),
             @RestCode(code=412, message="NOK", description="User reached the limited of the number of apps that can be created")
 })
-    @RequestMapping(value="{domain}", method= RequestMethod.POST)
+    @RequestMapping(value="{domain}", method= RequestMethod.PUT)
     public ResponseEntity<JApp> createApp(HttpServletRequest request,
                                                   HttpServletResponse response,
                                                   Principal principal,
