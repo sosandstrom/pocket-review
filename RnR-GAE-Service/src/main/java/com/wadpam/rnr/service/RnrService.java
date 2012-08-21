@@ -70,13 +70,8 @@ public class RnrService {
     // Like a product
     @Idempotent
     @Transactional
-    public DLike addLike(String domain, String productId, String username, String principalName, Float latitude, Float longitude) {
+    public DLike addLike(String domain, String productId, String username, Float latitude, Float longitude) {
         LOG.debug("Add new like to product " + productId);
-
-        // Fallback on principal name?
-        if (null == username && fallbackPrincipalName) {
-            username = principalName;
-        }
 
         // Specified users can only Like once
         boolean onlyLikeOncePerUser = true; // Use true as default value
@@ -168,12 +163,7 @@ public class RnrService {
     }
 
     // Get all likes for a specific user
-    public Collection<DLike> getMyLikes(String username, String principalName) {
-
-        // Fallback on principal name?
-        if (null == username && fallbackPrincipalName) {
-            username = principalName;
-        }
+    public Collection<DLike> getMyLikes(String username) {
 
         if (null == username)
             throw new IllegalArgumentException("Username must be specified or authenticated");
@@ -191,14 +181,9 @@ public class RnrService {
     // Rate a product
     @Idempotent
     @Transactional
-    public DRating addRating(String domain, String productId, String username, String principalName,
+    public DRating addRating(String domain, String productId, String username,
                              Float latitude, Float longitude, int rating, String comment) {
         LOG.debug("Add new rating to product " + productId);
-
-        // fallback on principal name?
-        if (null == username && fallbackPrincipalName) {
-            username = principalName;
-        }
 
         DRating dRating = null;
         int existing = -1;
@@ -295,7 +280,11 @@ public class RnrService {
         if (null != dProduct) {
             dProduct.setRatingSum(dProduct.getRatingSum() - dRating.getRating().getRating());
             dProduct.setRatingCount(dProduct.getRatingCount() - 1);
-            dProduct.setRatingAverage(new Rating((int)(dProduct.getRatingSum() / dProduct.getRatingCount())));
+            // Guard against deleting the last rating to avoid / by zero
+            if (0 != dProduct.getRatingCount())
+                dProduct.setRatingAverage(new Rating((int)(dProduct.getRatingSum() / dProduct.getRatingCount())));
+            else
+                dProduct.setRatingAverage(new Rating(-1));
             productDao.persist(dProduct);
         } else
             // Should not happen, log error
@@ -305,12 +294,7 @@ public class RnrService {
     }
 
     // Get all ratings done by a specific user
-    public Collection<DRating> getMyRatings(String username, String principalName) {
-
-        // fallback on principal name?
-        if (null == username && fallbackPrincipalName) {
-            username = principalName;
-        }
+    public Collection<DRating> getMyRatings(String username) {
 
         if (null == username)
             throw new IllegalArgumentException("Username must be specified or authenticated");
@@ -328,14 +312,8 @@ public class RnrService {
     // Add a comment to a product
     @Idempotent
     @Transactional
-    public DComment addComment(String productId, String username, String principalName, Float latitude,
-                               Float longitude, String comment) {
+    public DComment addComment(String productId, String username, Float latitude, Float longitude, String comment) {
         LOG.debug("Add new comment to product " + productId);
-
-        // fallback on principal name?
-        if (null == username && fallbackPrincipalName) {
-            username = principalName;
-        }
 
         // Create new comment. Do not check if user have commented before
         DComment dComment = new DComment();
@@ -402,12 +380,7 @@ public class RnrService {
     }
 
     // Get all comments done by a specific user
-    public Collection<DComment> getMyComments(String username, String principalName) {
-
-        // fallback on principal name?
-        if (null == username && fallbackPrincipalName) {
-            username = principalName;
-        }
+    public Collection<DComment> getMyComments(String username) {
 
         if (null == username)
             throw new IllegalArgumentException("Username must be specified or authenticated");
@@ -425,13 +398,8 @@ public class RnrService {
     // Add new favorite product
     @Idempotent
     @Transactional
-    public DFavorites addFavorite(String productId, String username, String principalName) {
+    public DFavorites addFavorite(String productId, String username) {
         LOG.debug("Add product " + productId + " as favorites for user " + username);
-
-        // fallback on principal name?
-        if (null == username && fallbackPrincipalName) {
-            username = principalName;
-        }
 
         // User name must be provided
         if (null == username)
@@ -459,13 +427,8 @@ public class RnrService {
     // Delete a product from favorites
     @Idempotent
     @Transactional
-    public DFavorites deleteFavorite(String productId, String username, String principalName) {
+    public DFavorites deleteFavorite(String productId, String username) {
         LOG.debug("Delete product " + productId + " from favorites for user "  + username);
-
-        // fallback on principal name?
-        if (null == username && fallbackPrincipalName) {
-            username = principalName;
-        }
 
         // User name must be provided
         if (null == username)
@@ -483,13 +446,8 @@ public class RnrService {
     }
 
     // Get all user favorites
-    public DFavorites getFavorites(String username, String principalName) {
+    public DFavorites getFavorites(String username) {
         LOG.debug("Get favorites for user "  + username);
-
-        // fallback on principal name?
-        if (null == username && fallbackPrincipalName) {
-            username = principalName;
-        }
 
         // User name must be provided
         if (null == username)
@@ -648,11 +606,7 @@ public class RnrService {
     }
 
     // Get all products a user have liked
-    public Collection<DProduct> getProductsLikedByUser(String username, String principalName) {
-
-        // Fallback on principal name?
-        if (null == username && fallbackPrincipalName)
-            username = principalName;
+    public Collection<DProduct> getProductsLikedByUser(String username) {
 
         if (null == username)
             throw new IllegalArgumentException("Username must be specified or authenticated");
@@ -672,11 +626,7 @@ public class RnrService {
     }
 
     // Get all products a user have rated
-    public Collection<DProduct> getProductsRatedByUser(String username, String principalName) {
-
-        // Fallback on principal name?
-        if (null == username && fallbackPrincipalName)
-            username = principalName;
+    public Collection<DProduct> getProductsRatedByUser(String username) {
 
         if (null == username)
             throw new IllegalArgumentException("Username must be specified or authenticated");
@@ -696,11 +646,7 @@ public class RnrService {
     }
 
     // Get all products a user have commented
-    public Collection<DProduct> getProductsCommentedByUser(String username, String principalName) {
-
-        // Fallback on principal name?
-        if (null == username && fallbackPrincipalName)
-            username = principalName;
+    public Collection<DProduct> getProductsCommentedByUser(String username) {
 
         if (null == username)
             throw new IllegalArgumentException("Username must be specified or authenticated");
@@ -721,11 +667,7 @@ public class RnrService {
 
 
     // Get all users favorite products
-    public Collection<DProduct> geUserFavoriteProducts(String username, String principalName) {
-
-        // Fallback on principal name?
-        if (null == username && fallbackPrincipalName)
-            username = principalName;
+    public Collection<DProduct> geUserFavoriteProducts(String username) {
 
         if (null == username)
             throw new IllegalArgumentException("Username must be specified or authenticated");

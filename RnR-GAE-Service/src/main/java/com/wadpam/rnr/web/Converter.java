@@ -133,19 +133,19 @@ public class Converter {
 
         to.setDomain(from.getDomainName());
         to.setAdmin(from.getAdmin());
-        to.setAppId(from.getAppId());
-        to.setAppKey(from.getAppKey());
+        to.setAppUser(from.getAppUser());
+        to.setAppPassword(from.getAppPassword());
         to.setOnlyLikeOncePerUser(from.getOnlyLikeOncePerUser());
         to.setOnlyRateOncePerUser(from.getOnlyRateOncePerUser());
 
         return to;
     }
 
-    protected static JAppAdmin convert(DAppAdmin from, HttpServletRequest request) {
+    protected static JOfficer convert(DOfficer from, HttpServletRequest request) {
         if (null == from) {
             return null;
         }
-        final JAppAdmin to = new JAppAdmin();
+        final JOfficer to = new JOfficer();
         convert(from, to);
 
         to.setUserId(from.getUserId());
@@ -181,8 +181,8 @@ public class Converter {
         else if (from instanceof DApp) {
             returnValue = convert((DApp) from, request);
         }
-        else if (from instanceof DAppAdmin) {
-            returnValue = convert((DAppAdmin) from, request);
+        else if (from instanceof DOfficer) {
+            returnValue = convert((DOfficer) from, request);
         }
         else {
             throw new UnsupportedOperationException("No converter for " + from.getKind());

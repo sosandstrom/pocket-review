@@ -47,7 +47,7 @@ public class LikeController {
     @RestReturn(value=JLike.class, entity=JLike.class, code={
             @RestCode(code=302, message="OK", description="Redirect to the newly created like")
     })
-    @RequestMapping(value="", method= RequestMethod.PUT)
+    @RequestMapping(value="", method= RequestMethod.POST)
     public RedirectView addLike(HttpServletRequest request,
                                 Principal principal,
                                 @PathVariable String domain,
@@ -56,8 +56,7 @@ public class LikeController {
                                 @RequestParam(required=false) Float latitude,
                                 @RequestParam(required=false) Float longitude) {
 
-        final DLike body = rnrService.addLike(domain, productId, username,
-                null != principal ? principal.getName() : null, latitude, longitude);
+        final DLike body = rnrService.addLike(domain, productId, username, latitude, longitude);
 
 
 
@@ -124,8 +123,7 @@ public class LikeController {
                                                         @RequestParam(required=false) String username) {
 
         try {
-            final Collection<DLike> body = rnrService.getMyLikes(username,
-                    null != principal ? principal.getName() : null);
+            final Collection<DLike> body = rnrService.getMyLikes(username);
 
             return new ResponseEntity<Collection<JLike>>((Collection<JLike>)Converter.convert(body, request),
                     HttpStatus.OK);

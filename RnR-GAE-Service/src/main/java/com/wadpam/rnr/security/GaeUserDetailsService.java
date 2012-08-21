@@ -3,8 +3,8 @@ package com.wadpam.rnr.security;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
-import com.wadpam.rnr.dao.DAppAdminDao;
-import com.wadpam.rnr.domain.DAppAdmin;
+import com.wadpam.rnr.dao.DOfficerDao;
+import com.wadpam.rnr.domain.DOfficer;
 import com.wadpam.rnr.service.AppService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +27,7 @@ public class GaeUserDetailsService implements AuthenticationUserDetailsService {
 
     static final Logger LOG = LoggerFactory.getLogger(GaeUserDetailsService.class);
 
-    private DAppAdminDao appAdminDao;
+    private DOfficerDao officerDao;
 
 
     @Override
@@ -51,10 +51,10 @@ public class GaeUserDetailsService implements AuthenticationUserDetailsService {
         } else {
 
             // Check the account status in the datastore to decide role
-            DAppAdmin dAppAdmin = appAdminDao.findByPrimaryKey(user.getUserId());
+            DOfficer dOfficer = officerDao.findByPrimaryKey(user.getUserId());
 
-            if (null != dAppAdmin && dAppAdmin.getAccountStatus().equalsIgnoreCase(AppService.ACCOUNT_ACTIVE)) {
-                // Normal backoffic users
+            if (null != dOfficer && dOfficer.getAccountStatus().equalsIgnoreCase(AppService.ACCOUNT_ACTIVE)) {
+                // Normal backoffice user
                 grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_USER"));
             } else {
                 // Give all other types of user pending role
@@ -70,7 +70,7 @@ public class GaeUserDetailsService implements AuthenticationUserDetailsService {
 
 
     // Setters and getters
-    public void setAppAdminDao(DAppAdminDao appAdminDao) {
-        this.appAdminDao = appAdminDao;
+    public void setOfficerDao(DOfficerDao officerDao) {
+        this.officerDao = officerDao;
     }
 }

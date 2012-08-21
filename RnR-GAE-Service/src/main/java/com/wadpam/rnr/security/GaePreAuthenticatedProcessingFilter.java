@@ -2,7 +2,6 @@ package com.wadpam.rnr.security;
 
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
-import com.wadpam.rnr.dao.DAppAdminDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.GrantedAuthority;
@@ -24,7 +23,7 @@ public class GaePreAuthenticatedProcessingFilter extends AbstractPreAuthenticate
 
     @Override
     protected Object getPreAuthenticatedPrincipal(HttpServletRequest httpServletRequest) {
-        LOG.debug("Get pre-authenticated user principles");
+        LOG.debug("Get pre-authenticated user principle");
 
         UserService userService = UserServiceFactory.getUserService();
         if (!userService.isUserLoggedIn())

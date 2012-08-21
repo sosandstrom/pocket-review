@@ -1,10 +1,10 @@
 package com.wadpam.rnr.json;
 
 /**
- * Json object for app admins.
+ * Json object for officers.
  * @author mlv
  */
-public class JAppAdmin extends JBaseObject {
+public class JOfficer extends JBaseObject {
 
     /** The Google user unique user id */
     private String      userId;

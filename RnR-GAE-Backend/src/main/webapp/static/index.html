@@ -6,7 +6,7 @@
     {
         userId = document.forms["statusForm"]["userId"].value
         status = document.forms["statusForm"]["status"].value
-        document.forms["statusForm"].action="api/backoffice/user/" + userId + "/status/" + status
+        document.forms["statusForm"].action="api/backoffice/officer/" + userId + "/status/" + status
     }
 
     function generateCreateAppURL()
@@ -30,30 +30,30 @@
 
 <h2>User forms</h2>
 
-<form name="input" action="api/backoffice/user/login" method="get">
-    Login <br/>
+<form name="input" action="api/backoffice/officer/login" method="get">
+    Login: <br/>
     <input type="submit" value="Submit" />
 </form>
 
 <br/>
 
-<form name="input" action="api/backoffice/user/logout" method="get">
+<form name="input" action="api/backoffice/officer/logout" method="get">
     Logout: <br/>
     <input type="submit" value="Submit" />
 </form>
 
 <br/>
 
-<form name="input" action="api/backoffice/user" method="post">
-    Create user account <br/>
+<form name="input" action="api/backoffice/officer" method="post">
+    Create officer <br/>
     User nickname: <input type="text" name="name" />
     <input type="submit" value="Submit" />
 </form>
 
 <br/>
 
-<form name="input" action="api/backoffice/user" method="get">
-    Get user account details <br/>
+<form name="input" action="api/backoffice/officer" method="get">
+    Get officer details <br/>
     <input type="submit" value="Submit" />
 </form>
 
@@ -83,16 +83,16 @@
 
 <h2>GAE admin forms</h2>
 
-<form name="input" action="api/backoffice/user/all" method="get">
-    Get all user account details (project admin only): <br/>
+<form name="input" action="api/backoffice/officer/all" method="get">
+    Get all officer account details (project admin only): <br/>
     <input type="submit" value="Submit" />
 </form>
 
 <br/>
 
-<form name="statusForm" action="api/backoffice/user/status/1" method="post" onsubmit="generateStatusURL()">
+<form name="statusForm" action="api/backoffice/officer/status/1" method="post" onsubmit="generateStatusURL()">
     Change account status (project admin only): <br/>
-    Admin user id: <input type="text" name="userId" />
+    Officer user id: <input type="text" name="userId" />
     <select name="status">
         <option value="0">Pending</option>
         <option value="1">Active</option>

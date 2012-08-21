@@ -29,8 +29,8 @@
     <bean id="dAppDao"
           class="com.wadpam.rnr.dao.DAppDaoBean">
     </bean>
-    <bean id="dAppAdminDao"
-          class="com.wadpam.rnr.dao.DAppAdminDaoBean">
+    <bean id="dOfficerDao"
+          class="com.wadpam.rnr.dao.DOfficerDaoBean">
     </bean>
 
 </beans>

@@ -46,7 +46,7 @@ public class FavoritesController {
     @RestReturn(value=JFavorites.class, entity=JFavorites.class, code={
             @RestCode(code=302, message="OK", description="Redirect to updated users favorites")
     })
-    @RequestMapping(value="{username}", method=RequestMethod.PUT)
+    @RequestMapping(value="{username}", method=RequestMethod.POST)
     public ResponseEntity<JFavorites> addFavorite(HttpServletRequest request,
                                                   HttpServletResponse response,
                                                   Principal principal,
@@ -54,8 +54,7 @@ public class FavoritesController {
                                                   @RequestParam(required=true) String productId) {
 
         try {
-            final DFavorites body = rnrService.addFavorite(productId, username,
-                    null != principal ? principal.getName() : null);
+            final DFavorites body = rnrService.addFavorite(productId, username);
 
             if (null != body)
                     response.sendRedirect(request.getRequestURI());
@@ -89,8 +88,7 @@ public class FavoritesController {
                                                      @RequestParam(required=true) String productId) {
 
         try {
-            final DFavorites body = rnrService.deleteFavorite(productId, username,
-                    null != principal ? principal.getName() : null);
+            final DFavorites body = rnrService.deleteFavorite(productId, username);
 
             if (null == body)
                 return new ResponseEntity(HttpStatus.NOT_FOUND);
@@ -129,7 +127,7 @@ public class FavoritesController {
                                                    @PathVariable String username) {
 
         try {
-            final DFavorites body = rnrService.getFavorites(username, null != principal ? principal.getName() : null);
+            final DFavorites body = rnrService.getFavorites(username);
 
             return new ResponseEntity<JFavorites>(Converter.convert(body, request), HttpStatus.OK);
         }

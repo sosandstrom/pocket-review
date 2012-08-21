@@ -1,20 +1,13 @@
 package com.wadpam.rnr.service;
 
 import com.google.appengine.api.datastore.Email;
-import com.google.appengine.api.users.User;
-import com.google.appengine.api.users.UserService;
-import com.google.appengine.api.users.UserServiceFactory;
-import com.wadpam.rnr.dao.DAppAdminDao;
 import com.wadpam.rnr.dao.DAppDao;
+import com.wadpam.rnr.dao.DOfficerDao;
 import com.wadpam.rnr.datastore.Idempotent;
 import com.wadpam.rnr.domain.DApp;
-import com.wadpam.rnr.domain.DAppAdmin;
+import com.wadpam.rnr.domain.DOfficer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.web.authentication.preauth.PreAuthenticatedCredentialsNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.UnsupportedEncodingException;
@@ -31,7 +24,7 @@ public class AppService {
 
     static final Logger LOG = LoggerFactory.getLogger(AppService.class);
 
-    private DAppAdminDao appAdminDao;
+    private DOfficerDao officerDao;
     private DAppDao appDao;
     private EmailSender emailSender;
 
@@ -60,18 +53,18 @@ public class AppService {
 
             // Check that the user has not reach the max number of apps
             Collection<DApp> apps = appDao.findByAdmin(userId);
-            DAppAdmin appAdmin = appAdminDao.findByPrimaryKey(userId);
-            if (apps.size() >= appAdmin.getMaxNumberOfApps())
+            DOfficer officer = officerDao.findByPrimaryKey(userId);
+            if (apps.size() >= officer.getMaxNumberOfApps())
                 // This user is not allowed to create additional apps
-                throw new MaxNumberOfAppsReachedException("User have reached the limit of apps allowed: " + appAdmin.getMaxNumberOfApps());
+                throw new MaxNumberOfAppsReachedException("User have reached the limit of apps allowed: " + officer.getMaxNumberOfApps());
 
             // Create new app settings
             dApp = new DApp();
             // Only set these when created first time
             dApp.setAdmin(userId);
             dApp.setDomainName(domain);
-            dApp.setAppId(generateAppId(domain));
-            dApp.setAppKey(generateAppKey(domain));
+            dApp.setAppUser(generateAppUser(domain));
+            dApp.setAppPassword(generateAppPassword(domain));
         }
 
         // Update values
@@ -84,8 +77,8 @@ public class AppService {
         return dApp;
     }
 
-    // Generate app id, the MD5 hash of the domain string
-    private String generateAppId(String domain) throws UnsupportedEncodingException, NoSuchAlgorithmException {
+    // Generate app user, the MD5 hash of the domain string
+    private String generateAppUser(String domain) throws UnsupportedEncodingException, NoSuchAlgorithmException {
 
         byte[] bytes = domain.getBytes("UTF-8");
 
@@ -104,8 +97,8 @@ public class AppService {
         return new String(hexChars);
     }
 
-    // Generate app key
-    private String generateAppKey(String domain) {
+    // Generate app password
+    private String generateAppPassword(String domain) {
         Random rand = new Random();
 
         char[] key = new char[APPKEY_LENGTH];
@@ -151,14 +144,14 @@ public class AppService {
         return apps;
     }
 
-    // Generate new app key
-    public DApp generateNewAppKey(String domain) {
-        LOG.debug("Generate new app key for domain " + domain);
+    // Generate new app password
+    public DApp generateNewAppPassword(String domain) {
+        LOG.debug("Generate new app password for domain " + domain);
 
         DApp dApp = appDao.findByDomainWithFixedNamespace(domain);
         if (null != dApp) {
             // Generate and store a new app key
-            dApp.setAppKey(generateAppKey(domain));
+            dApp.setAppPassword(generateAppPassword(domain));
             appDao.persistWithFixedNamespace(dApp);
             return dApp;
         }
@@ -166,81 +159,81 @@ public class AppService {
             return null;
     }
 
-    // Create a new user
+    // Create a new officer
     @Idempotent
     @Transactional
-    public DAppAdmin createUser(String userId, String email, String name, String detailUrl) {
-        LOG.debug("Create app user for Google user with email " + email);
+    public DOfficer createOfficer(String userId, String email, String name, String detailUrl) {
+        LOG.debug("Create officer for Google user with email " + email);
 
-        DAppAdmin dAppAdmin = appAdminDao.findByPrimaryKey(userId);
-        if (null == dAppAdmin) {
+        DOfficer dOfficer = officerDao.findByPrimaryKey(userId);
+        if (null == dOfficer) {
             // User does not exist
-            dAppAdmin = new DAppAdmin();
-            dAppAdmin.setUserId(userId);
-            dAppAdmin.setEmail(new Email(email));
-            dAppAdmin.setAccountStatus(ACCOUNT_ACTIVE);
-            dAppAdmin.setMaxNumberOfApps(DEFAULT_MAX_APPS);
+            dOfficer = new DOfficer();
+            dOfficer.setUserId(userId);
+            dOfficer.setEmail(new Email(email));
+            dOfficer.setAccountStatus(ACCOUNT_ACTIVE);
+            dOfficer.setMaxNumberOfApps(DEFAULT_MAX_APPS);
 
-            // Send email to indicate pending new app admin needs approval
+            // Send email to indicate new officer joined
             StringBuilder sb = new StringBuilder();
             sb.append("A new user just joined Pocket-Reviews.\n");
-            sb.append("Name: " + dAppAdmin.getName() + "\n");
-            sb.append("Email: " + dAppAdmin.getEmail() + "\n");
+            sb.append("Name: " + dOfficer.getName() + "\n");
+            sb.append("Email: " + dOfficer.getEmail() + "\n");
             sb.append(detailUrl);
-            emailSender.sendEmailToAdmin("Pocket-Review have a new user", sb.toString());
+            emailSender.sendEmailToAdmin("Pocket-Review have a new officer", sb.toString());
         }
 
         // Update the name each time, not only when first created
-        dAppAdmin.setName(name);
+        dOfficer.setName(name);
 
         // Store in datastore
-        appAdminDao.persist(dAppAdmin);
+        officerDao.persist(dOfficer);
 
-        return dAppAdmin;
+        return dOfficer;
     }
 
-    // Delete specified user
-    public DAppAdmin deleteUser(String userId) {
+    // Delete specified officer
+    public DOfficer deleteOfficer(String userId) {
         LOG.debug("Remove user with id " + userId);
 
-        DAppAdmin dAppAdmin = appAdminDao.findByPrimaryKey(userId);
-        if (null == dAppAdmin)
+        DOfficer dOfficer = officerDao.findByPrimaryKey(userId);
+        if (null == dOfficer)
             return null;
 
         // Delete from datastore
-        appAdminDao.delete(dAppAdmin);
+        officerDao.delete(dOfficer);
 
-        return dAppAdmin;
+        return dOfficer;
     }
 
-    // Get user details for a specific user
-    public DAppAdmin getUser(String userId) {
-        LOG.debug("Get user details for Google user with id " + userId);
-        DAppAdmin dAppAdmin = appAdminDao.findByPrimaryKey(userId);
-        return dAppAdmin;
+    // Get officer details for a specific user
+    public DOfficer getOfficer(String userId) {
+        LOG.debug("Get officer details for Google user with id " + userId);
+        DOfficer dOfficer = officerDao.findByPrimaryKey(userId);
+        return dOfficer;
     }
 
-    // Get all users in the system
-    public Collection<DAppAdmin> getAllUsers() {
-        LOG.debug("Get all users in the system");
-        Collection<DAppAdmin> dAppAdmins = appAdminDao.findAll();
-        return dAppAdmins;
+    // Get all officers in the system
+    public Collection<DOfficer> getAllOfficers() {
+        LOG.debug("Get all officers in the system");
+        Collection<DOfficer> dOfficers = officerDao.findAll();
+        return dOfficers;
     }
 
 
-    // Update the app admin account status
-    public DAppAdmin setUserStatus(String userId, String accountStatus, String detailUrl) {
-        LOG.debug("Update user status to " + accountStatus + " for Google user with id " + userId);
+    // Update the officer account status
+    public DOfficer setOfficerStatus(String userId, String accountStatus, String detailUrl) {
+        LOG.debug("Update officer status to " + accountStatus + " for Google user with id " + userId);
 
-        DAppAdmin dAppAdmin = appAdminDao.findByPrimaryKey(userId);
-        if (null == dAppAdmin)
+        DOfficer dOfficer = officerDao.findByPrimaryKey(userId);
+        if (null == dOfficer)
             return null;
 
         // Update datastore
-        dAppAdmin.setAccountStatus(accountStatus);
-        appAdminDao.persist(dAppAdmin);
+        dOfficer.setAccountStatus(accountStatus);
+        officerDao.persist(dOfficer);
 
-        return dAppAdmin;
+        return dOfficer;
     }
 
     // Setters and Getters
@@ -248,8 +241,8 @@ public class AppService {
         this.appDao = appDao;
     }
 
-    public void setAppAdminDao(DAppAdminDao appAdminDao) {
-        this.appAdminDao = appAdminDao;
+    public void setOfficerDao(DOfficerDao officerDao) {
+        this.officerDao = officerDao;
     }
 
     public void setEmailSender(EmailSender emailSender) {

@@ -9,11 +9,11 @@ import javax.persistence.Id;
 import java.io.Serializable;
 
 /**
- * Stores all application admins.
+ * Stores all application officers/admins.
  * @author mlv
  */
 @Entity
-public class DAppAdmin extends AEDStringEntity implements Serializable {
+public class DOfficer extends AEDStringEntity implements Serializable {
 
 
     /** The Google user unique user id */
@@ -39,7 +39,7 @@ public class DAppAdmin extends AEDStringEntity implements Serializable {
 
     /** The maximum number of apps this user can create */
     @Basic
-    private Long     maxNumberOfApps = 5L;
+    private Long        maxNumberOfApps = 5L;
 
 
     @Override

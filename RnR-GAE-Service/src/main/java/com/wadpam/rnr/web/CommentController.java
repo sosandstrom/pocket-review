@@ -50,7 +50,7 @@ public class CommentController {
     @RestReturn(value=JComment.class, entity=JComment.class, code={
             @RestCode(code=302, message="OK", description="Redirect to newly created comment")
     })
-    @RequestMapping(value="", method= RequestMethod.PUT)
+    @RequestMapping(value="", method= RequestMethod.POST)
     public RedirectView addComment(HttpServletRequest request,
                                    Principal principal,
                                    @RequestParam(required=true) String productId,
@@ -59,8 +59,7 @@ public class CommentController {
                                    @RequestParam(required=false) Float longitude,
                                    @RequestParam(required=true) String comment) {
 
-        final DComment body = rnrService.addComment(productId, username,
-                null != principal ? principal.getName() : null, latitude, longitude, comment);
+        final DComment body = rnrService.addComment(productId, username, latitude, longitude, comment);
 
         return new RedirectView(request.getRequestURI() + "/" + body.getId().toString());
     }
@@ -125,8 +124,7 @@ public class CommentController {
                                                               @RequestParam(required=false) String username) {
 
         try {
-            final Collection<DComment> body = rnrService.getMyComments(username,
-                    null != principal ? principal.getName() : null);
+            final Collection<DComment> body = rnrService.getMyComments(username);
 
             return new ResponseEntity<Collection<JComment>>((Collection<JComment>)Converter.convert(body, request),
                     HttpStatus.OK);

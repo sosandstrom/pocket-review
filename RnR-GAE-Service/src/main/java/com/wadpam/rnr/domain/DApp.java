@@ -24,13 +24,13 @@ public class DApp extends AEDStringEntity implements Serializable {
     @Basic
     private String      admin;
 
-    /** An unique appId generated when the app is created. Most be provided in the request from the apps */
+    /** An unique app user generated when the app is created. Most be provided in the request from the apps */
     @Basic
-    private String      appId;
+    private String      appUser;
 
-    /** A generated app key. Must be provided in the requests from the apps */
+    /** A generated app password. Must be provided in the requests from the apps */
     @Basic
-    private String      appKey;
+    private String      appPassword;
 
     /** Decides if an identified user only can like a product once  */
     @Basic
@@ -49,8 +49,8 @@ public class DApp extends AEDStringEntity implements Serializable {
 
     @Override
     public String toString() {
-        return String.format("{domain:%s, admin:%S appId:%s, appKey:%s, likeOncePerUser:%s, rateOncePerUser:%s}",
-                getDomainName(), getAdmin(), getAppId(), getAppKey(), getOnlyLikeOncePerUser(), getOnlyRateOncePerUser());
+        return String.format("{domain:%s, admin:%S appUser:%s, appPassword:%s, likeOncePerUser:%s, rateOncePerUser:%s}",
+                getDomainName(), getAdmin(), getAppUser(), getAppPassword(), getOnlyLikeOncePerUser(), getOnlyRateOncePerUser());
     }
 
 
@@ -71,20 +71,20 @@ public class DApp extends AEDStringEntity implements Serializable {
         this.admin = admin;
     }
 
-    public String getAppId() {
-        return appId;
+    public String getAppUser() {
+        return appUser;
     }
 
-    public void setAppId(String appId) {
-        this.appId = appId;
+    public void setAppUser(String appUser) {
+        this.appUser = appUser;
     }
 
-    public String getAppKey() {
-        return appKey;
+    public String getAppPassword() {
+        return appPassword;
     }
 
-    public void setAppKey(String appKey) {
-        this.appKey = appKey;
+    public void setAppPassword(String appPassword) {
+        this.appPassword = appPassword;
     }
 
     public Boolean getOnlyLikeOncePerUser() {

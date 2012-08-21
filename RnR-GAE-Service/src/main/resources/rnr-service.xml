@@ -30,7 +30,7 @@
 
     <bean id="appService" class="com.wadpam.rnr.service.AppService">
         <property name="appDao" ref="dAppDao" />
-        <property name="appAdminDao" ref="dAppAdminDao" />
+        <property name="officerDao" ref="dOfficerDao" />
         <property name="emailSender" ref="emailSender" />
     </bean>
 
@@ -66,21 +66,21 @@
         <property name="appDao" ref="dAppDao" />
     </bean>
 
-    <bean id="appAdminController" class="com.wadpam.rnr.web.AppAdminController">
+    <bean id="officerController" class="com.wadpam.rnr.web.OfficerController">
         <property name="appService" ref="appService" />
     </bean>
 
     <!--           Security             -->
 
-    <s:http pattern="/api/backoffice/user/login" security="none" />
-    <s:http pattern="/api/backoffice/user/logout" security="none" />
+    <s:http pattern="/api/backoffice/officer/login" security="none" />
+    <s:http pattern="/api/backoffice/officer/logout" security="none" />
 
     <s:http realm="rnr-backoffice" create-session="stateless"
             pattern="/api/backoffice/**" authentication-manager-ref="backofficeAuthenticationManager"
             entry-point-ref="gaeEntryPoint">
         <s:anonymous enabled="false"/>
-        <s:intercept-url pattern="/api/backoffice/user" access="ROLE_PENDING, ROLE_USER, ROLE_ADMIN" />
-        <s:intercept-url pattern="/api/backoffice/user/**" access="ROLE_ADMIN" />
+        <s:intercept-url pattern="/api/backoffice/officer" access="ROLE_PENDING, ROLE_USER, ROLE_ADMIN" />
+        <s:intercept-url pattern="/api/backoffice/officer/**" access="ROLE_ADMIN" />
         <s:intercept-url pattern="/api/backoffice/app/all" access="ROLE_ADMIN" />
         <s:intercept-url pattern="/api/backoffice/**" access="ROLE_USER" />
         <s:custom-filter position="PRE_AUTH_FILTER" ref="gaePreAuthenticationProcessingFilter" />
@@ -99,7 +99,7 @@
     </bean>
 
     <bean id="gaeUserService" class="com.wadpam.rnr.security.GaeUserDetailsService" >
-        <property name="appAdminDao" ref="dAppAdminDao" />
+        <property name="officerDao" ref="dOfficerDao" />
     </bean>
 
     <bean id="gaeEntryPoint" class="com.wadpam.rnr.security.GaeAuthenticationEntryPoint" />

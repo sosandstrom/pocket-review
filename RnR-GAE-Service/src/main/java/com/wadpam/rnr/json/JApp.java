@@ -12,11 +12,11 @@ public class JApp extends JBaseObject {
     /** The owner and admin for this app */
     private String      admin;
 
-    /** An unique appId generated when the app is created. Most be provided in the request from the apps */
-    private String      appId;
+    /** An unique app user generated when the app is created. Most be provided in the request from the apps */
+    private String      appUser;
 
-    /** A generated app key. Must be provided in the requests from the apps */
-    private String      appKey;
+    /** A generated app password. Must be provided in the requests from the apps */
+    private String      appPassword;
 
     /** Decides if an identified user only can like a product once  */
     private boolean     onlyLikeOncePerUser = true;
@@ -27,8 +27,8 @@ public class JApp extends JBaseObject {
 
     @Override
     public String subString() {
-        return String.format("{domain:%s, appId:%s, appKey:%s, likeOncePerUser:%d, rateOncePerUser:%d}",
-                getDomain(), getAppId(), getAppKey(), isOnlyLikeOncePerUser(), isOnlyLikeOncePerUser());
+        return String.format("{domain:%s, appUser:%s, appPassword:%s, likeOncePerUser:%d, rateOncePerUser:%d}",
+                getDomain(), getAppUser(), getAppPassword(), isOnlyLikeOncePerUser(), isOnlyLikeOncePerUser());
     }
 
     // Setters and Getters
@@ -48,20 +48,20 @@ public class JApp extends JBaseObject {
         this.admin = admin;
     }
 
-    public String getAppId() {
-        return appId;
+    public String getAppUser() {
+        return appUser;
     }
 
-    public void setAppId(String appId) {
-        this.appId = appId;
+    public void setAppUser(String appUser) {
+        this.appUser = appUser;
     }
 
-    public String getAppKey() {
-        return appKey;
+    public String getAppPassword() {
+        return appPassword;
     }
 
-    public void setAppKey(String appKey) {
-        this.appKey = appKey;
+    public void setAppPassword(String appPassword) {
+        this.appPassword = appPassword;
     }
 
     public boolean isOnlyLikeOncePerUser() {

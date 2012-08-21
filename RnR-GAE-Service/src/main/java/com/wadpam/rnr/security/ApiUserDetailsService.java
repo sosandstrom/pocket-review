@@ -41,7 +41,7 @@ public class ApiUserDetailsService implements UserDetailsService {
             Collection<GrantedAuthority> grantedAuthorities = new ArrayList<GrantedAuthority>(1);
             grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_APP"));
 
-            UserDetails userDetails = new User(dApp.getAppId(), dApp.getAppKey(), grantedAuthorities);
+            UserDetails userDetails = new User(dApp.getAppUser(), dApp.getAppPassword(), grantedAuthorities);
 
             return userDetails;
         } else {

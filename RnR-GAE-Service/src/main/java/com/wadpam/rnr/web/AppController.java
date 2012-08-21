@@ -54,13 +54,13 @@ public class AppController {
             @RestCode(code=302, message="OK", description="Redirect to newly created app"),
             @RestCode(code=412, message="NOK", description="User reached the limited of the number of apps that can be created")
 })
-    @RequestMapping(value="{domain}", method= RequestMethod.PUT)
+    @RequestMapping(value="{domain}", method= RequestMethod.POST)
     public ResponseEntity<JApp> createApp(HttpServletRequest request,
-                                                  HttpServletResponse response,
-                                                  Principal principal,
-                                                  @PathVariable String domain,
-                                                  @RequestParam(required=false, defaultValue="true") boolean onlyLikeOnce,
-                                                  @RequestParam(required=false, defaultValue="true") boolean onlyRateOnce) {
+                                          HttpServletResponse response,
+                                          Principal principal,
+                                          @PathVariable String domain,
+                                          @RequestParam(required=false, defaultValue="true") boolean onlyLikeOnce,
+                                          @RequestParam(required=false, defaultValue="true") boolean onlyRateOnce) {
 
         try {
             // Check that the current user is allowed to operate on this domain
@@ -155,8 +155,8 @@ public class AppController {
     })
     @RequestMapping(value="{domain}", method= RequestMethod.GET)
     public ResponseEntity<JApp> getApp(HttpServletRequest request,
-                                               Principal principal,
-                                               @PathVariable String domain) {
+                                       Principal principal,
+                                       @PathVariable String domain) {
 
         DApp body = appService.getApp(domain);
 
@@ -181,9 +181,9 @@ public class AppController {
     })
     @RequestMapping(value="{domain}", method= RequestMethod.DELETE)
     public ResponseEntity<JApp> deleteApp(HttpServletRequest request,
-                                                  HttpServletResponse response,
-                                                  Principal principal,
-                                                  @PathVariable String domain) {
+                                          HttpServletResponse response,
+                                          Principal principal,
+                                          @PathVariable String domain) {
 
         // Check that the current user is allowed to operate on this domain
         if (!isCurrentUserAllowedToAccessDomain(domain))
@@ -236,29 +236,29 @@ public class AppController {
     }
 
     /**
-     * Generate new app key.
-     * @return redirect to the newly create app
+     * Generate new app password.
+     * @return redirect to the updated app
      */
     @RestReturn(value=JApp.class, entity=JApp.class, code={
             @RestCode(code=302, message="OK", description="Redirect to updated app")            ,
             @RestCode(code=404, message="NOK", description="No app found for that domain")
     })
-    @RequestMapping(value="{domain}/appKey", method= RequestMethod.POST)
-    public ResponseEntity<JApp> generateNewAppKey(HttpServletRequest request,
-                                                  HttpServletResponse response,
-                                                  Principal principal,
-                                                  @PathVariable String domain) {
+    @RequestMapping(value="{domain}/password", method= RequestMethod.POST)
+    public ResponseEntity<JApp> generateNewAppPassword(HttpServletRequest request,
+                                                       HttpServletResponse response,
+                                                       Principal principal,
+                                                       @PathVariable String domain) {
 
         try {
             // Check that the current user is allowed to operate on this domain
             if (!isCurrentUserAllowedToAccessDomain(domain))
                 return new ResponseEntity<JApp>(HttpStatus.UNAUTHORIZED);
 
-            DApp body = appService.generateNewAppKey(domain);
+            DApp body = appService.generateNewAppPassword(domain);
 
             // Figure out the base url
             String redirectUrl = null;
-            Pattern pattern = Pattern.compile("^(.*)/appKey");
+            Pattern pattern = Pattern.compile("^(.*)/password");
             Matcher matcher = pattern.matcher(request.getRequestURL().toString());
             if (matcher.find())
                 redirectUrl = matcher.group(1);
@@ -274,7 +274,7 @@ public class AppController {
             }
         }
         catch (IOException e) {
-            LOG.error("Not possible to create redirect url after generating new app key for domain " + domain);
+            LOG.error("Not possible to create redirect url after generating new app password for domain " + domain);
             return new ResponseEntity<JApp>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

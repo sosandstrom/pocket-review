@@ -1,12 +1,11 @@
 package com.wadpam.rnr.web;
 
-import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.wadpam.docrest.domain.RestCode;
 import com.wadpam.docrest.domain.RestReturn;
-import com.wadpam.rnr.domain.DAppAdmin;
-import com.wadpam.rnr.json.JAppAdmin;
+import com.wadpam.rnr.domain.DOfficer;
+import com.wadpam.rnr.json.JOfficer;
 import com.wadpam.rnr.security.GaeUserDetails;
 import com.wadpam.rnr.service.AppService;
 import org.slf4j.Logger;
@@ -15,7 +14,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.web.authentication.preauth.PreAuthenticatedCredentialsNotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,28 +29,28 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * The apps controller implements all REST methods related to managing backoffice users.
+ * The apps controller implements all REST methods related to managing backoffice users - officers.
  * @author mlv
  */
 @Controller
-@RequestMapping(value="backoffice/user")
-public class AppAdminController {
+@RequestMapping(value="backoffice/officer")
+public class OfficerController {
 
-    static final Logger LOG = LoggerFactory.getLogger(AppAdminController.class);
+    static final Logger LOG = LoggerFactory.getLogger(OfficerController.class);
 
     private AppService appService;
 
     /**
-     * Login. Redirect to Google authentication if needed.
+     * Login officer. Redirect to Google authentication if needed.
      * @return the and http response code indicating the outcome of the operation
      */
-    @RestReturn(value=JAppAdmin.class, entity=JAppAdmin.class, code={
+    @RestReturn(value=JOfficer.class, entity=JOfficer.class, code={
             @RestCode(code=200, message="OK", description="Successful login"),
     })
     @RequestMapping(value="login", method= RequestMethod.GET)
-    public ResponseEntity<JAppAdmin> loginUser(HttpServletRequest request,
-                                               HttpServletResponse response,
-                                               Principal principal) {
+    public ResponseEntity<JOfficer> loginOfficer(HttpServletRequest request,
+                                                 HttpServletResponse response,
+                                                 Principal principal) {
 
         try {
             // Figure out the base url
@@ -83,21 +81,21 @@ public class AppAdminController {
         }
         catch (IOException e) {
             LOG.error("Not possible to create redirect url to Google with message: " + e.getMessage());
-            return new ResponseEntity<JAppAdmin>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<JOfficer>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     /**
-     * Logout. Redirect to Google if needed.
+     * Logout officer. Redirect to Google if needed.
      * @return the and http response code indicating the outcome of the operation
      */
-    @RestReturn(value=JAppAdmin.class, entity=JAppAdmin.class, code={
+    @RestReturn(value=JOfficer.class, entity=JOfficer.class, code={
             @RestCode(code=302, message="OK", description="Successful logout"),
     })
     @RequestMapping(value="logout", method= RequestMethod.GET)
-    public ResponseEntity<JAppAdmin> logoutUser(HttpServletRequest request,
-                                                HttpServletResponse response,
-                                                Principal principal) {
+    public ResponseEntity<JOfficer> logoutOfficer(HttpServletRequest request,
+                                                  HttpServletResponse response,
+                                                  Principal principal) {
 
         try {
             // Figure out the base url
@@ -127,52 +125,52 @@ public class AppAdminController {
         }
         catch (IOException e) {
             LOG.error("Not possible to create redirect url to Google with message: " + e.getMessage());
-            return new ResponseEntity<JAppAdmin>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<JOfficer>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     /**
-     * Create a new user for the currently logged in Google user.
+     * Create a new officer for the currently logged in Google user.
      * @param name optional. The users nickname that will be used as display name
      * @return redirect to the newly create user details
      */
-    @RestReturn(value=JAppAdmin.class, entity=JAppAdmin.class, code={
-            @RestCode(code=302, message="OK", description="Redirect to newly created user details")
+    @RestReturn(value=JOfficer.class, entity=JOfficer.class, code={
+            @RestCode(code=302, message="OK", description="Redirect to newly created officer details")
     })
-    @RequestMapping(value="", method= RequestMethod.PUT)
-    public ResponseEntity<JAppAdmin> createUser(HttpServletRequest request,
-                                                HttpServletResponse response,
-                                                Principal principal,
-                                                @RequestParam(required = false) String name) {
+    @RequestMapping(value="", method= RequestMethod.POST)
+    public ResponseEntity<JOfficer> createOfficer(HttpServletRequest request,
+                                                  HttpServletResponse response,
+                                                  Principal principal,
+                                                  @RequestParam(required = false) String name) {
 
         try {
             // Get current user
-            GaeUserDetails user = getCurrentUserUserDetails();
+            GaeUserDetails user = getCurrentUserDetails();
             if (null == user)
-                return new ResponseEntity<JAppAdmin>(HttpStatus.UNAUTHORIZED);
+                return new ResponseEntity<JOfficer>(HttpStatus.UNAUTHORIZED);
 
-            DAppAdmin body = appService.createUser(user.getUsername(), user.getEmail(), name, request.getRequestURL().toString());
+            DOfficer body = appService.createOfficer(user.getUsername(), user.getEmail(), name, request.getRequestURL().toString());
 
             response.sendRedirect(request.getRequestURI());
             return null; // Do nothing, the redirect handle things
         }
         catch (IOException e) {
-            LOG.error("Not possible to create redirect url for " + request.getRequestURI() + "after creating a new backoffice user");
-            return new ResponseEntity<JAppAdmin>(HttpStatus.INTERNAL_SERVER_ERROR);
+            LOG.error("Not possible to create redirect url for " + request.getRequestURI() + "after creating a new backoffice officer");
+            return new ResponseEntity<JOfficer>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     // Get the current user id from Spring security
     private String getCurrentUserId() {
         // Get the current user id from Spring security
-        UserDetails userDetails = getCurrentUserUserDetails();
+        UserDetails userDetails = getCurrentUserDetails();
         if (null == userDetails)
             return null;
         else
             return userDetails.getUsername();
     }
 
-    private GaeUserDetails getCurrentUserUserDetails() {
+    private GaeUserDetails getCurrentUserDetails() {
         // Get the current user id from Spring security
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (principal instanceof GaeUserDetails)
@@ -182,119 +180,119 @@ public class AppAdminController {
     }
 
     /**
-     * Delete the currently logged in Google user.
+     * Delete the officer for the currently logged in Google user.
      * @return the http response code indicating the outcome of the operation
      */
-    @RestReturn(value=JAppAdmin.class, entity=JAppAdmin.class, code={
-            @RestCode(code=200, message="OK", description="User deleted"),
-            @RestCode(code=404, message="NOK", description="User details not found for user")
+    @RestReturn(value=JOfficer.class, entity=JOfficer.class, code={
+            @RestCode(code=200, message="OK", description="Officer deleted"),
+            @RestCode(code=404, message="NOK", description="Officer details not found for user")
     })
     @RequestMapping(value="", method= RequestMethod.DELETE)
-    public ResponseEntity<JAppAdmin> deleteCurrentUser(HttpServletRequest request,
-                                                       HttpServletResponse response,
-                                                       Principal principal) {
+    public ResponseEntity<JOfficer> deleteCurrentOfficer(HttpServletRequest request,
+                                                         HttpServletResponse response,
+                                                         Principal principal) {
 
         // Get current user id
         String userId = getCurrentUserId();
         if (null == userId)
-            return new ResponseEntity<JAppAdmin>(HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<JOfficer>(HttpStatus.UNAUTHORIZED);
 
-        DAppAdmin body = appService.deleteUser(userId);
+        DOfficer body = appService.deleteOfficer(userId);
         if (null == body)
-            return new ResponseEntity<JAppAdmin>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<JOfficer>(HttpStatus.NOT_FOUND);
         else
-            return new ResponseEntity<JAppAdmin>(HttpStatus.OK);
+            return new ResponseEntity<JOfficer>(HttpStatus.OK);
     }
 
     /**
-     * Delete a specified user.
+     * Delete a specified officer.
      * @return the http response code indicating the outcome of the operation
      */
-    @RestReturn(value=JAppAdmin.class, entity=JAppAdmin.class, code={
-            @RestCode(code=200, message="OK", description="User deleted"),
-            @RestCode(code=404, message="NOK", description="User details not found for user")
+    @RestReturn(value=JOfficer.class, entity=JOfficer.class, code={
+            @RestCode(code=200, message="OK", description="Officer deleted"),
+            @RestCode(code=404, message="NOK", description="Officer details not found for user")
     })
     @RequestMapping(value="{userId}", method= RequestMethod.DELETE)
-    public ResponseEntity<JAppAdmin> deleteUser(HttpServletRequest request,
-                                                HttpServletResponse response,
-                                                Principal principal,
-                                                @PathVariable String userId) {
+    public ResponseEntity<JOfficer> deleteOfficer(HttpServletRequest request,
+                                                  HttpServletResponse response,
+                                                  Principal principal,
+                                                  @PathVariable String userId) {
 
-        DAppAdmin body = appService.deleteUser(userId);
+        DOfficer body = appService.deleteOfficer(userId);
         if (null == body)
-            return new ResponseEntity<JAppAdmin>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<JOfficer>(HttpStatus.NOT_FOUND);
         else
-            return new ResponseEntity<JAppAdmin>(HttpStatus.OK);
+            return new ResponseEntity<JOfficer>(HttpStatus.OK);
     }
 
     /**
-     * Get the currently logged in Google user details.
-     * @return the user details
+     * Get officer details for the currently logged in Google user.
+     * @return the officer details
      */
-    @RestReturn(value=JAppAdmin.class, entity=JAppAdmin.class, code={
-            @RestCode(code=200, message="OK", description="User details found"),
-            @RestCode(code=404, message="NOK", description="User details not found for user")
+    @RestReturn(value=JOfficer.class, entity=JOfficer.class, code={
+            @RestCode(code=200, message="OK", description="Officer details found"),
+            @RestCode(code=404, message="NOK", description="Officer details not found for user")
     })
     @RequestMapping(value="", method= RequestMethod.GET)
-    public ResponseEntity<JAppAdmin> getCurrentUser(HttpServletRequest request,
-                                                    HttpServletResponse response,
-                                                    Principal principal) {
+    public ResponseEntity<JOfficer> getCurrentOfficer(HttpServletRequest request,
+                                                      HttpServletResponse response,
+                                                      Principal principal) {
 
         // Get user id from Spring context
         String userId = getCurrentUserId();
         if (null == userId)
-            return new ResponseEntity<JAppAdmin>(HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<JOfficer>(HttpStatus.UNAUTHORIZED);
 
-        DAppAdmin body = appService.getUser(userId);
+        DOfficer body = appService.getOfficer(userId);
 
         if (null == body)
-            return new ResponseEntity<JAppAdmin>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<JOfficer>(HttpStatus.NOT_FOUND);
         else
-            return new ResponseEntity<JAppAdmin>(Converter.convert(body, request), HttpStatus.OK);
+            return new ResponseEntity<JOfficer>(Converter.convert(body, request), HttpStatus.OK);
     }
 
     /**
-     * Get user details for a specific user.
+     * Get officer details for a specific user.
      * @param userId the user id
-     * @return the user details
+     * @return the officer details
      */
-    @RestReturn(value=JAppAdmin.class, entity=JAppAdmin.class, code={
-            @RestCode(code=200, message="OK", description="User details found"),
-            @RestCode(code=404, message="NOK", description="User details not found for user")
+    @RestReturn(value=JOfficer.class, entity=JOfficer.class, code={
+            @RestCode(code=200, message="OK", description="Officer details found"),
+            @RestCode(code=404, message="NOK", description="Officer details not found for user")
     })
     @RequestMapping(value="{userId}", method= RequestMethod.GET)
-    public ResponseEntity<JAppAdmin> getUser(HttpServletRequest request,
-                                             HttpServletResponse response,
-                                             Principal principal,
-                                             @PathVariable String userId) {
+    public ResponseEntity<JOfficer> getOfficer(HttpServletRequest request,
+                                               HttpServletResponse response,
+                                               Principal principal,
+                                               @PathVariable String userId) {
 
-        DAppAdmin body = appService.getUser(userId);
+        DOfficer body = appService.getOfficer(userId);
 
         if (null == body)
-            return new ResponseEntity<JAppAdmin>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<JOfficer>(HttpStatus.NOT_FOUND);
         else
-            return new ResponseEntity<JAppAdmin>(Converter.convert(body, request), HttpStatus.OK);
+            return new ResponseEntity<JOfficer>(Converter.convert(body, request), HttpStatus.OK);
     }
 
     /**
-     * Get all users in the system.
+     * Get all officers in the system.
      * @return a list of users
      */
-    @RestReturn(value=JAppAdmin.class, entity=JAppAdmin.class, code={
-            @RestCode(code=200, message="OK", description="User accounts found"),
+    @RestReturn(value=JOfficer.class, entity=JOfficer.class, code={
+            @RestCode(code=200, message="OK", description="Officer accounts found"),
     })
     @RequestMapping(value="all", method= RequestMethod.GET)
     // TODO: Should support pagination
-    public ResponseEntity<Collection<JAppAdmin>> getAllUser(HttpServletRequest request,
-                                                            HttpServletResponse response,
-                                                            Principal principal) {
+    public ResponseEntity<Collection<JOfficer>> getAllOfficers(HttpServletRequest request,
+                                                               HttpServletResponse response,
+                                                               Principal principal) {
 
-        Collection<DAppAdmin> body = appService.getAllUsers();
-        return new ResponseEntity<Collection<JAppAdmin>>((Collection<JAppAdmin>)Converter.convert(body, request), HttpStatus.OK);
+        Collection<DOfficer> body = appService.getAllOfficers();
+        return new ResponseEntity<Collection<JOfficer>>((Collection<JOfficer>)Converter.convert(body, request), HttpStatus.OK);
     }
 
     /**
-     * Change the status for a user.
+     * Change the status of an officer.
      * @param userId the user to change status for
      * @param status the new status
      *               1 - pending
@@ -302,15 +300,15 @@ public class AppAdminController {
      *               3 - suspended
      * @return redirect to the updated user details
      */
-    @RestReturn(value=JAppAdmin.class, entity=JAppAdmin.class, code={
-            @RestCode(code=302, message="OK", description="Redirect to the updated user details")
+    @RestReturn(value=JOfficer.class, entity=JOfficer.class, code={
+            @RestCode(code=302, message="OK", description="Redirect to the updated officer details")
     })
     @RequestMapping(value="{userId}/status/{status}", method= RequestMethod.POST)
-    public ResponseEntity<JAppAdmin> setUserStatus(HttpServletRequest request,
-                                                   HttpServletResponse response,
-                                                   Principal principal,
-                                                   @PathVariable String userId,
-                                                   @PathVariable int status) {
+    public ResponseEntity<JOfficer> setOfficerStatus(HttpServletRequest request,
+                                                     HttpServletResponse response,
+                                                     Principal principal,
+                                                     @PathVariable String userId,
+                                                     @PathVariable int status) {
 
         try {
             String accountStatus;
@@ -326,20 +324,20 @@ public class AppAdminController {
                     break;
                 default:
                     LOG.error("Trying to set account status to state not supported " + status);
-                    return new ResponseEntity<JAppAdmin>(HttpStatus.BAD_REQUEST);
+                    return new ResponseEntity<JOfficer>(HttpStatus.BAD_REQUEST);
             }
 
             // Figure out the base url
             String redirectUrl = null;
-            Pattern pattern = Pattern.compile("^(.*/user/)*");
+            Pattern pattern = Pattern.compile("^(.*/officer/)*");
             Matcher matcher = pattern.matcher(request.getRequestURL().toString());
             if (matcher.find())
                 redirectUrl = matcher.group(1);
 
-            DAppAdmin body = appService.setUserStatus(userId, accountStatus, redirectUrl);
+            DOfficer body = appService.setOfficerStatus(userId, accountStatus, redirectUrl);
 
             if (null == body) {
-                return new ResponseEntity<JAppAdmin>(HttpStatus.NOT_FOUND);
+                return new ResponseEntity<JOfficer>(HttpStatus.NOT_FOUND);
             }
             else {
                 if (null == redirectUrl)
@@ -350,8 +348,8 @@ public class AppAdminController {
             }
         }
         catch (IOException e) {
-            LOG.error("Not possible to create redirect url after updating user account status");
-            return new ResponseEntity<JAppAdmin>(HttpStatus.INTERNAL_SERVER_ERROR);
+            LOG.error("Not possible to create redirect url after updating officer account status");
+            return new ResponseEntity<JOfficer>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

@@ -47,7 +47,7 @@ public class RatingController {
     @RestReturn(value=JRating.class, entity=JRating.class, code={
         @RestCode(code=302, message="OK", description="Redirect to newly created rating")
     })
-    @RequestMapping(value="", method= RequestMethod.PUT)
+    @RequestMapping(value="", method= RequestMethod.POST)
     public RedirectView addRating(HttpServletRequest request,
                                   Principal principal,
                                   @PathVariable String domain,
@@ -58,8 +58,7 @@ public class RatingController {
                                   @RequestParam int rating,
                                   @RequestParam(required=false) String comment) {
 
-        final DRating body = rnrService.addRating(domain, productId, username,
-                null != principal ? principal.getName() : null, latitude, longitude, rating, comment);
+        final DRating body = rnrService.addRating(domain, productId, username, latitude, longitude, rating, comment);
 
         return new RedirectView(request.getRequestURI() + "/" + body.getId().toString());
     }
@@ -124,8 +123,7 @@ public class RatingController {
                                                             @RequestParam(required=false) String username) {
 
         try {
-            final Collection<DRating> body = rnrService.getMyRatings(username,
-                    null != principal ? principal.getName() : null);
+            final Collection<DRating> body = rnrService.getMyRatings(username);
 
             return new ResponseEntity<Collection<JRating>>((Collection<JRating>)Converter.convert(body, request),
                     HttpStatus.OK);
