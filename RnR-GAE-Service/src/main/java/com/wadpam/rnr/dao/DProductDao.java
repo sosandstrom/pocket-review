@@ -4,7 +4,7 @@ import com.google.appengine.api.datastore.Key;
 import com.wadpam.rnr.domain.DProduct;
 
 import java.util.Collection;
-import java.util.Map;
+import net.sf.mardao.api.geo.aed.GeoDao;
 
 /**
  * Business Methods interface for entity DProduct.
@@ -14,7 +14,7 @@ import java.util.Map;
  * Generated on 2012-08-05T20:54:54.772+0700.
  * @author mardao DAO generator (net.sf.mardao.plugin.ProcessDomainMojo)
  */
-public interface DProductDao extends GeneratedDProductDao<Key, Key> {
+public interface DProductDao extends GeneratedDProductDao<Key, Key>, GeoDao<DProduct, String> {
 
     /**
      * Find most liked product

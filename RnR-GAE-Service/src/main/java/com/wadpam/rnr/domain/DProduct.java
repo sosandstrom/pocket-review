@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.wadpam.rnr.domain;
 
 
@@ -14,15 +10,16 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import java.io.Serializable;
 import java.util.Collection;
+import net.sf.mardao.api.geo.aed.GeoModel;
 
 /**
  * The domain object for Products.
  * @author os
  */
 @Entity
-public class DProduct extends AEDStringEntity implements Serializable {
+public class DProduct extends AEDStringEntity implements Serializable, GeoModel {
 
-    private static final long serialVersionUID = -2815964311490330922L;   // TODO: Implement GeoModel
+    private static final long serialVersionUID = -2815964311490330958L;
 
 
     /** The Many-To-One productId (unconstrained) */
@@ -76,12 +73,12 @@ public class DProduct extends AEDStringEntity implements Serializable {
 
 //    @Override
     public float getLatitude() {
-        return null != location ? location.getLatitude() : 0;
+        return null != location ? location.getLatitude() : -200;
     }
 
 //    @Override
     public float getLongitude() {
-        return null != location ? location.getLongitude() : 0;
+        return null != location ? location.getLongitude() : -200;
     }
 
 //    @Override

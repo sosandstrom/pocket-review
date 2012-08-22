@@ -21,14 +21,13 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <itest.include>**/*ITest.java</itest.include>
         <surefire.default.skip>true</surefire.default.skip>
-        <mardao.version>1.35</mardao.version>
         <javadocExecutable>${java.home}/../bin/javadoc</javadocExecutable>
         <docrest.version>1.13</docrest.version>
         <logging.level>ALL</logging.level>
 
         <!-- Change the values below to an admin email address -->
-        <email.from.address>mattias.levin@mail.com</email.from.address>
-        <email.from.name>Mattias</email.from.name>
+        <email.from.address>mattias.levin@gmail.com</email.from.address>
+        <email.from.name>Pocket-Review</email.from.name>
 
     </properties>
 

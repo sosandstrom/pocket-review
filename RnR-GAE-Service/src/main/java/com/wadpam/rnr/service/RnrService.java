@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.wadpam.rnr.service;
 
 import com.google.appengine.api.datastore.*;
@@ -13,6 +9,7 @@ import java.io.PrintWriter;
 import java.util.*;
 
 import net.sf.mardao.api.geo.aed.GeoDao;
+import net.sf.mardao.api.geo.aed.GeoDaoImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,11 +29,11 @@ public class RnrService {
     private DLikeDao likeDao;
     private DCommentDao commentDao;
     private DFavoritesDao favoritesDao;
-    private GeoDao geoResultDao;
+    private GeoDao geoProductDao;
 
 
     public void init() {
-        //geoResultDao = new GeoDaoImpl<DProduct, DProduct>(productDao);  // TODO: Uncomment once the DResult implement GeoModel
+        geoProductDao = new GeoDaoImpl<String, DProduct, DProduct>(productDao);
 
 //        doInDomain("dev", new Runnable() { // TODO: Not used remove?
 //
@@ -487,14 +484,11 @@ public class RnrService {
 
     // Find nearby products with different sort order
     public Collection<DProduct> findNearbyProducts(Float latitude, Float longitude, int bits, int sortOrder, int limit) {
-        // TODO: The location should be a property on DResult (not DRating). Needs refactoring
-        //final Collection<DRating> list = geoRatingDao.findInGeobox(latitude, longitude, bits, ratingDao.COLUMN_NAME_RATING, false, 0, 10);
 
-        // TODO: Implement sort order
+        // TODO: map sortOrder to COLUMN_NAMEs
+        final Collection<DProduct> list = geoProductDao.findInGeobox(latitude, longitude, bits, productDao.COLUMN_NAME_RATINGAVERAGE, false, 0, 10);
 
-        // TODO: Add max number of hits to return
-
-        throw new UnsupportedOperationException("Not yet implemented");
+        return list;
     }
 
 

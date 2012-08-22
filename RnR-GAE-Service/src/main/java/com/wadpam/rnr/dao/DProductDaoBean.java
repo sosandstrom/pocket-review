@@ -3,10 +3,8 @@ package com.wadpam.rnr.dao;
 import com.google.appengine.api.datastore.*;
 import com.wadpam.rnr.domain.DProduct;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import net.sf.mardao.api.dao.Expression;
 
 /**
  * Implementation of Business Methods related to entity DProduct.
@@ -81,5 +79,27 @@ public class DProductDaoBean
         String newCursor = entities.getCursor().toWebSafeString();
 
         return newCursor;
+    }
+    
+    // --- implements GeoDao ---
+
+    @Override
+    public String getGeoboxesColumnName() {
+        return COLUMN_NAME_GEOBOXES;
+    }
+
+    @Override
+    public Collection findGeoBase(String orderBy, boolean ascending, int limit, int offset, Expression... filters) {
+        return findBy(orderBy, ascending, limit, offset, filters);
+    }
+
+    @Override
+    public Collection findInGeobox(float lat, float lng, int bits, String orderBy, boolean ascending, int offset, int limit, Expression... filters) {
+        throw new UnsupportedOperationException("Invoke on geoProductDao only.");
+    }
+
+    @Override
+    public String save(DProduct model) {
+        return update(model);
     }
 }
