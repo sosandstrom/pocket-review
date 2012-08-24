@@ -12,10 +12,12 @@
 
 	<!-- ============== DaoBeans for entities in package com.wadpam.rnr.domain ============ -->
 	<bean id="dRatingDao" 
-		class="com.wadpam.rnr.dao.DRatingDaoBean">
+		class="com.wadpam.rnr.dao.DRatingDaoBean"
+                init-method="init">
 	</bean>
 	<bean id="dResultDao" 
-		class="com.wadpam.rnr.dao.DResultDaoBean">
+		class="com.wadpam.rnr.dao.DResultDaoBean"
+                init-method="init">
 	</bean>
 	
 

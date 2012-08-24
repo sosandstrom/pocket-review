@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.wadpam.rnr</groupId>
     <artifactId>service-gae</artifactId>
-    <version>1.2</version>
+    <version>1.2.1</version>
     <packaging>jar</packaging>
     <name>RnR GAE Service</name>
 
@@ -16,8 +16,8 @@
         <spring.version>3.1.1.RELEASE</spring.version>
         <spring.security.version>3.1.0.RELEASE</spring.security.version>
         <spring-social.version>1.0.1.RELEASE</spring-social.version>
-        <mardao.version>1.32</mardao.version>
-        <docrest.version>1.13</docrest.version>
+        <mardao.version>1.36</mardao.version>
+        <docrest.version>1.14</docrest.version>
         <javadocExecutable>${java.home}/../bin/javadoc</javadocExecutable>
     </properties>
 
@@ -127,25 +127,6 @@
                 </configuration>
             </plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.8</version>
-                <configuration>
-                    <author>false</author>
-                    <doclet>com.wadpam.docrest.DocRestDoclet</doclet>
-                    <docletArtifact>
-                        <groupId>com.wadpam</groupId>
-                        <artifactId>docrest</artifactId>
-                        <version>${docrest.version}</version>
-                    </docletArtifact>
-                    <encoding>UTF-8</encoding>
-                    <javadocExecutable>${javadocExecutable}</javadocExecutable>
-                    <sourcepath>src/main/java</sourcepath>
-                    <useStandardDocletOptions>false</useStandardDocletOptions>
-                    <verbose>true</verbose>
-                </configuration>
-            </plugin>
         </plugins>
         
     </build>
@@ -233,6 +214,35 @@
 	</dependency>
 		
     </dependencies>
+    
+    <profiles>
+        <profile>
+            <id>javadoc</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>2.8</version>
+                        <configuration>
+                            <author>false</author>
+                            <doclet>com.wadpam.docrest.DocRestDoclet</doclet>
+                            <docletArtifact>
+                                <groupId>com.wadpam</groupId>
+                                <artifactId>docrest</artifactId>
+                                <version>${docrest.version}</version>
+                            </docletArtifact>
+                            <encoding>UTF-8</encoding>
+                            <javadocExecutable>${javadocExecutable}</javadocExecutable>
+                            <sourcepath>src/main/java</sourcepath>
+                            <useStandardDocletOptions>false</useStandardDocletOptions>
+                            <verbose>true</verbose>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
     
     <repositories>
     </repositories>
