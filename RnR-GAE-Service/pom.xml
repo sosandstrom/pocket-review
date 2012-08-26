@@ -17,7 +17,7 @@
         <spring.security.version>3.1.1.RELEASE</spring.security.version>
         <spring-social.version>1.0.1.RELEASE</spring-social.version>
         <mardao.version>1.37-SNAPSHOT</mardao.version>
-        <docrest.version>1.13</docrest.version>
+        <docrest.version>1.14</docrest.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <javadocExecutable>${java.home}/../bin/javadoc</javadocExecutable>
     </properties>
@@ -128,38 +128,11 @@
                 </configuration>
             </plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.8</version>
-                <configuration>
-                    <author>false</author>
-                    <doclet>com.wadpam.docrest.DocRestDoclet</doclet>
-                    <docletArtifact>
-                        <groupId>com.wadpam</groupId>
-                        <artifactId>docrest</artifactId>
-                        <version>${docrest.version}</version>
-                    </docletArtifact>
-                    <encoding>UTF-8</encoding>
-                    <javadocExecutable>${javadocExecutable}</javadocExecutable>
-                    <sourcepath>src/main/java</sourcepath>
-                    <useStandardDocletOptions>false</useStandardDocletOptions>
-                    <verbose>true</verbose>
-                </configuration>
-            </plugin>
         </plugins>
         
     </build>
 
     <dependencies>
-
-        <dependency>
-            <groupId>com.sun</groupId>
-            <artifactId>tools</artifactId>
-            <version>1.7</version>
-            <scope>system</scope>
-            <systemPath>${toolsjar}</systemPath>
-        </dependency>
 
         <dependency>
             <groupId>net.sf.mardao</groupId>
@@ -305,6 +278,42 @@
             <properties>
                 <toolsjar>${java.home}/../Classes/classes.jar</toolsjar>
             </properties>
+        </profile>
+        <profile>
+            <id>javadoc</id>
+            <dependencies>
+                <dependency>
+                    <groupId>com.sun</groupId>
+                    <artifactId>tools</artifactId>
+                    <version>1.7</version>
+                    <scope>system</scope>
+                    <systemPath>${toolsjar}</systemPath>
+                </dependency>
+            </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>2.8</version>
+                        <configuration>
+                            <author>false</author>
+                            <doclet>com.wadpam.docrest.DocRestDoclet</doclet>
+                            <docletArtifact>
+                                <groupId>com.wadpam</groupId>
+                                <artifactId>docrest</artifactId>
+                                <version>${docrest.version}</version>
+                            </docletArtifact>
+                            <encoding>UTF-8</encoding>
+                            <javadocExecutable>${javadocExecutable}</javadocExecutable>
+                            <sourcepath>src/main/java</sourcepath>
+                            <useStandardDocletOptions>false</useStandardDocletOptions>
+                            <verbose>true</verbose>
+                        </configuration>
+                    </plugin>
+                    
+                </plugins>
+            </build>
         </profile>
     </profiles>
 
