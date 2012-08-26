@@ -48,7 +48,7 @@ public class GaeConcurrentOperationExecutor implements Ordered {
 
             // Sleep for a short time
             if (numberOfAttempts <= this.maxRetries)
-                wait(DEFAULT_WAIT * numberOfAttempts);
+                Thread.sleep(DEFAULT_WAIT * numberOfAttempts);
 
         }
         while(numberOfAttempts <= this.maxRetries);

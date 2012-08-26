@@ -13,26 +13,7 @@
     <!--           Security             -->
     <import resource="spring-security.xml" />
 
-    <!-- properties -->
-
-    <!--
-    <bean id="applicationPropertyResource" class="org.springframework.core.io.ClassPathResource">
-        <constructor-arg value="application.properties" />
-    </bean>
-
-
-
-    <bean class="org.springframework.context.support.PropertySourcePlaceholderConfigurer">
-        <property name="location">
-            <list>
-                <value>classpath:application.properties</value>
-            </list>
-        </property>
-        <property name="ignoreUnresolvablePlaceholders" value="true"/>
-    </bean>
-
-    -->
-
+    <!--           Application properties         -->
     <context:property-placeholder location="classpath:application.properties"
                                   ignore-resource-not-found="true"/>
 

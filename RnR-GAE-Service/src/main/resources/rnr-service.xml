@@ -111,7 +111,7 @@
 
     <s:http realm="rnr-app" create-session="stateless"
             pattern="/api/**" authentication-manager-ref="apiAuthenticationManager">
-        <s:anonymous enabled="false" granted-authority="ROLE_APP" key="aL5Mge85F"/>  <!-- Set to true to turn for API authentication -->
+        <s:anonymous enabled="true" granted-authority="ROLE_APP" key="aL5Mge85F"/>  <!-- Set to true to turn off API authentication -->
         <s:intercept-url pattern="/api/**" access="ROLE_APP" />
         <s:http-basic />
     </s:http>

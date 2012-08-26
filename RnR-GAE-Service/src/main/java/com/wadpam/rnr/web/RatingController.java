@@ -3,6 +3,7 @@ package com.wadpam.rnr.web;
 import com.wadpam.docrest.domain.RestCode;
 import com.wadpam.docrest.domain.RestReturn;
 import com.wadpam.rnr.domain.DRating;
+import com.wadpam.rnr.json.JHistogram;
 import com.wadpam.rnr.json.JRating;
 import com.wadpam.rnr.service.RnrService;
 import org.slf4j.Logger;
@@ -19,6 +20,7 @@ import org.springframework.web.servlet.view.RedirectView;
 import javax.servlet.http.HttpServletRequest;
 import java.security.Principal;
 import java.util.Collection;
+import java.util.Map;
 
 
 /**
@@ -150,6 +152,29 @@ public class RatingController {
 
         return new ResponseEntity<Collection<JRating>>((Collection<JRating>)Converter.convert(body, request),
                 HttpStatus.OK);
+    }
+
+    /**
+     * Returns a histogram over all ratings for a specific product.
+     * @param productId the product to looks for
+     * @param interval Optinal. the interval in the returned histogram. Default 10.
+     * @return a histogram
+     */
+    @RestReturn(value=JHistogram.class, entity=JHistogram.class, code={
+            @RestCode(code=200, message="OK", description="Histogram for product")
+    })
+    @RequestMapping(value="histogram", method= RequestMethod.GET, params="productId")
+    public ResponseEntity<JHistogram> getHistogramForProduct(HttpServletRequest request,
+                                                             Principal principal,
+                                                             @RequestParam(required=true) String productId,
+                                                             @RequestParam(required=false, defaultValue="10") int interval) {
+
+        final Map<Long, Long> values = rnrService.getHistogramForProduct(productId, interval);
+        JHistogram histogram = new JHistogram();
+        histogram.setInterval(interval);
+        histogram.setHistogram(values);
+
+        return new ResponseEntity<JHistogram>(histogram, HttpStatus.OK);
     }
 
 

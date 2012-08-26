@@ -38,6 +38,11 @@ public class CommentController {
 
     /**
      * Add a comment to a product.
+     *
+     * If you like to comment on a ratings, you can use the rating id as the product id.
+     * If you need the ability to comment on both ratings and products you can either use
+     * two different domains or prefix the productId depending on the type of comment,
+     * e.g. PROD-3384, RATING-34
      * @param productId domain-unique id for the product to comment
      * @param username optional.
      * If authenticated, and RnrService.fallbackPrincipalName,

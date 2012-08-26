@@ -68,6 +68,7 @@ public class DProductDaoBean
             dProduct.setProductId( entity.getKey().getName());
             dProduct.setRatingSum((Long)entity.getProperty("ratingSum"));
             dProduct.setRatingCount((Long)entity.getProperty("ratingCount"));
+            dProduct.setRatingAverage((Rating)entity.getProperty("ratingAverage"));
             dProduct.setLikeCount((Long)entity.getProperty("likeCount"));
             dProduct.setCommentCount((Long)entity.getProperty("commentCount"));
             dProduct.setLocation((GeoPt) entity.getProperty("location"));

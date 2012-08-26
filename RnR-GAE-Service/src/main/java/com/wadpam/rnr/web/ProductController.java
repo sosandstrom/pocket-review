@@ -225,7 +225,7 @@ public class ProductController {
     @RestReturn(value=JProduct.class, entity=JProduct.class, code={
             @RestCode(code=200, message="OK", description="Most liked products found"),
     })
-    @RequestMapping(value="likes/most", method= RequestMethod.GET)
+    @RequestMapping(value="liked/most", method= RequestMethod.GET)
     public ResponseEntity<Collection<JProduct>> getMostLikedProducts(HttpServletRequest request,
                                                                    @RequestParam(defaultValue = "10") int limit) {
 
@@ -243,7 +243,7 @@ public class ProductController {
     @RestReturn(value=JProduct.class, entity=JProduct.class, code={
             @RestCode(code=200, message="OK", description="Most liked products found"),
     })
-    @RequestMapping(value="ratings/most", method= RequestMethod.GET)
+    @RequestMapping(value="rated/most", method= RequestMethod.GET)
     public ResponseEntity<Collection<JProduct>> getMostRatedProducts(HttpServletRequest request,
                                                                      @RequestParam(defaultValue = "10") int limit) {
 
@@ -261,7 +261,7 @@ public class ProductController {
     @RestReturn(value=JProduct.class, entity=JProduct.class, code={
             @RestCode(code=200, message="OK", description="Most liked products found"),
     })
-    @RequestMapping(value="ratings/top", method= RequestMethod.GET)
+    @RequestMapping(value="rated/top", method= RequestMethod.GET)
     public ResponseEntity<Collection<JProduct>> getTopRatedProducts(HttpServletRequest request,
                                                                     @RequestParam(defaultValue = "10") int limit) {
 
@@ -279,7 +279,7 @@ public class ProductController {
     @RestReturn(value=JProduct.class, entity=JProduct.class, code={
             @RestCode(code=200, message="OK", description="Most liked products found"),
     })
-    @RequestMapping(value="comments/most", method= RequestMethod.GET)
+    @RequestMapping(value="commented/most", method= RequestMethod.GET)
     public ResponseEntity<Collection<JProduct>> getMostcommentedProducts(HttpServletRequest request,
                                                                          @RequestParam(defaultValue = "10") int limit) {
 
@@ -299,7 +299,7 @@ public class ProductController {
     @RestReturn(value=JProduct.class, entity=JProduct.class, code={
             @RestCode(code=200, message="OK", description="Products liked by user")
     })
-    @RequestMapping(value="likes/me", method= RequestMethod.GET)
+    @RequestMapping(value="liked", method= RequestMethod.GET)
     // TODO: Add pagination support
     public ResponseEntity<Collection<JProduct>> getProductsLikedByUser(HttpServletRequest request,
                                                                        Principal principal,
@@ -326,7 +326,7 @@ public class ProductController {
     @RestReturn(value=JProduct.class, entity=JProduct.class, code={
             @RestCode(code=200, message="OK", description="Products rated by user")
     })
-    @RequestMapping(value="ratings/me", method= RequestMethod.GET)
+    @RequestMapping(value="rated", method= RequestMethod.GET)
     // TODO: Add pagination support
     public ResponseEntity<Collection<JProduct>> getProductsRatedByUser(HttpServletRequest request,
                                                                        Principal principal,
@@ -352,7 +352,7 @@ public class ProductController {
     @RestReturn(value=JProduct.class, entity=JProduct.class, code={
             @RestCode(code=200, message="OK", description="Products commented by user")
     })
-    @RequestMapping(value="comments/me", method= RequestMethod.GET)
+    @RequestMapping(value="commented", method= RequestMethod.GET)
     // TODO: Add pagination support
     public ResponseEntity<Collection<JProduct>> getProductsCommentedByUser(HttpServletRequest request,
                                                                            Principal principal,
@@ -380,7 +380,7 @@ public class ProductController {
     @RestReturn(value=JProduct.class, entity=JProduct.class, code={
             @RestCode(code=200, message="OK", description="Users favorite products")
     })
-    @RequestMapping(value="favorites/me", method= RequestMethod.GET)
+    @RequestMapping(value="favorites", method= RequestMethod.GET)
     // TODO: Add pagination support
     public ResponseEntity<Collection<JProduct>> geUserFavoriteProducts(HttpServletRequest request,
                                                                        Principal principal,

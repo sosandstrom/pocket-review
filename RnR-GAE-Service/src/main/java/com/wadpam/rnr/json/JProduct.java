@@ -28,7 +28,7 @@ public class JProduct extends JBaseObject {
     private Long        ratingCount = 0L;
 
     /** The calculated average rating. Normalize to a 0-100 scale. */
-    private Integer     ratingAverage = 0;
+    private Integer     ratingAverage = -1;
 
     /** The deep link to the individual ratings */
     private String      ratingsURL;

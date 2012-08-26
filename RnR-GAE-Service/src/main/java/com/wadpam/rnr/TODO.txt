@@ -7,10 +7,11 @@ Ola
 // TODO: I removed several things from the web.xml and spring-security.xml to understand how it works. Add back stuff that is needed as we add security
 
 
+
+Must fix
+
 // TODO: There is a bug in Mardao with caching.
 
-
-Current
 
 // TODO: Describe JSONP on Wiki
 // TODO: Implement support for JSONP
@@ -19,15 +20,20 @@ GET /api/..../?_method=POST&param=...
 [8/21/12 6:55:37 PM] Ola Sandström: GET /api/....?_method=DELETE
 [8/21/12 6:56:29 PM] Ola Sandström: @RequestMapping(...., method="GET", params="_method=POST")
 
+// TODO: add second dimension
 
-// TODO: Comments has to do with ratings, not product. Can we support both?
+// TODO: Change author name in all classes to Github
 
-
-// TODO: Create email text using velocity templates instead?
+// TODO: Simple backoffice interface (signin, get all registered apps, new, delete, update)
 
 // TODO: Add a common exception handler that translate into HTTP response codes
 
-// TODO: Simple backoffice interface (sigin, get all registered apps, new, delete, update)
+
+Maybe later
+
+// TODO: Create email text using velocity templates instead?
+
+
 
 
 The backoffice will work like this:
@@ -139,6 +145,10 @@ DONE
 // TODO: Support delete with no id, only delete the users items - No
 // TODO: All operations with {id} is only for admins - No
 // TODO: User get populated from the basic authentication, not good
+
+// TODO: add histograms
+// TODO: Comments has to do with ratings, not product. Can we support both? Use the unique rating id as the productId parameter to achieve this.
+
 
 
 REST end-points

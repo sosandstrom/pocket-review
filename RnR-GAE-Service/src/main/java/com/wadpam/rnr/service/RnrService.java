@@ -234,7 +234,6 @@ public class RnrService {
                 dProduct.setRatingCount(dProduct.getRatingCount() + 1);
                 dProduct.setRatingAverage(new Rating((int)(dProduct.getRatingSum() / dProduct.getRatingCount())));
             }
-
         }
 
         // Update product location if provided in the request
@@ -281,7 +280,7 @@ public class RnrService {
             if (0 != dProduct.getRatingCount())
                 dProduct.setRatingAverage(new Rating((int)(dProduct.getRatingSum() / dProduct.getRatingCount())));
             else
-                dProduct.setRatingAverage(new Rating(-1));
+                dProduct.setRatingAverage(null);
             productDao.persist(dProduct);
         } else
             // Should not happen, log error
@@ -301,6 +300,29 @@ public class RnrService {
         final Collection<DRating> dRatings = ratingDao.findByUsername(username);
 
         return dRatings;
+    }
+
+    // Create a histogram
+    public Map<Long, Long> getHistogramForProduct(String productId, int interval) {
+        LOG.debug("Create histogram");
+
+        Collection<DRating> ratings = getAllRatingsForProduct(productId);
+
+        Map<Long, Long> histogram = new HashMap<Long, Long>();
+
+        for (DRating dRating : ratings) {
+            // Find the interval
+            long rounded = Math.round((float)dRating.getRating().getRating() / interval) * interval;
+            Long currentFrequency = histogram.get(new Long(rounded));
+            if (null == currentFrequency)
+                // No previous value
+                histogram.put(new Long(rounded), new Long(1));
+            else
+                // Update frequency
+                histogram.put(new Long(rounded), new Long(currentFrequency.longValue() + 1));
+        }
+
+        return histogram;
     }
 
 
