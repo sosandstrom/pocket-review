@@ -67,6 +67,6 @@
     <bean class="com.wadpam.rnr.web.MonitorController" />
 
 
-    <bean id="jsonObjectMapper" class="com.goldengekko.serverutils.SkipNullObjectMapper" init-method="init" />
+    <bean id="jsonObjectMapper" class="com.wadpam.open.json.SkipNullObjectMapper" init-method="init" />
 
 </beans>
