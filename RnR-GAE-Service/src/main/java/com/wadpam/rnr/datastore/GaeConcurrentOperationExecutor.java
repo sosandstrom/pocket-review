@@ -9,12 +9,14 @@ import java.util.ConcurrentModificationException;
 
 /**
  * Class for implementing a finite number of retries when a GAE datastore transaction fail.
+ * @author mattiaslevin
  */
 public class GaeConcurrentOperationExecutor implements Ordered {
 
     static final Logger LOG = LoggerFactory.getLogger(GaeConcurrentOperationExecutor.class);
 
     private static final int DEFAULT_MAX_RETRIES = 3;
+    private static final int DEFAULT_WAIT = 100;
 
     private int maxRetries = DEFAULT_MAX_RETRIES;
     private int order = 1;
@@ -32,26 +34,26 @@ public class GaeConcurrentOperationExecutor implements Ordered {
     }
 
     public Object doConcurrentOperation(ProceedingJoinPoint pjp) throws Throwable {
-        int numAttempts = 0;
+        int numberOfAttempts = 0;
         ConcurrentModificationException concurrentModificationException = null;
         do {
-            numAttempts++;
+            numberOfAttempts++;
             try {
-                LOG.debug("Concurrent operation before");
                 return pjp.proceed();
             }
             catch(ConcurrentModificationException exception) {
-                LOG.info("Datastore transaction failed due to Concurrent Modification Exception. Attempt: " + numAttempts);
+                LOG.info("Datastore transaction failed due to Concurrent Modification Exception. Attempt: " + numberOfAttempts);
                 concurrentModificationException = exception;
             }
-            catch (Exception exception) {
-                LOG.info("Datastore tansaction thew exception: " + exception.getMessage());
-                throw(exception);
-            }
-        }
-        while(numAttempts <= this.maxRetries);
 
-        LOG.info("Datastore transaction failed max number of tries due to Concurrent Modification Exception, not more retries.");
+            // Sleep for a short time
+            if (numberOfAttempts <= this.maxRetries)
+                wait(DEFAULT_WAIT * numberOfAttempts);
+
+        }
+        while(numberOfAttempts <= this.maxRetries);
+
+        LOG.warn("Datastore transaction failed max number of tries due to Concurrent Modification Exception, not more retries.");
         throw concurrentModificationException;
     }
 }

@@ -6,6 +6,8 @@ import com.google.appengine.api.datastore.Transaction;
 import com.google.appengine.api.datastore.TransactionOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.transaction.IllegalTransactionStateException;
+import org.springframework.transaction.NoTransactionException;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.support.AbstractPlatformTransactionManager;
@@ -14,9 +16,8 @@ import org.springframework.transaction.support.DefaultTransactionStatus;
 
 /**
  * An Spring transaction manager implementing the transaction strategy for GAE.
- * @author mlv
+ * @author mattiaslevin
  */
-// TODO: Currently the transaction is cross-entity group transaction. Needed since all entities are in the root.
 public class GaeTransacationManager extends AbstractPlatformTransactionManager {
 
     static final Logger LOG = LoggerFactory.getLogger(GaeTransacationManager.class);
@@ -34,9 +35,16 @@ public class GaeTransacationManager extends AbstractPlatformTransactionManager {
     }
 
     @Override
-    protected void doBegin(Object Transaction, TransactionDefinition transactionDefinition) throws TransactionException {
+    protected void doBegin(Object transaction, TransactionDefinition transactionDefinition) throws TransactionException {
         LOG.debug("Begin transaction");
-        // The transaction already starts in the doGetTransaction above, do nothing here
+
+        Transaction txn = (Transaction)transaction;
+        if (null == txn)
+            throw new NoTransactionException("Transaction object not available when about to start transaction");
+        else if (txn.isActive() == false)
+            throw new IllegalTransactionStateException("Transaction not active when about to start the transaction");
+
+        // Everything looks ok, do nothing
     }
 
     @Override
@@ -45,14 +53,15 @@ public class GaeTransacationManager extends AbstractPlatformTransactionManager {
 
         Transaction txn = (Transaction)defaultTransactionStatus.getTransaction();
         if (null != txn)
+            // Commit
             txn.commit();
         else
-            LOG.error("Commit failed. Not able to get the transaction");
+            throw new NoTransactionException("Transaction object not available when about to commit");
     }
 
     @Override
     protected void doRollback(DefaultTransactionStatus defaultTransactionStatus) throws TransactionException {
-        LOG.debug("**Rollback transaction");
+        LOG.debug("Rollback transaction");
 
         Transaction txn = (Transaction)defaultTransactionStatus.getTransaction();
         if (null != txn) {
@@ -61,6 +70,6 @@ public class GaeTransacationManager extends AbstractPlatformTransactionManager {
             txn.rollback();
         }
         else
-            LOG.error("Rollback failed. Not able to get the transaction");
+            throw new NoTransactionException("Transaction object not available when about to rollback transaction");
     }
 }

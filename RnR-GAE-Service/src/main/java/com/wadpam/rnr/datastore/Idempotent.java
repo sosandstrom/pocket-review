@@ -5,6 +5,7 @@ import java.lang.annotation.RetentionPolicy;
 
 /**
  * Marker interface to annotating methods that are transactional and idempotent.
+ * @author mattiaslevin
  */
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Idempotent {
