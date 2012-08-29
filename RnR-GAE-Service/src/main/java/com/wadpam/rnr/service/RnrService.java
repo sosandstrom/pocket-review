@@ -37,7 +37,7 @@ public class RnrService {
     private GeoDao geoRatingDao;
     
     public void init() {
-        geoRatingDao = new GeoDaoImpl<DRating, DRating>(ratingDao);
+        geoRatingDao = new GeoDaoImpl<Long, DRating, DRating>(ratingDao);
 
 //        doInDomain("dev", new Runnable() {
 //

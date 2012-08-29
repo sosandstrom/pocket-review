@@ -12,7 +12,7 @@ import net.sf.mardao.api.geo.aed.GeoDao;
  * Generated on 2012-05-31T19:50:34.960+0700.
  * @author mardao DAO generator (net.sf.mardao.plugin.ProcessDomainMojo)
  */
-public interface DRatingDao extends GeneratedDRatingDao<Key, Key>, GeoDao<DRating> {
+public interface DRatingDao extends GeneratedDRatingDao<Key, Key>, GeoDao<DRating, Long> {
 
 	// TODO: declare your Business Methods here
 	

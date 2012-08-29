@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.wadpam.rnr</groupId>
     <artifactId>service-gae</artifactId>
-    <version>1.2.1</version>
+    <version>1.2.2</version>
     <packaging>jar</packaging>
     <name>RnR GAE Service</name>
 
@@ -16,8 +16,8 @@
         <spring.version>3.1.1.RELEASE</spring.version>
         <spring.security.version>3.1.0.RELEASE</spring.security.version>
         <spring-social.version>1.0.1.RELEASE</spring-social.version>
-        <mardao.version>1.36</mardao.version>
-        <docrest.version>1.14</docrest.version>
+        <mardao.version>1.37-SNAPSHOT</mardao.version>
+        <docrest.version>1.15</docrest.version>
         <javadocExecutable>${java.home}/../bin/javadoc</javadocExecutable>
     </properties>
 
@@ -119,6 +119,26 @@
             </plugin>
 
             <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.7</version>
+                <executions>
+                    <execution>
+                        <phase>prepare-package</phase>
+                        <configuration>
+                            <target>
+                                <copy file="src/main/resources/spring-dao.xml"
+                                    tofile="target/classes/rnr-dao-context.xml"
+                                    overwrite="true" />
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-eclipse-plugin</artifactId>
                 <version>2.6</version>
@@ -188,10 +208,15 @@
         <!-- for javadoc -->
         <dependency>
             <groupId>com.wadpam</groupId>
-            <artifactId>docrest</artifactId>
+            <artifactId>docrest-api</artifactId>
+            <version>${docrest.version}</version>
+        </dependency>
+<!--        <dependency>
+            <groupId>com.wadpam</groupId>
+            <artifactId>docrest-doclet</artifactId>
             <version>${docrest.version}</version>
             <scope>provided</scope>
-        </dependency>
+        </dependency>-->
 
         <dependency>
             <groupId>junit</groupId>
@@ -229,7 +254,7 @@
                             <doclet>com.wadpam.docrest.DocRestDoclet</doclet>
                             <docletArtifact>
                                 <groupId>com.wadpam</groupId>
-                                <artifactId>docrest</artifactId>
+                                <artifactId>docrest-doclet</artifactId>
                                 <version>${docrest.version}</version>
                             </docletArtifact>
                             <encoding>UTF-8</encoding>
