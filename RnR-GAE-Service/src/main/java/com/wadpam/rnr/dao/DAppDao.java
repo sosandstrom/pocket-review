@@ -1,7 +1,10 @@
 package com.wadpam.rnr.dao;
 
+import com.google.appengine.api.datastore.Email;
 import com.google.appengine.api.datastore.Key;
 import com.wadpam.rnr.domain.DApp;
+
+import java.util.Collection;
 
 /**
  * Business Methods interface for entity DApp.
@@ -31,4 +34,11 @@ public interface DAppDao extends GeneratedDAppDao<Key, Key> {
      * @return the app
      */
     public DApp findByDomainWithFixedNamespace(String domain);
+
+    /**
+     * Find all apps for a specific app admin
+     * @param email
+     * @return a list of apps
+     */
+    public Collection<DApp> findByAdminEmail(Email email);
 }

@@ -1,13 +1,15 @@
 package com.wadpam.rnr.json;
 
+import com.wadpam.open.json.JBaseObject;
+
 /**
  * Json object for officers.
- * @author mlv
+ * @author mattiaslevin
  */
-public class JOfficer extends JBaseObject {
+public class JAppAdmin extends JBaseObject {
 
     /** The Google user unique user id */
-    private String      userId;
+    private String      adminId;
 
     /** The Google users email*/
     private String      email;
@@ -29,18 +31,18 @@ public class JOfficer extends JBaseObject {
 
     @Override
     public String subString() {
-        return String.format("{userId:%s, account status:%s, max number of apps:%d}",
-                getUserId(), getAccountStatus(), getMaxNumberOfApps());
+        return String.format("{ adminId:%s, email:%s, account status:%s, max number of apps:%d}",
+                getAdminId(), getEmail(), getAccountStatus(), getMaxNumberOfApps());
     }
 
 
     // Setters and getters
-    public String getUserId() {
-        return userId;
+    public String getAdminId() {
+        return adminId;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setAdminId(String adminId) {
+        this.adminId = adminId;
     }
 
     public String getEmail() {

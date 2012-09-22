@@ -1,6 +1,7 @@
 package com.wadpam.rnr.dao;
 
 import com.google.appengine.api.datastore.Key;
+import com.wadpam.rnr.domain.DRating;
 
 /**
  * Business Methods interface for entity DRating.
@@ -11,4 +12,12 @@ import com.google.appengine.api.datastore.Key;
  * @author mardao DAO generator (net.sf.mardao.plugin.ProcessDomainMojo)
  */
 public interface DRatingDao extends GeneratedDRatingDao<Key, Key> {
+
+    /**
+     * Find ratings done by a specific user and a specific product.
+     * @param productId the product
+     * @param username the user
+     * @return a rating
+     */
+    public DRating findByProductIdUsername(String productId, String username);
 }

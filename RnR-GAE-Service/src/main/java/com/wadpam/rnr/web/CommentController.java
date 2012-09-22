@@ -3,12 +3,9 @@ package com.wadpam.rnr.web;
 import com.wadpam.docrest.domain.RestCode;
 import com.wadpam.docrest.domain.RestReturn;
 import com.wadpam.rnr.domain.DComment;
-import com.wadpam.rnr.domain.DLike;
-import com.wadpam.rnr.domain.DRating;
 import com.wadpam.rnr.json.JComment;
-import com.wadpam.rnr.json.JLike;
-import com.wadpam.rnr.json.JRating;
 import com.wadpam.rnr.service.RnrService;
+import com.wadpam.server.web.AbstractRestController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -22,15 +19,18 @@ import org.springframework.web.servlet.view.RedirectView;
 
 import javax.servlet.http.HttpServletRequest;
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * The comment controller implements all REST methods related to commenting.
- * @author mlv
+ * @author mattiaslevin
  */
 @Controller
 @RequestMapping(value="{domain}/comment")
-public class CommentController {
+public class CommentController extends AbstractRestController {
 
     static final Logger LOG = LoggerFactory.getLogger(CommentController.class);
 
@@ -44,11 +44,10 @@ public class CommentController {
      * two different domains or prefix the productId depending on the type of comment,
      * e.g. PROD-3384, RATING-34
      * @param productId domain-unique id for the product to comment
-     * @param username optional.
-     * If authenticated, and RnrService.fallbackPrincipalName,
-     * principal.name will be used if username is null.
-     * @param latitude optional, -90..90
-     * @param longitude optional, -180..180
+     * @param parentId optional. A parent comment used to create nested comments
+     * @param username optional. User name
+     * @param latitude optional. -90..90
+     * @param longitude optional -180..180
      * @param comment the comment
      * @return the new comment
      */
@@ -59,12 +58,13 @@ public class CommentController {
     public RedirectView addComment(HttpServletRequest request,
                                    Principal principal,
                                    @RequestParam(required=true) String productId,
+                                   @RequestParam(required=true) Long parentId,
                                    @RequestParam(required=false) String username,
                                    @RequestParam(required=false) Float latitude,
                                    @RequestParam(required=false) Float longitude,
                                    @RequestParam(required=true) String comment) {
 
-        final DComment body = rnrService.addComment(productId, username, latitude, longitude, comment);
+        final DComment body = rnrService.addComment(productId, parentId, username, latitude, longitude, comment);
 
         return new RedirectView(request.getRequestURI() + "/" + body.getId().toString());
     }
@@ -85,10 +85,7 @@ public class CommentController {
 
         final DComment body = rnrService.deleteComment(id);
 
-        if (null == body)
-            return new ResponseEntity(HttpStatus.NOT_FOUND);
-        else
-            return new ResponseEntity<JComment>(HttpStatus.OK);
+        return new ResponseEntity<JComment>(HttpStatus.OK);
     }
 
     /**
@@ -107,17 +104,12 @@ public class CommentController {
 
         final DComment body = rnrService.getComment(id);
 
-        if (null == body)
-            return new ResponseEntity(HttpStatus.NOT_FOUND);
-        else
-            return new ResponseEntity<JComment>(Converter.convert(body, request), HttpStatus.OK);
+        return new ResponseEntity<JComment>(Converter.convert(body), HttpStatus.OK);
     }
 
     /**
      * Returns all comments done by a specific user.
-     * @param username optional.
-     * If authenticated, and RnrService.fallbackPrincipalName,
-     * principal.name will be used if username is null.
+     * @param username The user name
      * @return a list of comments
      */
     @RestReturn(value=JComment.class, entity=JComment.class, code={
@@ -126,21 +118,19 @@ public class CommentController {
     @RequestMapping(value="", method= RequestMethod.GET, params="username")
     public ResponseEntity<Collection<JComment>> getMyComments(HttpServletRequest request,
                                                               Principal principal,
-                                                              @RequestParam(required=false) String username) {
+                                                              @RequestParam(required=true) String username) {
 
-        try {
-            final Collection<DComment> body = rnrService.getMyComments(username);
+        final Collection<DComment> body = rnrService.getMyComments(username);
 
-            return new ResponseEntity<Collection<JComment>>((Collection<JComment>)Converter.convert(body, request),
-                    HttpStatus.OK);
-        }
-        catch (IllegalArgumentException usernameNull) {
-            return new ResponseEntity<Collection<JComment>>(HttpStatus.UNAUTHORIZED);
-        }
+        return new ResponseEntity<Collection<JComment>>((Collection<JComment>)Converter.convert(body), HttpStatus.OK);
     }
+
     /**
      * Returns all comments for a specific product.
-     * @param productId the product to looks for
+     * @param productId the product to look for
+     * @param hierarchy optional. Decide if the returned list should be returned nested.
+     *                  This is useful is comment contain parent relations to create nested comments.
+     *                  Default is false. Will add some overhead.
      * @return a list of comments
      */
     @RestReturn(value=JComment.class, entity=JComment.class, code={
@@ -149,12 +139,59 @@ public class CommentController {
     @RequestMapping(value="", method= RequestMethod.GET, params="productId")
     public ResponseEntity<Collection<JComment>> getAllCommentsForProduct(HttpServletRequest request,
                                                     Principal principal,
-                                                    @RequestParam(required=true) String productId) {
+                                                    @RequestParam(required=true) String productId,
+                                                    @RequestParam(required=false, defaultValue="false") boolean hierarchy) {
 
-        final Collection<DComment> body = rnrService.getAllCommentsForProduct(productId);
+        final Collection<DComment> dComments = rnrService.getAllCommentsForProduct(productId);
 
-        return new ResponseEntity<Collection<JComment>>((Collection<JComment>)Converter.convert(body, request),
-                HttpStatus.OK);
+        Collection<JComment> jComments = null;
+        if (hierarchy == false)
+            jComments =  (Collection<JComment>)Converter.convert(dComments);
+        else {
+            LOG.debug("Arrange the comments in hierarchy based on parent comments");
+
+            jComments = new ArrayList<JComment>();
+            Map<Long, Collection<JComment>> remainingComments = new HashMap<Long, Collection<JComment>>();
+
+            // Split in root and non-root comments
+            for (DComment dComment : dComments) {
+                // Convert to JComment before we do anything
+                JComment jComment = Converter.convert(dComment);
+
+                if (null == jComment.getParentId())
+                    jComments.add(jComment);
+                else {
+                    Collection<JComment> children = remainingComments.get(jComment.getParentId());
+                    if (null == children) {
+                        children = new ArrayList<JComment>();
+                        remainingComments.put(jComment.getParentId(), children);
+                    }
+                    children.add(jComment);
+                }
+            }
+
+            // Recursively add all children
+            for (JComment rootComment : jComments)
+                addChildren(rootComment, remainingComments);
+        }
+
+        return new ResponseEntity<Collection<JComment>>(jComments, HttpStatus.OK);
+    }
+
+    // Build a hierarchy of comments
+    private void addChildren(JComment parentComment, Map<Long, Collection<JComment>> remainingComments) {
+        Collection<JComment> children = remainingComments.get(parentComment.getId());
+
+        if (null == children)
+            // No children. Reached a leaf, do nothing
+            return;
+
+        // Add children
+        parentComment.setChildren(children);
+
+        // Recursively build the hierarchy
+        for (JComment child : children)
+            addChildren(child, remainingComments);
     }
 
 

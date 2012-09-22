@@ -1,8 +1,11 @@
 package com.wadpam.rnr.dao;
 
 import com.google.appengine.api.NamespaceManager;
+import com.google.appengine.api.datastore.Email;
 import com.google.appengine.api.datastore.Key;
 import com.wadpam.rnr.domain.DApp;
+
+import java.util.Collection;
 
 /**
  * Implementation of Business Methods related to entity DApp.
@@ -19,8 +22,8 @@ public class DAppDaoBean
 
     // Default constructor to enable caching by Mardao
     public DAppDaoBean() {
-        //this.memCacheEntity = true;
-        //this.memCacheAll = true;
+        this.memCacheEntity = true;
+        this.memCacheAll = true;
     }
 
     @Override
@@ -71,6 +74,13 @@ public class DAppDaoBean
         }
         return dApp;
     }
+
+    // Get all apps for a specific admin email address
+    @Override
+    public Collection<DApp> findByAdminEmail(Email email) {
+        return findBy(null, false, -1, createEqualsFilter(COLUMN_NAME_APPADMINS, email));
+    }
+
 
 
 }

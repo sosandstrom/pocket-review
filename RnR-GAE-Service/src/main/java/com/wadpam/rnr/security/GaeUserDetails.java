@@ -15,7 +15,7 @@ public class GaeUserDetails extends org.springframework.security.core.userdetail
     private User user;
 
 
-    public  GaeUserDetails(User gaeUser, Collection<? extends GrantedAuthority> authorities) {
+    public GaeUserDetails(User gaeUser, Collection<? extends GrantedAuthority> authorities) {
         this(gaeUser.getUserId(), "canBeAnything", authorities);
         user = gaeUser;
     }

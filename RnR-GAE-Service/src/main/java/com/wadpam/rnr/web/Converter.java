@@ -1,7 +1,10 @@
 package com.wadpam.rnr.web;
 
+import com.google.appengine.api.datastore.Email;
 import com.google.appengine.api.datastore.GeoPt;
 import com.google.appengine.api.datastore.Key;
+import com.wadpam.open.json.JBaseObject;
+import com.wadpam.open.json.JLocation;
 import com.wadpam.rnr.domain.*;
 import com.wadpam.rnr.json.*;
 import net.sf.mardao.api.domain.AEDPrimaryKeyEntity;
@@ -17,7 +20,7 @@ import java.util.regex.Pattern;
 
 /**
  * This class implement various methods for converting from domain object to JSON objects
- * @author mlv
+ * @author mattiaslevin
  */
 public class Converter {
 
@@ -25,7 +28,7 @@ public class Converter {
 
 
     // Various convert methods for converting between domain to json objects
-    protected static JProduct convert(DProduct from, HttpServletRequest request) {
+    protected static JProduct convert(DProduct from, String baseUrl) {
         if (null == from) {
             return null;
         }
@@ -40,23 +43,15 @@ public class Converter {
         to.setLikeCount(from.getLikeCount());
         to.setCommentCount(from.getCommentCount());
 
-        // Figure out the base url
-        String baseUrl = null;
-        Pattern pattern = Pattern.compile("(^.*)/product");
-        Matcher matcher = pattern.matcher(request.getRequestURL().toString());
-        if (matcher.find()) {
-            baseUrl = matcher.group(1);
-
-            // Set links
-            to.setRatingsURL(baseUrl + "/rating?productId=" + to.getId());
-            to.setLikesURL(baseUrl + "/like?productId=" + to.getId());
-            to.setCommentsURL(baseUrl + "/comment?productId=" + to.getId());
-        }
+        // Set links
+        to.setRatingsURL(baseUrl + "/rating?productId=" + to.getId());
+        to.setLikesURL(baseUrl + "/like?productId=" + to.getId());
+        to.setCommentsURL(baseUrl + "/comment?productId=" + to.getId());
 
         return to;
     }
 
-    protected static JRating convert(DRating from, HttpServletRequest request) {
+    protected static JRating convert(DRating from) {
         if (null == from) {
             return null;
         }
@@ -72,7 +67,7 @@ public class Converter {
         return to;
     }
 
-    protected static JLike convert(DLike from, HttpServletRequest request) {
+    protected static JLike convert(DLike from) {
         if (null == from) {
             return null;
         }
@@ -86,7 +81,7 @@ public class Converter {
         return to;
     }
 
-    protected static JComment convert(DComment from, HttpServletRequest request) {
+    protected static JComment convert(DComment from) {
         if (null == from) {
             return null;
         }
@@ -101,7 +96,7 @@ public class Converter {
         return to;
     }
 
-    protected static JFavorites convert(DFavorites from, HttpServletRequest request) {
+    protected static JFavorites convert(DFavorites from) {
         if (null == from) {
             return null;
         }
@@ -124,7 +119,7 @@ public class Converter {
         return to;
     }
 
-    protected static JApp convert(DApp from, HttpServletRequest request) {
+    protected static JApp convert(DApp from) {
         if (null == from) {
             return null;
         }
@@ -132,23 +127,27 @@ public class Converter {
         convert(from, to);
 
         to.setDomain(from.getDomainName());
-        to.setAdmin(from.getAdmin());
-        to.setAppUser(from.getAppUser());
-        to.setAppPassword(from.getAppPassword());
-        to.setOnlyLikeOncePerUser(from.getOnlyLikeOncePerUser());
-        to.setOnlyRateOncePerUser(from.getOnlyRateOncePerUser());
+
+        Collection<String> emails = new ArrayList<String>(from.getAppAdmins().size());
+        for (Email email : from.getAppAdmins())
+            emails.add(email.getEmail());
+        to.setAppAdmins(emails);
+
+        to.setApiUser(from.getApiUser());
+        to.setApiPassword(from.getApiPassword());
+        to.setDescription(from.getDescription());
 
         return to;
     }
 
-    protected static JOfficer convert(DOfficer from, HttpServletRequest request) {
+    protected static JAppAdmin convert(DAppAdmin from) {
         if (null == from) {
             return null;
         }
-        final JOfficer to = new JOfficer();
+        final JAppAdmin to = new JAppAdmin();
         convert(from, to);
 
-        to.setUserId(from.getUserId());
+        to.setAdminId(from.getAdminId());
         to.setEmail(from.getEmail().getEmail());
         to.setName(from.getName());
         to.setAccountStatus(from.getAccountStatus());
@@ -157,32 +156,29 @@ public class Converter {
         return to;
     }
 
-    protected static <T extends AEDPrimaryKeyEntity> JBaseObject convert(T from, HttpServletRequest request) {
+    protected static <T extends AEDPrimaryKeyEntity> JBaseObject convert(T from) {
         if (null == from) {
             return null;
         }
 
         JBaseObject returnValue;
-        if (from instanceof DProduct) {
-            returnValue = convert((DProduct) from, request);
-        }
-        else if (from instanceof DRating) {
-            returnValue = convert((DRating) from, request);
+        if (from instanceof DRating) {
+            returnValue = convert((DRating) from);
         }
         else if (from instanceof DLike) {
-            returnValue = convert((DLike) from, request);
+            returnValue = convert((DLike) from);
         }
         else if (from instanceof DComment) {
-            returnValue = convert((DComment) from, request);
+            returnValue = convert((DComment) from);
         }
         else if (from instanceof DFavorites) {
-            returnValue = convert((DFavorites) from, request);
+            returnValue = convert((DFavorites) from);
         }
         else if (from instanceof DApp) {
-            returnValue = convert((DApp) from, request);
+            returnValue = convert((DApp) from);
         }
-        else if (from instanceof DOfficer) {
-            returnValue = convert((DOfficer) from, request);
+        else if (from instanceof DAppAdmin) {
+            returnValue = convert((DAppAdmin) from);
         }
         else {
             throw new UnsupportedOperationException("No converter for " + from.getKind());
@@ -191,8 +187,7 @@ public class Converter {
         return returnValue;
     }
 
-    protected static <T extends AEDPrimaryKeyEntity> Collection<?> convert(Collection<T> from,
-                                                                           HttpServletRequest request) {
+    protected static <T extends AEDPrimaryKeyEntity> Collection<?> convert(Collection<T> from) {
         if (null == from) {
             return null;
         }
@@ -200,7 +195,21 @@ public class Converter {
         final Collection<Object> to = new ArrayList<Object>(from.size());
 
         for(T wf : from) {
-            to.add(convert(wf, request));
+            to.add(convert(wf));
+        }
+
+        return to;
+    }
+
+    protected static Collection<JProduct> convert(Collection<DProduct> from, String baseUrl) {
+        if (null == from) {
+            return null;
+        }
+
+        final Collection<JProduct> to = new ArrayList<JProduct>(from.size());
+
+        for(DProduct wf : from) {
+            to.add(convert(wf, baseUrl));
         }
 
         return to;

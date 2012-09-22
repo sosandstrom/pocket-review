@@ -1,155 +1,64 @@
 
-Ola
-// TODO: Add geolocation to DProduct (Ola)
-// TODO: Implement nearby search methods with sort order (Ola)
-// TODO: Move location to a separate entity? Ola? Do not think it is necessary. Will we ever have anything else then the location on this entity
+Maybe later
+===========
 
-// TODO: I removed several things from the web.xml and spring-security.xml to understand how it works. Add back stuff that is needed as we add security
-
-
-
-Must fix
-
-// TODO: There is a bug in Mardao with caching.
-
-
-// TODO: Describe JSONP on Wiki
-// TODO: Implement support for JSONP
-istället för POST
+More changes to JSONP
 GET /api/..../?_method=POST&param=...
 [8/21/12 6:55:37 PM] Ola Sandström: GET /api/....?_method=DELETE
 [8/21/12 6:56:29 PM] Ola Sandström: @RequestMapping(...., method="GET", params="_method=POST")
 
-// TODO: add second dimension
+Maintenance and upgrade controller/filter
 
-// TODO: Change author name in all classes to Github
-
-// TODO: Simple backoffice interface (signin, get all registered apps, new, delete, update)
-
-// TODO: Add a common exception handler that translate into HTTP response codes
-
-
-Maybe later
-
-// TODO: Create email text using velocity templates instead?
+Create email text using velocity templates instead?
 
 
 
+Must fix
+===========
 
-The backoffice will work like this:
--The user signs in with gmail account
--If it is a new user a new DApplicationAdmin will be create
-    -State will be set to pending
-    -An email will be sent to X telling there is a pending user
-    -The new user will get a screen telling them to wait for approval
--A GAE project admin logs in and browse all pending users
-    -Admin can approve, this will send an email to the pending user
-    -admin can Suspend and Delete (users can no longer access the app admin page, will the app still work for the service?)
--The new approved user login and will see a list of all their registered app domains (DAppDomain)
--The user can select to:
-    -Create a new domain. Must be unique and will be stored in DAppDomain
-    -Select and existing app domain and be taken to the Application settings (stored in DApplication)
-
-The DAppDomain and DAppAdmin will reside in a special namespace the same for all applications (in order to access all data at the same time)
-The DAppSettings will reside under each domains namespace (will thus only be one per domain)
+-Mardao 2
 
 
+-Support location search
 
-DONE
+-Simple backoffice interface (signin, get all registered apps, new, delete, update)
 
-// TODO: Implement Olas comments
-// TODO: Rename Result to Product?
-// TODO: Migrate all product requests to ProductController
-// TODO: Make a RatingV11Controller + ResultV11 , retain backwards compatibility
-// TODO: Add sort order parameter to getNearbyProduct
-// TODO: Add cache to Products. Where?
-// TODO: Implement all Like methods
-// TODO: Implement all rating methods
-// TODO: Support review comments (think about how this should work 1) together with ratings or as something separate)
-// TODO: Add ids in JRating, JLike and JProduct
-// TODO: Support pagination
-// TODO: Move the convert from D-objects to J-objects to Controllers?  Ola?
-// TODO: Add links in the return JSON to make it REST.
-// TODO: Support comments
-// TODO: Create and update methods should redirect to the get
-// TODO: Rebase from master branch
-// TODO: Maven move classes.class to settings.xml (using profiles instead)
-// TODO: Review returning 404. When to do it?
-// TODO: Return distance in nearby requests
-// TODO: Move get all ratings/likes/comments for a product to the respective controller (away from the product controller) - NO. Not able for find a good REST URL for this.
-// TODO: Support favorites
-// TODO: Favorites memcache (check in multitenancy and tags fo different type of data). Also check when getting products
+-Still issues with the abstract rest exception handler
 
-// TODO: Moved the instantiation of the "old" rating controller to the backend spring context, will default not be started, only if the backend need to be backwards compatible.
-// TODO: Add average rating to DB as a property
-// TODO: Add datastore indexes (I deleted the one that existed and added new). How do I ask for most liked DProduct using Mardao? I can not find any methods.
-// TODO: The Rating15Controller have issues with the namespace. Probably due to the versioning and the DomainFilter
-// TODO: Move version further back, start with v11
-// TODO: Implement the "most" operations
-// TODO: Remove support for Old RatingController, changes are so big it is not possible to maintain backwards compatibility
-// TODO: Updating the product counters are not thread safe. Nor is the creating of new entities. Can we wrap them in a transaction?
-// TODO: Configure in Spring context as transaction or just grab
-
-// TODO: Better way to get the base URL when generating URLs, try the servlet context - NO, looks ok as is
-
-// TODO: Add DAppSettings with controller
-// TODO: Add support for memcache for app settings
-// TODO: Best way to generate the key for the memcache (namespace switching or getting the key frm the DB)
-// TODO: Add reading from the DAppSettings for some values (rate more then once)
-
-// TODO: Add security (basic authentication) for app rest methods
-// TODO: Split Spring security in a backend and service part?
-// TODO: How to know and indicate end of pagination? When less then the requested number is returned.
-
-// TODO: Add DAppAdmin and controller (domain admin)
-// TODO: Implement sending email
-
-// TODO: Maybe the GAE entry point should give 403 in all cases and the web app need to run login? No, keep in redirecting to Google login, no 403
-// TODO: Handle pending users (give them special role or how to handle it)?
-// TODO: Go over REST methods and rename + domain objects (AppSettings -> App)
-// TODO: Change to /admin/appSettings and take domain as parameter instead. All methods with the same security should be behind the special domain admin
-// TODO: Reserve the admin domain, make sure no such domain can be created. Change name to "backoffice"?
-// TODO: Add DApp and controller. Same as AppSettings
-// TODO: Add security to the backoffice
-// TODO: Delete DAppAdmin
-// TODO: Max Apps for a AppAdmin
-// TODO: Added owner to Dapp
-// TODO: api/{version}/backoffice/app/my (GET)
-// TODO: api/{version}/backoffice/app/all (GET)
-// TODO: Move any Spring security to the controller, never service layer
-// TODO: 403 vs 401? When to use what? Use 401 when the user is not allowed to access due to credentials. 403 when the user is not allowed, regardless of credentials.
-// TODO: Let the controller check if the user is the owner of an app
-// TODO: How and where do we control what apps an admin can access? In the security layer or service layer?
-// TODO: Update to new version of Mardao (refactor caching)
-// TODO: caching of DAppAdmin, no need after updating Mardao. Refactor
-// TODO: Turn basic authentication on and off per project. More important no app should be needed, use a dummy app. Use Spring anonymous
-// TODO: Create a UserDetails subclass that can also hold the Googer User object. Only you Spring security to get user details. Never GAE.
+-Move authentication to open-server
 
 
-// TODO: Do not use pending state, active directly (just send email)
-// TODO: Check the url structure once more, does not seem right
-// TODO: Check all PUT and POST and GET
-// TODO: Only lower case parameter names in the http request
-
-// TODO: Merge branch to master after Olas reviewed and approved changed.
+-Thumbs up and down
 
 
-// TODO: Use session in backoffice security (better performance) - Ola, I guess we should not have session on backoffice users. They are authenticated outside the system. - NO
-// TODO: Move domain to before the "app" in REST - Nja, can figure out a good name when it comes to "mine" and "all"
-// TODO: Byt till POST
-// TODO: Change REST URL rated/most /rated/me rated/top etc
-// TODO: User something better then then "user" on the REST  - use office
-// TODO: change from appPassword and appUser to user and passworkd
-// TODO: GAE project admin must be able to delete any apps - already supported
-// TODO: Change domain to Officer instead of AppAdmin as well
-// TODO: Support delete with no id, only delete the users items - No
-// TODO: All operations with {id} is only for admins - No
-// TODO: User get populated from the basic authentication, not good
+-Change to Spring URL builder
 
-// TODO: add histograms
-// TODO: Comments has to do with ratings, not product. Can we support both? Use the unique rating id as the productId parameter to achieve this.
+-add second dimension, group ratings
+
+-Add App Setting controller
+
+-Add report feedback / report a problem
 
 
 
-REST end-points
--Look at the wiki
+Done
+===========
+
+-Several admins for each app
+-Add a common exception handler that translate into HTTP response codes. Look in open server
+-Review transaction support
+-Break out app settings to support reuse
+-Questions and answer, relations between comments. Generalize comments
+-User datastore parent for consistency
+
+
+-Move out authentication items from Controller, dedicated voter
+-User RoleHierarchyVoter
+-Hierarchy roles
+-API access control
+-Change to digest (NO)
+-Remove "request" parameter from Converter
+
+-GAE 1.7.2
+
+

@@ -12,7 +12,7 @@ import java.util.Properties;
 
 /**
  * This class is responsible for sending email.
- * @author mlv
+ * @author mattiaslevin
  */
 public class EmailSender {
 
@@ -30,9 +30,8 @@ public class EmailSender {
 
     // Send an email
     public boolean sendEmail(String toEmail, String toName, String subject, String body) {
-        LOG.debug("Send email to " + toEmail + "(" + toName + ") with subject " + subject);
-
-        LOG.debug("Email from address " + fromEmailAddress + " and from name " + fromEmailName);
+        LOG.debug("Send email to:{} with subject:{}", toEmail, toName);
+        LOG.debug("Email from address:{} from name:{}", fromEmailAddress, fromEmailName);
 
         Properties props = new Properties();
         Session session = Session.getDefaultInstance(props, null);
@@ -48,7 +47,7 @@ public class EmailSender {
             return true;
         } catch (Exception e) {
             // Catch all exceptions and just log an error, do not interrupt flow
-            LOG.error("Not possible to send email with reason: " + e.getMessage());
+            LOG.error("Not possible to send email with reason:{}", e.getMessage());
             return false;
         }
     }

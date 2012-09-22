@@ -14,7 +14,7 @@ import java.io.IOException;
 
 /**
  * This class will redirect to the Google user login for backoffice login.
- * @author mlv
+ * @author mattiaslevin
  */
 public class GaeAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
@@ -22,9 +22,10 @@ public class GaeAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
     @Override
     public void commence(HttpServletRequest httpServletRequest, HttpServletResponse response, AuthenticationException e) throws IOException, ServletException {
-        LOG.debug("User trying the access backoffice without being logged in, redirect to Google login");
+        LOG.debug("Admin trying the access backoffice without being logged in, redirect to Google login");
 
         UserService userService = UserServiceFactory.getUserService();
+
         // Ask Google to redirect back to the same url
         String loginUrl = userService.createLoginURL(httpServletRequest.getRequestURI());
 

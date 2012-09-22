@@ -3,22 +3,22 @@ package com.wadpam.rnr.domain;
 import com.google.appengine.api.datastore.Email;
 import net.sf.mardao.api.domain.AEDStringEntity;
 
-import javax.persistence.Basic;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.io.Serializable;
 
 /**
  * Stores all application officers/admins.
- * @author mlv
+ * @author mattiaslevin
  */
 @Entity
-public class DOfficer extends AEDStringEntity implements Serializable {
+@Table(uniqueConstraints={@UniqueConstraint(columnNames={"email"})})
+public class DAppAdmin extends AEDStringEntity implements Serializable {
 
+    private static final long serialVersionUID = -8906171707894817513L;
 
     /** The Google user unique user id */
     @Id
-    private String      userId;
+    private String      adminId;
 
     /** The Google users email */
     @Basic
@@ -44,23 +44,23 @@ public class DOfficer extends AEDStringEntity implements Serializable {
 
     @Override
     public String getSimpleKey() {
-        return getUserId();
+        return getAdminId();
     }
 
     @Override
     public String toString() {
-        return String.format("{userId:%s, account status:%s, max number of apps:%d}",
-                getUserId(), getAccountStatus(), getMaxNumberOfApps());
+        return String.format("{adminId:%s, account status:%s, max number of apps:%d}",
+                getAdminId(), getAccountStatus(), getMaxNumberOfApps());
     }
 
 
     // Setters and getters
-    public String getUserId() {
-        return userId;
+    public String getAdminId() {
+        return adminId;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setAdminId(String adminId) {
+        this.adminId = adminId;
     }
 
     public Email getEmail() {

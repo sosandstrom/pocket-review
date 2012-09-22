@@ -9,7 +9,7 @@ import java.util.Collection;
 
 /**
  * The domain object for Likes.
- * @author mlv
+ * @author mattiaslevin
  */
 @Entity
 @Table(uniqueConstraints={@UniqueConstraint(columnNames={"productId", "username"})})

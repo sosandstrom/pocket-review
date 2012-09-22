@@ -18,7 +18,7 @@
         Read operations will not be made in a transaction.
      -->
 
-    <bean id="gaeConcurrentOperationExecutor" class="com.wadpam.rnr.datastore.GaeConcurrentOperationExecutor">
+    <bean id="gaeConcurrentOperationExecutor" class="com.wadpam.open.transaction.GaeConcurrentOperationExecutor">
         <property name="order" value="10"/>
         <property name="maxRetries" value="3"/>
     </bean>
@@ -28,14 +28,14 @@
             <aop:pointcut id="transactionMethods"
                           expression="within(com.wadpam.rnr.service.RnrService)
                           and (execution(* add*(..)) or execution(* delete*(..)) or execution(* update*(..)))
-                          and @annotation(com.wadpam.rnr.datastore.Idempotent)"/>
+                          and @annotation(com.wadpam.open.transaction.Idempotent)"/>
             <aop:around pointcut-ref="transactionMethods" method="doConcurrentOperation" />
         </aop:aspect>
     </aop:config>
 
     <tx:annotation-driven transaction-manager="transactionManager" order="200"/>
 
-    <bean id="transactionManager" class="com.wadpam.rnr.datastore.GaeTransacationManager">
+    <bean id="transactionManager" class="com.wadpam.open.transaction.GaeTransacationManager">
         <property name="transactionSynchronization" value="2" />
     </bean>
 

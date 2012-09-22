@@ -5,6 +5,7 @@ import com.wadpam.docrest.domain.RestReturn;
 import com.wadpam.rnr.domain.DFavorites;
 import com.wadpam.rnr.json.JFavorites;
 import com.wadpam.rnr.service.RnrService;
+import com.wadpam.server.web.AbstractRestController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -25,11 +26,11 @@ import java.security.Principal;
 
 /**
  * The favorites controller implements all REST methods related to favorites.
- * @author mlv
+ * @author mattiaslevin
  */
 @Controller
 @RequestMapping(value="{domain}/favorites")
-public class FavoritesController {
+public class FavoritesController extends AbstractRestController {
 
     static final Logger LOG = LoggerFactory.getLogger(FavoritesController.class);
 
@@ -53,18 +54,14 @@ public class FavoritesController {
                                                   @PathVariable String username,
                                                   @RequestParam(required=true) String productId) {
 
-        try {
-            final DFavorites body = rnrService.addFavorite(productId, username);
+        final DFavorites body = rnrService.addFavorite(productId, username);
 
-            if (null != body)
-                    response.sendRedirect(request.getRequestURI());
+        try {
+            response.sendRedirect(request.getRequestURI());
             return null; // No need to return anything, the redirect takes care of it
         }
-        catch (IllegalArgumentException usernameNull) {
-            return new ResponseEntity<JFavorites>(HttpStatus.UNAUTHORIZED);
-        }
         catch (IOException e) {
-            LOG.error("Not possible to create redirect to url " + request.getRequestURI() + "after creating a new favorite");
+            LOG.error("Not possible to create redirect to url after creating a new favorite with reason:{}", e.getMessage());
             return new ResponseEntity<JFavorites>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -87,28 +84,22 @@ public class FavoritesController {
                                                      @PathVariable String username,
                                                      @RequestParam(required=true) String productId) {
 
+
+        final DFavorites body = rnrService.deleteFavorite(productId, username);
+
+        // Derive the redirect url
+        String redirectUrl = request.getRequestURI();
+        int i = redirectUrl.indexOf("?");
+        if (i > -1)
+            redirectUrl = redirectUrl.substring(0, i - 1);
+
+        // Do the redirect
         try {
-            final DFavorites body = rnrService.deleteFavorite(productId, username);
-
-            if (null == body)
-                return new ResponseEntity(HttpStatus.NOT_FOUND);
-            else {
-                // Derive the redirect url
-                String redirectUrl = request.getRequestURI();
-                int i = redirectUrl.indexOf("?");
-                if (i > -1)
-                    redirectUrl = redirectUrl.substring(0, i-1);
-
-                // Do the redirect
-                response.sendRedirect(request.getRequestURI());
-                return null; // No need to return anything, the redirect takes care of it
-            }
-        }
-        catch (IllegalArgumentException usernameNull) {
-            return new ResponseEntity<JFavorites>(HttpStatus.UNAUTHORIZED);
+            response.sendRedirect(request.getRequestURI());
+            return null; // No need to return anything, the redirect takes care of it
         }
         catch (IOException e) {
-            LOG.error("Not possible to create redirect to url " + request.getRequestURI() + "after deleting a favorite");
+            LOG.error("Not possible to create redirect to url after deleting a favorite with reason:{}", e.getMessage());
             return new ResponseEntity<JFavorites>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -126,14 +117,9 @@ public class FavoritesController {
                                                    Principal principal,
                                                    @PathVariable String username) {
 
-        try {
-            final DFavorites body = rnrService.getFavorites(username);
+        final DFavorites body = rnrService.getFavorites(username);
 
-            return new ResponseEntity<JFavorites>(Converter.convert(body, request), HttpStatus.OK);
-        }
-        catch (IllegalArgumentException usernameNull) {
-            return new ResponseEntity<JFavorites>(HttpStatus.UNAUTHORIZED);
-        }
+        return new ResponseEntity<JFavorites>(Converter.convert(body), HttpStatus.OK);
     }
 
 

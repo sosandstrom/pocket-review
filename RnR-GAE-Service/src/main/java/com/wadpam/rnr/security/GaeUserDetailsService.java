@@ -3,8 +3,8 @@ package com.wadpam.rnr.security;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
-import com.wadpam.rnr.dao.DOfficerDao;
-import com.wadpam.rnr.domain.DOfficer;
+import com.wadpam.rnr.dao.DAppAdminDao;
+import com.wadpam.rnr.domain.DAppAdmin;
 import com.wadpam.rnr.service.AppService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,39 +21,41 @@ import java.util.Collection;
 /**
  * Implements an AuthenticationUserDetailsService used by Spring security when authenticating
  * backoffice requests logged in using Google.
- * @author mlv
+ * @author mattiaslevin
  */
 public class GaeUserDetailsService implements AuthenticationUserDetailsService {
 
     static final Logger LOG = LoggerFactory.getLogger(GaeUserDetailsService.class);
 
-    private DOfficerDao officerDao;
+    private DAppAdminDao appAdminDao;
 
 
     @Override
     public UserDetails loadUserDetails(Authentication authentication) throws UsernameNotFoundException {
+
         User user = (User)authentication.getPrincipal();
         if (null == user) {
             // Should not happen
-            LOG.error("Google user was not possible to obtain from the Authentication when loading user details");
-            throw new UsernameNotFoundException("Not possible to get the Google user");
+            LOG.error("Google user was not possible to obtain from the authentication principle when loading user details");
+            throw new UsernameNotFoundException("Not possible to get the Google user from principle");
         }
-        LOG.debug("Creating user details for Google user with email " + user.getEmail() );
 
-        // Figure out the role
-        Collection<GrantedAuthority> grantedAuthorities =  new ArrayList<GrantedAuthority>();
+        LOG.debug("Creating user details for Google user with email:{} and user id:{}", user.getEmail(), user.getUserId());
 
-        UserService userService = UserServiceFactory.getUserService();
-        if (userService.isUserAdmin()) {
+
+        // Check the role
+        String credentials = (String)authentication.getCredentials();
+
+        Collection<GrantedAuthority> grantedAuthorities = new ArrayList<GrantedAuthority>(1);
+        if (credentials.equalsIgnoreCase("ROLE_ADMIN")) {
             // If the user is a registered as admin for the GAE application set role to admin
-            grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_USER"));
             grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
         } else {
 
             // Check the account status in the datastore to decide role
-            DOfficer dOfficer = officerDao.findByPrimaryKey(user.getUserId());
+            DAppAdmin dAppAdmin = appAdminDao.findByPrimaryKey(user.getUserId());
 
-            if (null != dOfficer && dOfficer.getAccountStatus().equalsIgnoreCase(AppService.ACCOUNT_ACTIVE)) {
+            if (null != dAppAdmin && dAppAdmin.getAccountStatus().equalsIgnoreCase(AppService.ACCOUNT_ACTIVE)) {
                 // Normal backoffice user
                 grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_USER"));
             } else {
@@ -62,15 +64,17 @@ public class GaeUserDetailsService implements AuthenticationUserDetailsService {
             }
 
         }
-        LOG.debug("User credentials to " + grantedAuthorities);
+
+        LOG.debug("Credentials:{}", grantedAuthorities);
 
         UserDetails userDetails = new GaeUserDetails(user, grantedAuthorities);
+
         return userDetails;
     }
 
 
     // Setters and getters
-    public void setOfficerDao(DOfficerDao officerDao) {
-        this.officerDao = officerDao;
+    public void setAppAdminDao(DAppAdminDao appAdminDao) {
+        this.appAdminDao = appAdminDao;
     }
 }

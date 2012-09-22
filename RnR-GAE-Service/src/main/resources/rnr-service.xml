@@ -17,10 +17,13 @@
 
     <!--           Service             -->
 
+    <import resource="classpath*:spring-security.xml" />
+
     <import resource="classpath*:spring-dao.xml" />
 
     <bean id="rnrService" class="com.wadpam.rnr.service.RnrService" init-method="init">
         <property name="appDao" ref="dAppDao" />
+        <property name="appSettingsDao" ref="dAppSettingsDao" />
         <property name="productDao" ref="dProductDao" />
         <property name="ratingDao" ref="dRatingDao" />
         <property name="likeDao" ref="dLikeDao" />
@@ -30,7 +33,7 @@
 
     <bean id="appService" class="com.wadpam.rnr.service.AppService">
         <property name="appDao" ref="dAppDao" />
-        <property name="officerDao" ref="dOfficerDao" />
+        <property name="appAdminDao" ref="dAppAdminDao" />
         <property name="emailSender" ref="emailSender" />
     </bean>
 
@@ -63,78 +66,15 @@
 
     <bean id="appController" class="com.wadpam.rnr.web.AppController">
         <property name="appService" ref="appService" />
-        <property name="appDao" ref="dAppDao" />
     </bean>
 
-    <bean id="officerController" class="com.wadpam.rnr.web.OfficerController">
+    <bean id="adminController" class="com.wadpam.rnr.web.AppAdminController">
         <property name="appService" ref="appService" />
     </bean>
 
-    <!--           Security             -->
-
-    <s:http pattern="/api/backoffice/officer/login" security="none" />
-    <s:http pattern="/api/backoffice/officer/logout" security="none" />
-
-    <s:http realm="rnr-backoffice" create-session="stateless"
-            pattern="/api/backoffice/**" authentication-manager-ref="backofficeAuthenticationManager"
-            entry-point-ref="gaeEntryPoint">
-        <s:anonymous enabled="false"/>
-        <s:intercept-url pattern="/api/backoffice/officer" access="ROLE_PENDING, ROLE_USER, ROLE_ADMIN" />
-        <s:intercept-url pattern="/api/backoffice/officer/**" access="ROLE_ADMIN" />
-        <s:intercept-url pattern="/api/backoffice/app/all" access="ROLE_ADMIN" />
-        <s:intercept-url pattern="/api/backoffice/**" access="ROLE_USER" />
-        <s:custom-filter position="PRE_AUTH_FILTER" ref="gaePreAuthenticationProcessingFilter" />
-    </s:http>
-
-    <bean id="backofficeAuthenticationManager" class="org.springframework.security.authentication.ProviderManager">
-        <property name="providers">
-            <list>
-                <ref local="preAuthenticatedAuthenticationProvider"/>
-            </list>
-        </property>
+    <bean id="settingsController" class="com.wadpam.rnr.web.AppSettingsController">
+        <property name="appService" ref="appService" />
     </bean>
 
-    <bean id="preAuthenticatedAuthenticationProvider" class="org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider">
-        <property name="preAuthenticatedUserDetailsService" ref="gaeUserService" />
-    </bean>
-
-    <bean id="gaeUserService" class="com.wadpam.rnr.security.GaeUserDetailsService" >
-        <property name="officerDao" ref="dOfficerDao" />
-    </bean>
-
-    <bean id="gaeEntryPoint" class="com.wadpam.rnr.security.GaeAuthenticationEntryPoint" />
-
-    <bean id="gaePreAuthenticationProcessingFilter" class="com.wadpam.rnr.security.GaePreAuthenticatedProcessingFilter">
-        <property name="authenticationManager" ref="backofficeAuthenticationManager" />
-    </bean>
-
-
-    <s:http realm="rnr-app" create-session="stateless"
-            pattern="/api/**" authentication-manager-ref="apiAuthenticationManager">
-        <s:anonymous enabled="true" granted-authority="ROLE_APP" key="aL5Mge85F"/>  <!-- Set to true to turn off API authentication -->
-        <s:intercept-url pattern="/api/**" access="ROLE_APP" />
-        <s:http-basic />
-    </s:http>
-
-    <bean id="apiAuthenticationManager" class="org.springframework.security.authentication.ProviderManager">
-        <property name="providers">
-            <list>
-                <ref local="daoAuthenticationProvider"/>
-                <ref local="anonymousAuthenticationProvider"/>
-            </list>
-        </property>
-    </bean>
-
-    <bean id="daoAuthenticationProvider" class="org.springframework.security.authentication.dao.DaoAuthenticationProvider">
-        <property name="userDetailsService" ref="apiUserService"/>
-    </bean>
-
-    <bean id="apiUserService" class="com.wadpam.rnr.security.ApiUserDetailsService">
-        <property name="appDao" ref="dAppDao" />
-    </bean>
-
-    <bean id="anonymousAuthenticationProvider" class="org.springframework.security.authentication.AnonymousAuthenticationProvider">
-        <property name="key" value="aL5Mge85F"/>
-    </bean>
 
 </beans>

@@ -1,5 +1,8 @@
 package com.wadpam.rnr.json;
 
+import com.wadpam.open.json.JBaseObject;
+import com.wadpam.open.json.JLocation;
+
 import javax.persistence.Basic;
 
 /**
@@ -7,9 +10,6 @@ import javax.persistence.Basic;
  * @author os
  */
 public class JProduct extends JBaseObject {
-
-    /** The Many-To-One id (unconstrained) */
-    private String      id;
 
     /** The location of the product */
     private JLocation   location;
@@ -48,19 +48,11 @@ public class JProduct extends JBaseObject {
 
     @Override
     protected String subString() {
-        return String.format("id:%s, location:%s, ratings:%d, average:%d, likes:%d, comments:%d",
-                id, location, ratingCount, getRatingAverage(), likeCount, commentCount);
+        return String.format("location:%s, ratings:%d, average:%d, likes:%d, comments:%d",
+                location, ratingCount, getRatingAverage(), likeCount, commentCount);
     }
 
     // Setters and Getters
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
     public JLocation getLocation() {
         return location;
     }

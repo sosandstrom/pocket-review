@@ -9,6 +9,7 @@ import javax.persistence.Basic;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
+import com.google.appengine.api.datastore.Category;
 import net.sf.mardao.api.domain.AEDLongEntity;
 
 import com.google.appengine.api.datastore.GeoPt;
@@ -23,7 +24,7 @@ import net.sf.mardao.api.geo.aed.GeoModel;
  * @author os
  */
 @Entity
-@Table(uniqueConstraints={@UniqueConstraint(columnNames={"productId", "username"})})
+@Table(uniqueConstraints={@UniqueConstraint(columnNames={"productId", "username", "category"})})
 public class DRating extends AEDLongEntity {
 
     /** Generated primary key */
@@ -45,6 +46,11 @@ public class DRating extends AEDLongEntity {
     /** A user-provided review comment */
     @Basic
     private String             comment;
+
+    /** The category of the rating if supporting group ratings */
+    @Basic
+    private Category           category;
+
 
     @Override
     public Long getSimpleKey() {
@@ -98,4 +104,13 @@ public class DRating extends AEDLongEntity {
     public void setComment(String comment) {
         this.comment = comment;
     }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
+    }
+
 }

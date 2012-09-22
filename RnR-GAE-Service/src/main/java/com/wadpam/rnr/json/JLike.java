@@ -1,13 +1,14 @@
 package com.wadpam.rnr.json;
 
+import com.wadpam.open.json.JBaseObject;
+import com.wadpam.open.json.JLocation;
+
 /**
  * Json object for likes.
- * @author mlv
+ * @author mattiaslevin
  */
 public class JLike extends JBaseObject {
 
-    /**  The unique id of the like */
-    private String             id;
 
     /** The Many-To-One productId (unconstrained) */
     private String             productId;
@@ -19,32 +20,14 @@ public class JLike extends JBaseObject {
     private JLocation          location;
 
 
-    // Constructors
-     public JLike() {
-         // Do nothing
-    }
-
-    public JLike(String id, Long createdDate, Long updatedDate) {
-        super(id, createdDate, updatedDate, updatedDate);
-    }
-
-
     @Override
     protected String subString() {
-        return String.format("id:%s productId:%s, username:%s, location:%s",
-                id, productId, username, location);
+        return String.format("productId:%s, username:%s, location:%s",
+                productId, username, location);
     }
 
 
     // Setters and getters
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
     public String getProductId() {
         return productId;
     }

@@ -14,7 +14,12 @@ import net.sf.mardao.api.geo.aed.GeoDao;
  * Generated on 2012-08-05T20:54:54.772+0700.
  * @author mardao DAO generator (net.sf.mardao.plugin.ProcessDomainMojo)
  */
-public interface DProductDao extends GeneratedDProductDao<Key, Key>, GeoDao<DProduct, String> {
+public interface DProductDao extends GeneratedDProductDao<Key, Key> {
+
+    /**
+     * Decide the sort order in nearby searches
+     */
+    public enum SortOrder {DISTANCE, TOP_RATED, MOST_LIKED};
 
     /**
      * Find most liked product
@@ -52,4 +57,25 @@ public interface DProductDao extends GeneratedDProductDao<Key, Key>, GeoDao<DPro
      * @return a new cursor that can be used to get the next products.
      */
     String getProductPage(String cursor, int pageSize, Collection<DProduct> result);
+
+    /**
+     * Persist a product and index the location is provided. Can later be used to do location based searches.
+     * @param dProduct the product to persist
+     * @return the product id
+     */
+    public String persistAndIndexLocation(DProduct dProduct);
+
+    /**
+     * Get places products
+     * @param cursor the cursor returned from the previous call to this method. If this is the first call, use null.
+     * @param pageSize the number of products to return
+     * @param latitude the latitude to search around
+     * @param longitude the longitude to search around
+     * @param radius the radius to search within
+     * @param result An empty collection of products that will be populated with the results
+     * @return a new cursor that can be used to get the next products.
+     */
+    public String searchInIndexForNearby(String cursor, int pageSize, Float latitude,
+                                         Float longitude, int radius, SortOrder sortOrder, Collection<DProduct> result);
+
 }

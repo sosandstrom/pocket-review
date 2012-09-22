@@ -4,9 +4,9 @@
     <script type="text/javascript">
     function generateStatusURL()
     {
-        userId = document.forms["statusForm"]["userId"].value
+        adminId = document.forms["statusForm"]["adminId"].value
         status = document.forms["statusForm"]["status"].value
-        document.forms["statusForm"].action="api/backoffice/officer/" + userId + "/status/" + status
+        document.forms["statusForm"].action="api/backoffice/admin/" + adminId + "/status/" + status
     }
 
     function generateCreateAppURL()
@@ -30,30 +30,30 @@
 
 <h2>User forms</h2>
 
-<form name="input" action="api/backoffice/officer/login" method="get">
+<form name="input" action="api/backoffice/admin/login" method="get">
     Login: <br/>
     <input type="submit" value="Submit" />
 </form>
 
 <br/>
 
-<form name="input" action="api/backoffice/officer/logout" method="get">
+<form name="input" action="api/backoffice/admin/logout" method="get">
     Logout: <br/>
     <input type="submit" value="Submit" />
 </form>
 
 <br/>
 
-<form name="input" action="api/backoffice/officer" method="post">
-    Create officer <br/>
+<form name="input" action="api/backoffice/admin" method="post">
+    Create appAdmins <br/>
     User nickname: <input type="text" name="name" />
     <input type="submit" value="Submit" />
 </form>
 
 <br/>
 
-<form name="input" action="api/backoffice/officer" method="get">
-    Get officer details <br/>
+<form name="input" action="api/backoffice/admin" method="get">
+    Get appAdmins details <br/>
     <input type="submit" value="Submit" />
 </form>
 
@@ -81,18 +81,18 @@
 </form>
 
 
-<h2>GAE admin forms</h2>
+<h2>GAE appAdmins forms</h2>
 
-<form name="input" action="api/backoffice/officer/all" method="get">
-    Get all officer account details (project admin only): <br/>
+<form name="input" action="api/backoffice/admin/all" method="get">
+    Get all appAdmins account details (project appAdmins only): <br/>
     <input type="submit" value="Submit" />
 </form>
 
 <br/>
 
-<form name="statusForm" action="api/backoffice/officer/status/1" method="post" onsubmit="generateStatusURL()">
-    Change account status (project admin only): <br/>
-    Officer user id: <input type="text" name="userId" />
+<form name="statusForm" action="api/backoffice/admin/status/1" method="post" onsubmit="generateStatusURL()">
+    Change account status (project appAdmins only): <br/>
+    Officer user id: <input type="text" name="adminId" />
     <select name="status">
         <option value="0">Pending</option>
         <option value="1">Active</option>

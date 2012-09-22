@@ -24,7 +24,7 @@
         <javadocExecutable>${java.home}/../bin/javadoc</javadocExecutable>
         <logging.level>ALL</logging.level>
 
-        <!-- Change the values below to an admin email address -->
+        <!-- Change the values below to an appAdmins email address -->
         <email.from.address>mattias.levin@gmail.com</email.from.address>
         <email.from.name>Pocket-Review</email.from.name>
 

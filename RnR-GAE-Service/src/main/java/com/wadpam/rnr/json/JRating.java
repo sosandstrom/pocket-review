@@ -6,16 +6,16 @@ package com.wadpam.rnr.json;
 
 import com.google.appengine.api.datastore.GeoPt;
 import com.google.appengine.api.datastore.Rating;
+import com.wadpam.open.json.JBaseObject;
+import com.wadpam.open.json.JLocation;
+
 import javax.persistence.Basic;
 
 /**
  * Json object for ratings.
- * @author mlv
+ * @author mattiaslevin
  */
 public class JRating extends JBaseObject {
-
-    /**  The unique id of the rating */
-    private String             id;
 
     /** The Many-To-One productId (unconstrained) */
     private String             productId;
@@ -35,20 +35,12 @@ public class JRating extends JBaseObject {
 
     @Override
     protected String subString() {
-        return String.format("id:%s productId:%s, username:%s, location:%s, rating:%d, comment:%s",
-                id, productId, username, location, rating, comment);
+        return String.format("productId:%s, username:%s, location:%s, rating:%d, comment:%s",
+                productId, username, location, rating, comment);
     }
 
 
     // Setters and getters
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
     public String getProductId() {
         return productId;
     }

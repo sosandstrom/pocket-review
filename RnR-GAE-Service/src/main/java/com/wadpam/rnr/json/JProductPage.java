@@ -15,7 +15,7 @@ public class JProductPage {
      * The number of products to return.
      * If the number of products actually returned are less then the requested page size, end of pagination have been reached.
      */
-    private long pageSize;
+    private Long pageSize;
 
     /** The products */
     private Collection<JProduct> products;
@@ -36,11 +36,11 @@ public class JProductPage {
         this.cursor = cursor;
     }
 
-    public long getPageSize() {
+    public Long getPageSize() {
         return pageSize;
     }
 
-    public void setPageSize(long pageSize) {
+    public void setPageSize(Long pageSize) {
         this.pageSize = pageSize;
     }
 

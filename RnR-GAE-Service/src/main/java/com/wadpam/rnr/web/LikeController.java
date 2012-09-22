@@ -3,8 +3,10 @@ package com.wadpam.rnr.web;
 import com.wadpam.docrest.domain.RestCode;
 import com.wadpam.docrest.domain.RestReturn;
 import com.wadpam.rnr.domain.DLike;
+import com.wadpam.rnr.json.JFavorites;
 import com.wadpam.rnr.json.JLike;
 import com.wadpam.rnr.service.RnrService;
+import com.wadpam.server.web.AbstractRestController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -24,11 +26,11 @@ import java.util.Collection;
 
 /**
  * The like controller implements all REST methods related to likes.
- * @author mlv
+ * @author mattiaslevin
  */
 @Controller
 @RequestMapping(value="{domain}/like")
-public class LikeController {
+public class LikeController extends AbstractRestController {
 
     static final Logger LOG = LoggerFactory.getLogger(LikeController.class);
 
@@ -58,8 +60,6 @@ public class LikeController {
 
         final DLike body = rnrService.addLike(domain, productId, username, latitude, longitude);
 
-
-
         return new RedirectView(request.getRequestURI() + "/" + body.getId().toString());
     }
 
@@ -79,10 +79,7 @@ public class LikeController {
 
         final DLike body = rnrService.deleteLike(id);
 
-        if (null == body)
-            return new ResponseEntity(HttpStatus.NOT_FOUND);
-        else
-            return new ResponseEntity<JLike>(HttpStatus.OK);
+        return new ResponseEntity<JLike>(HttpStatus.OK);
     }
 
     /**
@@ -101,10 +98,7 @@ public class LikeController {
 
         final DLike body = rnrService.getLike(id);
 
-        if (null == body)
-            return new ResponseEntity(HttpStatus.NOT_FOUND);
-        else
-            return new ResponseEntity<JLike>(Converter.convert(body, request), HttpStatus.OK);
+        return new ResponseEntity<JLike>(Converter.convert(body), HttpStatus.OK);
     }
 
     /**
@@ -120,17 +114,11 @@ public class LikeController {
     @RequestMapping(value="", method= RequestMethod.GET, params="username")
     public ResponseEntity<Collection<JLike>> getMyLikes(HttpServletRequest request,
                                                         Principal principal,
-                                                        @RequestParam(required=false) String username) {
+                                                        @RequestParam(required=true) String username) {
 
-        try {
-            final Collection<DLike> body = rnrService.getMyLikes(username);
+        final Collection<DLike> body = rnrService.getMyLikes(username);
 
-            return new ResponseEntity<Collection<JLike>>((Collection<JLike>)Converter.convert(body, request),
-                    HttpStatus.OK);
-        }
-        catch (IllegalArgumentException usernameNull) {
-            return new ResponseEntity<Collection<JLike>>(HttpStatus.UNAUTHORIZED);
-        }
+        return new ResponseEntity<Collection<JLike>>((Collection<JLike>)Converter.convert(body), HttpStatus.OK);
     }
 
     /**
@@ -148,8 +136,7 @@ public class LikeController {
 
         final Collection<DLike> body = rnrService.getAllLikesForProduct(productId);
 
-        return new ResponseEntity<Collection<JLike>>((Collection<JLike>)Converter.convert(body, request),
-                HttpStatus.OK);
+        return new ResponseEntity<Collection<JLike>>((Collection<JLike>)Converter.convert(body), HttpStatus.OK);
     }
 
 

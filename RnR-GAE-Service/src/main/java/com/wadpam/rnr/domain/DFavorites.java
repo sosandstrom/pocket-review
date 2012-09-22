@@ -11,7 +11,7 @@ import java.util.Set;
 
 /**
  * The domain object for Favorites
- * @author mlv.
+ * @author mattiaslevin.
  */
 @Entity
 public class DFavorites extends AEDStringEntity implements Serializable {
@@ -20,7 +20,7 @@ public class DFavorites extends AEDStringEntity implements Serializable {
 
     /** The user name */
     @Id
-    private String                username;
+    private String                 username;
 
     @Basic
     /** The users favorite products ids */

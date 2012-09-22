@@ -1,13 +1,12 @@
 package com.wadpam.rnr.domain;
 
 
+import com.google.appengine.api.datastore.Category;
 import com.google.appengine.api.datastore.GeoPt;
 import com.google.appengine.api.datastore.Rating;
 import net.sf.mardao.api.domain.AEDStringEntity;
 
-import javax.persistence.Basic;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Collection;
 import net.sf.mardao.api.geo.aed.GeoModel;
@@ -17,7 +16,8 @@ import net.sf.mardao.api.geo.aed.GeoModel;
  * @author os
  */
 @Entity
-public class DProduct extends AEDStringEntity implements Serializable, GeoModel {
+//@Table(uniqueConstraints={@UniqueConstraint(columnNames={"productId", "category"})})
+public class DProduct extends AEDStringEntity implements Serializable {
 
     private static final long serialVersionUID = -2815964311490330958L;
 
@@ -25,6 +25,10 @@ public class DProduct extends AEDStringEntity implements Serializable, GeoModel 
     /** The Many-To-One productId (unconstrained) */
     @Id
     private String      productId;
+
+    /** The category of the rating if supporting group ratings */
+    @Basic
+    private Category    category;
 
     /** The total sum or all ratings */
     @Basic
@@ -50,10 +54,6 @@ public class DProduct extends AEDStringEntity implements Serializable, GeoModel 
     @Basic
     private GeoPt       location;
 
-    @Basic
-    /** used by GeoDao to index boxes */
-    private Collection<Long> geoboxes;
-
 
     @Override
     public String getSimpleKey() {
@@ -66,29 +66,15 @@ public class DProduct extends AEDStringEntity implements Serializable, GeoModel 
                 productId, ratingCount, getRatingAverage(), likeCount, location);
     }
 
-    // Needed for geolocation  // TODO: Uncomment overrides and implement getId()
-    public String getId() {
-        return this.productId;
-    }
 
-//    @Override
     public float getLatitude() {
         return null != location ? location.getLatitude() : -200;
     }
 
-//    @Override
     public float getLongitude() {
         return null != location ? location.getLongitude() : -200;
     }
 
-//    @Override
-    public void setGeoboxes(Collection<Long> geoboxes) {
-        this.geoboxes = geoboxes;
-    }
-
-    public Collection<Long> getGeoboxes() {
-        return geoboxes;
-    }
 
     // Getters and setters
     public String getProductId() {
@@ -97,6 +83,14 @@ public class DProduct extends AEDStringEntity implements Serializable, GeoModel 
 
     public void setProductId(String productId) {
         this.productId = productId;
+    }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
     }
 
     public Long getRatingSum() {
@@ -146,4 +140,5 @@ public class DProduct extends AEDStringEntity implements Serializable, GeoModel 
     public void setLocation(GeoPt location) {
         this.location = location;
     }
+
 }

@@ -1,16 +1,24 @@
 package com.wadpam.rnr.json;
 
+import com.wadpam.open.json.JBaseObject;
+import com.wadpam.open.json.JLocation;
+
+import java.util.Collection;
+
 /**
  * Json object for comments.
- * @author mlv
+ * @author mattiaslevin
  */
 public class JComment extends JBaseObject {
 
-    /**  The unique id of the Comment */
-    private String             id;
-
     /** The Many-To-One productId (unconstrained) */
     private String             productId;
+
+    /** An optional parent */
+    private Long               parentId;
+
+    /** Child comments */
+    private Collection<JComment>   children;
 
     /** The Many-To-One username (unconstrained) */
     private String             username;
@@ -24,17 +32,25 @@ public class JComment extends JBaseObject {
 
     @Override
     protected String subString() {
-        return String.format("id:%s productId:%s, username:%s, location:%s, comment:%s",
-                id, productId, username, location, comment);
+        return String.format("productId:%s, username:%s, location:%s, comment:%s",
+                productId, username, location, comment);
     }
 
     // Setters and Getters
-    public String getId() {
-        return id;
+    public Collection<JComment> getChildren() {
+        return children;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setChildren(Collection<JComment> children) {
+        this.children = children;
+    }
+
+    public Long getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(Long parentId) {
+        this.parentId = parentId;
     }
 
     public String getProductId() {

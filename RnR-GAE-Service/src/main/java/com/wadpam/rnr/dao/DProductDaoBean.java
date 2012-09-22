@@ -1,8 +1,13 @@
 package com.wadpam.rnr.dao;
 
 import com.google.appengine.api.datastore.*;
+import com.google.appengine.api.datastore.Cursor;
+import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.search.*;
+import com.google.appengine.api.search.Index;
 import com.wadpam.rnr.domain.DProduct;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import net.sf.mardao.api.dao.Expression;
 
@@ -18,6 +23,9 @@ public class DProductDaoBean
 	extends GeneratedDProductDaoImpl
 		implements DProductDao 
 {
+
+    private static final String LOCATION_INDEX = "locationIndex";
+
 
     // Find most liked products
     @Override
@@ -81,26 +89,115 @@ public class DProductDaoBean
 
         return newCursor;
     }
-    
-    // --- implements GeoDao ---
 
+    // Persist and index a product based in location (needed for location based search)
     @Override
-    public String getGeoboxesColumnName() {
-        return COLUMN_NAME_GEOBOXES;
+    public String persistAndIndexLocation(DProduct dProduct) {
+
+        // Index the geo location
+        if (null != dProduct.getLocation()) {
+            GeoPoint geoPoint = new GeoPoint(dProduct.getLocation().getLatitude(), dProduct.getLocation().getLongitude());
+            Document.Builder locationBuilder = Document.newBuilder()
+                    .setId(dProduct.getProductId())
+                    .addField(Field.newBuilder().setName("location").setGeoPoint(geoPoint))
+                    .addField(Field.newBuilder().setName("averageRating").setNumber(dProduct.getRatingAverage().getRating()))
+                    .addField(Field.newBuilder().setName("linkCount").setNumber(dProduct.getLikeCount()));
+            getLocationIndex().add(locationBuilder.build());
+        }
+
+        return this.persist(dProduct);
     }
 
-    @Override
-    public Collection findGeoBase(String orderBy, boolean ascending, int limit, int offset, Expression... filters) {
-        return findBy(orderBy, ascending, limit, offset, filters);
+    // Build location index
+    private com.google.appengine.api.search.Index getLocationIndex() {
+        IndexSpec indexSpec = IndexSpec.newBuilder()
+                .setName(LOCATION_INDEX)
+                .setConsistency(Consistency.PER_DOCUMENT)
+                .build();
+        return SearchServiceFactory.getSearchService().getIndex(indexSpec);
     }
 
+    // Search for nearby places
     @Override
-    public Collection findInGeobox(float lat, float lng, int bits, String orderBy, boolean ascending, int offset, int limit, Expression... filters) {
-        throw new UnsupportedOperationException("Invoke on geoProductDao only.");
+    public String searchInIndexForNearby(String cursor, int pageSize, Float latitude, Float longitude,
+                                         int radius, SortOrder sortOrder, Collection<DProduct> result) {
+
+        // Build the query string
+        String queryString = String.format("distance(location, geopoint(%f, %f)) < %d", latitude, longitude, radius);
+
+        // Sort expression
+        SortExpression sortExpression = null;
+        switch (sortOrder) {
+            case DISTANCE:
+                String sortString = String.format("distance(location, geopoint(%f, %f))", latitude, longitude);
+                sortExpression = SortExpression.newBuilder()
+                        .setExpression(sortString)
+                        .setDirection(SortExpression.SortDirection.ASCENDING)
+                        .setDefaultValueNumeric(radius + 1)
+                        .build();
+                break;
+            case TOP_RATED:
+                sortExpression = SortExpression.newBuilder()
+                        .setExpression("averageRating")
+                        .setDirection(SortExpression.SortDirection.DESCENDING)
+                        .setDefaultValue("")
+                        .build();
+                break;
+            case MOST_LIKED:
+                sortExpression = SortExpression.newBuilder()
+                        .setExpression("linkCount")
+                        .setDirection(SortExpression.SortDirection.DESCENDING)
+                        .setDefaultValue("")
+                        .build();
+                break;
+        }
+
+        // Options
+        QueryOptions options = null;
+        QueryOptions.Builder builder = QueryOptions.newBuilder()
+                .setSortOptions(SortOptions.newBuilder().addSortExpression(sortExpression))
+                .setLimit(pageSize);
+
+        if (null != cursor)
+            builder.setCursor(com.google.appengine.api.search.Cursor.newBuilder().build(cursor));
+
+        // Build query
+        com.google.appengine.api.search.Query query = com.google.appengine.api.search.Query.newBuilder()
+                .setOptions(options)
+                .build(queryString);
+
+        return searchInIndexWithQuery(query, getLocationIndex(), result);
     }
 
-    @Override
-    public String save(DProduct model) {
-        return update(model);
+    // Search in index for a query
+    private String searchInIndexWithQuery(com.google.appengine.api.search.Query query, Index index, Collection<DProduct> result) {
+
+        try {
+            // Query the index.
+            Results<ScoredDocument> results = index.search(query);
+
+            // Collect all the primary keys
+            Collection<String> ids = new ArrayList<String>();
+            for (ScoredDocument document : results) {
+                ids.add(document.getId());
+            }
+
+            if (ids.size() != 0) {
+                // We got results, get the places from datastore
+                result = this.findByPrimaryKeys(ids).values();
+                return results.getCursor().toWebSafeString();
+            } else {
+                // No results, return empty list
+                result = new ArrayList<DProduct>(0);
+                return null;
+            }
+        } catch (SearchException e) {
+            if (StatusCode.TRANSIENT_ERROR.equals(e.getOperationResult().getCode())) {
+                LOG.error("Search index failed");
+                // TODO: Error handling missing
+            }
+            throw new SearchException("Searching index failed");
+        }
     }
+
 }

@@ -1,34 +1,35 @@
 package com.wadpam.rnr.json;
 
+import com.wadpam.open.json.JBaseObject;
+
+import java.util.Collection;
+
 /**
  * Json object for app settings.
- * @author mlv
+ * @author mattiaslevin
  */
 public class JApp extends JBaseObject {
 
     /** The unique domain name for the app */
     private String      domain;
 
-    /** The owner and admin for this app */
-    private String      admin;
+    /** The email addressed ofr the admins for this app */
+    private Collection<String> appAdmins;
 
     /** An unique app user generated when the app is created. Most be provided in the request from the apps */
-    private String      appUser;
+    private String      apiUser;
 
     /** A generated app password. Must be provided in the requests from the apps */
-    private String      appPassword;
+    private String      apiPassword;
 
-    /** Decides if an identified user only can like a product once  */
-    private boolean     onlyLikeOncePerUser = true;
-
-    /** Decides if an identified user only can rate a product once  */
-    private boolean     onlyRateOncePerUser = true;
+    /** A short description of the app */
+    private String      description;
 
 
     @Override
     public String subString() {
-        return String.format("{domain:%s, appUser:%s, appPassword:%s, likeOncePerUser:%d, rateOncePerUser:%d}",
-                getDomain(), getAppUser(), getAppPassword(), isOnlyLikeOncePerUser(), isOnlyLikeOncePerUser());
+        return String.format("{domain:%s, apiUser:%s, apiPassword:%s}",
+                getDomain(), getApiUser(), getApiPassword());
     }
 
     // Setters and Getters
@@ -40,43 +41,35 @@ public class JApp extends JBaseObject {
         this.domain = domain;
     }
 
-    public String getAdmin() {
-        return admin;
+    public Collection<String> getAppAdmins() {
+        return appAdmins;
     }
 
-    public void setAdmin(String admin) {
-        this.admin = admin;
+    public void setAppAdmins(Collection<String> appAdmins) {
+        this.appAdmins = appAdmins;
     }
 
-    public String getAppUser() {
-        return appUser;
+    public String getApiUser() {
+        return apiUser;
     }
 
-    public void setAppUser(String appUser) {
-        this.appUser = appUser;
+    public void setApiUser(String apiUser) {
+        this.apiUser = apiUser;
     }
 
-    public String getAppPassword() {
-        return appPassword;
+    public String getApiPassword() {
+        return apiPassword;
     }
 
-    public void setAppPassword(String appPassword) {
-        this.appPassword = appPassword;
+    public void setApiPassword(String apiPassword) {
+        this.apiPassword = apiPassword;
     }
 
-    public boolean isOnlyLikeOncePerUser() {
-        return onlyLikeOncePerUser;
+    public String getDescription() {
+        return description;
     }
 
-    public void setOnlyLikeOncePerUser(boolean onlyLikeOncePerUser) {
-        this.onlyLikeOncePerUser = onlyLikeOncePerUser;
-    }
-
-    public boolean isOnlyRateOncePerUser() {
-        return onlyRateOncePerUser;
-    }
-
-    public void setOnlyRateOncePerUser(boolean onlyRateOncePerUser) {
-        this.onlyRateOncePerUser = onlyRateOncePerUser;
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

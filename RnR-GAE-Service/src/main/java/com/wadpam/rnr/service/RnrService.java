@@ -1,13 +1,15 @@
 package com.wadpam.rnr.service;
 
 import com.google.appengine.api.datastore.*;
+import com.wadpam.open.transaction.Idempotent;
 import com.wadpam.rnr.dao.*;
-import com.wadpam.rnr.datastore.Idempotent;
 import com.wadpam.rnr.domain.*;
 
 import java.io.PrintWriter;
 import java.util.*;
 
+import com.wadpam.server.exceptions.BadRequestException;
+import com.wadpam.server.exceptions.NotFoundException;
 import net.sf.mardao.api.geo.aed.GeoDao;
 import net.sf.mardao.api.geo.aed.GeoDaoImpl;
 import org.slf4j.Logger;
@@ -21,45 +23,18 @@ import org.springframework.transaction.annotation.Transactional;
 public class RnrService {
     static final Logger LOG = LoggerFactory.getLogger(RnrService.class);
 
-    private static boolean fallbackPrincipalName = true;
-
     private DAppDao appDao;
+    private DAppSettingsDao appSettingsDao;
     private DProductDao productDao;
     private DRatingDao ratingDao;
     private DLikeDao likeDao;
     private DCommentDao commentDao;
     private DFavoritesDao favoritesDao;
-    private GeoDao geoProductDao;
 
 
     public void init() {
-        geoProductDao = new GeoDaoImpl<String, DProduct, DProduct>(productDao);
-
-//        doInDomain("dev", new Runnable() { // TODO: Not used remove?
-//
-//            @Override
-//            public void run() {
-//                for (DRating rating : ratingDao.findAll()) {
-//                    if (null != rating.getLocation()) {
-//                        geoRatingDao.save(rating);
-//                    }
-//                }
-//            }
-//            
-//        });
+        // Do nothing
     }
-
-//    // TODO: Not used. Remove?
-//    public static void doInDomain(String domain, Runnable task) {
-//        final String currentNamespace = NamespaceManager.get();
-//        try {
-//            NamespaceManager.set(domain);
-//            task.run();
-//        }
-//        finally {
-//            NamespaceManager.set(currentNamespace);
-//        }
-//    }
 
 
     /* Like related methods */
@@ -68,13 +43,11 @@ public class RnrService {
     @Idempotent
     @Transactional
     public DLike addLike(String domain, String productId, String username, Float latitude, Float longitude) {
-        LOG.debug("Add new like to product " + productId);
+        LOG.debug("Add new like to product:{}", productId);
 
         // Specified users can only Like once
-        boolean onlyLikeOncePerUser = true; // Use true as default value
-        DApp dApp = appDao.findByDomainWithFixedNamespace(domain);
-        if (null != dApp)
-            onlyLikeOncePerUser = dApp.getOnlyLikeOncePerUser().booleanValue();
+        DAppSettings settings = appSettingsDao.findByPrimaryKey(domain);
+        boolean onlyLikeOncePerUser = (null != settings) ? settings.getOnlyLikeOncePerUser() : true;
 
         DLike dLike = null;
         if (onlyLikeOncePerUser && null != username) {
@@ -90,7 +63,7 @@ public class RnrService {
             // Store
             likeDao.persist(dLike);
         }  else {
-            LOG.debug("User" + username + " already liked this product");
+            LOG.debug("User:{} already liked this product", username);
             // Do not increase the like count, just return th existing like
             return dLike;
         }
@@ -111,11 +84,10 @@ public class RnrService {
         if (null != latitude && null != longitude) {
             final GeoPt location = new GeoPt(latitude, longitude);
             dProduct.setLocation(location);
-            //geoResultDao.save(dResult);   // TODO: Uncomment once geoResultDao is declared
         }
-        else {
-            productDao.persist(dProduct);
-        }
+
+        // Persist and index the location
+        productDao.persistAndIndexLocation(dProduct);
 
         // Call to generate a datastrore ConcurrentModificationException in order to test the transaction retry mechanism
         // Uncomment this to run tests
@@ -127,9 +99,12 @@ public class RnrService {
 
     // Get a like with a specific id
     public DLike getLike(long id) {
-        LOG.debug("Get like with id " + id);
+        LOG.debug("Get like with id:{}", id);
 
         DLike dLike = likeDao.findByPrimaryKey(id);
+
+        if (null == dLike)
+            throw new NotFoundException(404, String.format("Like with id:%s not found", id));
 
         return dLike;
     }
@@ -138,11 +113,11 @@ public class RnrService {
     @Idempotent
     @Transactional
     public DLike deleteLike(long id) {
-        LOG.debug("Delete like with id " + id);
+        LOG.debug("Delete like with id:{}", id);
 
         DLike dLike = likeDao.findByPrimaryKey(id);
         if (null == dLike)
-            return null;
+            throw new NotFoundException(404, String.format("Like with id:%s not found", id));
 
         // Delete the like
         likeDao.delete(dLike);
@@ -154,18 +129,14 @@ public class RnrService {
             productDao.persist(dProduct);
         } else
             // Should not happen, log error
-            LOG.error("Like exist but not the product " + dLike.getProductId());
+            LOG.error("Like exist but not the product:{}", dLike.getProductId());
 
         return dLike;
     }
 
     // Get all likes for a specific user
     public Collection<DLike> getMyLikes(String username) {
-
-        if (null == username)
-            throw new IllegalArgumentException("Username must be specified or authenticated");
-
-        LOG.debug("Get all likes for user " + username);
+        LOG.debug("Get all likes for user:{}", username);
 
         final Collection<DLike> myLikes = likeDao.findByUsername(username);
 
@@ -180,16 +151,14 @@ public class RnrService {
     @Transactional
     public DRating addRating(String domain, String productId, String username,
                              Float latitude, Float longitude, int rating, String comment) {
-        LOG.debug("Add new rating to product " + productId);
+        LOG.debug("Add new rating to product:{}", productId);
 
         DRating dRating = null;
         int existing = -1;
 
         // specified users can only rate once
-        boolean onlyRateOncePerUser = true; // Use true as default value
-        DApp dApp = appDao.findByDomainWithFixedNamespace(domain);
-        if (null != dApp)
-            onlyRateOncePerUser = dApp.getOnlyRateOncePerUser().booleanValue();
+        DAppSettings settings = appSettingsDao.findByPrimaryKey(domain);
+        boolean onlyRateOncePerUser = (null != settings) ? settings.getOnlyRateOncePerUser() : true;
 
         if (onlyRateOncePerUser && null != username) {
             dRating = ratingDao.findByProductIdUsername(productId, username);
@@ -240,20 +209,22 @@ public class RnrService {
         if (null != latitude && null != longitude) {
             final GeoPt location = new GeoPt(latitude, longitude);
             dProduct.setLocation(location);
-            //geoResultDao.save(dProduct);   // TODO: Uncomment once geoResultDao is declared
         }
-        else {
-            productDao.persist(dProduct);
-        }
+
+        // Persist and index location
+        productDao.persistAndIndexLocation(dProduct);
 
         return dRating;
     }
 
     // Get a rating with a specific id
     public DRating getRating(long id) {
-        LOG.debug("Get rating with id " + id);
+        LOG.debug("Get rating with id:{}", id);
 
         DRating dRating = ratingDao.findByPrimaryKey(id);
+
+        if (null == dRating)
+            throw new NotFoundException(404, String.format("Rating with id:%s not found", id));
 
         return dRating;
     }
@@ -262,11 +233,11 @@ public class RnrService {
     @Idempotent
     @Transactional
     public DRating deleteRating(long id) {
-        LOG.debug("Delete ratings with id " + id);
+        LOG.debug("Delete rating with id:{}",  id);
 
         DRating dRating = ratingDao.findByPrimaryKey(id);
         if (null == dRating)
-            return null;
+            throw new NotFoundException(404, String.format("Rating with id:%s not found", id));
 
         // Delete the rating
         ratingDao.delete(dRating);
@@ -276,26 +247,24 @@ public class RnrService {
         if (null != dProduct) {
             dProduct.setRatingSum(dProduct.getRatingSum() - dRating.getRating().getRating());
             dProduct.setRatingCount(dProduct.getRatingCount() - 1);
+
             // Guard against deleting the last rating to avoid / by zero
             if (0 != dProduct.getRatingCount())
                 dProduct.setRatingAverage(new Rating((int)(dProduct.getRatingSum() / dProduct.getRatingCount())));
             else
                 dProduct.setRatingAverage(null);
+
             productDao.persist(dProduct);
         } else
             // Should not happen, log error
-            LOG.error("Rating exist but not the product " + dRating.getProductId());
+            LOG.error("Rating exist but not the product:{}",  dRating.getProductId());
 
         return dRating;
     }
 
     // Get all ratings done by a specific user
     public Collection<DRating> getMyRatings(String username) {
-
-        if (null == username)
-            throw new IllegalArgumentException("Username must be specified or authenticated");
-
-        LOG.debug("Get all ratings for user " + username);
+        LOG.debug("Get all ratings for user:{}",  username);
 
         final Collection<DRating> dRatings = ratingDao.findByUsername(username);
 
@@ -304,7 +273,7 @@ public class RnrService {
 
     // Create a histogram
     public Map<Long, Long> getHistogramForProduct(String productId, int interval) {
-        LOG.debug("Create histogram");
+        LOG.debug("Create histogram for product:{}", productId);
 
         Collection<DRating> ratings = getAllRatingsForProduct(productId);
 
@@ -331,12 +300,21 @@ public class RnrService {
     // Add a comment to a product
     @Idempotent
     @Transactional
-    public DComment addComment(String productId, String username, Float latitude, Float longitude, String comment) {
-        LOG.debug("Add new comment to product " + productId);
+    public DComment addComment(String productId, Long parentId, String username, Float latitude, Float longitude, String comment) {
+        LOG.debug("Add new comment to product:(}",  productId);
+
+        // If we have a parent comment id, check that it belongs to the same product if
+        DComment dParentComment = getComment(parentId);
+        if (null == dParentComment || dParentComment.getProductId().equalsIgnoreCase(productId) == false) {
+            LOG.debug("Parent comment:{} is not a comment for the product:{}", parentId, productId);
+            throw new BadRequestException(400, String.format("The parent comment:%s is not a comment for the product:%s", parentId, productId));
+        }
 
         // Create new comment. Do not check if user have commented before
         DComment dComment = new DComment();
         dComment.setProductId(productId);
+        if (null != parentId)
+            dComment.setParentKey(commentDao.createKey(parentId));
         dComment.setUsername(username);
         dComment.setComment(comment);
         commentDao.persist(dComment);
@@ -355,20 +333,22 @@ public class RnrService {
         if (null != latitude && null != longitude) {
             final GeoPt location = new GeoPt(latitude, longitude);
             dProduct.setLocation(location);
-            //geoResultDao.save(dProduct);   // TODO: Uncomment once geoResultDao is declared
         }
-        else {
-            productDao.persist(dProduct);
-        }
+
+        // Persist and index on location
+        productDao.persistAndIndexLocation(dProduct);
 
         return dComment;
     }
 
     // Get a comment with a specific id
     public DComment getComment(long id) {
-        LOG.debug("Get comment with id " + id);
+        LOG.debug("Get comment with id:{}", id);
 
         DComment dComment = commentDao.findByPrimaryKey(id);
+
+        if (null == dComment)
+            throw new NotFoundException(404, String.format("Comment with id:%s not found", id));
 
         return dComment;
     }
@@ -377,11 +357,11 @@ public class RnrService {
     @Idempotent
     @Transactional
     public DComment deleteComment(long id) {
-        LOG.debug("Delete comment with id " + id);
+        LOG.debug("Delete comment with id:{}", id);
 
         DComment dComment = commentDao.findByPrimaryKey(id);
         if (null == dComment)
-            return null;
+            throw new NotFoundException(404, String.format("Comment with id:%s not found", id));
 
         // Delete the comment
         commentDao.delete(dComment);
@@ -393,18 +373,14 @@ public class RnrService {
             productDao.persist(dProduct);
         } else
             // Should not happen, log error
-            LOG.error("Comment exist but not the product " + dComment.getProductId());
+            LOG.error("Comment exist but not the product:{}", dComment.getProductId());
 
         return dComment;
     }
 
     // Get all comments done by a specific user
     public Collection<DComment> getMyComments(String username) {
-
-        if (null == username)
-            throw new IllegalArgumentException("Username must be specified or authenticated");
-
-        LOG.debug("Get all comments for user " + username);
+        LOG.debug("Get all comments for user:{}", username);
 
         final Collection<DComment> dComments = commentDao.findByUsername(username);
 
@@ -418,11 +394,7 @@ public class RnrService {
     @Idempotent
     @Transactional
     public DFavorites addFavorite(String productId, String username) {
-        LOG.debug("Add product " + productId + " as favorites for user " + username);
-
-        // User name must be provided
-        if (null == username)
-            throw new IllegalArgumentException("Username must be specified or authenticated");
+        LOG.debug("Add product:{} as favorites for user:{}", productId, username);
 
         DFavorites dFavorites = favoritesDao.findByPrimaryKey(username);
         if (null == dFavorites) {
@@ -447,16 +419,13 @@ public class RnrService {
     @Idempotent
     @Transactional
     public DFavorites deleteFavorite(String productId, String username) {
-        LOG.debug("Delete product " + productId + " from favorites for user "  + username);
-
-        // User name must be provided
-        if (null == username)
-            throw new IllegalArgumentException("Username must be specified or authenticated");
+        LOG.debug("Delete product:{} from favorites for user:{}", productId, username);
 
         DFavorites dFavorites = favoritesDao.findByPrimaryKey(username);
-        // If the favorite is not found return null
+
+        // If the favorite is not found return 404
         if (null == dFavorites || dFavorites.getProductIds().remove(productId) == false)
-            return null;
+            throw new NotFoundException(404, String.format("Product:%s not found for user:%s", productId, username));
 
         // Store
         favoritesDao.persist(dFavorites);
@@ -466,13 +435,12 @@ public class RnrService {
 
     // Get all user favorites
     public DFavorites getFavorites(String username) {
-        LOG.debug("Get favorites for user "  + username);
-
-        // User name must be provided
-        if (null == username)
-            throw new IllegalArgumentException("Username must be specified or authenticated");
+        LOG.debug("Get favorites for user:{}", username);
 
         DFavorites dFavorites = favoritesDao.findByPrimaryKey(username);
+
+        if (null == dFavorites)
+            throw new NotFoundException(404, String.format("No favorites found for user:%s", username));
 
         return dFavorites;
     }
@@ -482,16 +450,19 @@ public class RnrService {
 
     // Get a specific product
     public DProduct getProduct(String productId) {
-        LOG.debug("Get product " + productId);
+        LOG.debug("Get product:{}",  productId);
 
         final DProduct dProduct = productDao.findByPrimaryKey(productId);
+
+        if (null == dProduct)
+            throw new NotFoundException(404, String.format("Product with id:%s not found", productId));
 
         return dProduct;
     }
 
     // Get a list of products
     public Collection<DProduct> getProducts(String[] ids) {
-        LOG.debug("Get a list of products " + ids);
+        LOG.debug("Get a list of products:{}", ids);
 
         Map<String, DProduct> dProducts = productDao.findByPrimaryKeys(Arrays.asList(ids));
 
@@ -500,24 +471,41 @@ public class RnrService {
 
     // Get all products
     public String getProductPage(String cursor, int pageSize, Collection<DProduct> resultList) {
-        LOG.debug("Get product page, cursor:" + cursor + " page size:" + pageSize);
-       return productDao.getProductPage(cursor, pageSize, resultList);
+        LOG.debug("Get product page with cursor:{} page size:{}", cursor, pageSize);
+        return productDao.getProductPage(cursor, pageSize, resultList);
     }
 
     // Find nearby products with different sort order
-    public Collection<DProduct> findNearbyProducts(Float latitude, Float longitude, int bits, int sortOrder, int limit) {
+    public String findNearbyProducts(String cursor, int pageSize, Float latitude, Float longitude, int radius, int sortOrder, Collection<DProduct> results) {
+        LOG.debug("Find nearby products");
 
-        // TODO: map sortOrder to COLUMN_NAMEs
-        final Collection<DProduct> list = geoProductDao.findInGeobox(latitude, longitude, bits, productDao.COLUMN_NAME_RATINGAVERAGE, false, 0, 10);
+        DProductDao.SortOrder order;
+        switch (sortOrder) {
+            case 1:
+                order = DProductDao.SortOrder.TOP_RATED;
+                break;
+            case 2:
+                order = DProductDao.SortOrder.MOST_LIKED;
+                break;
+            default:
+                order = DProductDao.SortOrder.DISTANCE;
+                break;
+        }
 
-        return list;
+        String newCursor = productDao.searchInIndexForNearby(cursor, pageSize, latitude, longitude, radius, order, results);
+
+        return newCursor;
     }
 
-
     // Find nearby products and return in KML format
-    public void findNearbyProductsKml(Float latitude, Float longitude, int bits, int sortOrder, int limit, PrintWriter out) {
-        Collection<DProduct> productList = findNearbyProducts(latitude, longitude, bits, limit, sortOrder);
-        writeRatingsKml(out, productList);
+    public String findNearbyProductsKml(String cursor, int pageSize, Float latitude, Float longitude, int radius, int sortOrder, PrintWriter out) {
+        LOG.debug("Find nearby products. Return KML format");
+
+        Collection<DProduct> dProducts = new ArrayList<DProduct>(pageSize);
+        String newCursor = findNearbyProducts(cursor, pageSize, latitude, longitude, radius, sortOrder, dProducts);
+        writeRatingsKml(out, dProducts);
+
+        return newCursor;
     }
 
     // Various help methods for generating KML format
@@ -539,7 +527,7 @@ public class RnrService {
     protected void writePlacemarkKml(PrintWriter kmlDest, DProduct product) {
         if (null != product.getLocation()) {
             kmlDest.println("   <Placemark>");
-            kmlDest.println("      <name>" + product.getId() + "</name>");
+            kmlDest.println("      <name>" + product.getProductId() + "</name>");
     //                        kmlDest.println("      <address>" + area + ", " + loc + "</address>");
 
             StringBuffer desc = new StringBuffer("<![CDATA[rating: ");
@@ -559,7 +547,7 @@ public class RnrService {
 
     // Get the most liked products
     public Collection<DProduct> getMostLikedProducts(int limit) {
-        LOG.debug("Get " + limit + " most liked products");
+        LOG.debug("Get most liked products with limit:{}", limit);
 
         Collection<DProduct> dProducts = productDao.findMostLiked(limit);
 
@@ -568,7 +556,7 @@ public class RnrService {
 
     // Get the most rated products
     public Collection<DProduct> getMostRatedProducts(int limit) {
-        LOG.debug("Get " + limit + " most rated products");
+        LOG.debug("Get most rated products with limit:{}", limit);
 
         Collection<DProduct> dProducts = productDao.findMostRated(limit);
 
@@ -577,7 +565,7 @@ public class RnrService {
 
     // Get the top rated products
     public Collection<DProduct> getTopRatedProducts(int limit) {
-        LOG.debug("Get " + limit + " top rated products");
+        LOG.debug("Get top rated products with limit:{}", limit);
 
         Collection<DProduct> dProducts = productDao.findTopRated(limit);
 
@@ -586,7 +574,7 @@ public class RnrService {
 
     // Get most commented products
     public Collection<DProduct> getMostCommentedProducts(int limit) {
-        LOG.debug("Get " + limit + " most commented products");
+        LOG.debug("Get most commented products with limit:{}", limit);
 
         Collection<DProduct> dProducts = productDao.findMostCommented(limit);
 
@@ -595,7 +583,7 @@ public class RnrService {
 
      // Get all likes for a product
     public Collection<DLike> getAllLikesForProduct(String productId) {
-        LOG.debug("Get all likes for product " + productId);
+        LOG.debug("Get all likes for product:{}", productId);
 
         Collection<DLike> dLikes = likeDao.findByProductId(productId);
 
@@ -604,7 +592,7 @@ public class RnrService {
 
     // Get all ratings for a product
     public Collection<DRating> getAllRatingsForProduct(String productId) {
-        LOG.debug("Get all ratings for product " + productId);
+        LOG.debug("Get all ratings for product:{}", productId);
 
         Collection<DRating> dRatings = ratingDao.findByProductId(productId);
 
@@ -614,7 +602,7 @@ public class RnrService {
 
     // Get all comments for a product
     public Collection<DComment> getAllCommentsForProduct(String productId) {
-        LOG.debug("Get all comments for product " + productId);
+        LOG.debug("Get all comments for product:{}", productId);
 
         Collection<DComment> dComments = commentDao.findByProductId(productId);
 
@@ -623,11 +611,7 @@ public class RnrService {
 
     // Get all products a user have liked
     public Collection<DProduct> getProductsLikedByUser(String username) {
-
-        if (null == username)
-            throw new IllegalArgumentException("Username must be specified or authenticated");
-
-        LOG.debug("Get all products liked by user " + username);
+        LOG.debug("Get all products liked by user:{}", username);
 
         final Collection<DLike> myLikes = likeDao.findByUsername(username);
 
@@ -643,11 +627,7 @@ public class RnrService {
 
     // Get all products a user have rated
     public Collection<DProduct> getProductsRatedByUser(String username) {
-
-        if (null == username)
-            throw new IllegalArgumentException("Username must be specified or authenticated");
-
-        LOG.debug("Get all products rated by user " + username);
+        LOG.debug("Get all products rated by user:{}", username);
 
         final Collection<DRating> myRatings = ratingDao.findByUsername(username);
 
@@ -663,11 +643,7 @@ public class RnrService {
 
     // Get all products a user have commented
     public Collection<DProduct> getProductsCommentedByUser(String username) {
-
-        if (null == username)
-            throw new IllegalArgumentException("Username must be specified or authenticated");
-
-        LOG.debug("Get all products commented by user " + username);
+        LOG.debug("Get all products commented by user:{}", username);
 
         final Collection<DComment> myComments = commentDao.findByUsername(username);
 
@@ -684,11 +660,7 @@ public class RnrService {
 
     // Get all users favorite products
     public Collection<DProduct> geUserFavoriteProducts(String username) {
-
-        if (null == username)
-            throw new IllegalArgumentException("Username must be specified or authenticated");
-
-        LOG.debug("Get favorite products for user " + username);
+        LOG.debug("Get favorite products for user:{}", username);
 
         final DFavorites dFavorites =favoritesDao.findByPrimaryKey(username);
 
@@ -723,7 +695,7 @@ public class RnrService {
         this.favoritesDao = favoritesDao;
     }
 
-    public static void setFallbackPrincipalName(boolean fallbackPrincipalName) {
-        RnrService.fallbackPrincipalName = fallbackPrincipalName;
+    public void setAppSettingsDao(DAppSettingsDao appSettingsDao) {
+        this.appSettingsDao = appSettingsDao;
     }
 }

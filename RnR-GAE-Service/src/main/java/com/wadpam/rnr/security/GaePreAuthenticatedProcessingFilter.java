@@ -2,6 +2,8 @@ package com.wadpam.rnr.security;
 
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
+import com.wadpam.rnr.domain.DAppAdmin;
+import com.wadpam.rnr.service.AppService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.GrantedAuthority;
@@ -14,7 +16,7 @@ import java.util.Collection;
 
 /**
  * Implements a gae pre-authenticated filter that will check that are user is a logged in Google user.
- * @author mlv
+ * @author mattiaslevin
  */
 public class GaePreAuthenticatedProcessingFilter extends AbstractPreAuthenticatedProcessingFilter {
 
@@ -42,10 +44,13 @@ public class GaePreAuthenticatedProcessingFilter extends AbstractPreAuthenticate
             // User has not logged in on Google
             return null;
 
-        // We need to set credentials, otherwise the user is rejected
-        Collection<GrantedAuthority> grantedAuthorities = new ArrayList<GrantedAuthority>(1);
-        grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_TEMP"));
-
-        return grantedAuthorities;
+        // Figure out the role
+        if (userService.isUserAdmin()) {
+            // If the user is a registered as admin for the GAE application set role to admin
+            return "ROLE_ADMIN";
+        } else {
+            // Normal app admin
+            return "ROLE_USER";
+        }
     }
 }

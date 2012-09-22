@@ -1,46 +1,43 @@
 package com.wadpam.rnr.domain;
 
+import com.google.appengine.api.datastore.Email;
 import net.sf.mardao.api.domain.AEDStringEntity;
 
-import javax.persistence.Basic;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Collection;
 
 /**
- * This class contain settings that can be done per application
- * @author mlv
+ * This class contain domain/app configuration data related to API authentication
+ * @author mattiaslevin
  */
 @Entity
 public class DApp extends AEDStringEntity implements Serializable {
 
-    private static final long serialVersionUID = -5390529587908700014L;
+    private static final long serialVersionUID = -850567951576298916L;
+
 
     /** The unique domain name for the app */
     @Id
     private String      domainName; // Can not use the name domain, reserved name in String class?
 
-    /** The owner and admin for this app */
+    /** The email address of the add admins */
     @Basic
-    private String      admin;
+    private Collection<Email> appAdmins;
 
-    /** An unique app user generated when the app is created. Most be provided in the request from the apps */
+    /** An unique api user generated when the app is created. Most be provided in the request from the apps */
     @Basic
-    private String      appUser;
+    private String      apiUser;
 
-    /** A generated app password. Must be provided in the requests from the apps */
+    /** A generated api password. Must be provided in the requests from the apps */
     @Basic
-    private String      appPassword;
+    private String      apiPassword;
 
-    /** Decides if an identified user only can like a product once  */
+    /** A short description of the app */
     @Basic
-    private Boolean     onlyLikeOncePerUser;
+    private String      description;
 
-    /** Decides if an identified user only can rate a product once  */
-    @Basic
-    private Boolean     onlyRateOncePerUser;
 
-    // TODO: Is there anything else we like to control per app?
 
     @Override
     public String getSimpleKey() {
@@ -49,8 +46,8 @@ public class DApp extends AEDStringEntity implements Serializable {
 
     @Override
     public String toString() {
-        return String.format("{domain:%s, admin:%S appUser:%s, appPassword:%s, likeOncePerUser:%s, rateOncePerUser:%s}",
-                getDomainName(), getAdmin(), getAppUser(), getAppPassword(), getOnlyLikeOncePerUser(), getOnlyRateOncePerUser());
+        return String.format("{domain:%s, appAdmins:%s apiUser:%s, apiPassword:%s}",
+                getDomainName(), getAppAdmins(), getApiUser(), getApiPassword());
     }
 
 
@@ -63,43 +60,35 @@ public class DApp extends AEDStringEntity implements Serializable {
         this.domainName = domainName;
     }
 
-    public String getAdmin() {
-        return admin;
+    public Collection<Email> getAppAdmins() {
+        return appAdmins;
     }
 
-    public void setAdmin(String admin) {
-        this.admin = admin;
+    public void setAppAdmins(Collection<Email> appAdmins) {
+        this.appAdmins = appAdmins;
     }
 
-    public String getAppUser() {
-        return appUser;
+    public String getApiUser() {
+        return apiUser;
     }
 
-    public void setAppUser(String appUser) {
-        this.appUser = appUser;
+    public void setApiUser(String apiUser) {
+        this.apiUser = apiUser;
     }
 
-    public String getAppPassword() {
-        return appPassword;
+    public String getApiPassword() {
+        return apiPassword;
     }
 
-    public void setAppPassword(String appPassword) {
-        this.appPassword = appPassword;
+    public void setApiPassword(String apiPassword) {
+        this.apiPassword = apiPassword;
     }
 
-    public Boolean getOnlyLikeOncePerUser() {
-        return onlyLikeOncePerUser;
+    public String getDescription() {
+        return description;
     }
 
-    public void setOnlyLikeOncePerUser(Boolean onlyLikeOncePerUser) {
-        this.onlyLikeOncePerUser = onlyLikeOncePerUser;
-    }
-
-    public Boolean getOnlyRateOncePerUser() {
-        return onlyRateOncePerUser;
-    }
-
-    public void setOnlyRateOncePerUser(Boolean onlyRateOncePerUser) {
-        this.onlyRateOncePerUser = onlyRateOncePerUser;
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

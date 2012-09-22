@@ -18,7 +18,7 @@ import java.util.Collection;
 /**
  * Implements an UserDetailsService used by Spring security when authenticating
  * applications accessing the REST interface.
- * @author mlv
+ * @author mattiaslevin
  */
 public class ApiUserDetailsService implements UserDetailsService {
 
@@ -29,11 +29,11 @@ public class ApiUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        LOG.debug("Get UserDetails for user " + username);
+        LOG.debug("Get UserDetails for user:{}", username);
 
         // Get the domain through the namespace
         final String domain = NamespaceManager.get();
-        LOG.debug("Domain/namespace name " + domain);
+        LOG.debug("Domain:{}", domain);
 
         DApp dApp = appDao.findByDomainWithFixedNamespace(domain);
         if (null != dApp) {
@@ -41,7 +41,7 @@ public class ApiUserDetailsService implements UserDetailsService {
             Collection<GrantedAuthority> grantedAuthorities = new ArrayList<GrantedAuthority>(1);
             grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_APP"));
 
-            UserDetails userDetails = new User(dApp.getAppUser(), dApp.getAppPassword(), grantedAuthorities);
+            UserDetails userDetails = new User(dApp.getApiUser(), dApp.getApiPassword(), grantedAuthorities);
 
             return userDetails;
         } else {

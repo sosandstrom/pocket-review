@@ -6,6 +6,7 @@ import com.wadpam.rnr.domain.DRating;
 import com.wadpam.rnr.json.JHistogram;
 import com.wadpam.rnr.json.JRating;
 import com.wadpam.rnr.service.RnrService;
+import com.wadpam.server.web.AbstractRestController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -24,12 +25,12 @@ import java.util.Map;
 
 
 /**
- * The rating controller implements all REST methods related to ratings and reviews
+ * The rating controller implements all REST methods related to ratings and reviews.
  * @author os
  */
 @Controller
 @RequestMapping(value="{domain}/rating")
-public class RatingController {
+public class RatingController extends AbstractRestController {
     static final Logger LOG = LoggerFactory.getLogger(RatingController.class);
     
     private RnrService rnrService;
@@ -81,10 +82,7 @@ public class RatingController {
 
         final DRating body = rnrService.deleteRating(id);
 
-        if (null == body)
-            return new ResponseEntity<JRating>(HttpStatus.NOT_FOUND);
-        else
-            return new ResponseEntity<JRating>(HttpStatus.OK);
+        return new ResponseEntity<JRating>(HttpStatus.OK);
     }
 
     /**
@@ -103,10 +101,7 @@ public class RatingController {
 
         final DRating body = rnrService.getRating(id);
 
-        if (null == body)
-            return new ResponseEntity(HttpStatus.NOT_FOUND);
-        else
-            return new ResponseEntity<JRating>(Converter.convert(body, request), HttpStatus.OK);
+        return new ResponseEntity<JRating>(Converter.convert(body), HttpStatus.OK);
     }
 
     /**
@@ -122,17 +117,11 @@ public class RatingController {
     @RequestMapping(value="", method= RequestMethod.GET, params="username")
     public ResponseEntity<Collection<JRating>> getMyRatings(HttpServletRequest request,
                                                             Principal principal,
-                                                            @RequestParam(required=false) String username) {
+                                                            @RequestParam(required=true) String username) {
 
-        try {
-            final Collection<DRating> body = rnrService.getMyRatings(username);
+        final Collection<DRating> body = rnrService.getMyRatings(username);
 
-            return new ResponseEntity<Collection<JRating>>((Collection<JRating>)Converter.convert(body, request),
-                    HttpStatus.OK);
-        }
-        catch (IllegalArgumentException usernameNull) {
-            return new ResponseEntity<Collection<JRating>>(HttpStatus.UNAUTHORIZED);
-        }
+        return new ResponseEntity<Collection<JRating>>((Collection<JRating>)Converter.convert(body), HttpStatus.OK);
     }
 
     /**
@@ -150,8 +139,7 @@ public class RatingController {
 
         final Collection<DRating> body = rnrService.getAllRatingsForProduct(productId);
 
-        return new ResponseEntity<Collection<JRating>>((Collection<JRating>)Converter.convert(body, request),
-                HttpStatus.OK);
+        return new ResponseEntity<Collection<JRating>>((Collection<JRating>)Converter.convert(body), HttpStatus.OK);
     }
 
     /**
@@ -170,6 +158,7 @@ public class RatingController {
                                                              @RequestParam(required=false, defaultValue="10") int interval) {
 
         final Map<Long, Long> values = rnrService.getHistogramForProduct(productId, interval);
+
         JHistogram histogram = new JHistogram();
         histogram.setInterval(interval);
         histogram.setHistogram(values);

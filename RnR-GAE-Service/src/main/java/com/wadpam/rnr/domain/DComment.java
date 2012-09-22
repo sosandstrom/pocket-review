@@ -1,15 +1,16 @@
 package com.wadpam.rnr.domain;
 
+import com.google.appengine.api.datastore.Key;
+import net.sf.mardao.api.Parent;
 import net.sf.mardao.api.domain.AEDLongEntity;
 
 import javax.persistence.*;
 
 /**
  * The domain object for Comments.
- * @author mlv
+ * @author mattiaslevin
  */
 @Entity
-@Table(uniqueConstraints={@UniqueConstraint(columnNames={"productId", "username"})})
 public class DComment extends AEDLongEntity {
 
     /** Generated primary key */
@@ -19,6 +20,10 @@ public class DComment extends AEDLongEntity {
     /** The Many-To-One productId (unconstrained) */
     @Basic
     private String             productId;
+
+    /** Parent id. Can be used when writing comments on comments or Question and Answers services */
+    @Parent(kind = "DComment")
+    private Key                parentKey;
 
     /** The Many-To-One username (unconstrained) */
     @Basic
@@ -70,5 +75,13 @@ public class DComment extends AEDLongEntity {
 
     public void setComment(String comment) {
         this.comment = comment;
+    }
+
+    public Key getParentKey() {
+        return parentKey;
+    }
+
+    public void setParentKey(Key parentKey) {
+        this.parentKey = parentKey;
     }
 }

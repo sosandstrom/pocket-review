@@ -1,11 +1,13 @@
 package com.wadpam.rnr.json;
 
+import com.wadpam.open.json.JBaseObject;
+
 import java.util.Collection;
 import java.util.Set;
 
 /**
  * Json object for favorites.
- * @author mlv
+ * @author mattiaslevin
  */
 public class JFavorites extends JBaseObject {
 
