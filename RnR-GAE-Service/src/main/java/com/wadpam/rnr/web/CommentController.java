@@ -45,7 +45,8 @@ public class CommentController extends AbstractRestController {
      * e.g. PROD-3384, RATING-34
      * @param productId domain-unique id for the product to comment
      * @param parentId optional. A parent comment used to create nested comments
-     * @param username optional. User name
+     * @param username optional. A unique user name or id.
+     *                 Needed in order to perform user related operations later on.
      * @param latitude optional. -90..90
      * @param longitude optional -180..180
      * @param comment the comment
@@ -72,7 +73,7 @@ public class CommentController extends AbstractRestController {
     /**
      * Delete a comment with a specific id.
      * @param id The unique comment id
-     * @return the and http response code indicating the outcome of the operation
+     * @return a http response code indicating the outcome of the operation
      */
     @RestReturn(value=JComment.class, entity=JComment.class, code={
             @RestCode(code=200, message="OK", description="Comment deleted"),
@@ -109,7 +110,7 @@ public class CommentController extends AbstractRestController {
 
     /**
      * Returns all comments done by a specific user.
-     * @param username The user name
+     * @param username a unique user name or id
      * @return a list of comments
      */
     @RestReturn(value=JComment.class, entity=JComment.class, code={

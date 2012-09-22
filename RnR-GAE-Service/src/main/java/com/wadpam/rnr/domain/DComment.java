@@ -35,13 +35,13 @@ public class DComment extends AEDLongEntity {
 
     @Override
     public Long getSimpleKey() {
-        return getId();
+        return id;
     }
 
     @Override
     public String toString() {
         return String.format("{id:%d, productId:%s, username:%s, comment:%s}",
-                getId(), getProductId(), getUsername(), getComment());
+                id, productId, username, comment);
     }
 
 

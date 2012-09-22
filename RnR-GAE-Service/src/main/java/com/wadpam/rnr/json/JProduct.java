@@ -3,7 +3,6 @@ package com.wadpam.rnr.json;
 import com.wadpam.open.json.JBaseObject;
 import com.wadpam.open.json.JLocation;
 
-import javax.persistence.Basic;
 
 /**
  * The Json object for products.
@@ -38,6 +37,12 @@ public class JProduct extends JBaseObject {
 
     /** The deep link to the individual likes */
     private String      likesURL;
+
+    /** The number of thumbs up */
+    private Long        thumbsUp = 0L;
+
+    /** The number of thumbs up */
+    private Long        thumbsDown = 0L;
 
     /** The total number of Comments */
     private Long        commentCount = 0L;
@@ -131,5 +136,21 @@ public class JProduct extends JBaseObject {
 
     public void setCommentsURL(String commentsURL) {
         this.commentsURL = commentsURL;
+    }
+
+    public Long getThumbsDown() {
+        return thumbsDown;
+    }
+
+    public void setThumbsDown(Long thumbsDown) {
+        this.thumbsDown = thumbsDown;
+    }
+
+    public Long getThumbsUp() {
+        return thumbsUp;
+    }
+
+    public void setThumbsUp(Long thumbsUp) {
+        this.thumbsUp = thumbsUp;
     }
 }

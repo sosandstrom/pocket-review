@@ -27,6 +27,7 @@
         <property name="productDao" ref="dProductDao" />
         <property name="ratingDao" ref="dRatingDao" />
         <property name="likeDao" ref="dLikeDao" />
+        <property name="thumbsDao" ref="dThumbsDao" />
         <property name="commentDao" ref="dCommentDao" />
         <property name="favoritesDao" ref="dFavoritesDao" />
     </bean>
@@ -53,6 +54,10 @@
     </bean>
 
     <bean id="likeController" class="com.wadpam.rnr.web.LikeController">
+        <property name="rnrService" ref="rnrService" />
+    </bean>
+
+    <bean id="thumbsController" class="com.wadpam.rnr.web.ThumbsController">
         <property name="rnrService" ref="rnrService" />
     </bean>
 

@@ -41,13 +41,13 @@ public class DApp extends AEDStringEntity implements Serializable {
 
     @Override
     public String getSimpleKey() {
-        return getDomainName();
+        return domainName;
     }
 
     @Override
     public String toString() {
         return String.format("{domain:%s, appAdmins:%s apiUser:%s, apiPassword:%s}",
-                getDomainName(), getAppAdmins(), getApiUser(), getApiPassword());
+                domainName, appAdmins, apiUser, apiPassword);
     }
 
 

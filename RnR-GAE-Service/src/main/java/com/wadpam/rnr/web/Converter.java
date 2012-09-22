@@ -41,6 +41,8 @@ public class Converter {
         to.setRatingSum(from.getRatingSum());
         to.setRatingAverage(from.getRatingAverage() != null ? from.getRatingAverage().getRating() : -1);
         to.setLikeCount(from.getLikeCount());
+        to.setThumbsUp(from.getThumbsUp());
+        to.setThumbsDown(from.getThumbsDown());
         to.setCommentCount(from.getCommentCount());
 
         // Set links
@@ -77,6 +79,21 @@ public class Converter {
         to.setId(from.getId().toString());
         to.setProductId(from.getProductId());
         to.setUsername(from.getUsername());
+
+        return to;
+    }
+
+    protected static JThumbs convert(DThumbs from) {
+        if (null == from) {
+            return null;
+        }
+        final JThumbs to = new JThumbs();
+        convert(from, to);
+
+        to.setId(from.getId().toString());
+        to.setProductId(from.getProductId());
+        to.setUsername(from.getUsername());
+        to.setValue(from.getValue().intValue());
 
         return to;
     }
@@ -167,6 +184,9 @@ public class Converter {
         }
         else if (from instanceof DLike) {
             returnValue = convert((DLike) from);
+        }
+        else if (from instanceof DThumbs) {
+            returnValue = convert((DThumbs) from);
         }
         else if (from instanceof DComment) {
             returnValue = convert((DComment) from);

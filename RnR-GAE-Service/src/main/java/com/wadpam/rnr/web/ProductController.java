@@ -33,6 +33,7 @@ import java.util.regex.Pattern;
 @Controller
 @RequestMapping(value="{domain}/product")
 public class ProductController extends AbstractRestController {
+
     static final Logger LOG = LoggerFactory.getLogger(ProductController.class);
 
     private RnrService rnrService;
@@ -254,7 +255,41 @@ public class ProductController extends AbstractRestController {
     }
 
     /**
-     * Get most rate products.
+     * Get most thumbs up products.
+     * @param limit Optional. The number of products to return. Default value 10.
+     * @return a list of products sorted in most thumbs up order
+     */
+    @RestReturn(value=JProduct.class, entity=JProduct.class, code={
+            @RestCode(code=200, message="OK", description="Most thumbed up products found")
+    })
+    @RequestMapping(value="thumbs/up/most", method= RequestMethod.GET)
+    public ResponseEntity<Collection<JProduct>> getMostThumbsUpProducts(HttpServletRequest request,
+                                                                        @RequestParam(defaultValue = "10") int limit) {
+
+        final Collection<DProduct> body = rnrService.getMostThumbsUpProducts(limit);
+
+        return new ResponseEntity<Collection<JProduct>>(Converter.convert(body, getBaseUrl(request)), HttpStatus.OK);
+    }
+
+    /**
+     * Get most thumbs down products.
+     * @param limit Optional. The number of products to return. Default value 10.
+     * @return a list of products sorted in most thumbs down order
+     */
+    @RestReturn(value=JProduct.class, entity=JProduct.class, code={
+            @RestCode(code=200, message="OK", description="Most thumbed down products found")
+    })
+    @RequestMapping(value="thumbs/down/most", method= RequestMethod.GET)
+    public ResponseEntity<Collection<JProduct>> getMostThumbsDownProducts(HttpServletRequest request,
+                                                                          @RequestParam(defaultValue = "10") int limit) {
+
+        final Collection<DProduct> body = rnrService.getMostThumbsDownProducts(limit);
+
+        return new ResponseEntity<Collection<JProduct>>(Converter.convert(body, getBaseUrl(request)), HttpStatus.OK);
+    }
+
+    /**
+     * Get most rated products.
      * @param limit Optional. The number of products to return. Default value 10.
      * @return a list of products sorted in most rated order
      */
@@ -320,6 +355,24 @@ public class ProductController extends AbstractRestController {
                                                                        @RequestParam(required=true) String username) {
 
         final Collection<DProduct> body = rnrService.getProductsLikedByUser(username);
+
+        return new ResponseEntity<Collection<JProduct>>(Converter.convert(body, getBaseUrl(request)), HttpStatus.OK);
+    }
+
+    /**
+     * Get all products a user have thumbed up and down.
+     * @param username unique user name or id
+     * @return a list of products
+     */
+    @RestReturn(value=JProduct.class, entity=JProduct.class, code={
+            @RestCode(code=200, message="OK", description="Products liked by user")
+    })
+    @RequestMapping(value="thumbs", method= RequestMethod.GET)
+    // TODO: Add pagination support
+    public ResponseEntity<Collection<JProduct>> getProductsThumbedByUser(HttpServletRequest request,
+                                                                         @RequestParam(required=true) String username) {
+
+        final Collection<DProduct> body = rnrService.getProductsThumbedByUser(username);
 
         return new ResponseEntity<Collection<JProduct>>(Converter.convert(body, getBaseUrl(request)), HttpStatus.OK);
     }

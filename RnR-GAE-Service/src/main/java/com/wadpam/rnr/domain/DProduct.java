@@ -46,6 +46,14 @@ public class DProduct extends AEDStringEntity implements Serializable {
     @Basic
     private Long        likeCount = 0L;
 
+    /** The number of thumbs up */
+    @Basic
+    private Long        thumbsUp = 0L;
+
+    /** The number of thumbs up */
+    @Basic
+    private Long        thumbsDown = 0L;
+
     /** The total number of comments */
     @Basic
     private Long        commentCount = 0L;
@@ -63,7 +71,7 @@ public class DProduct extends AEDStringEntity implements Serializable {
     @Override
     public String toString() {
         return String.format("{productId:%s, ratings:%d, average:%s, likes:%d, location:%s}",
-                productId, ratingCount, getRatingAverage(), likeCount, location);
+                productId, ratingCount, ratingAverage, likeCount, location);
     }
 
 
@@ -141,4 +149,19 @@ public class DProduct extends AEDStringEntity implements Serializable {
         this.location = location;
     }
 
+    public Long getThumbsDown() {
+        return thumbsDown;
+    }
+
+    public void setThumbsDown(Long thumbsDown) {
+        this.thumbsDown = thumbsDown;
+    }
+
+    public Long getThumbsUp() {
+        return thumbsUp;
+    }
+
+    public void setThumbsUp(Long thumbsUp) {
+        this.thumbsUp = thumbsUp;
+    }
 }

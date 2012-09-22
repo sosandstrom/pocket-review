@@ -29,16 +29,20 @@ public class DAppSettings extends AEDStringEntity implements Serializable {
     @Basic
     private Boolean     onlyRateOncePerUser = true;
 
+    /** Decides if an identified user only can thumb up and down a product once  */
+    @Basic
+    private Boolean onlyThumbOncePerUser = true;
+
 
     @Override
     public String getSimpleKey() {
-        return getDomainName();
+        return domainName;
     }
 
     @Override
     public String toString() {
-        return String.format("{domain:%s, only like once:%d only rate once:%d}",
-                getDomainName(), getOnlyLikeOncePerUser(), getOnlyRateOncePerUser());
+        return String.format("{domain:%s, only like once:%d only rate once:%d only thumb one:%d}",
+                domainName, onlyLikeOncePerUser, onlyRateOncePerUser, onlyThumbOncePerUser);
     }
 
 
@@ -65,5 +69,13 @@ public class DAppSettings extends AEDStringEntity implements Serializable {
 
     public void setDomainName(String domainName) {
         this.domainName = domainName;
+    }
+
+    public Boolean getOnlyThumbOncePerUser() {
+        return onlyThumbOncePerUser;
+    }
+
+    public void setOnlyThumbOncePerUser(Boolean onlyThumbOncePerUser) {
+        this.onlyThumbOncePerUser = onlyThumbOncePerUser;
     }
 }

@@ -38,10 +38,8 @@ public class FavoritesController extends AbstractRestController {
 
     /**
      * Add a product as favorite.
-     * @param username optional. The user name.
+     * @param username unique user name or id
      * @param productId domain-unique id for the product to add as favorites
-     * If authenticated, and RnrService.fallbackPrincipalName,
-     * principal.name will be used if username is null.
      * @return a current favorites for the user
      */
     @RestReturn(value=JFavorites.class, entity=JFavorites.class, code={
@@ -68,9 +66,8 @@ public class FavoritesController extends AbstractRestController {
 
     /**
      * Remove a product from favorites.
-     * @param username optional. The user name.
+     * @param username unique user name or id
      * @param productId domain-unique id for the product to add as favorites
-     * If authenticated, and RnrService.fallbackPrincipalName,
      * @return the and http response code indicating the outcome of the operation
      */
     @RestReturn(value=JFavorites.class, entity=JFavorites.class, code={
@@ -106,7 +103,7 @@ public class FavoritesController extends AbstractRestController {
 
     /**
      * Get favorites for user.
-     * @param username optional. The user name.
+     * @param username unique user name or id
      * @return users favorite products
      */
     @RestReturn(value=JFavorites.class, entity=JFavorites.class, code={

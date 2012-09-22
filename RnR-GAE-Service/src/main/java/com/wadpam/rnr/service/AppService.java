@@ -27,22 +27,22 @@ import java.util.Random;
  * @author mattiaslevin
  */
 public class AppService {
-
     static final Logger LOG = LoggerFactory.getLogger(AppService.class);
-
-    static final int API_PASSWORD_LENGTH = 30;
-    static final String API_PASSWORD_CHARS = "1234567890abcdefghijklmnopqrstuvxyzABCDEFGHIJKLMNOPQRSTUVXYZ";
-
-    public static final String ACCOUNT_PENDING = "pending";
-    public static final String ACCOUNT_ACTIVE = "active";
-    public static final String ACCOUNT_SUSPENDED = "suspended";
-
-    static final int DEFAULT_MAX_NUMBER_OF_APPS = 10;
-    public static final String CREATE_ACCOUNT_START_STATE = ACCOUNT_ACTIVE;
 
     private DAppDao appDao;
     private DAppAdminDao appAdminDao;
     private EmailSender emailSender;
+
+    static final int API_PASSWORD_LENGTH = 30;
+
+    static final String API_PASSWORD_CHARS = "1234567890abcdefghijklmnopqrstuvxyzABCDEFGHIJKLMNOPQRSTUVXYZ";
+    public static final String ACCOUNT_PENDING = "pending";
+    public static final String ACCOUNT_ACTIVE = "active";
+
+    public static final String ACCOUNT_SUSPENDED = "suspended";
+    static final int DEFAULT_MAX_NUMBER_OF_APPS = 10;
+
+    public static final String CREATE_ACCOUNT_START_STATE = ACCOUNT_ACTIVE;
 
     private String createAccountStartState = CREATE_ACCOUNT_START_STATE;
     private int maxNumberOfAppsStartValue = DEFAULT_MAX_NUMBER_OF_APPS;

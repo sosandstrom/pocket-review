@@ -31,6 +31,7 @@ import java.util.Map;
 @Controller
 @RequestMapping(value="{domain}/rating")
 public class RatingController extends AbstractRestController {
+
     static final Logger LOG = LoggerFactory.getLogger(RatingController.class);
     
     private RnrService rnrService;
@@ -38,9 +39,8 @@ public class RatingController extends AbstractRestController {
     /**
      * Add a rating to a product.
      * @param productId domain-unique id for the product to rate
-     * @param username optional. 
-     * If authenticated, and RnrService.fallbackPrincipalName, 
-     * principal.name will be used if username is null.
+     * @param username optional. A unique user name or id.
+     *                 Needed in order to perform user related operations later on.
      * @param latitude optional, -90..90
      * @param longitude optional, -180..180
      * @param rating mandatory, the rating 0..100
@@ -69,7 +69,7 @@ public class RatingController extends AbstractRestController {
     /**
      * Delete a rating with a specific id.
      * @param id The unique rating id
-     * @return the and http response code indicating the outcome of the operation
+     * @return a http response code indicating the outcome of the operation
      */
     @RestReturn(value=JRating.class, entity=JRating.class, code={
             @RestCode(code=200, message="OK", description="Rating deleted"),
@@ -106,9 +106,7 @@ public class RatingController extends AbstractRestController {
 
     /**
      * Return all ratings done by a specific user.
-     * @param username optional. 
-     * If authenticated, and RnrService.fallbackPrincipalName, 
-     * principal.name will be used if username is null.
+     * @param username a unique user name or id
      * @return a list of ratings
      */
     @RestReturn(value=JRating.class, entity=JRating.class, code={
@@ -145,7 +143,7 @@ public class RatingController extends AbstractRestController {
     /**
      * Returns a histogram over all ratings for a specific product.
      * @param productId the product to looks for
-     * @param interval Optinal. the interval in the returned histogram. Default 10.
+     * @param interval Optional. the interval in the returned histogram. Default 10.
      * @return a histogram
      */
     @RestReturn(value=JHistogram.class, entity=JHistogram.class, code={

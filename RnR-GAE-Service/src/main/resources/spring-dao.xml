@@ -14,24 +14,35 @@
     <bean id="dProductDao"
           class="com.wadpam.rnr.dao.DProductDaoBean" init-method="init">
     </bean>
+
     <bean id="dRatingDao"
 		class="com.wadpam.rnr.dao.DRatingDaoBean" init-method="init">
     </bean>
+
     <bean id="dLikeDao"
           class="com.wadpam.rnr.dao.DLikeDaoBean" init-method="init">
     </bean>
+
+    <bean id="dThumbsDao"
+          class="com.wadpam.rnr.dao.DThumbsDaoBean" init-method="init">
+    </bean>
+
     <bean id="dCommentDao"
           class="com.wadpam.rnr.dao.DCommentDaoBean" init-method="init">
     </bean>
+
     <bean id="dFavoritesDao"
           class="com.wadpam.rnr.dao.DFavoritesDaoBean" init-method="init">
     </bean>
+
     <bean id="dAppDao"
           class="com.wadpam.rnr.dao.DAppDaoBean" init-method="init">
     </bean>
+
     <bean id="dAppSettingsDao"
           class="com.wadpam.rnr.dao.DAppSettingsDaoBean" init-method="init">
     </bean>
+
     <bean id="dAppAdminDao"
           class="com.wadpam.rnr.dao.DAppAdminDaoBean" init-method="init">
     </bean>

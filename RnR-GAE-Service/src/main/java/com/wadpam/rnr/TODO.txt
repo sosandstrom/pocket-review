@@ -9,6 +9,11 @@ GET /api/..../?_method=POST&param=...
 
 Maintenance and upgrade controller/filter
 
+Add report feedback / report a problem
+
+-Add App Setting controller
+
+
 Create email text using velocity templates instead?
 
 
@@ -18,8 +23,8 @@ Must fix
 
 -Mardao 2
 
+-GAE 1.7.2
 
--Support location search
 
 -Simple backoffice interface (signin, get all registered apps, new, delete, update)
 
@@ -35,9 +40,7 @@ Must fix
 
 -add second dimension, group ratings
 
--Add App Setting controller
 
--Add report feedback / report a problem
 
 
 
@@ -59,6 +62,7 @@ Done
 -Change to digest (NO)
 -Remove "request" parameter from Converter
 
--GAE 1.7.2
+
+-Support location search
 
 

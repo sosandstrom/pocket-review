@@ -1,18 +1,15 @@
 package com.wadpam.rnr.domain;
 
-import com.google.appengine.api.datastore.GeoPt;
 import net.sf.mardao.api.domain.AEDLongEntity;
-import net.sf.mardao.api.geo.aed.GeoModel;
 
 import javax.persistence.*;
-import java.util.Collection;
 
 /**
  * The domain object for Likes.
  * @author mattiaslevin
  */
 @Entity
-public class DLike extends AEDLongEntity {
+public class DThumbs extends AEDLongEntity {
 
     /** Generated primary key */
     @Id
@@ -26,6 +23,10 @@ public class DLike extends AEDLongEntity {
     @Basic
     private String             username;
 
+    /** The Many-To-One username (unconstrained) */
+    @Basic
+    private Long               value;
+
     @Override
     public Long getSimpleKey() {
         return id;
@@ -33,10 +34,10 @@ public class DLike extends AEDLongEntity {
 
     @Override
     public String toString() {
-        return String.format("{id:%d, productId:%s, username:%s}", id, productId, username);
+        return String.format("{id:%d, productId:%s, username:%s value:%s}", id, productId, productId, value);
     }
 
-    // Setters and Getters
+    // Setters and getters
     public Long getId() {
         return id;
     }
@@ -61,4 +62,11 @@ public class DLike extends AEDLongEntity {
         this.username = username;
     }
 
+    public Long getValue() {
+        return value;
+    }
+
+    public void setValue(Long value) {
+        this.value = value;
+    }
 }

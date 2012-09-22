@@ -28,16 +28,34 @@ public class RnrService {
     private DProductDao productDao;
     private DRatingDao ratingDao;
     private DLikeDao likeDao;
+    private DThumbsDao thumbsDao;
     private DCommentDao commentDao;
     private DFavoritesDao favoritesDao;
 
 
+    // enum to hold thumbs up and down
+    public enum Thumbs {
+        UP(1), DOWN(-1);
+
+
+        private int value;
+
+        private Thumbs(int v) {
+            value = v;
+        }
+
+        public int getValue() {
+            return value;
+        }
+
+    }
     public void init() {
         // Do nothing
     }
 
 
     /* Like related methods */
+
 
     // Like a product
     @Idempotent
@@ -96,7 +114,6 @@ public class RnrService {
         return dLike;
     }
 
-
     // Get a like with a specific id
     public DLike getLike(long id) {
         LOG.debug("Get like with id:{}", id);
@@ -108,6 +125,7 @@ public class RnrService {
 
         return dLike;
     }
+
 
     // Delete a like with a specific id
     @Idempotent
@@ -144,7 +162,142 @@ public class RnrService {
     }
 
 
+    /* Thumbs related methods */
+
+
+    // Add a thumbs up or down
+    @Idempotent
+    @Transactional
+    public DThumbs addThumbs(String domain, String productId, String username, Float latitude, Float longitude, Thumbs value) {
+
+        LOG.debug("Add new thumbs:{} to product:{}", value, productId);
+
+        // Specified users can only thumb once
+        DAppSettings settings = appSettingsDao.findByPrimaryKey(domain);
+        boolean onlyThumbOncePerUser = (null != settings) ? settings.getOnlyThumbOncePerUser() : true;
+
+        DThumbs dThumbs = null;
+        if (onlyThumbOncePerUser && null != username) {
+            dThumbs = thumbsDao.findByProductIdUsername(productId, username);
+        }
+
+        // Remember the existing value
+        Thumbs existing = null;
+
+        // Create new?
+        final boolean create = null == dThumbs;
+        if (create) {
+            dThumbs = new DThumbs();
+            dThumbs.setProductId(productId);
+            dThumbs.setUsername(username);
+        } else
+            existing = (dThumbs.getValue()) > 1 ? Thumbs.UP : Thumbs.DOWN;
+
+        // Always update the value
+        dThumbs.setValue((long)value.getValue());
+
+        // Store
+        thumbsDao.persist(dThumbs);
+
+        // Update total number of thumbs
+        DProduct dProduct = productDao.findByPrimaryKey(productId);
+        if (null == dProduct) {
+            // First time this product is handled, create new
+            dProduct = new DProduct();
+            dProduct.setProductId(productId);
+            if (value == Thumbs.UP)
+                dProduct.setThumbsUp(1L);
+            else
+                dProduct.setThumbsDown(1L);
+        } else {
+            if (null == existing) {
+                // User has not thumbed before
+                if (value == Thumbs.UP)
+                    dProduct.setThumbsUp(dProduct.getThumbsUp() + 1);
+                else
+                    dProduct.setThumbsDown(dProduct.getThumbsDown() + 1);
+            } else {
+                // User has thumbed before
+                if (existing != value) {
+                    // User has not thumbed before
+                    if (value == Thumbs.UP) {
+                        dProduct.setThumbsUp(dProduct.getThumbsUp() + 1);
+                        dProduct.setThumbsDown(dProduct.getThumbsDown() - 1);
+                    }
+                    else {
+                        dProduct.setThumbsDown(dProduct.getThumbsDown() + 1);
+                        dProduct.setThumbsUp(dProduct.getThumbsUp() - 1);
+                    }
+                }
+            }
+        }
+
+        // Update the product location if any is provided
+        if (null != latitude && null != longitude) {
+            final GeoPt location = new GeoPt(latitude, longitude);
+            dProduct.setLocation(location);
+        }
+
+        // Persist and index the location
+        productDao.persistAndIndexLocation(dProduct);
+
+        return dThumbs;
+    }
+
+    // Delete a specific thumbs
+    @Idempotent
+    @Transactional
+    public DThumbs deleteThumbs(long id) {
+        LOG.debug("Delete thumb with id:{}", id);
+
+        DThumbs dThumbs = thumbsDao.findByPrimaryKey(id);
+        if (null == dThumbs)
+            throw new NotFoundException(404, String.format("Thumb with id:%s not found", id));
+
+        // Delete
+        thumbsDao.delete(dThumbs);
+
+        // Update the product
+        DProduct dProduct = productDao.findByPrimaryKey(dThumbs.getProductId());
+        if (null != dProduct) {
+
+            // Figure out what value to decrease
+            if (dThumbs.getValue() > 0)
+                dProduct.setThumbsUp(dProduct.getThumbsUp() - 1);
+            else
+                dProduct.setThumbsDown(dProduct.getThumbsDown() - 1);
+
+            productDao.persist(dProduct);
+        } else
+            // Should not happen, log error
+            LOG.error("Thumb exist but not the product:{}", dThumbs.getProductId());
+
+        return dThumbs;
+    }
+
+    // Get a specific thumbs
+    public DThumbs getThumbs(long id) {
+        LOG.debug("Get thumb with id:{}", id);
+
+        DThumbs dThumb = thumbsDao.findByPrimaryKey(id);
+
+        if (null == dThumb)
+            throw new NotFoundException(404, String.format("Thumb with id:%s not found", id));
+
+        return dThumb;
+    }
+
+    // Get my thumbs for user
+    public Collection<DThumbs> getMyThumbs(String username) {
+        LOG.debug("Get all thumbs for user:{}", username);
+
+        final Collection<DThumbs> myThumbs = thumbsDao.findByUsername(username);
+
+        return myThumbs;
+    }
+
     /* Rating related methods */
+
 
     // Rate a product
     @Idempotent
@@ -294,8 +447,8 @@ public class RnrService {
         return histogram;
     }
 
-
     /* Comment related methods */
+
 
     // Add a comment to a product
     @Idempotent
@@ -387,8 +540,8 @@ public class RnrService {
         return dComments;
     }
 
-
     /* Favorite related methods */
+
 
     // Add new favorite product
     @Idempotent
@@ -554,6 +707,25 @@ public class RnrService {
         return dProducts;
     }
 
+    // Get most thumbs up products
+    public Collection<DProduct> getMostThumbsUpProducts(int limit) {
+        LOG.debug("Get most thumbs up products with limit:{}", limit);
+
+        Collection<DProduct> dProducts = productDao.findMostThumbsUp(limit);
+
+        return dProducts;
+    }
+
+    // Get most thumbs down products
+    public Collection<DProduct> getMostThumbsDownProducts(int limit) {
+        LOG.debug("Get most thumbs down products with limit:{}", limit);
+
+        Collection<DProduct> dProducts = productDao.findMostThumbsDown(limit);
+
+        return dProducts;
+    }
+
+
     // Get the most rated products
     public Collection<DProduct> getMostRatedProducts(int limit) {
         LOG.debug("Get most rated products with limit:{}", limit);
@@ -590,6 +762,15 @@ public class RnrService {
         return dLikes;
     }
 
+    // Get all thumbs for a product
+    public Collection<DThumbs> getAllThumbsForProduct(String productId) {
+        LOG.debug("Get all thumbs for product:{}", productId);
+
+        Collection<DThumbs> dThumbs = thumbsDao.findByProductId(productId);
+
+        return dThumbs;
+    }
+
     // Get all ratings for a product
     public Collection<DRating> getAllRatingsForProduct(String productId) {
         LOG.debug("Get all ratings for product:{}", productId);
@@ -598,7 +779,6 @@ public class RnrService {
 
         return dRatings;
     }
-
 
     // Get all comments for a product
     public Collection<DComment> getAllCommentsForProduct(String productId) {
@@ -619,6 +799,22 @@ public class RnrService {
         Set<String> productIds = new HashSet<String>(myLikes.size());
         for (DLike like : myLikes)
             productIds.add(like.getProductId());
+
+        final Map<String, DProduct> dProducts = productDao.findByPrimaryKeys(productIds);
+
+        return dProducts.values();
+    }
+
+    // Get all products a user have thumbed
+    public Collection<DProduct> getProductsThumbedByUser(String username) {
+        LOG.debug("Get all products thumbed by user:{}", username);
+
+        final Collection<DThumbs> myThumbs = thumbsDao.findByUsername(username);
+
+        // Collect all unique product ids and get their products
+        Set<String> productIds = new HashSet<String>(myThumbs.size());
+        for (DThumbs dThumbs : myThumbs)
+            productIds.add(dThumbs.getProductId());
 
         final Map<String, DProduct> dProducts = productDao.findByPrimaryKeys(productIds);
 
@@ -685,6 +881,10 @@ public class RnrService {
 
     public void setLikeDao(DLikeDao likeDao) {
         this.likeDao = likeDao;
+    }
+
+    public void setThumbsDao(DThumbsDao thumbsDao) {
+        this.thumbsDao = thumbsDao;
     }
 
     public void setCommentDao(DCommentDao commentDao) {

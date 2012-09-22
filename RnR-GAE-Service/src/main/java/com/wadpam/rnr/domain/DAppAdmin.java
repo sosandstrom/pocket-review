@@ -44,13 +44,13 @@ public class DAppAdmin extends AEDStringEntity implements Serializable {
 
     @Override
     public String getSimpleKey() {
-        return getAdminId();
+        return adminId;
     }
 
     @Override
     public String toString() {
         return String.format("{adminId:%s, account status:%s, max number of apps:%d}",
-                getAdminId(), getAccountStatus(), getMaxNumberOfApps());
+                adminId, accountStatus, maxNumberOfApps);
     }
 
 

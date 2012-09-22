@@ -29,12 +29,12 @@ public class DFavorites extends AEDStringEntity implements Serializable {
 
     @Override
     public String getSimpleKey() {
-        return getUsername();
+        return username;
     }
 
     @Override
     public String toString() {
-        return String.format("{username:%s, favorite products:%s}", getUsername(), getProductIds());
+        return String.format("{username:%s, favorite products:%s}", username, productIds);
     }
 
 

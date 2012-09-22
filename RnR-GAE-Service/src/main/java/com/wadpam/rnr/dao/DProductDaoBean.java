@@ -33,6 +33,18 @@ public class DProductDaoBean
         return findBy(COLUMN_NAME_LIKECOUNT, false, limit, 0);
     }
 
+    // Find most thumbs up products
+    @Override
+    public Collection<DProduct> findMostThumbsUp(int limit) {
+        return findBy(COLUMN_NAME_THUMBSUP, false, limit, 0);
+    }
+
+    // Find most thumbs up products
+    @Override
+    public Collection<DProduct> findMostThumbsDown(int limit) {
+        return findBy(COLUMN_NAME_THUMBSDOWN, false, limit, 0);
+    }
+
     // Find most commented products
     @Override
     public Collection<DProduct> findMostCommented(int limit) {

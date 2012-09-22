@@ -19,31 +19,46 @@ public interface DProductDao extends GeneratedDProductDao<Key, Key> {
     /**
      * Decide the sort order in nearby searches
      */
-    public enum SortOrder {DISTANCE, TOP_RATED, MOST_LIKED};
+    public enum SortOrder {DISTANCE, TOP_RATED, MOST_LIKED}
 
     /**
-     * Find most liked product
+     * Find most liked products
      * @param limit the number of products to max return
      * @return A list of products sorted according to the number of likes
      */
     public Collection<DProduct> findMostLiked(int limit);
 
     /**
-     * Find most commented product
+     * Find most thumbs up products
+     * @param limit the number of products to max return
+     * @return A list of products sorted according to the number of thumbs up
+     */
+    public Collection<DProduct> findMostThumbsUp(int limit);
+
+    /**
+     * Find most thumbs up products
+     * @param limit the number of products to max return
+     * @return A list of products sorted according to the number of thumbs down
+     */
+    public Collection<DProduct> findMostThumbsDown(int limit);
+
+
+    /**
+     * Find most commented products
      * @param limit the number of products to max return
      * @return A list of products sorted according to the number of comments
      */
     public Collection<DProduct> findMostCommented(int limit);
 
     /**
-     * Find most rated product
+     * Find most rated products
      * @param limit the number of product to max return
      * @return A list of products sorted according to the number of ratings
      */
     public Collection<DProduct> findMostRated(int limit);
 
     /**
-     * Find product with highest average rating
+     * Find products with highest average rating
      * @param limit the number of product to max return
      * @return A list of products sorted according to average rating
      */
