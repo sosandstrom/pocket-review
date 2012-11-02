@@ -158,8 +158,8 @@ public class CommentController extends AbstractRestController {
         // Build the cursor page
         JCursorPage<JComment> cursorPage = new JCursorPage<JComment>();
         if (null != dPage.getCursorKey())
-            cursorPage.setCursor(dPage.getCursorKey().toString());
-        cursorPage.setPageSize((long)pagesize);
+            cursorPage.setCursorKey(dPage.getCursorKey().toString());
+        cursorPage.setPageSize(pagesize);
         cursorPage.setItems((Collection<JComment>)CONVERTER.convert(dPage.getItems()));
 
         return new ResponseEntity<JCursorPage<JComment>>(cursorPage, HttpStatus.OK);

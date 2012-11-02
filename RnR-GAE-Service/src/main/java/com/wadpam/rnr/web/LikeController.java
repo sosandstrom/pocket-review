@@ -147,8 +147,8 @@ public class LikeController extends AbstractRestController {
 
         JCursorPage<JLike> cursorPage = new JCursorPage<JLike>();
         if (null != dPage.getCursorKey())
-            cursorPage.setCursor(dPage.getCursorKey().toString());
-        cursorPage.setPageSize((long)pagesize);
+            cursorPage.setCursorKey(dPage.getCursorKey().toString());
+        cursorPage.setPageSize(pagesize);
         cursorPage.setItems((Collection<JLike>)CONVERTER.convert(dPage.getItems()));
 
         return new ResponseEntity<JCursorPage<JLike>>(cursorPage, HttpStatus.OK);

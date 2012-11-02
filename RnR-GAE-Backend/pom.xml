@@ -15,7 +15,8 @@
         <spring.version>3.1.1.RELEASE</spring.version>
         <spring.security.version>3.1.1.RELEASE</spring.security.version>
         <org.springframework.social.version>1.0.1.RELEASE</org.springframework.social.version>
-    	<downloadSources>true</downloadSources>
+        <openserver.version>3-SNAPSHOT</openserver.version>
+        <downloadSources>true</downloadSources>
         <netbeans.hint.deploy.server>Tomcat</netbeans.hint.deploy.server>
         <java.version>1.6</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -56,7 +57,7 @@
         <dependency>
             <groupId>com.wadpam.openserver</groupId>
             <artifactId>jsonp</artifactId>
-            <version>1-SNAPSHOT</version>
+            <version>${openserver.version}</version>
             <scope>runtime</scope>
         </dependency>
 

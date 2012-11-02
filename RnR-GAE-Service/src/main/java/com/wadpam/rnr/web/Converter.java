@@ -7,6 +7,7 @@ import com.wadpam.open.web.BaseConverter;
 import com.wadpam.rnr.domain.*;
 import com.wadpam.rnr.json.*;
 import net.sf.mardao.core.CursorPage;
+import net.sf.mardao.core.domain.AbstractLongEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -237,15 +238,33 @@ public class Converter extends BaseConverter {
         return to;
     }
 
-    // Convert pages
-    public JCursorPage<JBaseObject> convert(CursorPage<?, Long> cursorPage) {
+    // Convert collection
+    public Collection<?> convert(Collection<?> from) {
+        if (null == from)
+            return new ArrayList<JBaseObject>();
 
-        JCursorPage<JBaseObject> jCursorPage = new JCursorPage<JBaseObject>();
-        jCursorPage.setCursor(cursorPage.getCursorKey().toString());
-        jCursorPage.setPageSize(new Long(cursorPage.getRequestedPageSize()));
-        jCursorPage.setItems((Collection<JBaseObject>)convert(cursorPage.getItems()));
+        final Collection<JBaseObject> returnValue = new ArrayList<JBaseObject>();
 
-        return jCursorPage;
+        JBaseObject to;
+        for (Object o : from) {
+            to = convertBase(o);
+            returnValue.add(to);
+        }
+
+        return returnValue;
     }
+
+
+    // Convert pages
+    public JCursorPage<?> convert(CursorPage<?, Long> from) {
+        final JCursorPage<JBaseObject> to = new JCursorPage<JBaseObject>();
+
+        to.setPageSize(from.getRequestedPageSize());
+        to.setCursorKey(from.getCursorKey());
+        to.setItems((Collection<JBaseObject>)convert(from.getItems()));
+
+        return to;
+    }
+
 
 }

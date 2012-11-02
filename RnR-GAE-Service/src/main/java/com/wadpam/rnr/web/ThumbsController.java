@@ -180,8 +180,8 @@ public class ThumbsController extends AbstractRestController {
 
         JCursorPage<JThumbs> cursorPage = new JCursorPage<JThumbs>();
         if (null != dPage.getCursorKey())
-            cursorPage.setCursor(dPage.getCursorKey().toString());
-        cursorPage.setPageSize((long)pagesize);
+            cursorPage.setCursorKey(dPage.getCursorKey().toString());
+        cursorPage.setPageSize(pagesize);
         cursorPage.setItems((Collection<JThumbs>)CONVERTER.convert(dPage.getItems()));
 
         return new ResponseEntity<JCursorPage<JThumbs>>(cursorPage, HttpStatus.OK);

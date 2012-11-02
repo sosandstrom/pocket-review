@@ -109,8 +109,8 @@ public class ProductController extends AbstractRestController {
 
         JCursorPage<JProduct> body = new JCursorPage<JProduct>();
         if (null != dPage.getCursorKey())
-            body.setCursor(dPage.getCursorKey().toString());
-        body.setPageSize((long)pagesize);
+            body.setCursorKey(dPage.getCursorKey().toString());
+        body.setPageSize(pagesize);
         body.setItems(CONVERTER.convert(dPage.getItems(), getBaseUri(request, domain)));
 
         return new ResponseEntity<JCursorPage<JProduct>>(body, HttpStatus.OK);
@@ -189,8 +189,8 @@ public class ProductController extends AbstractRestController {
 
         JCursorPage<JProduct> cursorPage = new JCursorPage<JProduct>();
         if (null != dPage.getCursorKey())
-            cursorPage.setCursor(dPage.getCursorKey().toString());
-        cursorPage.setPageSize((long)pagesize);
+            cursorPage.setCursorKey(dPage.getCursorKey().toString());
+        cursorPage.setPageSize(pagesize);
         cursorPage.setItems(jProducts);
 
         return new ResponseEntity<JCursorPage<JProduct>>(cursorPage, HttpStatus.OK);
@@ -231,8 +231,8 @@ public class ProductController extends AbstractRestController {
 
         JCursorPage<JProduct> cursorPage = new JCursorPage<JProduct>();
         if (null != dPage.getCursorKey())
-            cursorPage.setCursor(dPage.getCursorKey().toString());
-        cursorPage.setPageSize((long) pagesize);
+            cursorPage.setCursorKey(dPage.getCursorKey().toString());
+        cursorPage.setPageSize(pagesize);
         cursorPage.setItems(CONVERTER.convert(dPage.getItems(), getBaseUri(request, domain)));
 
         return new ResponseEntity<JCursorPage<JProduct>>(cursorPage, HttpStatus.OK);
@@ -260,8 +260,8 @@ public class ProductController extends AbstractRestController {
 
         JCursorPage<JProduct> cursorPage = new JCursorPage<JProduct>();
         if (null != dPage.getCursorKey())
-            cursorPage.setCursor(dPage.getCursorKey().toString());
-        cursorPage.setPageSize((long) pagesize);
+            cursorPage.setCursorKey(dPage.getCursorKey().toString());
+        cursorPage.setPageSize(pagesize);
         cursorPage.setItems(CONVERTER.convert(dPage.getItems(), getBaseUri(request, domain)));
 
         return new ResponseEntity<JCursorPage<JProduct>>(cursorPage, HttpStatus.OK);
@@ -289,8 +289,8 @@ public class ProductController extends AbstractRestController {
 
         JCursorPage<JProduct> cursorPage = new JCursorPage<JProduct>();
         if (null != dPage.getCursorKey())
-            cursorPage.setCursor(dPage.getCursorKey().toString());
-        cursorPage.setPageSize((long) pagesize);
+            cursorPage.setCursorKey(dPage.getCursorKey().toString());
+        cursorPage.setPageSize(pagesize);
         cursorPage.setItems(CONVERTER.convert(dPage.getItems(), getBaseUri(request, domain)));
 
         return new ResponseEntity<JCursorPage<JProduct>>(cursorPage, HttpStatus.OK);
@@ -318,8 +318,8 @@ public class ProductController extends AbstractRestController {
 
         JCursorPage<JProduct> cursorPage = new JCursorPage<JProduct>();
         if (null != dPage.getCursorKey())
-            cursorPage.setCursor(dPage.getCursorKey().toString());
-        cursorPage.setPageSize((long) pagesize);
+            cursorPage.setCursorKey(dPage.getCursorKey().toString());
+        cursorPage.setPageSize(pagesize);
         cursorPage.setItems(CONVERTER.convert(dPage.getItems(), getBaseUri(request, domain)));
 
         return new ResponseEntity<JCursorPage<JProduct>>(cursorPage, HttpStatus.OK);
@@ -347,8 +347,8 @@ public class ProductController extends AbstractRestController {
 
         JCursorPage<JProduct> cursorPage = new JCursorPage<JProduct>();
         if (null != dPage.getCursorKey())
-            cursorPage.setCursor(dPage.getCursorKey().toString());
-        cursorPage.setPageSize((long) pagesize);
+            cursorPage.setCursorKey(dPage.getCursorKey().toString());
+        cursorPage.setPageSize(pagesize);
         cursorPage.setItems(CONVERTER.convert(dPage.getItems(), getBaseUri(request, domain)));
 
         return new ResponseEntity<JCursorPage<JProduct>>(cursorPage, HttpStatus.OK);
@@ -376,8 +376,8 @@ public class ProductController extends AbstractRestController {
 
         JCursorPage<JProduct> cursorPage = new JCursorPage<JProduct>();
         if (null != dPage.getCursorKey())
-            cursorPage.setCursor(dPage.getCursorKey().toString());
-        cursorPage.setPageSize((long) pagesize);
+            cursorPage.setCursorKey(dPage.getCursorKey().toString());
+        cursorPage.setPageSize(pagesize);
         cursorPage.setItems(CONVERTER.convert(dPage.getItems(), getBaseUri(request, domain)));
 
         return new ResponseEntity<JCursorPage<JProduct>>(cursorPage, HttpStatus.OK);

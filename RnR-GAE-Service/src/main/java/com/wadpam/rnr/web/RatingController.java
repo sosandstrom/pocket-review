@@ -154,8 +154,8 @@ public class RatingController extends AbstractRestController {
 
         JCursorPage<JRating> cursorPage = new JCursorPage<JRating>();
         if (null != dPage.getCursorKey())
-            cursorPage.setCursor(dPage.getCursorKey().toString());
-        cursorPage.setPageSize((long)pagesize);
+            cursorPage.setCursorKey(dPage.getCursorKey().toString());
+        cursorPage.setPageSize(pagesize);
         cursorPage.setItems((Collection<JRating>)CONVERTER.convert(dPage.getItems()));
 
         return new ResponseEntity<JCursorPage<JRating>>(cursorPage, HttpStatus.OK);
