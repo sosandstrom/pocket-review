@@ -153,7 +153,8 @@ public class RatingController extends AbstractRestController {
         final CursorPage<DRating, Long> dPage = rnrService.getAllRatingsForProduct(productId, pagesize, cursor);
 
         JCursorPage<JRating> cursorPage = new JCursorPage<JRating>();
-        cursorPage.setCursor(dPage.getCursorKey().toString());
+        if (null != dPage.getCursorKey())
+            cursorPage.setCursor(dPage.getCursorKey().toString());
         cursorPage.setPageSize((long)pagesize);
         cursorPage.setItems((Collection<JRating>)CONVERTER.convert(dPage.getItems()));
 

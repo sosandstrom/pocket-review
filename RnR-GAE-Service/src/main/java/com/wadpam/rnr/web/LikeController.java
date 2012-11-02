@@ -146,7 +146,8 @@ public class LikeController extends AbstractRestController {
         final CursorPage<DLike, Long> dPage = rnrService.getAllLikesForProduct(productId, pagesize, cursor);
 
         JCursorPage<JLike> cursorPage = new JCursorPage<JLike>();
-        cursorPage.setCursor(dPage.getCursorKey().toString());
+        if (null != dPage.getCursorKey())
+            cursorPage.setCursor(dPage.getCursorKey().toString());
         cursorPage.setPageSize((long)pagesize);
         cursorPage.setItems((Collection<JLike>)CONVERTER.convert(dPage.getItems()));
 

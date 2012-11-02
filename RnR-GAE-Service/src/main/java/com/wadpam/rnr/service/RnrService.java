@@ -40,7 +40,6 @@ public class RnrService {
     public enum Thumbs {
         UP(1), DOWN(-1);
 
-
         private int value;
 
         private Thumbs(int v) {
@@ -50,7 +49,6 @@ public class RnrService {
         public int getValue() {
             return value;
         }
-
     }
 
 
@@ -123,10 +121,7 @@ public class RnrService {
     // Get a like with a specific id
     public DLike getLike(long id) {
         LOG.debug("Get like with id:{}", id);
-
-        DLike dLike = likeDao.findByPrimaryKey(id);
-
-        return dLike;
+        return likeDao.findByPrimaryKey(id);
     }
 
 
@@ -158,7 +153,6 @@ public class RnrService {
     // Get all likes for a specific user
     public Iterable<DLike> getMyLikes(String username) {
         LOG.debug("Get all likes for user:{}", username);
-
         return likeDao.queryByUsername(username);
     }
 
@@ -284,7 +278,6 @@ public class RnrService {
     // Get my thumbs for user
     public Iterable<DThumbs> getMyThumbs(String username) {
         LOG.debug("Get all thumbs for user:{}", username);
-
         return thumbsDao.queryByUsername(username);
     }
 
@@ -404,7 +397,6 @@ public class RnrService {
     // Get all ratings done by a specific user
     public Iterable<DRating> getMyRatings(String username) {
         LOG.debug("Get all ratings for user:{}",  username);
-
         return ratingDao.queryByUsername(username);
     }
 
@@ -412,7 +404,7 @@ public class RnrService {
     public Map<Long, Long> getHistogramForProduct(String productId, int interval) {
         LOG.debug("Create histogram for product:{}", productId);
 
-        Iterator<DRating> dRatingIterator = ratingDao.queryAll().iterator();
+        Iterator<DRating> dRatingIterator = ratingDao.queryByProductId(productId).iterator();
 
         // Build histogram
         Map<Long, Long> histogram = new HashMap<Long, Long>();
@@ -506,7 +498,6 @@ public class RnrService {
     // Get all comments done by a specific user
     public Iterable<DComment> getMyComments(String username) {
         LOG.debug("Get all comments for user:{}", username);
-
         return commentDao.queryByUsername(username);
     }
 
@@ -580,14 +571,12 @@ public class RnrService {
     // Get a list of products
     public Iterable<DProduct> getProducts(String[] ids) {
         LOG.debug("Get a list of products:{}", ids);
-
         return productDao.queryByPrimaryKeys(null, Arrays.asList(ids));
     }
 
     // Get all products
     public CursorPage<DProduct, String> getProductPage(int pageSize, String cursor) {
         LOG.debug("Get product page with cursor:{} page size:{}", cursor, pageSize);
-
         return productDao.queryPage(pageSize, cursor);
     }
 
@@ -595,116 +584,60 @@ public class RnrService {
     public CursorPage<DProduct, String> findNearbyProducts(int pageSize, String cursor, Float latitude, Float longitude,
                                                            int radius, SortOrder sort) {
         LOG.debug("Find nearby products");
-
         return productDao.searchForNearby(pageSize, cursor, latitude, longitude, radius, sort);
-    }
-
-    // Find nearby products and return in KML format
-    public void findNearbyProductsKml(int pageSize, String cursor, Float latitude, Float longitude, int radius,
-                                      SortOrder sort, PrintWriter out) {
-        LOG.debug("Find nearby products. Return KML format");
-
-        CursorPage<DProduct, String> cursorPage = productDao.searchForNearby(pageSize, cursor, latitude, longitude, radius, sort);
-
-        writeRatingsKml(out, cursorPage.getItems());
-    }
-
-    // Various help methods for generating KML format
-    protected void writeRatingsKml(PrintWriter kmlDest, Collection<DProduct> dProducts) {
-        kmlDest.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-        kmlDest.println("<kml xmlns=\"http://www.opengis.net/kml/2.2\">");
-        kmlDest.println("<Document>");
-        kmlDest.println("   <name>Nearby results</name>");
-        kmlDest.println("   <description>This is the description tag of the KML document</description>");
-
-        for (DProduct dProduct : dProducts)
-            writePlacemarkKml(kmlDest, dProduct);
-
-        kmlDest.println("</Document>");
-        kmlDest.println("</kml>");
-    }
-
-    protected void writePlacemarkKml(PrintWriter kmlDest, DProduct product) {
-        if (null != product.getLocation()) {
-            kmlDest.println("   <Placemark>");
-            kmlDest.println("      <name>" + product.getProductId() + "</name>");
-    //                        kmlDest.println("      <address>" + area + ", " + loc + "</address>");
-
-            StringBuffer desc = new StringBuffer("<![CDATA[rating: ");
-            desc.append(product.getRatingAverage());
-            desc.append("/100]]>");
-            // TODO: include like and comment information in the KML
-
-            kmlDest.println("      <description>" + desc.toString() + "</description>");
-            kmlDest.println("      <Point>");
-            kmlDest.println(String.format("         <coordinates>%s,%s,0</coordinates>",
-                    Float.toString(product.getLocation().getLongitude()),
-                    Float.toString(product.getLocation().getLatitude())));
-            kmlDest.println("      </Point>");
-            kmlDest.println("   </Placemark>");
-        }
     }
 
     // Get the most liked products
     public CursorPage<DProduct, String> getMostLikedProducts(int limit, Serializable cursor) {
         LOG.debug("Get most liked products with limit:{}", limit);
-
         return productDao.queryMostLiked(limit, cursor);
     }
 
     // Get most thumbs up products
     public CursorPage<DProduct, String> getMostThumbsUpProducts(int limit, Serializable cursor) {
         LOG.debug("Get most thumbs up products with limit:{}", limit);
-
         return productDao.queryMostThumbsUp(limit, cursor);
     }
 
     // Get most thumbs down products
     public CursorPage<DProduct, String> getMostThumbsDownProducts(int limit, Serializable cursor) {
         LOG.debug("Get most thumbs down products with limit:{}", limit);
-
         return productDao.queryMostThumbsDown(limit, cursor);
     }
 
     // Get the most rated products
     public CursorPage<DProduct, String> getMostRatedProducts(int limit, Serializable cursor) {
         LOG.debug("Get most rated products with limit:{}", limit);
-
         return productDao.queryMostRated(limit, cursor);
     }
 
     // Get the top rated products
     public CursorPage<DProduct, String> getTopRatedProducts(int limit, Serializable cursor) {
         LOG.debug("Get top rated products with limit:{}", limit);
-
         return productDao.queryTopRated(limit, cursor);
     }
 
     // Get most commented products
     public CursorPage<DProduct, String> getMostCommentedProducts(int limit, Serializable cursor) {
         LOG.debug("Get most commented products with limit:{}", limit);
-
         return productDao.queryMostCommented(limit, cursor);
     }
 
      // Get all likes for a product
     public CursorPage<DLike, Long> getAllLikesForProduct(String productId, int limit, Serializable cursor) {
         LOG.debug("Get all likes for product:{}", productId);
-
         return likeDao.queryPageByProductId(productId, limit, cursor);
     }
 
     // Get all thumbs for a product
     public CursorPage<DThumbs, Long> getAllThumbsForProduct(String productId, int limit, Serializable cursor) {
         LOG.debug("Get all thumbs for product:{}", productId);
-
         return thumbsDao.queryPageByProductId(productId, limit, cursor);
     }
 
     // Get all ratings for a product
     public CursorPage<DRating, Long> getAllRatingsForProduct(String productId, int limit, Serializable cursor) {
         LOG.debug("Get all ratings for product:{}", productId);
-
         return ratingDao.queryPageByProductId(productId, limit, cursor);
     }
 

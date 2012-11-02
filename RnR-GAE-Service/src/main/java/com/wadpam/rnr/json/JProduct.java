@@ -44,6 +44,9 @@ public class JProduct extends JBaseObject {
     /** The number of thumbs up */
     private Long        thumbsDown = 0L;
 
+    /** The deep link to the individual thumbs */
+    private String      thumbsURL;
+
     /** The total number of Comments */
     private Long        commentCount = 0L;
 
@@ -152,5 +155,13 @@ public class JProduct extends JBaseObject {
 
     public void setThumbsUp(Long thumbsUp) {
         this.thumbsUp = thumbsUp;
+    }
+
+    public String getThumbsURL() {
+        return thumbsURL;
+    }
+
+    public void setThumbsURL(String thumbsURL) {
+        this.thumbsURL = thumbsURL;
     }
 }

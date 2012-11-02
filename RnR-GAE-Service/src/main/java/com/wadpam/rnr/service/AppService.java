@@ -174,7 +174,6 @@ public class AppService {
         LOG.debug("Delete app for domain:{}", domain);
 
         DApp dApp = appDao.findByPrimaryKey(domain);
-
         if (null == dApp)
             return null;
 
@@ -185,19 +184,13 @@ public class AppService {
     // Get all apps for a user
     public Iterable<DApp> getAllAppsForAppAdmin(String adminEmail) {
         LOG.debug("Get all apps for admin with emai1l:{}", adminEmail);
-        Iterable<DApp> dAppIterable= appDao.queryByAdminEmail(new Email(adminEmail));
-        LOG.debug("After");
-
-        return dAppIterable;
+        return appDao.queryByAdminEmail(new Email(adminEmail));
     }
 
     // Get all apps in the system
     public Iterable<DApp> getAllApps() {
         LOG.debug("Get all apps in the system");
-
-        Iterable<DApp> dAppIterable = appDao.queryAll();
-
-        return dAppIterable;
+        return appDao.queryAll();
     }
 
     // Generate new api password
@@ -208,9 +201,8 @@ public class AppService {
         LOG.debug("Generate new api password for domain:{}", domain);
 
         DApp dApp = appDao.findByPrimaryKey(domain);
-
         if (null == dApp)
-            throw new NotFoundException(404, String.format("No app found for domain:{}", domain));
+            return null;
 
         dApp.setApiPassword(generateApiPassword(domain));
         appDao.persist(dApp);
@@ -263,7 +255,6 @@ public class AppService {
         LOG.debug("Remove admin with email:{}", adminEmail);
 
         DAppAdmin dAppAdmin = appAdminDao.findByEmail(new Email(adminEmail));
-
         if (null == dAppAdmin)
             return null;
 
@@ -283,7 +274,6 @@ public class AppService {
     // Get all app admins in the system
     public Iterable<DAppAdmin> getAllAppAdmins() {
         LOG.debug("Get all app admins in the system");
-
         return  appAdminDao.queryAll();
     }
 
@@ -295,7 +285,6 @@ public class AppService {
         LOG.debug("Set account status to:{} for app admin with email:{}", accountStatus, adminEmail);
 
         DAppAdmin dAppAdmin = appAdminDao.findByEmail(new Email(adminEmail));
-
         if (null == dAppAdmin)
             return null;
 

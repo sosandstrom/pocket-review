@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.view.RedirectView;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -53,15 +54,17 @@ public class ThumbsController extends AbstractRestController {
     @RequestMapping(value="up", method= RequestMethod.POST)
     public RedirectView addThumbsUp(HttpServletRequest request,
                                     HttpServletResponse response,
+                                    UriComponentsBuilder uriBuilder,
                                     @PathVariable String domain,
                                     @RequestParam(required = true) String productId,
                                     @RequestParam(required = false) String username,
                                     @RequestParam(required = false) Float latitude,
                                     @RequestParam(required = false) Float longitude) {
 
-        final DThumbs body = rnrService.addThumbs(domain, productId, username, latitude, longitude, RnrService.Thumbs.DOWN);
+        final DThumbs body = rnrService.addThumbs(domain, productId, username, latitude, longitude, RnrService.Thumbs.UP);
 
-        return new RedirectView(request.getRequestURI() + "/" + body.getId().toString());
+        return new RedirectView(uriBuilder.replacePath("/api/{brand}/thumbs/{id}").
+                buildAndExpand(domain, body.getId()).toUriString());
     }
 
     /**
@@ -79,6 +82,7 @@ public class ThumbsController extends AbstractRestController {
     @RequestMapping(value="down", method= RequestMethod.POST)
     public RedirectView addThumbsDown(HttpServletRequest request,
                                       HttpServletResponse response,
+                                      UriComponentsBuilder uriBuilder,
                                       @PathVariable String domain,
                                       @RequestParam(required = true) String productId,
                                       @RequestParam(required = false) String username,
@@ -87,7 +91,8 @@ public class ThumbsController extends AbstractRestController {
 
         final DThumbs body = rnrService.addThumbs(domain, productId, username, latitude, longitude, RnrService.Thumbs.DOWN);
 
-        return new RedirectView(request.getRequestURI() + "/" + body.getId().toString());
+        return new RedirectView(uriBuilder.replacePath("/api/{brand}/thumbs/{id}").
+                buildAndExpand(domain, body.getId()).toUriString());
     }
 
 
@@ -174,7 +179,8 @@ public class ThumbsController extends AbstractRestController {
         final CursorPage<DThumbs, Long> dPage = rnrService.getAllThumbsForProduct(productId, pagesize, cursor);
 
         JCursorPage<JThumbs> cursorPage = new JCursorPage<JThumbs>();
-        cursorPage.setCursor(dPage.getCursorKey().toString());
+        if (null != dPage.getCursorKey())
+            cursorPage.setCursor(dPage.getCursorKey().toString());
         cursorPage.setPageSize((long)pagesize);
         cursorPage.setItems((Collection<JThumbs>)CONVERTER.convert(dPage.getItems()));
 

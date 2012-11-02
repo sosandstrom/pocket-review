@@ -213,11 +213,13 @@ public class AppController extends AbstractRestController {
             @RestCode(code=404, message="NOK", description="No app found for that domain")
     })
     @RequestMapping(value="{domain}/password", method= RequestMethod.POST)
-    public ResponseEntity<JApp> generateNewAppPassword(HttpServletRequest request,
+    public RedirectView generateNewAppPassword(HttpServletRequest request,
                                                        HttpServletResponse response,
                                                        @PathVariable String domain) {
 
-        appService.generateNewApiPassword(domain);
+        final DApp body = appService.generateNewApiPassword(domain);
+        if (null == body)
+            throw new NotFoundException(404, String.format("No app found for domain:{}", domain));
 
         // Figure out the base url
         String redirectUrl = null;
@@ -229,13 +231,7 @@ public class AppController extends AbstractRestController {
         if (null == redirectUrl)
             throw new ServerErrorException(500, "Not possible to create base url for redirect after changing password");
 
-
-        try {
-            response.sendRedirect(redirectUrl);
-            return null; // No need to do anything
-        } catch (IOException e) {
-            throw new ServerErrorException(500, "Not possible to redirect after changing password");
-        }
+        return new RedirectView(redirectUrl);
     }
 
 

@@ -9,6 +9,7 @@ import com.wadpam.rnr.json.*;
 import net.sf.mardao.core.CursorPage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -60,7 +61,7 @@ public class Converter extends BaseConverter {
     }
 
     // Convert product
-    public JProduct convert(DProduct from, String baseUrl) {
+    public JProduct convert(DProduct from, String baseUri) {
         if (null == from) {
             return null;
         }
@@ -79,9 +80,14 @@ public class Converter extends BaseConverter {
         to.setCommentCount(from.getCommentCount());
 
         // Set links
-        to.setRatingsURL(baseUrl + "/rating?productId=" + to.getId());
-        to.setLikesURL(baseUrl + "/like?productId=" + to.getId());
-        to.setCommentsURL(baseUrl + "/comment?productId=" + to.getId());
+        to.setRatingsURL(UriComponentsBuilder.fromUriString(baseUri).
+                pathSegment("rating").queryParam("productId", "{id}").buildAndExpand(to.getId()).toUriString());
+        to.setLikesURL(UriComponentsBuilder.fromUriString(baseUri).
+                pathSegment("like").queryParam("productId", "{id}").buildAndExpand(to.getId()).toUriString());
+        to.setCommentsURL(UriComponentsBuilder.fromUriString(baseUri).
+                pathSegment("comment").queryParam("productId", "{id}").buildAndExpand(to.getId()).toUriString());
+        to.setThumbsURL(UriComponentsBuilder.fromUriString(baseUri).
+                pathSegment("thumbs").queryParam("productId", "{id}").buildAndExpand(to.getId()).toUriString());
 
         return to;
     }
@@ -206,7 +212,7 @@ public class Converter extends BaseConverter {
     }
 
     // Convert collection of products
-    public Collection<JProduct> convert(Collection<DProduct> from, String baseUrl) {
+    public Collection<JProduct> convert(Collection<DProduct> from, String baseUri) {
         if (null == from) {
             return null;
         }
@@ -214,19 +220,19 @@ public class Converter extends BaseConverter {
         final Collection<JProduct> to = new ArrayList<JProduct>(from.size());
 
         for(DProduct wf : from) {
-            to.add(convert(wf, baseUrl));
+            to.add(convert(wf, baseUri));
         }
 
         return to;
     }
 
     // Convert product iterable
-    public Collection<JProduct> convert(Iterable<DProduct> iterable, String baseUrl) {
+    public Collection<JProduct> convert(Iterable<DProduct> iterable, String baseUri) {
         Iterator<DProduct> iterator = iterable.iterator();
 
         Collection<JProduct> to = new ArrayList<JProduct>();
         while (iterator.hasNext())
-            to.add(convert(iterator.next(), baseUrl));
+            to.add(convert(iterator.next(), baseUri));
 
         return to;
     }
