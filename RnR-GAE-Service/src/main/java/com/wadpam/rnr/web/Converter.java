@@ -2,9 +2,11 @@ package com.wadpam.rnr.web;
 
 import com.google.appengine.api.datastore.Email;
 import com.wadpam.open.json.JBaseObject;
+import com.wadpam.open.json.JCursorPage;
 import com.wadpam.open.web.BaseConverter;
 import com.wadpam.rnr.domain.*;
 import com.wadpam.rnr.json.*;
+import net.sf.mardao.core.CursorPage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -227,6 +229,17 @@ public class Converter extends BaseConverter {
             to.add(convert(iterator.next(), baseUrl));
 
         return to;
+    }
+
+    // Convert pages
+    public JCursorPage<JBaseObject> convert(CursorPage<?, Long> cursorPage) {
+
+        JCursorPage<JBaseObject> jCursorPage = new JCursorPage<JBaseObject>();
+        jCursorPage.setCursor(cursorPage.getCursorKey().toString());
+        jCursorPage.setPageSize(new Long(cursorPage.getRequestedPageSize()));
+        jCursorPage.setItems((Collection<JBaseObject>)convert(cursorPage.getItems()));
+
+        return jCursorPage;
     }
 
 }

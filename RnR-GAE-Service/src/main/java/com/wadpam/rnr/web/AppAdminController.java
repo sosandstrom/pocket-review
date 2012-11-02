@@ -8,6 +8,9 @@ import com.wadpam.rnr.domain.DAppAdmin;
 import com.wadpam.rnr.json.JAppAdmin;
 import com.wadpam.rnr.security.GaeUserDetails;
 import com.wadpam.rnr.service.AppService;
+import com.wadpam.server.exceptions.NotFoundException;
+import com.wadpam.server.exceptions.RestException;
+import com.wadpam.server.exceptions.ServerErrorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -18,6 +21,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.view.RedirectView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -145,26 +149,20 @@ public class AppAdminController {
             @RestCode(code=302, message="OK", description="Redirect to newly created admin details")
     })
     @RequestMapping(value="", method= RequestMethod.POST)
-    public ResponseEntity<JAppAdmin> createAdmin(HttpServletRequest request,
+    public RedirectView createAdmin(HttpServletRequest request,
                                                  HttpServletResponse response,
                                                  @RequestParam(required = false) String name) {
 
         // Get current user
         if (null == getCurrentUserDetails()) {
             LOG.debug("Trying to create an admin that is not logged in:{}", getCurrentUserEmail());
-            return new ResponseEntity<JAppAdmin>(HttpStatus.UNAUTHORIZED);
+            throw new RestException(HttpStatus.UNAUTHORIZED.value(), HttpStatus.UNAUTHORIZED.value(), "Admin not logged in");
         }
 
-        appService.createAppAdmin(getCurrentUserEmail(), getCurrentUserId(), name, request.getRequestURL().toString());
+        final DAppAdmin body = appService.createAppAdmin(getCurrentUserEmail(), getCurrentUserId(),
+                name, request.getRequestURL().toString());
 
-        try {
-            response.sendRedirect(request.getRequestURI());
-            return null; // Do nothing, the redirect handle things
-        }
-        catch (IOException e) {
-            LOG.error("Not possible to create redirect url after creating a new backoffice admin with reason:{}", e.getMessage());
-            return new ResponseEntity<JAppAdmin>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return new RedirectView(request.getRequestURI());
     }
 
     // Get the current user email from Spring security
@@ -200,7 +198,9 @@ public class AppAdminController {
             return new ResponseEntity<JAppAdmin>(HttpStatus.UNAUTHORIZED);
         }
 
-        appService.deleteAppAdmin(getCurrentUserEmail());
+        final DAppAdmin body = appService.deleteAppAdmin(getCurrentUserEmail());
+        if (null == body)
+            throw new NotFoundException(404, String.format("No app admin found for email:{}", getCurrentUserEmail()));
 
         return new ResponseEntity<JAppAdmin>(HttpStatus.OK);
     }
@@ -219,9 +219,11 @@ public class AppAdminController {
                                                  HttpServletResponse response,
                                                  @PathVariable String email) {
 
-       appService.deleteAppAdmin(email);
+        final DAppAdmin body = appService.deleteAppAdmin(email);
+        if (null == body)
+            throw new NotFoundException(404, String.format("No app admin found for email:{}", email));
 
-       return new ResponseEntity<JAppAdmin>(HttpStatus.OK);
+        return new ResponseEntity<JAppAdmin>(HttpStatus.OK);
     }
 
     /**
@@ -242,7 +244,9 @@ public class AppAdminController {
             return new ResponseEntity<JAppAdmin>(HttpStatus.UNAUTHORIZED);
         }
 
-        DAppAdmin body = appService.getAppAdmin(getCurrentUserEmail());
+        final DAppAdmin body = appService.getAppAdmin(getCurrentUserEmail());
+        if (null == body)
+            throw new NotFoundException(404, String.format("No app admin found"));
 
         return new ResponseEntity<JAppAdmin>(CONVERTER.convert(body), HttpStatus.OK);
     }
@@ -261,7 +265,9 @@ public class AppAdminController {
                                               HttpServletResponse response,
                                               @PathVariable String email) {
 
-        DAppAdmin body = appService.getAppAdmin(email);
+        final DAppAdmin body = appService.getAppAdmin(email);
+        if (null == body)
+            throw new NotFoundException(404, String.format("No app admin found for email:{}", email));
 
         return new ResponseEntity<JAppAdmin>(CONVERTER.convert(body), HttpStatus.OK);
     }
@@ -277,7 +283,7 @@ public class AppAdminController {
     public ResponseEntity<Collection<JAppAdmin>> getAllAdmins(HttpServletRequest request,
                                                               HttpServletResponse response) {
 
-        Iterable<DAppAdmin> dAppAdmins = appService.getAllAppAdmins();
+        final Iterable<DAppAdmin> dAppAdmins = appService.getAllAppAdmins();
 
         return new ResponseEntity<Collection<JAppAdmin>>((Collection<JAppAdmin>)CONVERTER.convert(dAppAdmins), HttpStatus.OK);
     }
@@ -295,10 +301,10 @@ public class AppAdminController {
             @RestCode(code=302, message="OK", description="Redirect to the updated admin details")
     })
     @RequestMapping(value="{userId}/status/{status}", method= RequestMethod.POST)
-    public ResponseEntity<JAppAdmin> updateAdminAccountStatus(HttpServletRequest request,
-                                                              HttpServletResponse response,
-                                                              @PathVariable String email,
-                                                              @PathVariable int status) {
+    public RedirectView updateAdminAccountStatus(HttpServletRequest request,
+                                                 HttpServletResponse response,
+                                                 @PathVariable String email,
+                                                 @PathVariable int status) {
 
         String accountStatus;
         switch (status) {
@@ -313,7 +319,7 @@ public class AppAdminController {
                 break;
             default:
                 LOG.error("Trying to set account status to state not supported:{}", status);
-                return new ResponseEntity<JAppAdmin>(HttpStatus.BAD_REQUEST);
+                throw new ServerErrorException(400, "Account status not supported");
         }
 
         // Figure out the base url
@@ -325,19 +331,14 @@ public class AppAdminController {
 
         if (null == redirectUrl) {
             LOG.error("Not possible to create redirect url after updating admin account status");
-            return new ResponseEntity<JAppAdmin>(HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ServerErrorException(400, "Not possible to create the redirect URL");
         }
 
-        appService.updateAdminAccountStatus(email, accountStatus);
+        final DAppAdmin body = appService.updateAdminAccountStatus(email, accountStatus);
+        if (null == body)
+            throw new NotFoundException(404, String.format("No app admin found for email:{}", email));
 
-         try {
-            response.sendRedirect(redirectUrl);
-            return null; // No need to do anything
-        }
-        catch (IOException e) {
-            LOG.error("Not possible to create redirect url after updating admin account status with reason:{}", e.getMessage());
-            return new ResponseEntity<JAppAdmin>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return new RedirectView(redirectUrl);
     }
 
 

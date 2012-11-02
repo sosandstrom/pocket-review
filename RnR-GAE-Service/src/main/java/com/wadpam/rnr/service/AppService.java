@@ -9,7 +9,7 @@ import com.wadpam.rnr.domain.DAppAdmin;
 import com.wadpam.server.exceptions.BadRequestException;
 import com.wadpam.server.exceptions.NotFoundException;
 import com.wadpam.server.exceptions.RestException;
-import com.wadpam.server.exceptions.RestTestException;
+import com.wadpam.server.exceptions.ServerErrorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -123,7 +123,7 @@ public class AppService {
             return new String(hexChars);
 
         } catch (Exception e) {
-            throw new RestException(500, String.format("Not possible to generate REST api user string with reason:%s", e.getMessage()));
+            throw new ServerErrorException(500, String.format("Not possible to generate REST api user string with reason:%s", e.getMessage()));
         }
     }
 
@@ -146,6 +146,8 @@ public class AppService {
         LOG.debug("Set app admins:{} for domain:{}", adminEmails, domain);
 
         DApp dApp = getApp(domain);
+        if (null == dApp)
+            return null;
 
         Collection<Email> emails = new ArrayList<Email>(adminEmails.size());
         for (String appAdmin : adminEmails)
@@ -161,13 +163,7 @@ public class AppService {
     @PreAuthorize("hasPermission(#domain, 'isAppAdmin')")
     public DApp getApp(String domain) {
         LOG.debug("Get app for domain:{}", domain);
-
-        DApp dApp = appDao.findByPrimaryKey(domain);
-
-        if (null == dApp)
-            throw new NotFoundException(404, String.format("No app found for domain:{}", domain));
-
-        return dApp;
+        return appDao.findByPrimaryKey(domain);
     }
 
     // Delete app
@@ -180,7 +176,7 @@ public class AppService {
         DApp dApp = appDao.findByPrimaryKey(domain);
 
         if (null == dApp)
-            throw new NotFoundException(404, String.format("No app found for domain:{}", domain));
+            return null;
 
         appDao.delete(dApp);
         return dApp;
@@ -269,7 +265,7 @@ public class AppService {
         DAppAdmin dAppAdmin = appAdminDao.findByEmail(new Email(adminEmail));
 
         if (null == dAppAdmin)
-            throw new NotFoundException(404, String.format("No app admin found for email:{}", adminEmail));
+            return null;
 
         // Delete from datastore
         appAdminDao.delete(dAppAdmin);
@@ -281,13 +277,7 @@ public class AppService {
     @PreAuthorize("hasPermission(#adminEmail, 'isAdmin')")
     public DAppAdmin getAppAdmin(String adminEmail) {
         LOG.debug("Get details for admin with email:{}", adminEmail);
-
-        DAppAdmin dAppAdmin = appAdminDao.findByEmail(new Email(adminEmail));
-
-        if (null == dAppAdmin)
-            throw new NotFoundException(404, String.format("No app admin found for email:{}", adminEmail));
-
-        return dAppAdmin;
+        return appAdminDao.findByEmail(new Email(adminEmail));
     }
 
     // Get all app admins in the system
@@ -307,7 +297,7 @@ public class AppService {
         DAppAdmin dAppAdmin = appAdminDao.findByEmail(new Email(adminEmail));
 
         if (null == dAppAdmin)
-            throw new NotFoundException(404, String.format("No app admin found for email:{}", adminEmail));
+            return null;
 
         dAppAdmin.setAccountStatus(accountStatus);
 

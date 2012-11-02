@@ -6,6 +6,7 @@ import com.wadpam.open.json.JCursorPage;
 import com.wadpam.rnr.domain.DComment;
 import com.wadpam.rnr.json.JComment;
 import com.wadpam.rnr.service.RnrService;
+import com.wadpam.server.exceptions.NotFoundException;
 import com.wadpam.server.web.AbstractRestController;
 import net.sf.mardao.core.CursorPage;
 import org.slf4j.Logger;
@@ -49,7 +50,6 @@ public class CommentController extends AbstractRestController {
      * two different domains or prefix the productId depending on the type of comment,
      * e.g. PROD-3384, RATING-34
      * @param productId domain-unique id for the product to comment
-     * @param parentId optional. A parent comment used to create nested comments
      * @param username optional. A unique user name or id.
      *                 Needed in order to perform user related operations later on.
      * @param latitude optional. -90..90
@@ -64,13 +64,12 @@ public class CommentController extends AbstractRestController {
     public RedirectView addComment(HttpServletRequest request,
                                    HttpServletResponse response,
                                    @RequestParam(required=true) String productId,
-                                   @RequestParam(required=true) Long parentId,
                                    @RequestParam(required=false) String username,
                                    @RequestParam(required=false) Float latitude,
                                    @RequestParam(required=false) Float longitude,
                                    @RequestParam(required=true) String comment) {
 
-        final DComment body = rnrService.addComment(productId, parentId, username, latitude, longitude, comment);
+        final DComment body = rnrService.addComment(productId, username, latitude, longitude, comment);
 
         return new RedirectView(request.getRequestURI() + "/" + body.getId().toString());
     }
@@ -89,7 +88,9 @@ public class CommentController extends AbstractRestController {
                                                   HttpServletResponse response,
                                                   @PathVariable long id) {
 
-        rnrService.deleteComment(id);
+        final DComment body = rnrService.deleteComment(id);
+        if (null == body)
+            throw new NotFoundException(404, String.format("Comment with id:%s not found", id));
 
         return new ResponseEntity<JComment>(HttpStatus.OK);
     }
@@ -108,7 +109,9 @@ public class CommentController extends AbstractRestController {
                                                HttpServletResponse response,
                                                @PathVariable long id) {
 
-        DComment body = rnrService.getComment(id);
+        final DComment body = rnrService.getComment(id);
+        if (null == body)
+            throw new NotFoundException(404, String.format("Comment with id:%s not found", id));
 
         return new ResponseEntity<JComment>(CONVERTER.convert(body), HttpStatus.OK);
     }
@@ -134,9 +137,6 @@ public class CommentController extends AbstractRestController {
     /**
      * Returns all comments for a specific product.
      * @param productId the product to look for
-     * @param hierarchy optional. Decide if the returned list should be returned nested.
-     *                  This is useful is comment contain parent relations to create nested comments.
-     *                  Default is false. Will add some overhead.
      * @param pagesize Optional. The number of products to return in this page. Default value is 10.
      * @param cursor Optional. The current cursor position during pagination.
      *               The next page will be return from this position.
@@ -150,67 +150,20 @@ public class CommentController extends AbstractRestController {
     public ResponseEntity<JCursorPage<JComment>> getAllCommentsForProduct(HttpServletRequest request,
                                                                           HttpServletResponse response,
                                                                           @RequestParam(required=true) String productId,
-                                                                          @RequestParam(required=false, defaultValue="false") boolean hierarchy,
                                                                           @RequestParam(defaultValue="10") int pagesize,
                                                                           @RequestParam(required=false) String cursor) {
 
-        final CursorPage<DComment, Long> dPage = rnrService.getAllCommentsForProduct(productId, hierarchy, pagesize, cursor);
-
-        Collection<JComment> jComments = null;
-        if (hierarchy == false)
-            jComments =  (Collection<JComment>)CONVERTER.convert(dPage.getItems());
-        else {
-            LOG.debug("Arrange the comments in hierarchy based on parent comments");
-
-            jComments = new ArrayList<JComment>();
-            Map<Long, Collection<JComment>> remainingComments = new HashMap<Long, Collection<JComment>>();
-
-            // Split in root and non-root comments
-            for (DComment dComment : dPage.getItems()) {
-                // Convert to JComment before we do anything
-                JComment jComment = CONVERTER.convert(dComment);
-
-                if (null == jComment.getParentId())
-                    jComments.add(jComment);
-                else {
-                    Collection<JComment> children = remainingComments.get(jComment.getParentId());
-                    if (null == children) {
-                        children = new ArrayList<JComment>();
-                        remainingComments.put(jComment.getParentId(), children);
-                    }
-                    children.add(jComment);
-                }
-            }
-
-            // Recursively add all children
-            for (JComment rootComment : jComments)
-                addChildren(rootComment, remainingComments);
-        }
+        final CursorPage<DComment, Long> dPage = rnrService.getAllCommentsForProduct(productId, pagesize, cursor);
 
         // Build the cursor page
         JCursorPage<JComment> cursorPage = new JCursorPage<JComment>();
-        cursorPage.setItems(jComments);
         cursorPage.setCursor(dPage.getCursorKey().toString());
         cursorPage.setPageSize((long)pagesize);
+        cursorPage.setItems((Collection<JComment>)CONVERTER.convert(dPage.getItems()));
 
         return new ResponseEntity<JCursorPage<JComment>>(cursorPage, HttpStatus.OK);
     }
 
-    // Build a hierarchy of comments
-    private void addChildren(JComment parentComment, Map<Long, Collection<JComment>> remainingComments) {
-        Collection<JComment> children = remainingComments.get(parentComment.getId());
-
-        if (null == children)
-            // No children. Reached a leaf, do nothing
-            return;
-
-        // Add children
-        parentComment.setChildren(children);
-
-        // Recursively build the hierarchy
-        for (JComment child : children)
-            addChildren(child, remainingComments);
-    }
 
 
     // Setters and Getters

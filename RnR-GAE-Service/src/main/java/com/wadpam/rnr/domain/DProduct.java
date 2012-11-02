@@ -4,15 +4,12 @@ package com.wadpam.rnr.domain;
 import com.google.appengine.api.datastore.Category;
 import com.google.appengine.api.datastore.GeoPt;
 import com.google.appengine.api.datastore.Rating;
-import net.sf.mardao.api.domain.AEDStringEntity;
-
-import javax.persistence.*;
-import java.io.Serializable;
-import java.util.Collection;
-import net.sf.mardao.api.geo.aed.GeoModel;
-import net.sf.mardao.core.GeoLocation;
 import net.sf.mardao.core.domain.AbstractCreatedUpdatedEntity;
-import net.sf.mardao.core.geo.DLocation;
+
+import javax.persistence.Basic;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import java.io.Serializable;
 
 /**
  * The domain object for Products.

@@ -230,7 +230,7 @@
                             <goal>test</goal>
                         </goals>
                         <configuration>
-                            <skip>false</skip>
+                            <skip>true</skip>
                             <excludes>
                                 <exclude>**/*ITest.java</exclude>
                             </excludes>
@@ -247,7 +247,7 @@
                             <goal>test</goal>
                         </goals>
                         <configuration>
-                            <skip>false</skip>
+                            <skip>true</skip>
                             <includes>
                                 <include>${itest.include}</include>
                             </includes>

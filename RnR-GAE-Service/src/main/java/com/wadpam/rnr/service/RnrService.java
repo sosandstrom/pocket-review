@@ -126,9 +126,6 @@ public class RnrService {
 
         DLike dLike = likeDao.findByPrimaryKey(id);
 
-        if (null == dLike)
-            throw new NotFoundException(404, String.format("Like with id:%s not found", id));
-
         return dLike;
     }
 
@@ -141,7 +138,7 @@ public class RnrService {
 
         DLike dLike = likeDao.findByPrimaryKey(id);
         if (null == dLike)
-            throw new NotFoundException(404, String.format("Like with id:%s not found", id));
+           return null;
 
         // Delete the like
         likeDao.delete(dLike);
@@ -255,7 +252,7 @@ public class RnrService {
 
         DThumbs dThumbs = thumbsDao.findByPrimaryKey(id);
         if (null == dThumbs)
-            throw new NotFoundException(404, String.format("Thumb with id:%s not found", id));
+            return null;
 
         // Delete
         thumbsDao.delete(dThumbs);
@@ -281,13 +278,7 @@ public class RnrService {
     // Get a specific thumbs
     public DThumbs getThumbs(long id) {
         LOG.debug("Get thumb with id:{}", id);
-
-        DThumbs dThumb = thumbsDao.findByPrimaryKey(id);
-
-        if (null == dThumb)
-            throw new NotFoundException(404, String.format("Thumb with id:%s not found", id));
-
-        return dThumb;
+        return thumbsDao.findByPrimaryKey(id);
     }
 
     // Get my thumbs for user
@@ -374,13 +365,7 @@ public class RnrService {
     // Get a rating with a specific id
     public DRating getRating(long id) {
         LOG.debug("Get rating with id:{}", id);
-
-        DRating dRating = ratingDao.findByPrimaryKey(id);
-
-        if (null == dRating)
-            throw new NotFoundException(404, String.format("Rating with id:%s not found", id));
-
-        return dRating;
+        return ratingDao.findByPrimaryKey(id);
     }
 
     // Delete a ratings with a specific id
@@ -391,7 +376,7 @@ public class RnrService {
 
         DRating dRating = ratingDao.findByPrimaryKey(id);
         if (null == dRating)
-            throw new NotFoundException(404, String.format("Rating with id:%s not found", id));
+            return null;
 
         // Delete the rating
         ratingDao.delete(dRating);
@@ -455,22 +440,12 @@ public class RnrService {
     // Add a comment to a product
     @Idempotent
     @Transactional
-    public DComment addComment(String productId, Long parentId, String username, Float latitude, Float longitude, String comment) {
+    public DComment addComment(String productId, String username, Float latitude, Float longitude, String comment) {
         LOG.debug("Add new comment to product:(}",  productId);
-
-        // If we have a parent comment id, check that it belongs to the same product
-        DComment dParentComment = getComment(parentId);
-        if (null == dParentComment || dParentComment.getProductId().equalsIgnoreCase(productId) == false) {
-            LOG.debug("Parent comment:{} is not a comment for the product:{}", parentId, productId);
-            throw new BadRequestException(400, String.format("The parent comment:%s is not a comment for the product:%s", parentId, productId));
-        }
 
         // Create new comment. Do not check if user have commented before
         DComment dComment = new DComment();
         dComment.setProductId(productId);
-        if (null != parentId)
-            dComment.setParentKey(commentDao.createKey(parentId));
-
         dComment.setUsername(username);
         dComment.setComment(comment);
         commentDao.persist(dComment);
@@ -500,13 +475,7 @@ public class RnrService {
     // Get a comment with a specific id
     public DComment getComment(long id) {
         LOG.debug("Get comment with id:{}", id);
-
-        DComment dComment = commentDao.findByPrimaryKey(id);
-
-        if (null == dComment)
-            throw new NotFoundException(404, String.format("Comment with id:%s not found", id));
-
-        return dComment;
+        return commentDao.findByPrimaryKey(id);
     }
 
     // Delete a comment with a specific id
@@ -517,7 +486,7 @@ public class RnrService {
 
         DComment dComment = commentDao.findByPrimaryKey(id);
         if (null == dComment)
-            throw new NotFoundException(404, String.format("Comment with id:%s not found", id));
+            return null;
 
         // Delete the comment
         commentDao.delete(dComment);
@@ -579,7 +548,7 @@ public class RnrService {
 
         // If the favorite is not found return 404
         if (null == dFavorites || dFavorites.getProductIds().remove(productId) == false)
-            throw new NotFoundException(404, String.format("Product:%s not found for user:%s", productId, username));
+            return null;
 
         // Store
         favoritesDao.persist(dFavorites);
@@ -590,13 +559,7 @@ public class RnrService {
     // Get all user favorites
     public DFavorites getFavorites(String username) {
         LOG.debug("Get favorites for user:{}", username);
-
-        DFavorites dFavorites = favoritesDao.findByPrimaryKey(username);
-
-        if (null == dFavorites)
-            throw new NotFoundException(404, String.format("No favorites found for user:%s", username));
-
-        return dFavorites;
+        return favoritesDao.findByPrimaryKey(username);
     }
 
 
@@ -746,28 +709,9 @@ public class RnrService {
     }
 
     // Get all comments for a product
-    public CursorPage<DComment, Long> getAllCommentsForProduct(String productId, boolean inHierarchy, int limit, Serializable cursor) {
+    public CursorPage<DComment, Long> getAllCommentsForProduct(String productId, int limit, Serializable cursor) {
         LOG.debug("Get all comments for product:{}", productId);
-
-        if (inHierarchy) {
-            CursorPage<DComment, Long> dPage = commentDao.queryPageRootCommentsForProductId(productId, limit, cursor);
-
-            // Collect all root keys and ask for all children
-            Collection<Key> parentKeys = new ArrayList<Key>();
-            for (DComment dComment : dPage.getItems())
-                parentKeys.add(dComment.getParentKey());
-
-            // Get all child comments from for the parent keys
-            Collection<DComment> childComments = commentDao.findCommentsWithParents(productId, parentKeys);
-
-            // Add children to root comments
-            dPage.getItems().addAll(childComments);
-
-            return dPage;
-
-        } else {
-            return commentDao.queryPageByProductId(productId, limit, cursor);
-        }
+        return commentDao.queryPageByProductId(productId, limit, cursor);
     }
 
     // Get all products a user have liked

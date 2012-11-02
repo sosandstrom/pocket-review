@@ -1,20 +1,14 @@
 package com.wadpam.rnr.dao;
 
-import com.google.appengine.api.datastore.*;
-import com.google.appengine.api.datastore.Cursor;
-import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.search.*;
-import com.google.appengine.api.search.Index;
 import com.wadpam.rnr.domain.DProduct;
+import com.wadpam.rnr.service.RnrService;
+import net.sf.mardao.core.CursorPage;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-
-import com.wadpam.rnr.service.RnrService;
-import net.sf.mardao.api.dao.Expression;
-import net.sf.mardao.core.CursorPage;
 
 /**
  * Implementation of Business Methods related to entity DProduct.

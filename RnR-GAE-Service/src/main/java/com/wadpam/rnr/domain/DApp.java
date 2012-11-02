@@ -1,7 +1,6 @@
 package com.wadpam.rnr.domain;
 
 import com.google.appengine.api.datastore.Email;
-import net.sf.mardao.api.domain.AEDStringEntity;
 import net.sf.mardao.core.domain.AbstractCreatedUpdatedEntity;
 
 import javax.persistence.*;

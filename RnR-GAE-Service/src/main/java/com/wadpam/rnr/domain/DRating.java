@@ -5,20 +5,14 @@
 package com.wadpam.rnr.domain;
 
 
+import com.google.appengine.api.datastore.Category;
+import com.google.appengine.api.datastore.Rating;
+import net.sf.mardao.core.domain.AbstractLongEntity;
+
 import javax.persistence.Basic;
 import javax.persistence.Entity;
-import javax.persistence.Id;
-
-import com.google.appengine.api.datastore.Category;
-import net.sf.mardao.api.domain.AEDLongEntity;
-
-import com.google.appengine.api.datastore.GeoPt;
-import com.google.appengine.api.datastore.Rating;
-import java.util.Collection;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-import net.sf.mardao.api.geo.aed.GeoModel;
-import net.sf.mardao.core.domain.AbstractLongEntity;
 
 /**
  * The domain object for Ratings.

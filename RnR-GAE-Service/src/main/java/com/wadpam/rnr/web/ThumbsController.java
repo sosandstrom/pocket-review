@@ -6,6 +6,7 @@ import com.wadpam.open.json.JCursorPage;
 import com.wadpam.rnr.domain.DThumbs;
 import com.wadpam.rnr.json.JThumbs;
 import com.wadpam.rnr.service.RnrService;
+import com.wadpam.server.exceptions.NotFoundException;
 import com.wadpam.server.web.AbstractRestController;
 import net.sf.mardao.core.CursorPage;
 import org.slf4j.Logger;
@@ -104,7 +105,9 @@ public class ThumbsController extends AbstractRestController {
                                                 HttpServletResponse response,
                                                 @PathVariable long id) {
 
-        rnrService.deleteThumbs(id);
+        final DThumbs body = rnrService.deleteThumbs(id);
+        if (null == body)
+            throw new NotFoundException(404, String.format("Thumb with id:%s not found", id));
 
         return new ResponseEntity<JThumbs>(HttpStatus.OK);
     }
@@ -124,6 +127,8 @@ public class ThumbsController extends AbstractRestController {
                                              @PathVariable long id) {
 
         final DThumbs body = rnrService.getThumbs(id);
+        if (null == body)
+            throw new NotFoundException(404, String.format("Thumb with id:%s not found", id));
 
         return new ResponseEntity<JThumbs>(CONVERTER.convert(body), HttpStatus.OK);
     }

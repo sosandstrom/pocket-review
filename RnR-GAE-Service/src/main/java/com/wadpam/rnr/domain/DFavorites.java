@@ -1,6 +1,5 @@
 package com.wadpam.rnr.domain;
 
-import net.sf.mardao.api.domain.AEDStringEntity;
 import net.sf.mardao.core.domain.AbstractCreatedUpdatedEntity;
 
 import javax.persistence.Basic;
@@ -8,7 +7,6 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.Set;
 
 /**
  * The domain object for Favorites

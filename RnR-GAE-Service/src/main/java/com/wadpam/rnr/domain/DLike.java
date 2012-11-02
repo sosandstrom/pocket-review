@@ -1,12 +1,9 @@
 package com.wadpam.rnr.domain;
 
-import com.google.appengine.api.datastore.GeoPt;
-import net.sf.mardao.api.domain.AEDLongEntity;
-import net.sf.mardao.api.geo.aed.GeoModel;
 import net.sf.mardao.core.domain.AbstractLongEntity;
 
-import javax.persistence.*;
-import java.util.Collection;
+import javax.persistence.Basic;
+import javax.persistence.Entity;
 
 /**
  * The domain object for Likes.

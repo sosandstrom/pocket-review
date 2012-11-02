@@ -5,6 +5,7 @@ import com.wadpam.docrest.domain.RestReturn;
 import com.wadpam.rnr.domain.DFavorites;
 import com.wadpam.rnr.json.JFavorites;
 import com.wadpam.rnr.service.RnrService;
+import com.wadpam.server.exceptions.NotFoundException;
 import com.wadpam.server.web.AbstractRestController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.view.RedirectView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -45,21 +47,14 @@ public class FavoritesController extends AbstractRestController {
             @RestCode(code=302, message="OK", description="Redirect to updated users favorites")
     })
     @RequestMapping(value="{username}", method=RequestMethod.POST)
-    public ResponseEntity<JFavorites> addFavorite(HttpServletRequest request,
-                                                  HttpServletResponse response,
-                                                  @PathVariable String username,
-                                                  @RequestParam(required=true) String productId) {
+    public RedirectView addFavorite(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    @PathVariable String username,
+                                    @RequestParam(required=true) String productId) {
 
-        rnrService.addFavorite(productId, username);
+        final DFavorites body = rnrService.addFavorite(productId, username);
 
-        try {
-            response.sendRedirect(request.getRequestURI());
-            return null; // No need to return anything, the redirect takes care of it
-        }
-        catch (IOException e) {
-            LOG.error("Not possible to create redirect to url after creating a new favorite with reason:{}", e.getMessage());
-            return new ResponseEntity<JFavorites>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return new RedirectView(request.getRequestURI());
     }
 
     /**
@@ -73,23 +68,17 @@ public class FavoritesController extends AbstractRestController {
             @RestCode(code=404, message="NOK", description="Product not a favorite for the user")
     })
     @RequestMapping(value="{username}", method= RequestMethod.DELETE)
-    public ResponseEntity<JFavorites> deleteFavorite(HttpServletRequest request,
-                                                     HttpServletResponse response,
-                                                     @PathVariable String username,
-                                                     @RequestParam(required=true) String productId) {
+    public RedirectView deleteFavorite(HttpServletRequest request,
+                                       HttpServletResponse response,
+                                       @PathVariable String username,
+                                       @RequestParam(required=true) String productId) {
 
 
-        rnrService.deleteFavorite(productId, username);
+        final DFavorites body = rnrService.deleteFavorite(productId, username);
+        if (null == body)
+            throw new NotFoundException(404, String.format("Product:%s not found for user:%s", productId, username));
 
-        // Do the redirect
-        try {
-            response.sendRedirect(request.getRequestURI());
-            return null; // No need to return anything, the redirect takes care of it
-        }
-        catch (IOException e) {
-            LOG.error("Not possible to create redirect to url after deleting a favorite with reason:{}", e.getMessage());
-            return new ResponseEntity<JFavorites>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return new RedirectView(request.getRequestURI());
     }
 
     /**
@@ -106,6 +95,8 @@ public class FavoritesController extends AbstractRestController {
                                                    @PathVariable String username) {
 
         final DFavorites body = rnrService.getFavorites(username);
+        if (null == body)
+            throw new NotFoundException(404, String.format("No favorites found for user:%s", username));
 
         return new ResponseEntity<JFavorites>(CONVERTER.convert(body), HttpStatus.OK);
     }

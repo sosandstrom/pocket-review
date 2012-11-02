@@ -1,6 +1,5 @@
 package com.wadpam.rnr.domain;
 
-import net.sf.mardao.api.domain.AEDStringEntity;
 import net.sf.mardao.core.domain.AbstractCreatedUpdatedEntity;
 
 import javax.persistence.Basic;

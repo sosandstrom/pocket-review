@@ -7,7 +7,9 @@ import com.wadpam.rnr.domain.DApp;
 import com.wadpam.rnr.json.JApp;
 import com.wadpam.rnr.security.GaeUserDetails;
 import com.wadpam.rnr.service.AppService;
+import com.wadpam.server.exceptions.NotFoundException;
 import com.wadpam.server.exceptions.RestException;
+import com.wadpam.server.exceptions.ServerErrorException;
 import com.wadpam.server.web.AbstractRestController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,7 +96,9 @@ public class AppController extends AbstractRestController {
     public ResponseEntity<JApp> getApp(HttpServletRequest request,
                                        @PathVariable String domain) {
 
-        DApp body = appService.getApp(domain);
+        final DApp body = appService.getApp(domain);
+        if (null == body)
+            throw new NotFoundException(404, String.format("No app found for domain:{}", domain));
 
         return new ResponseEntity<JApp>(CONVERTER.convert(body), HttpStatus.OK);
     }
@@ -110,7 +114,7 @@ public class AppController extends AbstractRestController {
             @RestCode(code=404, message="NOK", description="No app found for that domain")
     })
     @RequestMapping(value="{domain}", method= RequestMethod.POST, params ="email")
-    public ResponseEntity<JApp> updateAdminsForApp(HttpServletRequest request,
+    public RedirectView updateAdminsForApp(HttpServletRequest request,
                                                    HttpServletResponse response,
                                                    @PathVariable String domain,
                                                    @RequestParam(required=true) String[] emails) {
@@ -118,27 +122,23 @@ public class AppController extends AbstractRestController {
         // At least one email should be provided
         if (emails.length < 1 ) {
             LOG.debug("At least one admin email must be provided");
-            return new ResponseEntity<JApp>(HttpStatus.BAD_REQUEST);
+            throw new ServerErrorException(500, "Email must be provided");
         }
 
         // Make a simple format check of the emails
         for (String email : emails) {
             if (isValidEmail(email) == false) {
                 LOG.debug("Admin email address invalid:{}", email);
-                return new ResponseEntity<JApp>(HttpStatus.BAD_REQUEST);
+                throw new ServerErrorException(500, "Email must be provided");
             }
         }
 
         // Update the admin emails
-        appService.setAppAdmins(domain, Arrays.asList(emails));
+        final DApp body = appService.setAppAdmins(domain, Arrays.asList(emails));
+        if (null == body)
+            throw new NotFoundException(404, String.format("No app found for domain:{}", domain));
 
-        try {
-            response.sendRedirect(request.getRequestURI());
-            return null; // No need to return anything
-        } catch (IOException e) {
-            LOG.error("Not possible to redirect after creating application:{}", e.getMessage());
-            return new ResponseEntity<JApp>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return new RedirectView(request.getRequestURI());
     }
 
     // Simple validation of an email address
@@ -160,7 +160,9 @@ public class AppController extends AbstractRestController {
                                           HttpServletResponse response,
                                           @PathVariable String domain) {
 
-        appService.deleteApp(domain);
+        final DApp body = appService.deleteApp(domain);
+        if (null == body)
+            throw new NotFoundException(404, String.format("No app found for domain:{}", domain));
 
         // TODO: What should we do with the data for that domain? Delete it?
 
@@ -225,14 +227,14 @@ public class AppController extends AbstractRestController {
             redirectUrl = matcher.group(1);
 
         if (null == redirectUrl)
-            throw new RestException(500, "Not possible to create base url for redirect after changing password");
+            throw new ServerErrorException(500, "Not possible to create base url for redirect after changing password");
 
 
         try {
             response.sendRedirect(redirectUrl);
             return null; // No need to do anything
         } catch (IOException e) {
-            throw new RestException(500, "Not possible to redirect after changing password");
+            throw new ServerErrorException(500, "Not possible to redirect after changing password");
         }
     }
 

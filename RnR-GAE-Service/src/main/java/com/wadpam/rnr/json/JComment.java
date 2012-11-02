@@ -14,12 +14,6 @@ public class JComment extends JBaseObject {
     /** The Many-To-One productId (unconstrained) */
     private String             productId;
 
-    /** An optional parent */
-    private Long               parentId;
-
-    /** Child comments */
-    private Collection<JComment>   children;
-
     /** The Many-To-One username (unconstrained) */
     private String             username;
 
@@ -37,22 +31,6 @@ public class JComment extends JBaseObject {
     }
 
     // Setters and Getters
-    public Collection<JComment> getChildren() {
-        return children;
-    }
-
-    public void setChildren(Collection<JComment> children) {
-        this.children = children;
-    }
-
-    public Long getParentId() {
-        return parentId;
-    }
-
-    public void setParentId(Long parentId) {
-        this.parentId = parentId;
-    }
-
     public String getProductId() {
         return productId;
     }

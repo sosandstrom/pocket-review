@@ -1,12 +1,11 @@
 package com.wadpam.rnr.domain;
 
 import com.google.appengine.api.datastore.Key;
-import net.sf.mardao.api.Parent;
-import net.sf.mardao.api.domain.AEDLongEntity;
-import net.sf.mardao.core.domain.AbstractCreatedUpdatedEntity;
+import net.sf.mardao.core.Parent;
 import net.sf.mardao.core.domain.AbstractLongEntity;
 
-import javax.persistence.*;
+import javax.persistence.Basic;
+import javax.persistence.Entity;
 
 /**
  * The domain object for Comments.
@@ -19,10 +18,6 @@ public class DComment extends AbstractLongEntity {
     /** The Many-To-One productId (unconstrained) */
     @Basic
     private String             productId;
-
-    /** Parent id. Can be used when writing comments on comments or Question and Answers services */
-    @Parent(kind = "DComment")
-    private Key                parentKey;
 
     /** The Many-To-One username (unconstrained) */
     @Basic
@@ -65,11 +60,4 @@ public class DComment extends AbstractLongEntity {
         this.comment = comment;
     }
 
-    public Key getParentKey() {
-        return parentKey;
-    }
-
-    public void setParentKey(Key parentKey) {
-        this.parentKey = parentKey;
-    }
 }

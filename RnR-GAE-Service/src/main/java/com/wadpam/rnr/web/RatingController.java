@@ -7,6 +7,7 @@ import com.wadpam.rnr.domain.DRating;
 import com.wadpam.rnr.json.JHistogram;
 import com.wadpam.rnr.json.JRating;
 import com.wadpam.rnr.service.RnrService;
+import com.wadpam.server.exceptions.NotFoundException;
 import com.wadpam.server.web.AbstractRestController;
 import net.sf.mardao.core.CursorPage;
 import org.slf4j.Logger;
@@ -84,7 +85,9 @@ public class RatingController extends AbstractRestController {
                                               HttpServletResponse response,
                                               @PathVariable long id) {
 
-        rnrService.deleteRating(id);
+        final DRating body = rnrService.deleteRating(id);
+        if (null == body)
+            throw new NotFoundException(404, String.format("Rating with id:%s not found", id));
 
         return new ResponseEntity<JRating>(HttpStatus.OK);
     }
@@ -104,6 +107,8 @@ public class RatingController extends AbstractRestController {
                                            @PathVariable long id) {
 
         final DRating body = rnrService.getRating(id);
+        if (null == body)
+            throw new NotFoundException(404, String.format("Rating with id:%s not found", id));
 
         return new ResponseEntity<JRating>(CONVERTER.convert(body), HttpStatus.OK);
     }

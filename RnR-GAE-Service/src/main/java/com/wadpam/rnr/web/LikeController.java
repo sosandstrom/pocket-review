@@ -6,6 +6,7 @@ import com.wadpam.open.json.JCursorPage;
 import com.wadpam.rnr.domain.DLike;
 import com.wadpam.rnr.json.JLike;
 import com.wadpam.rnr.service.RnrService;
+import com.wadpam.server.exceptions.NotFoundException;
 import com.wadpam.server.web.AbstractRestController;
 import net.sf.mardao.core.CursorPage;
 import org.slf4j.Logger;
@@ -36,7 +37,6 @@ public class LikeController extends AbstractRestController {
     static final Converter CONVERTER = new Converter();
 
     private RnrService rnrService;
-
 
     /**
      * Add a like to a product.
@@ -78,7 +78,9 @@ public class LikeController extends AbstractRestController {
                                             HttpServletResponse response,
                                             @PathVariable long id) {
 
-        rnrService.deleteLike(id);
+        final DLike body = rnrService.deleteLike(id);
+        if (null == body)
+            throw new NotFoundException(404, String.format("Like with id:%s not found", id));
 
         return new ResponseEntity<JLike>(HttpStatus.OK);
     }
@@ -98,6 +100,8 @@ public class LikeController extends AbstractRestController {
                                          @PathVariable long id) {
 
         final DLike body = rnrService.getLike(id);
+        if (null == body)
+            throw new NotFoundException(404, String.format("Like with id:%s not found", id));
 
         return new ResponseEntity<JLike>(CONVERTER.convert(body), HttpStatus.OK);
     }

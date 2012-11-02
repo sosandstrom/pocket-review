@@ -1,9 +1,9 @@
 package com.wadpam.rnr.domain;
 
-import net.sf.mardao.api.domain.AEDLongEntity;
 import net.sf.mardao.core.domain.AbstractLongEntity;
 
-import javax.persistence.*;
+import javax.persistence.Basic;
+import javax.persistence.Entity;
 
 /**
  * The domain object for Likes.

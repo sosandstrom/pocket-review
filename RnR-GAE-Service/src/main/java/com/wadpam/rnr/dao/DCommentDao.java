@@ -25,20 +25,4 @@ public interface DCommentDao extends GeneratedDCommentDao {
      */
     public Key createKey(Long id);
 
-    /**
-    * Get all root comments (with no comment parents) for a specific product.
-    * @param productId the unique product id
-    * @param limit the number page size to return
-    * @param cursor a cursor from a previous search
-    * @return a page of comments
-    */
-    public CursorPage<DComment, Long> queryPageRootCommentsForProductId(String productId, int limit, Serializable cursor);
-
-    /**
-     * Find all comment for a list of parent comments and a specific product.
-     * @param productId the unique product id
-     * @param parentKeys the parent comment keys
-     * @return a list of comments
-     */
-    public Collection<DComment> findCommentsWithParents(String productId, Collection<Key> parentKeys);
 }
