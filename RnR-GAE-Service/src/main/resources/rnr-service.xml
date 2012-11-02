@@ -49,7 +49,7 @@
         <property name="rnrService" ref="rnrService" />
     </bean>
 
-    <bean id="rating15Controller" class="com.wadpam.rnr.web.RatingController">
+    <bean id="ratingController" class="com.wadpam.rnr.web.RatingController">
         <property name="rnrService" ref="rnrService" />
     </bean>
 
@@ -80,6 +80,5 @@
     <bean id="settingsController" class="com.wadpam.rnr.web.AppSettingsController">
         <property name="appService" ref="appService" />
     </bean>
-
 
 </beans>

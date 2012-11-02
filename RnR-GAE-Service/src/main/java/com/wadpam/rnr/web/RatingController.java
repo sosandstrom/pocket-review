@@ -2,11 +2,13 @@ package com.wadpam.rnr.web;
 
 import com.wadpam.docrest.domain.RestCode;
 import com.wadpam.docrest.domain.RestReturn;
+import com.wadpam.open.json.JCursorPage;
 import com.wadpam.rnr.domain.DRating;
 import com.wadpam.rnr.json.JHistogram;
 import com.wadpam.rnr.json.JRating;
 import com.wadpam.rnr.service.RnrService;
 import com.wadpam.server.web.AbstractRestController;
+import net.sf.mardao.core.CursorPage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -19,7 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.view.RedirectView;
 
 import javax.servlet.http.HttpServletRequest;
-import java.security.Principal;
+import javax.servlet.http.HttpServletResponse;
 import java.util.Collection;
 import java.util.Map;
 
@@ -33,8 +35,10 @@ import java.util.Map;
 public class RatingController extends AbstractRestController {
 
     static final Logger LOG = LoggerFactory.getLogger(RatingController.class);
-    
+    static final Converter CONVERTER = new Converter();
+
     private RnrService rnrService;
+
 
     /**
      * Add a rating to a product.
@@ -52,7 +56,7 @@ public class RatingController extends AbstractRestController {
     })
     @RequestMapping(value="", method= RequestMethod.POST)
     public RedirectView addRating(HttpServletRequest request,
-                                  Principal principal,
+                                  HttpServletResponse response,
                                   @PathVariable String domain,
                                   @RequestParam(required=true) String productId,
                                   @RequestParam(required=false) String username,
@@ -77,10 +81,10 @@ public class RatingController extends AbstractRestController {
     })
     @RequestMapping(value="{id}", method= RequestMethod.DELETE)
     public ResponseEntity<JRating> deleteLike(HttpServletRequest request,
-                                              Principal principal,
+                                              HttpServletResponse response,
                                               @PathVariable long id) {
 
-        final DRating body = rnrService.deleteRating(id);
+        rnrService.deleteRating(id);
 
         return new ResponseEntity<JRating>(HttpStatus.OK);
     }
@@ -96,12 +100,12 @@ public class RatingController extends AbstractRestController {
     })
     @RequestMapping(value="{id}", method= RequestMethod.GET)
     public ResponseEntity<JRating> getLike(HttpServletRequest request,
-                                           Principal principal,
+                                           HttpServletResponse response,
                                            @PathVariable long id) {
 
         final DRating body = rnrService.getRating(id);
 
-        return new ResponseEntity<JRating>(Converter.convert(body), HttpStatus.OK);
+        return new ResponseEntity<JRating>(CONVERTER.convert(body), HttpStatus.OK);
     }
 
     /**
@@ -114,30 +118,41 @@ public class RatingController extends AbstractRestController {
     })
     @RequestMapping(value="", method= RequestMethod.GET, params="username")
     public ResponseEntity<Collection<JRating>> getMyRatings(HttpServletRequest request,
-                                                            Principal principal,
+                                                            HttpServletResponse response,
                                                             @RequestParam(required=true) String username) {
 
-        final Collection<DRating> body = rnrService.getMyRatings(username);
+        final Iterable<DRating> dRatingIterable = rnrService.getMyRatings(username);
 
-        return new ResponseEntity<Collection<JRating>>((Collection<JRating>)Converter.convert(body), HttpStatus.OK);
+        return new ResponseEntity<Collection<JRating>>((Collection<JRating>)CONVERTER.convert(dRatingIterable), HttpStatus.OK);
     }
 
     /**
      * Returns all ratings for a specific product.
      * @param productId the product to looks for
+     * @param pagesize Optional. The number of products to return in this page. Default value is 10.
+     * @param cursor Optional. The current cursor position during pagination.
+     *               The next page will be return from this position.
+     *               If asking for the first page, not cursor should be provided.
      * @return a list of ratings
      */
-    @RestReturn(value=JRating.class, entity=JRating.class, code={
-            @RestCode(code=200, message="OK", description="All ratings for product")
+    @RestReturn(value=JCursorPage.class, entity=JCursorPage.class, code={
+            @RestCode(code=200, message="OK", description="Page of ratings for product")
     })
     @RequestMapping(value="", method= RequestMethod.GET, params="productId")
-    public ResponseEntity<Collection<JRating>> getAllRatingsForProduct(HttpServletRequest request,
-                                                                       Principal principal,
-                                                                       @RequestParam(required=true) String productId) {
+    public ResponseEntity<JCursorPage<JRating>> getAllRatingsForProduct(HttpServletRequest request,
+                                                                       HttpServletResponse response,
+                                                                       @RequestParam(required=true) String productId,
+                                                                       @RequestParam(defaultValue="10") int pagesize,
+                                                                       @RequestParam(required=false) String cursor) {
 
-        final Collection<DRating> body = rnrService.getAllRatingsForProduct(productId);
+        final CursorPage<DRating, Long> dPage = rnrService.getAllRatingsForProduct(productId, pagesize, cursor);
 
-        return new ResponseEntity<Collection<JRating>>((Collection<JRating>)Converter.convert(body), HttpStatus.OK);
+        JCursorPage<JRating> cursorPage = new JCursorPage<JRating>();
+        cursorPage.setCursor(dPage.getCursorKey().toString());
+        cursorPage.setPageSize((long)pagesize);
+        cursorPage.setItems((Collection<JRating>)CONVERTER.convert(dPage.getItems()));
+
+        return new ResponseEntity<JCursorPage<JRating>>(cursorPage, HttpStatus.OK);
     }
 
     /**
@@ -151,7 +166,7 @@ public class RatingController extends AbstractRestController {
     })
     @RequestMapping(value="histogram", method= RequestMethod.GET, params="productId")
     public ResponseEntity<JHistogram> getHistogramForProduct(HttpServletRequest request,
-                                                             Principal principal,
+                                                             HttpServletResponse response,
                                                              @RequestParam(required=true) String productId,
                                                              @RequestParam(required=false, defaultValue="10") int interval) {
 
@@ -169,4 +184,5 @@ public class RatingController extends AbstractRestController {
     public void setRnrService(RnrService rnrService) {
         this.rnrService = rnrService;
     }
+
 }

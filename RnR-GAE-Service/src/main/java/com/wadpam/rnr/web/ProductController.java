@@ -2,10 +2,13 @@ package com.wadpam.rnr.web;
 
 import com.wadpam.docrest.domain.RestCode;
 import com.wadpam.docrest.domain.RestReturn;
+import com.wadpam.open.json.JCursorPage;
+import com.wadpam.rnr.dao.DProductDao;
 import com.wadpam.rnr.domain.DProduct;
 import com.wadpam.rnr.json.*;
 import com.wadpam.rnr.service.RnrService;
 import com.wadpam.server.web.AbstractRestController;
+import net.sf.mardao.core.CursorPage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -35,6 +38,7 @@ import java.util.regex.Pattern;
 public class ProductController extends AbstractRestController {
 
     static final Logger LOG = LoggerFactory.getLogger(ProductController.class);
+    static final Converter CONVERTER = new Converter();
 
     private RnrService rnrService;
 
@@ -50,11 +54,12 @@ public class ProductController extends AbstractRestController {
     })
     @RequestMapping(value="{productId}", method= RequestMethod.GET)
     public ResponseEntity<JProduct> getProductInfo(HttpServletRequest request,
+                                                   HttpServletResponse response,
                                                    @PathVariable String productId) {
 
         final DProduct body = rnrService.getProduct(productId);
 
-        return new ResponseEntity<JProduct>(Converter.convert(body, getBaseUrl(request)), HttpStatus.OK);
+        return new ResponseEntity<JProduct>(CONVERTER.convert(body, getBaseUrl(request)), HttpStatus.OK);
     }
 
     // Get the based URL of the request
@@ -74,47 +79,47 @@ public class ProductController extends AbstractRestController {
      * @param ids a list of productIds
      * @return a list of products
      */
-    // TODO: How to document the ids parameter?
-    @RestReturn(value=JProductPage.class, entity=JProduct.class, code={
+    @RestReturn(value=JProduct.class, entity=JProduct.class, code={
             @RestCode(code=200, message="OK", description="Products found")
     })
     @RequestMapping(value="", method= RequestMethod.GET, params="ids")
     public ResponseEntity<Collection<JProduct>> getProducts(HttpServletRequest request,
+                                                            HttpServletResponse response,
                                                             @RequestParam(value = "ids") String ids[]) {
 
-        final Collection<DProduct> body = rnrService.getProducts(ids);
+        final Iterable<DProduct> dProductIterable = rnrService.getProducts(ids);
 
-        return new ResponseEntity<Collection<JProduct>>(Converter.convert(body, getBaseUrl(request)), HttpStatus.OK);
+        return new ResponseEntity<Collection<JProduct>>(CONVERTER.convert(dProductIterable, getBaseUrl(request)), HttpStatus.OK);
     }
 
     /**
      * Get all products.
-     * @param pagesize Optional. The number of products to return in this page. Default value is 10.
-     * @param cursor Optional. The current cursor position during pagination.
+     * @param pagesize optional. The number of products to return in this page. Default value is 10.
+     * @param cursor optional. The current cursor position during pagination.
      *               The next page will be return from this position.
      *               If asking for the first page, not cursor should be provided.
      * @return a list of products and new cursor.
      */
-    @RestReturn(value=JProductPage.class, entity=JProduct.class, code={
+    @RestReturn(value=JCursorPage.class, entity=JCursorPage.class, code={
             @RestCode(code=200, message="OK", description="Products found")
     })
     @RequestMapping(value="", method=RequestMethod.GET)
-    public ResponseEntity<JProductPage> getAllProducts(HttpServletRequest request,
-                                                       @RequestParam(defaultValue = "10") int pagesize,
-                                                       @RequestParam(required = false) String cursor) {
+    public ResponseEntity<JCursorPage<JProduct>> getAllProducts(HttpServletRequest request,
+                                                                HttpServletResponse response,
+                                                                @RequestParam(defaultValue = "10") int pagesize,
+                                                                @RequestParam(required = false) String cursor) {
 
         // Just in case
         if (null != cursor && cursor.isEmpty()) cursor = null;
 
-        Collection<DProduct> dProducts = new ArrayList<DProduct>();
-        String newCursor = rnrService.getProductPage(cursor, pagesize, dProducts);
+        CursorPage<DProduct, String> dPage = rnrService.getProductPage(pagesize, cursor);
 
-        JProductPage body = new JProductPage();
-        body.setCursor(newCursor);
+        JCursorPage<JProduct> body = new JCursorPage<JProduct>();
+        body.setItems(CONVERTER.convert(dPage.getItems(), getBaseUrl(request)));
+        body.setCursor(dPage.getCursorKey().toString());
         body.setPageSize((long)pagesize);
-        body.setProducts(Converter.convert(dProducts, getBaseUrl(request)));
 
-        return new ResponseEntity<JProductPage>(body, HttpStatus.OK);
+        return new ResponseEntity<JCursorPage<JProduct>>(body, HttpStatus.OK);
     }
 
     /**
@@ -132,19 +137,21 @@ public class ProductController extends AbstractRestController {
      *             0 - distance, default value
      *             1 - average rating
      *             2 - number of likes
+     *             3 - number of thumbs up
      * @return a list of products
      */
-    @RestReturn(value=JProductPage.class, entity=JProductPage.class, code={
+    @RestReturn(value=JCursorPage.class, entity=JCursorPage.class, code={
             @RestCode(code=200, message="OK", description="Nearby products found")
     })
     @RequestMapping(value="nearby", method=RequestMethod.GET)
-    public ResponseEntity<JProductPage> findNearbyProducts(HttpServletRequest request,
-                                                                   @RequestParam(defaultValue="10") int pagesize,
-                                                                   @RequestParam(required=false) String cursor,
-                                                                   @RequestParam(required=false) Float latitude,
-                                                                   @RequestParam(required=false) Float longitude,
-                                                                   @RequestParam(defaultValue="3000") int radius,
-                                                                   @RequestParam(defaultValue="0") int sort)   {
+    public ResponseEntity<JCursorPage<JProduct>> findNearbyProducts(HttpServletRequest request,
+                                                                    HttpServletResponse response,
+                                                                    @RequestParam(defaultValue="10") int pagesize,
+                                                                    @RequestParam(required=false) String cursor,
+                                                                    @RequestParam(required=false) Float latitude,
+                                                                    @RequestParam(required=false) Float longitude,
+                                                                    @RequestParam(defaultValue="3000") int radius,
+                                                                    @RequestParam(defaultValue="0") int sort)   {
         if (null == latitude) {
             final String cityLatLong = request.getHeader("X-AppEngine-CityLatLong");
             if (null != cityLatLong) {
@@ -154,10 +161,26 @@ public class ProductController extends AbstractRestController {
             }
         }
 
-        final Collection<DProduct> dProducts = new ArrayList<DProduct>(pagesize);
-        String newCursor = rnrService.findNearbyProducts(cursor, pagesize, latitude, longitude, radius, sort, dProducts);
+        // Sorting order
+        RnrService.SortOrder order;
+        switch (sort) {
+            case 1:
+                order = RnrService.SortOrder.TOP_RATED;
+                break;
+            case 2:
+                order = RnrService.SortOrder.MOST_LIKED;
+                break;
+            case 3:
+                order = RnrService.SortOrder.MOST_THUMBS_UP;
+                break;
+            default:
+                order = RnrService.SortOrder.DISTANCE;
+                break;
+        }
 
-        Collection<JProduct> jProducts = Converter.convert(dProducts, getBaseUrl(request));
+        CursorPage<DProduct, String> dPage = rnrService.findNearbyProducts(pagesize, cursor, latitude, longitude, radius, order);
+
+        Collection<JProduct> jProducts = CONVERTER.convert(dPage.getItems(), getBaseUrl(request));
 
         // Calculate the distance between the provided device position and each product in km
         for (JProduct jProduct : jProducts) {
@@ -169,18 +192,17 @@ public class ProductController extends AbstractRestController {
             }
         }
 
-        JProductPage body = new JProductPage();
-        body.setCursor(newCursor);
-        body.setPageSize((long)pagesize);
-        body.setProducts(jProducts);
+        JCursorPage<JProduct> cursorPage = new JCursorPage<JProduct>();
+        cursorPage.setItems(jProducts);
+        cursorPage.setCursor(dPage.getCursorKey().toString());
+        cursorPage.setPageSize((long)pagesize);
 
-        return new ResponseEntity<JProductPage>(body, HttpStatus.OK);
+        return new ResponseEntity<JCursorPage<JProduct>>(cursorPage, HttpStatus.OK);
     }
 
     // Calculate the distance between two points using the Harversine formula.
     // This calculation is not 100% correct but good enough and fast.
     private static double distFrom(double lat1, double long1, double lat2, double long2) {
-
         double earthRadius = 6371; // In km
         double dLat = Math.toRadians(lat2-lat1);
         double dLng = Math.toRadians(long2-long1);
@@ -188,9 +210,7 @@ public class ProductController extends AbstractRestController {
         double sindLng = Math.sin(dLng / 2);
         double a = Math.pow(sindLat, 2) + Math.pow(sindLng, 2) * Math.cos(lat1) * Math.cos(lat2);
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-        double dist = earthRadius * c;
-
-        return dist;
+        return earthRadius * c;
     }
 
     /**
@@ -208,6 +228,7 @@ public class ProductController extends AbstractRestController {
      *             0 - distance, default value
      *             1 - average rating
      *             2 - number of likes
+     *             3 - number of thumbs up
      */
     @RestReturn(value=JRating.class, entity=JRating.class, code={
             @RestCode(code=200, message="OK", description="Nearby products found")
@@ -230,113 +251,190 @@ public class ProductController extends AbstractRestController {
             }
         }
 
+        // Sorting order
+        RnrService.SortOrder order;
+        switch (sort) {
+            case 1:
+                order = RnrService.SortOrder.TOP_RATED;
+                break;
+            case 2:
+                order = RnrService.SortOrder.MOST_LIKED;
+                break;
+            case 3:
+                order = RnrService.SortOrder.MOST_THUMBS_UP;
+                break;
+            default:
+                order = RnrService.SortOrder.DISTANCE;
+                break;
+        }
+
         response.setContentType("application/vnd.google-earth.kml+xml");
         final PrintWriter out = response.getWriter();
-        rnrService.findNearbyProductsKml(cursor, pagesize, latitude, longitude, radius, sort, out);
+        rnrService.findNearbyProductsKml(pagesize, cursor, latitude, longitude, radius, order, out);
         out.flush();
         out.close();
     }
 
     /**
      * Get most liked products.
-     * @param limit Optional. The number of products to return. Default value 10.
-     * @return a list of products sorted in most liked order
+     * @param pagesize Optional. The number of products to return in this page. Default value is 10.
+     * @param cursor Optional. The current cursor position during pagination.
+     *               The next page will be return from this position.
+     *               If asking for the first page, not cursor should be provided.
+     * @return a page of products sorted in most liked order
      */
-    @RestReturn(value=JProduct.class, entity=JProduct.class, code={
+    @RestReturn(value=JCursorPage.class, entity=JCursorPage.class, code={
             @RestCode(code=200, message="OK", description="Most liked products found")
     })
     @RequestMapping(value="liked/most", method= RequestMethod.GET)
-    public ResponseEntity<Collection<JProduct>> getMostLikedProducts(HttpServletRequest request,
-                                                                     @RequestParam(defaultValue = "10") int limit) {
+    public ResponseEntity<JCursorPage<JProduct>> getMostLikedProducts(HttpServletRequest request,
+                                                                      HttpServletResponse response,
+                                                                      @RequestParam(defaultValue="10") int pagesize,
+                                                                      @RequestParam(required=false) String cursor) {
 
-        final Collection<DProduct> body = rnrService.getMostLikedProducts(limit);
+        final CursorPage<DProduct, String> dPage = rnrService.getMostLikedProducts(pagesize,  cursor);
 
-        return new ResponseEntity<Collection<JProduct>>(Converter.convert(body, getBaseUrl(request)), HttpStatus.OK);
+        JCursorPage<JProduct> cursorPage = new JCursorPage<JProduct>();
+        cursorPage.setItems(CONVERTER.convert(dPage.getItems(), getBaseUrl(request)));
+        cursorPage.setCursor(dPage.getCursorKey().toString());
+        cursorPage.setPageSize((long)pagesize);
+
+        return new ResponseEntity<JCursorPage<JProduct>>(cursorPage, HttpStatus.OK);
     }
 
     /**
      * Get most thumbs up products.
-     * @param limit Optional. The number of products to return. Default value 10.
-     * @return a list of products sorted in most thumbs up order
+     * @param pagesize Optional. The number of products to return in this page. Default value is 10.
+     * @param cursor Optional. The current cursor position during pagination.
+     *               The next page will be return from this position.
+     *               If asking for the first page, not cursor should be provided.
+     * @return a page of products sorted in most thumbs up order
      */
-    @RestReturn(value=JProduct.class, entity=JProduct.class, code={
+    @RestReturn(value=JCursorPage.class, entity=JCursorPage.class, code={
             @RestCode(code=200, message="OK", description="Most thumbed up products found")
     })
     @RequestMapping(value="thumbs/up/most", method= RequestMethod.GET)
-    public ResponseEntity<Collection<JProduct>> getMostThumbsUpProducts(HttpServletRequest request,
-                                                                        @RequestParam(defaultValue = "10") int limit) {
+    public ResponseEntity<JCursorPage<JProduct>> getMostThumbsUpProducts(HttpServletRequest request,
+                                                                         HttpServletResponse response,
+                                                                         @RequestParam(defaultValue="10") int pagesize,
+                                                                         @RequestParam(required=false) String cursor) {
 
-        final Collection<DProduct> body = rnrService.getMostThumbsUpProducts(limit);
+        final CursorPage<DProduct, String> dPage = rnrService.getMostThumbsUpProducts(pagesize, cursor);
 
-        return new ResponseEntity<Collection<JProduct>>(Converter.convert(body, getBaseUrl(request)), HttpStatus.OK);
+        JCursorPage<JProduct> cursorPage = new JCursorPage<JProduct>();
+        cursorPage.setItems(CONVERTER.convert(dPage.getItems(), getBaseUrl(request)));
+        cursorPage.setCursor(dPage.getCursorKey().toString());
+        cursorPage.setPageSize((long)pagesize);
+
+        return new ResponseEntity<JCursorPage<JProduct>>(cursorPage, HttpStatus.OK);
     }
 
     /**
      * Get most thumbs down products.
-     * @param limit Optional. The number of products to return. Default value 10.
-     * @return a list of products sorted in most thumbs down order
+     * @param pagesize Optional. The number of products to return in this page. Default value is 10.
+     * @param cursor Optional. The current cursor position during pagination.
+     *               The next page will be return from this position.
+     *               If asking for the first page, not cursor should be provided.
+     * @return a page of products sorted in most thumbs down order
      */
-    @RestReturn(value=JProduct.class, entity=JProduct.class, code={
+    @RestReturn(value=JCursorPage.class, entity=JCursorPage.class, code={
             @RestCode(code=200, message="OK", description="Most thumbed down products found")
     })
     @RequestMapping(value="thumbs/down/most", method= RequestMethod.GET)
-    public ResponseEntity<Collection<JProduct>> getMostThumbsDownProducts(HttpServletRequest request,
-                                                                          @RequestParam(defaultValue = "10") int limit) {
+    public ResponseEntity<JCursorPage<JProduct>> getMostThumbsDownProducts(HttpServletRequest request,
+                                                                           HttpServletResponse response,
+                                                                           @RequestParam(defaultValue="10") int pagesize,
+                                                                           @RequestParam(required=false) String cursor) {
 
-        final Collection<DProduct> body = rnrService.getMostThumbsDownProducts(limit);
+        final CursorPage<DProduct, String> dPage = rnrService.getMostThumbsDownProducts(pagesize, cursor);
 
-        return new ResponseEntity<Collection<JProduct>>(Converter.convert(body, getBaseUrl(request)), HttpStatus.OK);
+        JCursorPage<JProduct> cursorPage = new JCursorPage<JProduct>();
+        cursorPage.setItems(CONVERTER.convert(dPage.getItems(), getBaseUrl(request)));
+        cursorPage.setCursor(dPage.getCursorKey().toString());
+        cursorPage.setPageSize((long)pagesize);
+
+        return new ResponseEntity<JCursorPage<JProduct>>(cursorPage, HttpStatus.OK);
     }
 
     /**
      * Get most rated products.
-     * @param limit Optional. The number of products to return. Default value 10.
-     * @return a list of products sorted in most rated order
+     * @param pagesize Optional. The number of products to return in this page. Default value is 10.
+     * @param cursor Optional. The current cursor position during pagination.
+     *               The next page will be return from this position.
+     *               If asking for the first page, not cursor should be provided.
+     * @return a page of products sorted in most rated order
      */
-    @RestReturn(value=JProduct.class, entity=JProduct.class, code={
+    @RestReturn(value=JCursorPage.class, entity=JCursorPage.class, code={
             @RestCode(code=200, message="OK", description="Most liked products found")
     })
     @RequestMapping(value="rated/most", method= RequestMethod.GET)
-    public ResponseEntity<Collection<JProduct>> getMostRatedProducts(HttpServletRequest request,
-                                                                     @RequestParam(defaultValue = "10") int limit) {
+    public ResponseEntity<JCursorPage<JProduct>> getMostRatedProducts(HttpServletRequest request,
+                                                                      HttpServletResponse response,
+                                                                      @RequestParam(defaultValue="10") int pagesize,
+                                                                      @RequestParam(required=false) String cursor) {
 
-        final Collection<DProduct> body = rnrService.getMostRatedProducts(limit);
+        final CursorPage<DProduct, String> dPage = rnrService.getMostRatedProducts(pagesize, cursor);
 
-        return new ResponseEntity<Collection<JProduct>>(Converter.convert(body, getBaseUrl(request)), HttpStatus.OK);
+        JCursorPage<JProduct> cursorPage = new JCursorPage<JProduct>();
+        cursorPage.setItems(CONVERTER.convert(dPage.getItems(), getBaseUrl(request)));
+        cursorPage.setCursor(dPage.getCursorKey().toString());
+        cursorPage.setPageSize((long)pagesize);
+
+        return new ResponseEntity<JCursorPage<JProduct>>(cursorPage, HttpStatus.OK);
     }
 
     /**
      * Get top rate products.
-     * @param limit Optional. The number of products to return. Default value 10.
-     * @return a list of products sorted in average rating order
+     * @param pagesize Optional. The number of products to return in this page. Default value is 10.
+     * @param cursor Optional. The current cursor position during pagination.
+     *               The next page will be return from this position.
+     *               If asking for the first page, not cursor should be provided.
+     * @return a page of products sorted in average rating order
      */
-    @RestReturn(value=JProduct.class, entity=JProduct.class, code={
+    @RestReturn(value=JCursorPage.class, entity=JCursorPage.class, code={
             @RestCode(code=200, message="OK", description="Most liked products found")
     })
     @RequestMapping(value="rated/top", method= RequestMethod.GET)
-    public ResponseEntity<Collection<JProduct>> getTopRatedProducts(HttpServletRequest request,
-                                                                    @RequestParam(defaultValue = "10") int limit) {
+    public ResponseEntity<JCursorPage<JProduct>> getTopRatedProducts(HttpServletRequest request,
+                                                                    HttpServletResponse response,
+                                                                    @RequestParam(defaultValue="10") int pagesize,
+                                                                    @RequestParam(required=false) String cursor) {
 
-        final Collection<DProduct> body = rnrService.getTopRatedProducts(limit);
+        final CursorPage<DProduct, String> dPage = rnrService.getTopRatedProducts(pagesize, cursor);
 
-        return new ResponseEntity<Collection<JProduct>>(Converter.convert(body, getBaseUrl(request)), HttpStatus.OK);
+        JCursorPage<JProduct> cursorPage = new JCursorPage<JProduct>();
+        cursorPage.setItems(CONVERTER.convert(dPage.getItems(), getBaseUrl(request)));
+        cursorPage.setCursor(dPage.getCursorKey().toString());
+        cursorPage.setPageSize((long)pagesize);
+
+        return new ResponseEntity<JCursorPage<JProduct>>(cursorPage, HttpStatus.OK);
     }
 
     /**
      * Get most commented products.
-     * @param limit Optional. The number of products to return. Default value 10.
-     * @return a list of products sorted in most commented order
+     * @param pagesize Optional. The number of products to return in this page. Default value is 10.
+     * @param cursor Optional. The current cursor position during pagination.
+     *               The next page will be return from this position.
+     *               If asking for the first page, not cursor should be provided.
+     * @return a page of products sorted in most commented order
      */
-    @RestReturn(value=JProduct.class, entity=JProduct.class, code={
+    @RestReturn(value=JCursorPage.class, entity=JCursorPage.class, code={
             @RestCode(code=200, message="OK", description="Most liked products found")
     })
     @RequestMapping(value="commented/most", method= RequestMethod.GET)
-    public ResponseEntity<Collection<JProduct>> getMostcommentedProducts(HttpServletRequest request,
-                                                                         @RequestParam(defaultValue = "10") int limit) {
+    public ResponseEntity<JCursorPage<JProduct>> getMostcommentedProducts(HttpServletRequest request,
+                                                                         HttpServletResponse response,
+                                                                         @RequestParam(defaultValue="10") int pagesize,
+                                                                         @RequestParam(required=false) String cursor) {
 
-        final Collection<DProduct> body = rnrService.getMostCommentedProducts(limit);
+        final CursorPage<DProduct, String> dPage = rnrService.getMostCommentedProducts(pagesize, cursor);
 
-        return new ResponseEntity<Collection<JProduct>>(Converter.convert(body, getBaseUrl(request)), HttpStatus.OK);
+        JCursorPage<JProduct> cursorPage = new JCursorPage<JProduct>();
+        cursorPage.setItems(CONVERTER.convert(dPage.getItems(), getBaseUrl(request)));
+        cursorPage.setCursor(dPage.getCursorKey().toString());
+        cursorPage.setPageSize((long)pagesize);
+
+        return new ResponseEntity<JCursorPage<JProduct>>(cursorPage, HttpStatus.OK);
     }
 
     /**
@@ -350,13 +448,13 @@ public class ProductController extends AbstractRestController {
             @RestCode(code=200, message="OK", description="Products liked by user")
     })
     @RequestMapping(value="liked", method= RequestMethod.GET)
-    // TODO: Add pagination support
     public ResponseEntity<Collection<JProduct>> getProductsLikedByUser(HttpServletRequest request,
+                                                                       HttpServletResponse response,
                                                                        @RequestParam(required=true) String username) {
 
-        final Collection<DProduct> body = rnrService.getProductsLikedByUser(username);
+        final Iterable<DProduct> dProductIterable = rnrService.getProductsLikedByUser(username);
 
-        return new ResponseEntity<Collection<JProduct>>(Converter.convert(body, getBaseUrl(request)), HttpStatus.OK);
+        return new ResponseEntity<Collection<JProduct>>(CONVERTER.convert(dProductIterable, getBaseUrl(request)), HttpStatus.OK);
     }
 
     /**
@@ -368,13 +466,13 @@ public class ProductController extends AbstractRestController {
             @RestCode(code=200, message="OK", description="Products liked by user")
     })
     @RequestMapping(value="thumbs", method= RequestMethod.GET)
-    // TODO: Add pagination support
     public ResponseEntity<Collection<JProduct>> getProductsThumbedByUser(HttpServletRequest request,
+                                                                         HttpServletResponse response,
                                                                          @RequestParam(required=true) String username) {
 
-        final Collection<DProduct> body = rnrService.getProductsThumbedByUser(username);
+        final Iterable<DProduct> dProductIterable = rnrService.getProductsThumbedByUser(username);
 
-        return new ResponseEntity<Collection<JProduct>>(Converter.convert(body, getBaseUrl(request)), HttpStatus.OK);
+        return new ResponseEntity<Collection<JProduct>>(CONVERTER.convert(dProductIterable, getBaseUrl(request)), HttpStatus.OK);
     }
 
     /**
@@ -388,13 +486,12 @@ public class ProductController extends AbstractRestController {
             @RestCode(code=200, message="OK", description="Products rated by user")
     })
     @RequestMapping(value="rated", method= RequestMethod.GET)
-    // TODO: Add pagination support
     public ResponseEntity<Collection<JProduct>> getProductsRatedByUser(HttpServletRequest request,
                                                                        @RequestParam(required=true) String username) {
 
-        final Collection<DProduct> body = rnrService.getProductsRatedByUser(username);
+        final Iterable<DProduct> dProductIterable = rnrService.getProductsRatedByUser(username);
 
-        return new ResponseEntity<Collection<JProduct>>(Converter.convert(body, getBaseUrl(request)), HttpStatus.OK);
+        return new ResponseEntity<Collection<JProduct>>(CONVERTER.convert(dProductIterable, getBaseUrl(request)), HttpStatus.OK);
     }
 
     /**
@@ -408,13 +505,12 @@ public class ProductController extends AbstractRestController {
             @RestCode(code=200, message="OK", description="Products commented by user")
     })
     @RequestMapping(value="commented", method= RequestMethod.GET)
-    // TODO: Add pagination support
     public ResponseEntity<Collection<JProduct>> getProductsCommentedByUser(HttpServletRequest request,
                                                                            @RequestParam(required=false) String username) {
 
-        final Collection<DProduct> body = rnrService.getProductsCommentedByUser(username);
+        final Iterable<DProduct> dProductIterable = rnrService.getProductsCommentedByUser(username);
 
-        return new ResponseEntity<Collection<JProduct>>(Converter.convert(body, getBaseUrl(request)), HttpStatus.OK);
+        return new ResponseEntity<Collection<JProduct>>(CONVERTER.convert(dProductIterable, getBaseUrl(request)), HttpStatus.OK);
     }
 
     /**
@@ -430,13 +526,12 @@ public class ProductController extends AbstractRestController {
             @RestCode(code=200, message="OK", description="Users favorite products")
     })
     @RequestMapping(value="favorites", method= RequestMethod.GET)
-    // TODO: Add pagination support
     public ResponseEntity<Collection<JProduct>> geUserFavoriteProducts(HttpServletRequest request,
                                                                        @RequestParam(required=true) String username) {
 
-        final Collection<DProduct> body = rnrService.geUserFavoriteProducts(username);
+        final Iterable<DProduct> dProductIterable = rnrService.geUserFavoriteProducts(username);
 
-        return new ResponseEntity<Collection<JProduct>>(Converter.convert(body, getBaseUrl(request)), HttpStatus.OK);
+        return new ResponseEntity<Collection<JProduct>>(CONVERTER.convert(dProductIterable, getBaseUrl(request)), HttpStatus.OK);
     }
 
 

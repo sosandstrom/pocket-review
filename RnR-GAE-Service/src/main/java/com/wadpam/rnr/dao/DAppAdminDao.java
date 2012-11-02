@@ -1,6 +1,5 @@
 package com.wadpam.rnr.dao;
 
-import com.google.appengine.api.datastore.Key;
 
 /**
  * Business Methods interface for entity DAppAdmin.
@@ -10,6 +9,6 @@ import com.google.appengine.api.datastore.Key;
  * Generated on 2012-09-09T07:48:57.528+0700.
  * @author mardao DAO generator (net.sf.mardao.plugin.ProcessDomainMojo)
  */
-public interface DAppAdminDao extends GeneratedDAppAdminDao<Key, Key> {
+public interface DAppAdminDao extends GeneratedDAppAdminDao {
 
 }

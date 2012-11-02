@@ -1,7 +1,7 @@
 package com.wadpam.rnr.domain;
 
 import com.google.appengine.api.datastore.Email;
-import net.sf.mardao.api.domain.AEDStringEntity;
+import net.sf.mardao.core.domain.AbstractCreatedUpdatedEntity;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -12,7 +12,7 @@ import java.io.Serializable;
  */
 @Entity
 @Table(uniqueConstraints={@UniqueConstraint(columnNames={"email"})})
-public class DAppAdmin extends AEDStringEntity implements Serializable {
+public class DAppAdmin extends AbstractCreatedUpdatedEntity implements Serializable {
 
     private static final long serialVersionUID = -8906171707894817513L;
 
@@ -41,11 +41,6 @@ public class DAppAdmin extends AEDStringEntity implements Serializable {
     @Basic
     private Long        maxNumberOfApps = 5L;
 
-
-    @Override
-    public String getSimpleKey() {
-        return adminId;
-    }
 
     @Override
     public String toString() {

@@ -1,7 +1,5 @@
 package com.wadpam.rnr.dao;
 
-import com.google.appengine.api.datastore.Key;
-import com.wadpam.rnr.domain.DFavorites;
 
 /**
  * Business Methods interface for entity DFavorites.
@@ -11,7 +9,7 @@ import com.wadpam.rnr.domain.DFavorites;
  * Generated on 2012-08-05T20:54:54.772+0700.
  * @author mardao DAO generator (net.sf.mardao.plugin.ProcessDomainMojo)
  */
-public interface DFavoritesDao extends GeneratedDFavoritesDao<Key, Key> {
+public interface DFavoritesDao extends GeneratedDFavoritesDao {
 
 
 }

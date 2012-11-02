@@ -2,10 +2,11 @@ package com.wadpam.rnr.dao;
 
 import com.google.appengine.api.NamespaceManager;
 import com.google.appengine.api.datastore.Email;
-import com.google.appengine.api.datastore.Key;
 import com.wadpam.rnr.domain.DApp;
+import net.sf.mardao.core.Filter;
 
 import java.util.Collection;
+import java.util.Iterator;
 
 /**
  * Implementation of Business Methods related to entity DApp.
@@ -22,51 +23,56 @@ public class DAppDaoBean
 
     // Default constructor to enable caching by Mardao
     public DAppDaoBean() {
-        this.memCacheEntity = true;
+        this.memCacheEntities = true;
         this.memCacheAll = true;
     }
 
     @Override
     // Persist app in a fixed namespace
-    public void persistWithFixedNamespace(DApp app) {
+    public String persist(DApp app) {
         // Preserve current namespace:
         final String currentNamespace = NamespaceManager.get();
         NamespaceManager.set("backoffice");
+
+        String result;
         try {
-            persist(app);
+            result = super.persist(app);
         }
         finally {
             // Revert namespace
             NamespaceManager.set(currentNamespace);
         }
+        return result;
     }
 
     // Delete app from a fixed namespace
     @Override
-    public void deleteWithFixedNamespace(DApp dApp) {
+    public boolean delete(DApp dApp) {
         // Preserve current namespace:
         final String currentNamespace = NamespaceManager.get();
         NamespaceManager.set("backoffice");
 
+        boolean result;
         try {
-            delete(dApp);
+            result = super.delete(dApp);
         }
         finally {
             // Revert namespace
             NamespaceManager.set(currentNamespace);
         }
+        return result;
     }
 
     // Get app from a fixed namespace
     @Override
-    public DApp findByDomainWithFixedNamespace(String domain) {
+    public DApp findByPrimaryKey(String domain) {
         // Preserve current namespace:
         final String currentNamespace = NamespaceManager.get();
         NamespaceManager.set("backoffice");
 
         DApp dApp = null;
         try {
-            dApp = findByPrimaryKey(domain);
+            dApp = super.findByPrimaryKey(domain);
         }
         finally {
             // Revert namespace
@@ -77,10 +83,20 @@ public class DAppDaoBean
 
     // Get all apps for a specific admin email address
     @Override
-    public Collection<DApp> findByAdminEmail(Email email) {
-        return findBy(null, false, -1, createEqualsFilter(COLUMN_NAME_APPADMINS, email));
+    public Iterable<DApp> queryByAdminEmail(Email email) {
+
+        // Preserve current namespace:
+        final String currentNamespace = NamespaceManager.get();
+        NamespaceManager.set("backoffice");
+
+        Iterable<DApp> dAppIterable = null;
+        try {
+            final Filter filter = createEqualsFilter(COLUMN_NAME_APPADMINS, email);
+            dAppIterable = queryIterable(false, 0, -1, null, null, null, false, null, false, filter);
+        } finally {
+            // Revert namespace
+            NamespaceManager.set(currentNamespace);
+        }
+        return dAppIterable;
     }
-
-
-
 }

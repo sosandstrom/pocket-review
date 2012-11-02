@@ -1,6 +1,7 @@
 package com.wadpam.rnr.domain;
 
 import net.sf.mardao.api.domain.AEDStringEntity;
+import net.sf.mardao.core.domain.AbstractCreatedUpdatedEntity;
 
 import javax.persistence.Basic;
 import javax.persistence.Entity;
@@ -14,7 +15,7 @@ import java.util.Set;
  * @author mattiaslevin.
  */
 @Entity
-public class DFavorites extends AEDStringEntity implements Serializable {
+public class DFavorites extends AbstractCreatedUpdatedEntity implements Serializable {
 
     private static final long serialVersionUID = 6873407503201116079L;
 
@@ -26,11 +27,6 @@ public class DFavorites extends AEDStringEntity implements Serializable {
     /** The users favorite products ids */
     private Collection<String>     productIds;
 
-
-    @Override
-    public String getSimpleKey() {
-        return username;
-    }
 
     @Override
     public String toString() {

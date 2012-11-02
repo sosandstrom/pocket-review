@@ -18,6 +18,7 @@ import java.util.Collection;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import net.sf.mardao.api.geo.aed.GeoModel;
+import net.sf.mardao.core.domain.AbstractLongEntity;
 
 /**
  * The domain object for Ratings.
@@ -25,11 +26,8 @@ import net.sf.mardao.api.geo.aed.GeoModel;
  */
 @Entity
 @Table(uniqueConstraints={@UniqueConstraint(columnNames={"productId", "username", "category"})})
-public class DRating extends AEDLongEntity {
+public class DRating extends AbstractLongEntity {
 
-    /** Generated primary key */
-    @Id
-    private Long               id;
 
     /** The Many-To-One productId (unconstrained) */
     @Basic
@@ -53,26 +51,13 @@ public class DRating extends AEDLongEntity {
 
 
     @Override
-    public Long getSimpleKey() {
-        return id;
-    }
-
-    @Override
     public String toString() {
         return String.format("{id:%d, productId:%s, username:%s, rating:%s, comment:%s}",
-                id, productId, username, rating, comment);
+                getId(), productId, username, rating, comment);
     }
 
 
     // Setters and getters
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public String getProductId() {
         return productId;
     }

@@ -20,27 +20,18 @@ Create email text using velocity templates instead?
 
 Must fix
 ===========
-
--Mardao 2
-
 -GAE 1.7.2
-
-
--Simple backoffice interface (signin, get all registered apps, new, delete, update)
-
--Still issues with the abstract rest exception handler
-
--Move authentication to open-server
-
-
--Thumbs up and down
-
-
--Change to Spring URL builder
 
 -add second dimension, group ratings
 
+-Simple backoffice interface (signin, get all registered apps, new, delete, update)
 
+
+-Why is the transaction rollback running on all exception? Impact in the cache as well
+
+-Change to Spring URL builder
+-Careful testing
+-Move authentication to open-server
 
 
 
@@ -63,6 +54,19 @@ Done
 -Remove "request" parameter from Converter
 
 
+
 -Support location search
+
+-Thumbs up and down
+-Mardao 2
+-Nearby sort on thumbs up
+
+-Make converter generic and move to open
+
+-Still issues with the abstract rest exception handler
+
+
+
+
 
 

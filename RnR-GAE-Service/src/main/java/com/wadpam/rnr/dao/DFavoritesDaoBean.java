@@ -1,7 +1,6 @@
 package com.wadpam.rnr.dao;
 
-import com.google.appengine.api.datastore.Key;
-import com.wadpam.rnr.domain.DFavorites;
+
 
 /**
  * Implementation of Business Methods related to entity DFavorites.
@@ -15,10 +14,4 @@ public class DFavoritesDaoBean
 	extends GeneratedDFavoritesDaoImpl
 		implements DFavoritesDao 
 {
-    // Default constructor to enable caching by Mardao
-    public DFavoritesDaoBean() {
-        //this.memCacheEntity = true;
-        //this.memCacheAll = false;
-    }
-
 }

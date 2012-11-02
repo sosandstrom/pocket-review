@@ -14,7 +14,7 @@ public class DAppAdminDaoBean
 {
     // Default constructor to enable caching by Mardao
     public DAppAdminDaoBean() {
-        this.memCacheEntity = true;
+        this.memCacheEntities = true;
         this.memCacheAll = true;
     }
 

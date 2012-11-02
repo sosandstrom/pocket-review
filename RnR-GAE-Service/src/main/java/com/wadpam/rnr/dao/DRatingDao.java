@@ -1,6 +1,5 @@
 package com.wadpam.rnr.dao;
 
-import com.google.appengine.api.datastore.Key;
 import com.wadpam.rnr.domain.DRating;
 
 /**
@@ -11,7 +10,7 @@ import com.wadpam.rnr.domain.DRating;
  * Generated on 2012-08-05T20:54:54.772+0700.
  * @author mardao DAO generator (net.sf.mardao.plugin.ProcessDomainMojo)
  */
-public interface DRatingDao extends GeneratedDRatingDao<Key, Key> {
+public interface DRatingDao extends GeneratedDRatingDao {
 
     /**
      * Find ratings done by a specific user and a specific product.

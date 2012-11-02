@@ -44,7 +44,7 @@
     <import resource="classpath:/spring-transaction.xml" />
 
     <!--           Controllers             -->
-    <bean class="com.wadpam.rnr.web.MonitorController" />
+    <bean class="com.wadpam.open.web.MonitorController" />
 
 
     <bean id="jsonObjectMapper" class="com.wadpam.open.json.SkipNullObjectMapper" init-method="init" />

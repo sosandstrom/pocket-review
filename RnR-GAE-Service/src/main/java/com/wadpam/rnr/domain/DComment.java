@@ -3,6 +3,8 @@ package com.wadpam.rnr.domain;
 import com.google.appengine.api.datastore.Key;
 import net.sf.mardao.api.Parent;
 import net.sf.mardao.api.domain.AEDLongEntity;
+import net.sf.mardao.core.domain.AbstractCreatedUpdatedEntity;
+import net.sf.mardao.core.domain.AbstractLongEntity;
 
 import javax.persistence.*;
 
@@ -11,11 +13,8 @@ import javax.persistence.*;
  * @author mattiaslevin
  */
 @Entity
-public class DComment extends AEDLongEntity {
+public class DComment extends AbstractLongEntity {
 
-    /** Generated primary key */
-    @Id
-    private Long               id;
 
     /** The Many-To-One productId (unconstrained) */
     @Basic
@@ -33,26 +32,15 @@ public class DComment extends AEDLongEntity {
     @Basic
     private String             comment;
 
-    @Override
-    public Long getSimpleKey() {
-        return id;
-    }
 
     @Override
     public String toString() {
         return String.format("{id:%d, productId:%s, username:%s, comment:%s}",
-                id, productId, username, comment);
+                getId(), productId, username, comment);
     }
 
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
+    // Setters and getters
     public String getProductId() {
         return productId;
     }

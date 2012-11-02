@@ -1,10 +1,11 @@
 package com.wadpam.rnr.dao;
 
-import com.google.appengine.api.datastore.Key;
 import com.wadpam.rnr.domain.DProduct;
 
-import java.util.Collection;
-import net.sf.mardao.api.geo.aed.GeoDao;
+import java.io.Serializable;
+
+import com.wadpam.rnr.service.RnrService;
+import net.sf.mardao.core.CursorPage;
 
 /**
  * Business Methods interface for entity DProduct.
@@ -14,83 +15,69 @@ import net.sf.mardao.api.geo.aed.GeoDao;
  * Generated on 2012-08-05T20:54:54.772+0700.
  * @author mardao DAO generator (net.sf.mardao.plugin.ProcessDomainMojo)
  */
-public interface DProductDao extends GeneratedDProductDao<Key, Key> {
+public interface DProductDao extends GeneratedDProductDao {
 
-    /**
-     * Decide the sort order in nearby searches
-     */
-    public enum SortOrder {DISTANCE, TOP_RATED, MOST_LIKED}
 
     /**
      * Find most liked products
      * @param limit the number of products to max return
+     * @param cursorKey A cursor from a previous query or null if this is the first page
      * @return A list of products sorted according to the number of likes
      */
-    public Collection<DProduct> findMostLiked(int limit);
+    public CursorPage<DProduct, String> queryMostLiked(int limit, Serializable cursorKey);
 
     /**
      * Find most thumbs up products
      * @param limit the number of products to max return
+     * @param cursorKey A cursor from a previous query or null if this is the first page
      * @return A list of products sorted according to the number of thumbs up
      */
-    public Collection<DProduct> findMostThumbsUp(int limit);
+    public CursorPage<DProduct, String> queryMostThumbsUp(int limit, Serializable cursorKey);
 
     /**
      * Find most thumbs up products
      * @param limit the number of products to max return
+     * @param cursorKey A cursor from a previous query or null if this is the first page
      * @return A list of products sorted according to the number of thumbs down
      */
-    public Collection<DProduct> findMostThumbsDown(int limit);
+    public CursorPage<DProduct, String> queryMostThumbsDown(int limit, Serializable cursorKey);
 
 
     /**
      * Find most commented products
      * @param limit the number of products to max return
+     * @param cursorKey A cursor from a previous query or null if this is the first page
      * @return A list of products sorted according to the number of comments
      */
-    public Collection<DProduct> findMostCommented(int limit);
+    public CursorPage<DProduct, String> queryMostCommented(int limit, Serializable cursorKey);
 
     /**
      * Find most rated products
      * @param limit the number of product to max return
+     * @param cursorKey A cursor from a previous query or null if this is the first page
      * @return A list of products sorted according to the number of ratings
      */
-    public Collection<DProduct> findMostRated(int limit);
+    public CursorPage<DProduct, String> queryMostRated(int limit, Serializable cursorKey);
 
     /**
      * Find products with highest average rating
      * @param limit the number of product to max return
+     * @param cursorKey A cursor from a previous query or null if this is the first page
      * @return A list of products sorted according to average rating
      */
-    public Collection<DProduct> findTopRated(int limit);
+    public CursorPage<DProduct, String> queryTopRated(int limit, Serializable cursorKey);
 
     /**
-     *  Get a page of products using a cursor.
-     * @param cursor The cursor returned from the previous call to this method. If this is the first call, use null.
-     * @param pageSize The number of projects to return
-     * @param result An empty collection of products that will be populated with the results
-     * @return a new cursor that can be used to get the next products.
-     */
-    String getProductPage(String cursor, int pageSize, Collection<DProduct> result);
-
-    /**
-     * Persist a product and index the location is provided. Can later be used to do location based searches.
-     * @param dProduct the product to persist
-     * @return the product id
-     */
-    public String persistAndIndexLocation(DProduct dProduct);
-
-    /**
-     * Get places products
-     * @param cursor the cursor returned from the previous call to this method. If this is the first call, use null.
+     * Get nearby products
      * @param pageSize the number of products to return
+     * @param cursor the cursor returned from the previous call to this method. If this is the first call, use null.
      * @param latitude the latitude to search around
      * @param longitude the longitude to search around
      * @param radius the radius to search within
-     * @param result An empty collection of products that will be populated with the results
+     * @param sortOrder the sort order of the returned result
      * @return a new cursor that can be used to get the next products.
      */
-    public String searchInIndexForNearby(String cursor, int pageSize, Float latitude,
-                                         Float longitude, int radius, SortOrder sortOrder, Collection<DProduct> result);
+    public CursorPage<DProduct, String> searchForNearby(int pageSize, String cursor, Float latitude, Float longitude,
+                                                        int radius, RnrService.SortOrder sortOrder);
 
 }

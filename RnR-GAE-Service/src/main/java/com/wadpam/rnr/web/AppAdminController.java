@@ -8,7 +8,6 @@ import com.wadpam.rnr.domain.DAppAdmin;
 import com.wadpam.rnr.json.JAppAdmin;
 import com.wadpam.rnr.security.GaeUserDetails;
 import com.wadpam.rnr.service.AppService;
-import com.wadpam.server.web.AbstractRestController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -37,6 +36,7 @@ import java.util.regex.Pattern;
 public class AppAdminController {
 
     static final Logger LOG = LoggerFactory.getLogger(AppAdminController.class);
+    static final Converter CONVERTER = new Converter();
 
     private AppService appService;
 
@@ -49,12 +49,11 @@ public class AppAdminController {
      * @return the and http response code indicating the outcome of the operation
      */
     @RestReturn(value=JAppAdmin.class, entity=JAppAdmin.class, code={
-            @RestCode(code=200, message="OK", description="Successful login"),
+            @RestCode(code=200, message="OK", description="Successful login")
     })
     @RequestMapping(value="login", method= RequestMethod.GET)
     public ResponseEntity<JAppAdmin> loginAdmin(HttpServletRequest request,
-                                                HttpServletResponse response,
-                                                Principal principal) {
+                                                HttpServletResponse response) {
 
         // Figure out the base url
         String baseUrl = null;
@@ -96,12 +95,11 @@ public class AppAdminController {
      * @return the and http response code indicating the outcome of the operation
      */
     @RestReturn(value=JAppAdmin.class, entity=JAppAdmin.class, code={
-            @RestCode(code=302, message="OK", description="Successful logout"),
+            @RestCode(code=302, message="OK", description="Successful logout")
     })
     @RequestMapping(value="logout", method= RequestMethod.GET)
     public ResponseEntity<JAppAdmin> logoutAdmin(HttpServletRequest request,
-                                                 HttpServletResponse response,
-                                                 Principal principal) {
+                                                 HttpServletResponse response) {
 
 
         // Figure out the base url
@@ -149,7 +147,6 @@ public class AppAdminController {
     @RequestMapping(value="", method= RequestMethod.POST)
     public ResponseEntity<JAppAdmin> createAdmin(HttpServletRequest request,
                                                  HttpServletResponse response,
-                                                 Principal principal,
                                                  @RequestParam(required = false) String name) {
 
         // Get current user
@@ -158,7 +155,7 @@ public class AppAdminController {
             return new ResponseEntity<JAppAdmin>(HttpStatus.UNAUTHORIZED);
         }
 
-        DAppAdmin body = appService.createAppAdmin(getCurrentUserEmail(), getCurrentUserId(), name, request.getRequestURL().toString());
+        appService.createAppAdmin(getCurrentUserEmail(), getCurrentUserId(), name, request.getRequestURL().toString());
 
         try {
             response.sendRedirect(request.getRequestURI());
@@ -195,8 +192,7 @@ public class AppAdminController {
     })
     @RequestMapping(value="", method= RequestMethod.DELETE)
     public ResponseEntity<JAppAdmin> deleteCurrentAdmin(HttpServletRequest request,
-                                                        HttpServletResponse response,
-                                                        Principal principal) {
+                                                        HttpServletResponse response) {
 
         // Get current user
         if (null == getCurrentUserDetails()) {
@@ -204,7 +200,7 @@ public class AppAdminController {
             return new ResponseEntity<JAppAdmin>(HttpStatus.UNAUTHORIZED);
         }
 
-        DAppAdmin body = appService.deleteAppAdmin(getCurrentUserEmail());
+        appService.deleteAppAdmin(getCurrentUserEmail());
 
         return new ResponseEntity<JAppAdmin>(HttpStatus.OK);
     }
@@ -221,10 +217,9 @@ public class AppAdminController {
     @RequestMapping(value="{email}", method= RequestMethod.DELETE)
     public ResponseEntity<JAppAdmin> deleteAdmin(HttpServletRequest request,
                                                  HttpServletResponse response,
-                                                 Principal principal,
                                                  @PathVariable String email) {
 
-        DAppAdmin body = appService.deleteAppAdmin(email);
+       appService.deleteAppAdmin(email);
 
        return new ResponseEntity<JAppAdmin>(HttpStatus.OK);
     }
@@ -239,8 +234,7 @@ public class AppAdminController {
     })
     @RequestMapping(value="", method= RequestMethod.GET)
     public ResponseEntity<JAppAdmin> getCurrentAdmin(HttpServletRequest request,
-                                                     HttpServletResponse response,
-                                                     Principal principal) {
+                                                     HttpServletResponse response) {
 
         // Get current user
         if (null == getCurrentUserDetails()) {
@@ -250,7 +244,7 @@ public class AppAdminController {
 
         DAppAdmin body = appService.getAppAdmin(getCurrentUserEmail());
 
-        return new ResponseEntity<JAppAdmin>(Converter.convert(body), HttpStatus.OK);
+        return new ResponseEntity<JAppAdmin>(CONVERTER.convert(body), HttpStatus.OK);
     }
 
     /**
@@ -265,12 +259,11 @@ public class AppAdminController {
     @RequestMapping(value="{userId}", method= RequestMethod.GET)
     public ResponseEntity<JAppAdmin> getAdmin(HttpServletRequest request,
                                               HttpServletResponse response,
-                                              Principal principal,
                                               @PathVariable String email) {
 
         DAppAdmin body = appService.getAppAdmin(email);
 
-        return new ResponseEntity<JAppAdmin>(Converter.convert(body), HttpStatus.OK);
+        return new ResponseEntity<JAppAdmin>(CONVERTER.convert(body), HttpStatus.OK);
     }
 
     /**
@@ -278,17 +271,15 @@ public class AppAdminController {
      * @return a list of admins
      */
     @RestReturn(value=JAppAdmin.class, entity=JAppAdmin.class, code={
-            @RestCode(code=200, message="OK", description="Officer accounts found"),
+            @RestCode(code=200, message="OK", description="Admins found")
     })
     @RequestMapping(value="all", method= RequestMethod.GET)
-    // TODO: Should support pagination
     public ResponseEntity<Collection<JAppAdmin>> getAllAdmins(HttpServletRequest request,
-                                                              HttpServletResponse response,
-                                                              Principal principal) {
+                                                              HttpServletResponse response) {
 
-        Collection<DAppAdmin> body = appService.getAllAppAdmins();
+        Iterable<DAppAdmin> dAppAdmins = appService.getAllAppAdmins();
 
-        return new ResponseEntity<Collection<JAppAdmin>>((Collection<JAppAdmin>)Converter.convert(body), HttpStatus.OK);
+        return new ResponseEntity<Collection<JAppAdmin>>((Collection<JAppAdmin>)CONVERTER.convert(dAppAdmins), HttpStatus.OK);
     }
 
     /**
@@ -301,12 +292,11 @@ public class AppAdminController {
      * @return redirect to the updated admin details
      */
     @RestReturn(value=JAppAdmin.class, entity=JAppAdmin.class, code={
-            @RestCode(code=302, message="OK", description="Redirect to the updated officer details")
+            @RestCode(code=302, message="OK", description="Redirect to the updated admin details")
     })
     @RequestMapping(value="{userId}/status/{status}", method= RequestMethod.POST)
     public ResponseEntity<JAppAdmin> updateAdminAccountStatus(HttpServletRequest request,
                                                               HttpServletResponse response,
-                                                              Principal principal,
                                                               @PathVariable String email,
                                                               @PathVariable int status) {
 
@@ -322,13 +312,13 @@ public class AppAdminController {
                 accountStatus = AppService.ACCOUNT_SUSPENDED;
                 break;
             default:
-                LOG.error("Trying to set account status to state not supported " + status);
+                LOG.error("Trying to set account status to state not supported:{}", status);
                 return new ResponseEntity<JAppAdmin>(HttpStatus.BAD_REQUEST);
         }
 
         // Figure out the base url
         String redirectUrl = null;
-        Pattern pattern = Pattern.compile("^(.*/officer/)*");
+        Pattern pattern = Pattern.compile("^(.*/admin/)*");
         Matcher matcher = pattern.matcher(request.getRequestURL().toString());
         if (matcher.find())
             redirectUrl = matcher.group(1);
@@ -338,7 +328,7 @@ public class AppAdminController {
             return new ResponseEntity<JAppAdmin>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        DAppAdmin body = appService.updateAdminAccountStatus(email, accountStatus);
+        appService.updateAdminAccountStatus(email, accountStatus);
 
          try {
             response.sendRedirect(redirectUrl);

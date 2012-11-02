@@ -2,10 +2,12 @@ package com.wadpam.rnr.web;
 
 import com.wadpam.docrest.domain.RestCode;
 import com.wadpam.docrest.domain.RestReturn;
+import com.wadpam.open.json.JCursorPage;
 import com.wadpam.rnr.domain.DComment;
 import com.wadpam.rnr.json.JComment;
 import com.wadpam.rnr.service.RnrService;
 import com.wadpam.server.web.AbstractRestController;
+import net.sf.mardao.core.CursorPage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.view.RedirectView;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,8 +36,10 @@ import java.util.Map;
 public class CommentController extends AbstractRestController {
 
     static final Logger LOG = LoggerFactory.getLogger(CommentController.class);
+    static final Converter CONVERTER = new Converter();
 
     private RnrService rnrService;
+
 
     /**
      * Add a comment to a product.
@@ -57,7 +62,7 @@ public class CommentController extends AbstractRestController {
     })
     @RequestMapping(value="", method= RequestMethod.POST)
     public RedirectView addComment(HttpServletRequest request,
-                                   Principal principal,
+                                   HttpServletResponse response,
                                    @RequestParam(required=true) String productId,
                                    @RequestParam(required=true) Long parentId,
                                    @RequestParam(required=false) String username,
@@ -81,10 +86,10 @@ public class CommentController extends AbstractRestController {
     })
     @RequestMapping(value="{id}", method= RequestMethod.DELETE)
     public ResponseEntity<JComment> deleteComment(HttpServletRequest request,
-                                                  Principal principal,
+                                                  HttpServletResponse response,
                                                   @PathVariable long id) {
 
-        final DComment body = rnrService.deleteComment(id);
+        rnrService.deleteComment(id);
 
         return new ResponseEntity<JComment>(HttpStatus.OK);
     }
@@ -100,12 +105,12 @@ public class CommentController extends AbstractRestController {
     })
     @RequestMapping(value="{id}", method= RequestMethod.GET)
     public ResponseEntity<JComment> getComment(HttpServletRequest request,
-                                               Principal principal,
+                                               HttpServletResponse response,
                                                @PathVariable long id) {
 
-        final DComment body = rnrService.getComment(id);
+        DComment body = rnrService.getComment(id);
 
-        return new ResponseEntity<JComment>(Converter.convert(body), HttpStatus.OK);
+        return new ResponseEntity<JComment>(CONVERTER.convert(body), HttpStatus.OK);
     }
 
     /**
@@ -118,12 +123,12 @@ public class CommentController extends AbstractRestController {
     })
     @RequestMapping(value="", method= RequestMethod.GET, params="username")
     public ResponseEntity<Collection<JComment>> getMyComments(HttpServletRequest request,
-                                                              Principal principal,
+                                                              HttpServletResponse response,
                                                               @RequestParam(required=true) String username) {
 
-        final Collection<DComment> body = rnrService.getMyComments(username);
+        final Iterable<DComment> dCommentIterable = rnrService.getMyComments(username);
 
-        return new ResponseEntity<Collection<JComment>>((Collection<JComment>)Converter.convert(body), HttpStatus.OK);
+        return new ResponseEntity<Collection<JComment>>((Collection<JComment>)CONVERTER.convert(dCommentIterable), HttpStatus.OK);
     }
 
     /**
@@ -132,22 +137,28 @@ public class CommentController extends AbstractRestController {
      * @param hierarchy optional. Decide if the returned list should be returned nested.
      *                  This is useful is comment contain parent relations to create nested comments.
      *                  Default is false. Will add some overhead.
+     * @param pagesize Optional. The number of products to return in this page. Default value is 10.
+     * @param cursor Optional. The current cursor position during pagination.
+     *               The next page will be return from this position.
+     *               If asking for the first page, not cursor should be provided.
      * @return a list of comments
      */
     @RestReturn(value=JComment.class, entity=JComment.class, code={
             @RestCode(code=200, message="OK", description="All comments for product")
     })
     @RequestMapping(value="", method= RequestMethod.GET, params="productId")
-    public ResponseEntity<Collection<JComment>> getAllCommentsForProduct(HttpServletRequest request,
-                                                    Principal principal,
-                                                    @RequestParam(required=true) String productId,
-                                                    @RequestParam(required=false, defaultValue="false") boolean hierarchy) {
+    public ResponseEntity<JCursorPage<JComment>> getAllCommentsForProduct(HttpServletRequest request,
+                                                                          HttpServletResponse response,
+                                                                          @RequestParam(required=true) String productId,
+                                                                          @RequestParam(required=false, defaultValue="false") boolean hierarchy,
+                                                                          @RequestParam(defaultValue="10") int pagesize,
+                                                                          @RequestParam(required=false) String cursor) {
 
-        final Collection<DComment> dComments = rnrService.getAllCommentsForProduct(productId);
+        final CursorPage<DComment, Long> dPage = rnrService.getAllCommentsForProduct(productId, hierarchy, pagesize, cursor);
 
         Collection<JComment> jComments = null;
         if (hierarchy == false)
-            jComments =  (Collection<JComment>)Converter.convert(dComments);
+            jComments =  (Collection<JComment>)CONVERTER.convert(dPage.getItems());
         else {
             LOG.debug("Arrange the comments in hierarchy based on parent comments");
 
@@ -155,9 +166,9 @@ public class CommentController extends AbstractRestController {
             Map<Long, Collection<JComment>> remainingComments = new HashMap<Long, Collection<JComment>>();
 
             // Split in root and non-root comments
-            for (DComment dComment : dComments) {
+            for (DComment dComment : dPage.getItems()) {
                 // Convert to JComment before we do anything
-                JComment jComment = Converter.convert(dComment);
+                JComment jComment = CONVERTER.convert(dComment);
 
                 if (null == jComment.getParentId())
                     jComments.add(jComment);
@@ -176,7 +187,13 @@ public class CommentController extends AbstractRestController {
                 addChildren(rootComment, remainingComments);
         }
 
-        return new ResponseEntity<Collection<JComment>>(jComments, HttpStatus.OK);
+        // Build the cursor page
+        JCursorPage<JComment> cursorPage = new JCursorPage<JComment>();
+        cursorPage.setItems(jComments);
+        cursorPage.setCursor(dPage.getCursorKey().toString());
+        cursorPage.setPageSize((long)pagesize);
+
+        return new ResponseEntity<JCursorPage<JComment>>(cursorPage, HttpStatus.OK);
     }
 
     // Build a hierarchy of comments
@@ -200,4 +217,5 @@ public class CommentController extends AbstractRestController {
     public void setRnrService(RnrService rnrService) {
         this.rnrService = rnrService;
     }
+
 }

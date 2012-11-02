@@ -1,8 +1,6 @@
 package com.wadpam.rnr.dao;
 
-import com.google.appengine.api.datastore.Key;
 import com.wadpam.rnr.domain.DLike;
-import com.wadpam.rnr.domain.DThumbs;
 
 /**
  * Business Methods interface for entity DLike.
@@ -12,12 +10,12 @@ import com.wadpam.rnr.domain.DThumbs;
  * Generated on 2012-08-05T20:54:54.772+0700.
  * @author mardao DAO generator (net.sf.mardao.plugin.ProcessDomainMojo)
  */
-public interface DLikeDao extends GeneratedDLikeDao<Key, Key> {
+public interface DLikeDao extends GeneratedDLikeDao {
 
     /**
-     * Find links done by a specific user and a specific product.
+     * Find likes done by a specific user and a specific product.
      * @param productId the product
-     * @param username the user
+     * @param username the unique user name or id
      * @return a like
      */
     public DLike findByProductIdUsername(String productId, String username);

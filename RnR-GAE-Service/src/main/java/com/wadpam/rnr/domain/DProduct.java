@@ -10,14 +10,16 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Collection;
 import net.sf.mardao.api.geo.aed.GeoModel;
+import net.sf.mardao.core.GeoLocation;
+import net.sf.mardao.core.domain.AbstractCreatedUpdatedEntity;
+import net.sf.mardao.core.geo.DLocation;
 
 /**
  * The domain object for Products.
  * @author os
  */
 @Entity
-//@Table(uniqueConstraints={@UniqueConstraint(columnNames={"productId", "category"})})
-public class DProduct extends AEDStringEntity implements Serializable {
+public class DProduct extends AbstractCreatedUpdatedEntity implements Serializable {
 
     private static final long serialVersionUID = -2815964311490330958L;
 
@@ -62,11 +64,6 @@ public class DProduct extends AEDStringEntity implements Serializable {
     @Basic
     private GeoPt       location;
 
-
-    @Override
-    public String getSimpleKey() {
-        return productId;
-    }
 
     @Override
     public String toString() {

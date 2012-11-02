@@ -3,6 +3,7 @@ package com.wadpam.rnr.domain;
 import com.google.appengine.api.datastore.GeoPt;
 import net.sf.mardao.api.domain.AEDLongEntity;
 import net.sf.mardao.api.geo.aed.GeoModel;
+import net.sf.mardao.core.domain.AbstractLongEntity;
 
 import javax.persistence.*;
 import java.util.Collection;
@@ -12,11 +13,7 @@ import java.util.Collection;
  * @author mattiaslevin
  */
 @Entity
-public class DLike extends AEDLongEntity {
-
-    /** Generated primary key */
-    @Id
-    private Long               id;
+public class DLike extends AbstractLongEntity {
 
     /** The Many-To-One productId (unconstrained) */
     @Basic
@@ -26,25 +23,13 @@ public class DLike extends AEDLongEntity {
     @Basic
     private String             username;
 
-    @Override
-    public Long getSimpleKey() {
-        return id;
-    }
 
     @Override
     public String toString() {
-        return String.format("{id:%d, productId:%s, username:%s}", id, productId, username);
+        return String.format("{id:%d, productId:%s, username:%s}", getId(), productId, username);
     }
 
     // Setters and Getters
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public String getProductId() {
         return productId;
     }

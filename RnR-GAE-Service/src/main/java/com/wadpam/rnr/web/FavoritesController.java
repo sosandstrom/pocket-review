@@ -8,7 +8,6 @@ import com.wadpam.rnr.service.RnrService;
 import com.wadpam.server.web.AbstractRestController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -20,8 +19,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.security.Principal;
 
 /**
@@ -33,8 +30,10 @@ import java.security.Principal;
 public class FavoritesController extends AbstractRestController {
 
     static final Logger LOG = LoggerFactory.getLogger(FavoritesController.class);
+    static final Converter CONVERTER = new Converter();
 
     private RnrService rnrService;
+
 
     /**
      * Add a product as favorite.
@@ -48,11 +47,10 @@ public class FavoritesController extends AbstractRestController {
     @RequestMapping(value="{username}", method=RequestMethod.POST)
     public ResponseEntity<JFavorites> addFavorite(HttpServletRequest request,
                                                   HttpServletResponse response,
-                                                  Principal principal,
                                                   @PathVariable String username,
                                                   @RequestParam(required=true) String productId) {
 
-        final DFavorites body = rnrService.addFavorite(productId, username);
+        rnrService.addFavorite(productId, username);
 
         try {
             response.sendRedirect(request.getRequestURI());
@@ -77,18 +75,11 @@ public class FavoritesController extends AbstractRestController {
     @RequestMapping(value="{username}", method= RequestMethod.DELETE)
     public ResponseEntity<JFavorites> deleteFavorite(HttpServletRequest request,
                                                      HttpServletResponse response,
-                                                     Principal principal,
                                                      @PathVariable String username,
                                                      @RequestParam(required=true) String productId) {
 
 
-        final DFavorites body = rnrService.deleteFavorite(productId, username);
-
-        // Derive the redirect url
-        String redirectUrl = request.getRequestURI();
-        int i = redirectUrl.indexOf("?");
-        if (i > -1)
-            redirectUrl = redirectUrl.substring(0, i - 1);
+        rnrService.deleteFavorite(productId, username);
 
         // Do the redirect
         try {
@@ -111,12 +102,12 @@ public class FavoritesController extends AbstractRestController {
     })
     @RequestMapping(value="{username}", method= RequestMethod.GET)
     public ResponseEntity<JFavorites> getFavorites(HttpServletRequest request,
-                                                   Principal principal,
+                                                   HttpServletResponse response,
                                                    @PathVariable String username) {
 
         final DFavorites body = rnrService.getFavorites(username);
 
-        return new ResponseEntity<JFavorites>(Converter.convert(body), HttpStatus.OK);
+        return new ResponseEntity<JFavorites>(CONVERTER.convert(body), HttpStatus.OK);
     }
 
 
@@ -124,4 +115,5 @@ public class FavoritesController extends AbstractRestController {
     public void setRnrService(RnrService rnrService) {
         this.rnrService = rnrService;
     }
+
 }

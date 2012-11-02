@@ -15,7 +15,7 @@ public class DAppSettingsDaoBean
 
     // Default constructor to enable caching by Mardao
     public DAppSettingsDaoBean() {
-        this.memCacheEntity = true;
+        this.memCacheEntities = true;
         this.memCacheAll = true;
     }
 }

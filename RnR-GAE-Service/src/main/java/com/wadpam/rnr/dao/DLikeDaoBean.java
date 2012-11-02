@@ -1,7 +1,7 @@
 package com.wadpam.rnr.dao;
 
 import com.wadpam.rnr.domain.DLike;
-import com.wadpam.rnr.domain.DThumbs;
+import net.sf.mardao.core.Filter;
 
 /**
  * Implementation of Business Methods related to entity DLike.
@@ -18,12 +18,12 @@ public class DLikeDaoBean
 {
 
     @Override
-    // Find thumbs done by user on product
+    // Find likes done by user on product
     public DLike findByProductIdUsername(String productId, String username) {
-        final java.util.Map<String,Object> args = new java.util.HashMap<String,Object>(2);
-        args.put(COLUMN_NAME_PRODUCTID, productId);
-        args.put(COLUMN_NAME_USERNAME, username);
-        return findBy(args);
+        final Filter filter1 = createEqualsFilter(COLUMN_NAME_PRODUCTID, productId);
+        final Filter filter2 = createEqualsFilter(COLUMN_NAME_USERNAME, username);
+
+        return findUniqueBy(filter1, filter2);
     }
 
 }

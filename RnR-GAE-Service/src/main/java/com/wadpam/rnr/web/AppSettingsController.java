@@ -24,4 +24,5 @@ public class AppSettingsController extends AbstractRestController {
     public void setAppService(AppService appService) {
         this.appService = appService;
     }
+
 }

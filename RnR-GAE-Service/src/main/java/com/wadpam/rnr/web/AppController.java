@@ -7,7 +7,7 @@ import com.wadpam.rnr.domain.DApp;
 import com.wadpam.rnr.json.JApp;
 import com.wadpam.rnr.security.GaeUserDetails;
 import com.wadpam.rnr.service.AppService;
-import com.wadpam.server.exceptions.RestError;
+import com.wadpam.server.exceptions.RestException;
 import com.wadpam.server.web.AbstractRestController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,8 +39,10 @@ import java.util.regex.Pattern;
 public class AppController extends AbstractRestController {
 
     static final Logger LOG = LoggerFactory.getLogger(AppController.class);
+    static final Converter CONVERTER = new Converter();
 
     private AppService appService;
+
 
     /**
      * Create a new app.
@@ -55,12 +57,11 @@ public class AppController extends AbstractRestController {
     @RequestMapping(value="{domain}", method= RequestMethod.POST)
     public RedirectView createApp(HttpServletRequest request,
                                           HttpServletResponse response,
-                                          Principal principal,
                                           @PathVariable String domain,
                                           @RequestParam(required=false) String description) {
 
 
-        DApp body = appService.createApp(domain, getCurrentUserEmail(), description);
+        appService.createApp(domain, getCurrentUserEmail(), description);
 
         return new RedirectView(request.getRequestURI());
     }
@@ -91,12 +92,11 @@ public class AppController extends AbstractRestController {
     })
     @RequestMapping(value="{domain}", method= RequestMethod.GET)
     public ResponseEntity<JApp> getApp(HttpServletRequest request,
-                                       Principal principal,
                                        @PathVariable String domain) {
 
         DApp body = appService.getApp(domain);
 
-        return new ResponseEntity<JApp>(Converter.convert(body), HttpStatus.OK);
+        return new ResponseEntity<JApp>(CONVERTER.convert(body), HttpStatus.OK);
     }
 
     /**
@@ -112,7 +112,6 @@ public class AppController extends AbstractRestController {
     @RequestMapping(value="{domain}", method= RequestMethod.POST, params ="email")
     public ResponseEntity<JApp> updateAdminsForApp(HttpServletRequest request,
                                                    HttpServletResponse response,
-                                                   Principal principal,
                                                    @PathVariable String domain,
                                                    @RequestParam(required=true) String[] emails) {
 
@@ -123,15 +122,15 @@ public class AppController extends AbstractRestController {
         }
 
         // Make a simple format check of the emails
-        for (int i = 0; i < emails.length; i++) {
-            if (isValidEmail(emails[i]) == false) {
-                LOG.debug("Admin email address invalid:{}", emails[i]);
+        for (String email : emails) {
+            if (isValidEmail(email) == false) {
+                LOG.debug("Admin email address invalid:{}", email);
                 return new ResponseEntity<JApp>(HttpStatus.BAD_REQUEST);
             }
         }
 
         // Update the admin emails
-        DApp dApp = appService.setAppAdmins(domain, Arrays.asList(emails));
+        appService.setAppAdmins(domain, Arrays.asList(emails));
 
         try {
             response.sendRedirect(request.getRequestURI());
@@ -159,10 +158,9 @@ public class AppController extends AbstractRestController {
     @RequestMapping(value="{domain}", method= RequestMethod.DELETE)
     public ResponseEntity<JApp> deleteApp(HttpServletRequest request,
                                           HttpServletResponse response,
-                                          Principal principal,
                                           @PathVariable String domain) {
 
-        DApp body = appService.deleteApp(domain);
+        appService.deleteApp(domain);
 
         // TODO: What should we do with the data for that domain? Delete it?
 
@@ -178,14 +176,14 @@ public class AppController extends AbstractRestController {
     })
     @RequestMapping(value="my", method= RequestMethod.GET)
     public ResponseEntity<Collection<JApp>> getAllAppsForCurrentUser(HttpServletRequest request,
-                                                                     Principal principal) {
+                                                                     HttpServletResponse response) {
 
         // Get user id from Spring context
         String adminEmail = getCurrentUserEmail();
 
-        Collection<DApp> body = appService.getAllAppsForAppAdmin(adminEmail);
+        final Iterable<DApp> dAppIterable = appService.getAllAppsForAppAdmin(adminEmail);
 
-        return new ResponseEntity<Collection<JApp>>((Collection<JApp>)Converter.convert(body), HttpStatus.OK);
+        return new ResponseEntity<Collection<JApp>>((Collection<JApp>)CONVERTER.convert(dAppIterable), HttpStatus.OK);
     }
 
     /**
@@ -197,11 +195,11 @@ public class AppController extends AbstractRestController {
     })
     @RequestMapping(value="all", method= RequestMethod.GET)
     public ResponseEntity<Collection<JApp>> getAllApps(HttpServletRequest request,
-                                                       Principal principal) {
+                                                       HttpServletResponse response) {
 
-        Collection<DApp> body = appService.getAllApps();
+        Iterable<DApp> dAppIterable = appService.getAllApps();
 
-        return new ResponseEntity<Collection<JApp>>((Collection<JApp>)Converter.convert(body), HttpStatus.OK);
+        return new ResponseEntity<Collection<JApp>>((Collection<JApp>)CONVERTER.convert(dAppIterable), HttpStatus.OK);
     }
 
     /**
@@ -215,10 +213,9 @@ public class AppController extends AbstractRestController {
     @RequestMapping(value="{domain}/password", method= RequestMethod.POST)
     public ResponseEntity<JApp> generateNewAppPassword(HttpServletRequest request,
                                                        HttpServletResponse response,
-                                                       Principal principal,
                                                        @PathVariable String domain) {
 
-        DApp body = appService.generateNewApiPassword(domain);
+        appService.generateNewApiPassword(domain);
 
         // Figure out the base url
         String redirectUrl = null;
@@ -228,14 +225,14 @@ public class AppController extends AbstractRestController {
             redirectUrl = matcher.group(1);
 
         if (null == redirectUrl)
-            throw new RestError(500, "Not possible to create base url for redirect after changing password");
+            throw new RestException(500, "Not possible to create base url for redirect after changing password");
 
 
         try {
             response.sendRedirect(redirectUrl);
             return null; // No need to do anything
         } catch (IOException e) {
-            throw new RestError(500, "Not possible to redirect after changing password");
+            throw new RestException(500, "Not possible to redirect after changing password");
         }
     }
 
@@ -244,5 +241,4 @@ public class AppController extends AbstractRestController {
     public void setAppService(AppService appService) {
         this.appService = appService;
     }
-
 }

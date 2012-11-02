@@ -1,6 +1,7 @@
 package com.wadpam.rnr.domain;
 
 import net.sf.mardao.api.domain.AEDStringEntity;
+import net.sf.mardao.core.domain.AbstractCreatedUpdatedEntity;
 
 import javax.persistence.Basic;
 import javax.persistence.Entity;
@@ -12,7 +13,7 @@ import java.io.Serializable;
  * @author mattiaslevin
  */
 @Entity
-public class DAppSettings extends AEDStringEntity implements Serializable {
+public class DAppSettings extends AbstractCreatedUpdatedEntity implements Serializable {
 
     private static final long serialVersionUID = 2237539236676704660L;
 
@@ -33,11 +34,6 @@ public class DAppSettings extends AEDStringEntity implements Serializable {
     @Basic
     private Boolean onlyThumbOncePerUser = true;
 
-
-    @Override
-    public String getSimpleKey() {
-        return domainName;
-    }
 
     @Override
     public String toString() {

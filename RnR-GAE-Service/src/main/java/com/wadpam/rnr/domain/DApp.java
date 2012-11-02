@@ -2,6 +2,7 @@ package com.wadpam.rnr.domain;
 
 import com.google.appengine.api.datastore.Email;
 import net.sf.mardao.api.domain.AEDStringEntity;
+import net.sf.mardao.core.domain.AbstractCreatedUpdatedEntity;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -12,7 +13,7 @@ import java.util.Collection;
  * @author mattiaslevin
  */
 @Entity
-public class DApp extends AEDStringEntity implements Serializable {
+public class DApp extends AbstractCreatedUpdatedEntity implements Serializable {
 
     private static final long serialVersionUID = -850567951576298916L;
 
@@ -37,12 +38,6 @@ public class DApp extends AEDStringEntity implements Serializable {
     @Basic
     private String      description;
 
-
-
-    @Override
-    public String getSimpleKey() {
-        return domainName;
-    }
 
     @Override
     public String toString() {

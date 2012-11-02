@@ -1,6 +1,7 @@
 package com.wadpam.rnr.domain;
 
 import net.sf.mardao.api.domain.AEDLongEntity;
+import net.sf.mardao.core.domain.AbstractLongEntity;
 
 import javax.persistence.*;
 
@@ -9,11 +10,7 @@ import javax.persistence.*;
  * @author mattiaslevin
  */
 @Entity
-public class DThumbs extends AEDLongEntity {
-
-    /** Generated primary key */
-    @Id
-    private Long               id;
+public class DThumbs extends AbstractLongEntity {
 
     /** The Many-To-One productId (unconstrained) */
     @Basic
@@ -27,25 +24,13 @@ public class DThumbs extends AEDLongEntity {
     @Basic
     private Long               value;
 
-    @Override
-    public Long getSimpleKey() {
-        return id;
-    }
 
     @Override
     public String toString() {
-        return String.format("{id:%d, productId:%s, username:%s value:%s}", id, productId, productId, value);
+        return String.format("{id:%d, productId:%s, username:%s value:%s}", getId(), productId, productId, value);
     }
 
     // Setters and getters
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public String getProductId() {
         return productId;
     }

@@ -1,6 +1,7 @@
 package com.wadpam.rnr.dao;
 
 import com.wadpam.rnr.domain.DRating;
+import net.sf.mardao.core.Filter;
 
 /**
  * Implementation of Business Methods related to entity DRating.
@@ -17,10 +18,9 @@ public class DRatingDaoBean
     @Override
     // Find rating done by user on product
     public DRating findByProductIdUsername(String productId, String username) {
-        final java.util.Map<String,Object> args = new java.util.HashMap<String,Object>(2);
-        args.put(COLUMN_NAME_PRODUCTID, productId);
-        args.put(COLUMN_NAME_USERNAME, username);
-        return findBy(args);
-    }
+        final Filter filter1 = createEqualsFilter(COLUMN_NAME_PRODUCTID, productId);
+        final Filter filter2 = createEqualsFilter(COLUMN_NAME_USERNAME, username);
 
+        return findUniqueBy(filter1, filter2);
+    }
 }

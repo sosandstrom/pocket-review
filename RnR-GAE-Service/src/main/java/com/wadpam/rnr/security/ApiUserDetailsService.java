@@ -35,7 +35,7 @@ public class ApiUserDetailsService implements UserDetailsService {
         final String domain = NamespaceManager.get();
         LOG.debug("Domain:{}", domain);
 
-        DApp dApp = appDao.findByDomainWithFixedNamespace(domain);
+        DApp dApp = appDao.findByPrimaryKey(domain);
         if (null != dApp) {
 
             Collection<GrantedAuthority> grantedAuthorities = new ArrayList<GrantedAuthority>(1);

@@ -1,10 +1,8 @@
 package com.wadpam.rnr.dao;
 
 import com.google.appengine.api.datastore.Email;
-import com.google.appengine.api.datastore.Key;
 import com.wadpam.rnr.domain.DApp;
 
-import java.util.Collection;
 
 /**
  * Business Methods interface for entity DApp.
@@ -14,31 +12,13 @@ import java.util.Collection;
  * Generated on 2012-08-14T21:35:41.306+0700.
  * @author mardao DAO generator (net.sf.mardao.plugin.ProcessDomainMojo)
  */
-public interface DAppDao extends GeneratedDAppDao<Key, Key> {
+public interface DAppDao extends GeneratedDAppDao {
 
-    /**
-     * Persist app details in a fixed namespace.
-     * @param app the app to persist
-     */
-    public void persistWithFixedNamespace(DApp app);
-
-    /**
-     * Delete app from a fixed namespace.
-     * @param app the app to delete
-     */
-    public void deleteWithFixedNamespace(DApp app);
-
-    /**
-     * Get app from a fixed namespace.
-     * @param domain the name of the app to get
-     * @return the app
-     */
-    public DApp findByDomainWithFixedNamespace(String domain);
 
     /**
      * Find all apps for a specific app admin
-     * @param email
+     * @param email the app admin email
      * @return a list of apps
      */
-    public Collection<DApp> findByAdminEmail(Email email);
+    public Iterable<DApp> queryByAdminEmail(Email email);
 }

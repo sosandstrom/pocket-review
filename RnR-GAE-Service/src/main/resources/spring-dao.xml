@@ -12,39 +12,39 @@
 
 	<!-- ============== DaoBeans for entities in package com.wadpam.rnr.domain ============ -->
     <bean id="dProductDao"
-          class="com.wadpam.rnr.dao.DProductDaoBean" init-method="init">
+          class="com.wadpam.rnr.dao.DProductDaoBean">
     </bean>
 
     <bean id="dRatingDao"
-		class="com.wadpam.rnr.dao.DRatingDaoBean" init-method="init">
+		class="com.wadpam.rnr.dao.DRatingDaoBean">
     </bean>
 
     <bean id="dLikeDao"
-          class="com.wadpam.rnr.dao.DLikeDaoBean" init-method="init">
+          class="com.wadpam.rnr.dao.DLikeDaoBean">
     </bean>
 
     <bean id="dThumbsDao"
-          class="com.wadpam.rnr.dao.DThumbsDaoBean" init-method="init">
+          class="com.wadpam.rnr.dao.DThumbsDaoBean">
     </bean>
 
     <bean id="dCommentDao"
-          class="com.wadpam.rnr.dao.DCommentDaoBean" init-method="init">
+          class="com.wadpam.rnr.dao.DCommentDaoBean">
     </bean>
 
     <bean id="dFavoritesDao"
-          class="com.wadpam.rnr.dao.DFavoritesDaoBean" init-method="init">
+          class="com.wadpam.rnr.dao.DFavoritesDaoBean">
     </bean>
 
     <bean id="dAppDao"
-          class="com.wadpam.rnr.dao.DAppDaoBean" init-method="init">
+          class="com.wadpam.rnr.dao.DAppDaoBean">
     </bean>
 
     <bean id="dAppSettingsDao"
-          class="com.wadpam.rnr.dao.DAppSettingsDaoBean" init-method="init">
+          class="com.wadpam.rnr.dao.DAppSettingsDaoBean">
     </bean>
 
     <bean id="dAppAdminDao"
-          class="com.wadpam.rnr.dao.DAppAdminDaoBean" init-method="init">
+          class="com.wadpam.rnr.dao.DAppAdminDaoBean">
     </bean>
 
 </beans>

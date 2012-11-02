@@ -1,6 +1,12 @@
 package com.wadpam.rnr.dao;
 
+
 import com.google.appengine.api.datastore.Key;
+import com.wadpam.rnr.domain.DComment;
+import net.sf.mardao.core.CursorPage;
+
+import java.io.Serializable;
+import java.util.Collection;
 
 /**
  * Business Methods interface for entity DComment.
@@ -10,5 +16,29 @@ import com.google.appengine.api.datastore.Key;
  * Generated on 2012-08-05T20:54:54.772+0700.
  * @author mardao DAO generator (net.sf.mardao.plugin.ProcessDomainMojo)
  */
-public interface DCommentDao extends GeneratedDCommentDao<Key, Key> {
+public interface DCommentDao extends GeneratedDCommentDao {
+
+    /**
+     * The a datastore key.
+     * @param id The id of the comment
+     * @return a datastore ket
+     */
+    public Key createKey(Long id);
+
+    /**
+    * Get all root comments (with no comment parents) for a specific product.
+    * @param productId the unique product id
+    * @param limit the number page size to return
+    * @param cursor a cursor from a previous search
+    * @return a page of comments
+    */
+    public CursorPage<DComment, Long> queryPageRootCommentsForProductId(String productId, int limit, Serializable cursor);
+
+    /**
+     * Find all comment for a list of parent comments and a specific product.
+     * @param productId the unique product id
+     * @param parentKeys the parent comment keys
+     * @return a list of comments
+     */
+    public Collection<DComment> findCommentsWithParents(String productId, Collection<Key> parentKeys);
 }

@@ -4,22 +4,21 @@ import com.google.appengine.api.datastore.Email;
 import com.wadpam.open.transaction.Idempotent;
 import com.wadpam.rnr.dao.DAppAdminDao;
 import com.wadpam.rnr.dao.DAppDao;
-import com.wadpam.rnr.dao.DAppSettingsDao;
 import com.wadpam.rnr.domain.DApp;
 import com.wadpam.rnr.domain.DAppAdmin;
 import com.wadpam.server.exceptions.BadRequestException;
 import com.wadpam.server.exceptions.NotFoundException;
-import com.wadpam.server.exceptions.RestError;
+import com.wadpam.server.exceptions.RestException;
+import com.wadpam.server.exceptions.RestTestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.Random;
 
 /**
@@ -57,20 +56,32 @@ public class AppService {
     public DApp createApp(String domain, String adminEmail, String description) {
         LOG.debug("Create new app for domain:{}", domain);
 
+//        // Code for testing the Spring exception handling
+//        if (true)
+//            throw new NullPointerException(String.format("Throwing a test exception when creating an app:%s", domain));
+
         DApp dApp = appDao.findByPrimaryKey(domain);
         if (null == dApp) {
 
             // Check that the user has not reach the max number of apps
-            Collection<DApp> dApps = appDao.findByAdminEmail(new Email(adminEmail));
+            Iterator<DApp> dAppIterator= appDao.queryByAdminEmail(new Email(adminEmail)).iterator();
+            int currentNumberOfApps = 0;
+            while (dAppIterator.hasNext()) {
+                currentNumberOfApps++;
+                dAppIterator.next();
+            }
+
             DAppAdmin dAppAdmin = appAdminDao.findByEmail(new Email(adminEmail));
-            if (dApps.size() >= dAppAdmin.getMaxNumberOfApps())
+            if (currentNumberOfApps >= dAppAdmin.getMaxNumberOfApps())
                 // This user is not allowed to create additional apps
+            {
                 throw new BadRequestException(400, String.format("Admin have reached the limit of apps allowed:%s", dAppAdmin.getMaxNumberOfApps()));
+            }
 
             // Create new app
             dApp = new DApp();
 
-            // Only set these when created first time
+            // Only set these properties when created first time
             Collection<Email> adminEmails = new ArrayList<Email>();
             adminEmails.add(new Email(adminEmail));
             dApp.setAppAdmins(adminEmails);
@@ -112,7 +123,7 @@ public class AppService {
             return new String(hexChars);
 
         } catch (Exception e) {
-            throw new RestError(500, String.format("Not possible to generate REST api user string with reason:%s", e.getMessage()));
+            throw new RestException(500, String.format("Not possible to generate REST api user string with reason:%s", e.getMessage()));
         }
     }
 
@@ -176,19 +187,21 @@ public class AppService {
     }
 
     // Get all apps for a user
-    public Collection<DApp> getAllAppsForAppAdmin(String adminEmail) {
-        LOG.debug("Get all apps for admin with email:{}", adminEmail);
-        Collection<DApp> apps = appDao.findByAdminEmail(new Email(adminEmail));
-        return apps;
+    public Iterable<DApp> getAllAppsForAppAdmin(String adminEmail) {
+        LOG.debug("Get all apps for admin with emai1l:{}", adminEmail);
+        Iterable<DApp> dAppIterable= appDao.queryByAdminEmail(new Email(adminEmail));
+        LOG.debug("After");
+
+        return dAppIterable;
     }
 
     // Get all apps in the system
-    public Collection<DApp> getAllApps() {
+    public Iterable<DApp> getAllApps() {
         LOG.debug("Get all apps in the system");
 
-        // TODO: Support pagination
-        Collection<DApp> apps = appDao.findAll();
-        return apps;
+        Iterable<DApp> dAppIterable = appDao.queryAll();
+
+        return dAppIterable;
     }
 
     // Generate new api password
@@ -226,9 +239,9 @@ public class AppService {
             dAppAdmin.setAdminId(adminId);
             dAppAdmin.setEmail(new Email(adminEmail));
             dAppAdmin.setAccountStatus(createAccountStartState);
-            dAppAdmin.setMaxNumberOfApps(new Long(maxNumberOfAppsStartValue));
+            dAppAdmin.setMaxNumberOfApps((long)maxNumberOfAppsStartValue);
 
-            // Send email to indicate new officer joined
+            // Send email to indicate new app admin joined
             StringBuilder sb = new StringBuilder();
             sb.append("A new admin just joined Pocket-Reviews.\n");
             sb.append("Name: " + name + "\n");
@@ -278,12 +291,10 @@ public class AppService {
     }
 
     // Get all app admins in the system
-    public Collection<DAppAdmin> getAllAppAdmins() {
+    public Iterable<DAppAdmin> getAllAppAdmins() {
         LOG.debug("Get all app admins in the system");
 
-        Collection<DAppAdmin> dAppAdmins = appAdminDao.findAll();
-
-        return dAppAdmins;
+        return  appAdminDao.queryAll();
     }
 
     // Update app admin account status
@@ -298,8 +309,9 @@ public class AppService {
         if (null == dAppAdmin)
             throw new NotFoundException(404, String.format("No app admin found for email:{}", adminEmail));
 
-        // Update datastore
         dAppAdmin.setAccountStatus(accountStatus);
+
+        // Update datastore
         appAdminDao.persist(dAppAdmin);
 
         return dAppAdmin;

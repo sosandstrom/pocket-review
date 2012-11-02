@@ -6,12 +6,12 @@ import com.wadpam.rnr.dao.*;
 import com.wadpam.rnr.domain.*;
 
 import java.io.PrintWriter;
+import java.io.Serializable;
 import java.util.*;
 
 import com.wadpam.server.exceptions.BadRequestException;
 import com.wadpam.server.exceptions.NotFoundException;
-import net.sf.mardao.api.geo.aed.GeoDao;
-import net.sf.mardao.api.geo.aed.GeoDaoImpl;
+import net.sf.mardao.core.CursorPage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @author os
  */
 public class RnrService {
+
     static final Logger LOG = LoggerFactory.getLogger(RnrService.class);
 
     private DAppDao appDao;
@@ -32,6 +33,8 @@ public class RnrService {
     private DCommentDao commentDao;
     private DFavoritesDao favoritesDao;
 
+    // Decide the sort order in nearby searches
+    public enum SortOrder {DISTANCE, TOP_RATED, MOST_LIKED, MOST_THUMBS_UP}
 
     // enum to hold thumbs up and down
     public enum Thumbs {
@@ -49,6 +52,9 @@ public class RnrService {
         }
 
     }
+
+
+    // Init
     public void init() {
         // Do nothing
     }
@@ -105,7 +111,7 @@ public class RnrService {
         }
 
         // Persist and index the location
-        productDao.persistAndIndexLocation(dProduct);
+        productDao.persist(dProduct);
 
         // Call to generate a datastrore ConcurrentModificationException in order to test the transaction retry mechanism
         // Uncomment this to run tests
@@ -153,12 +159,10 @@ public class RnrService {
     }
 
     // Get all likes for a specific user
-    public Collection<DLike> getMyLikes(String username) {
+    public Iterable<DLike> getMyLikes(String username) {
         LOG.debug("Get all likes for user:{}", username);
 
-        final Collection<DLike> myLikes = likeDao.findByUsername(username);
-
-        return myLikes;
+        return likeDao.queryByUsername(username);
     }
 
 
@@ -169,7 +173,6 @@ public class RnrService {
     @Idempotent
     @Transactional
     public DThumbs addThumbs(String domain, String productId, String username, Float latitude, Float longitude, Thumbs value) {
-
         LOG.debug("Add new thumbs:{} to product:{}", value, productId);
 
         // Specified users can only thumb once
@@ -239,7 +242,7 @@ public class RnrService {
         }
 
         // Persist and index the location
-        productDao.persistAndIndexLocation(dProduct);
+        productDao.persist(dProduct);
 
         return dThumbs;
     }
@@ -288,16 +291,14 @@ public class RnrService {
     }
 
     // Get my thumbs for user
-    public Collection<DThumbs> getMyThumbs(String username) {
+    public Iterable<DThumbs> getMyThumbs(String username) {
         LOG.debug("Get all thumbs for user:{}", username);
 
-        final Collection<DThumbs> myThumbs = thumbsDao.findByUsername(username);
-
-        return myThumbs;
+        return thumbsDao.queryByUsername(username);
     }
 
-    /* Rating related methods */
 
+    /* Rating related methods */
 
     // Rate a product
     @Idempotent
@@ -365,7 +366,7 @@ public class RnrService {
         }
 
         // Persist and index location
-        productDao.persistAndIndexLocation(dProduct);
+        productDao.persist(dProduct);
 
         return dRating;
     }
@@ -416,32 +417,33 @@ public class RnrService {
     }
 
     // Get all ratings done by a specific user
-    public Collection<DRating> getMyRatings(String username) {
+    public Iterable<DRating> getMyRatings(String username) {
         LOG.debug("Get all ratings for user:{}",  username);
 
-        final Collection<DRating> dRatings = ratingDao.findByUsername(username);
-
-        return dRatings;
+        return ratingDao.queryByUsername(username);
     }
 
     // Create a histogram
     public Map<Long, Long> getHistogramForProduct(String productId, int interval) {
         LOG.debug("Create histogram for product:{}", productId);
 
-        Collection<DRating> ratings = getAllRatingsForProduct(productId);
+        Iterator<DRating> dRatingIterator = ratingDao.queryAll().iterator();
 
+        // Build histogram
         Map<Long, Long> histogram = new HashMap<Long, Long>();
+        while (dRatingIterator.hasNext() ) {
+            DRating dRating = dRatingIterator.next();
 
-        for (DRating dRating : ratings) {
             // Find the interval
             long rounded = Math.round((float)dRating.getRating().getRating() / interval) * interval;
-            Long currentFrequency = histogram.get(new Long(rounded));
+
+            Long currentFrequency = histogram.get(rounded);
             if (null == currentFrequency)
                 // No previous value
-                histogram.put(new Long(rounded), new Long(1));
+                histogram.put(rounded, 1L);
             else
                 // Update frequency
-                histogram.put(new Long(rounded), new Long(currentFrequency.longValue() + 1));
+                histogram.put(rounded, currentFrequency + 1);
         }
 
         return histogram;
@@ -456,7 +458,7 @@ public class RnrService {
     public DComment addComment(String productId, Long parentId, String username, Float latitude, Float longitude, String comment) {
         LOG.debug("Add new comment to product:(}",  productId);
 
-        // If we have a parent comment id, check that it belongs to the same product if
+        // If we have a parent comment id, check that it belongs to the same product
         DComment dParentComment = getComment(parentId);
         if (null == dParentComment || dParentComment.getProductId().equalsIgnoreCase(productId) == false) {
             LOG.debug("Parent comment:{} is not a comment for the product:{}", parentId, productId);
@@ -468,6 +470,7 @@ public class RnrService {
         dComment.setProductId(productId);
         if (null != parentId)
             dComment.setParentKey(commentDao.createKey(parentId));
+
         dComment.setUsername(username);
         dComment.setComment(comment);
         commentDao.persist(dComment);
@@ -489,7 +492,7 @@ public class RnrService {
         }
 
         // Persist and index on location
-        productDao.persistAndIndexLocation(dProduct);
+        productDao.persist(dProduct);
 
         return dComment;
     }
@@ -532,16 +535,14 @@ public class RnrService {
     }
 
     // Get all comments done by a specific user
-    public Collection<DComment> getMyComments(String username) {
+    public Iterable<DComment> getMyComments(String username) {
         LOG.debug("Get all comments for user:{}", username);
 
-        final Collection<DComment> dComments = commentDao.findByUsername(username);
-
-        return dComments;
+        return commentDao.queryByUsername(username);
     }
 
-    /* Favorite related methods */
 
+    /* Favorite related methods */
 
     // Add new favorite product
     @Idempotent
@@ -614,64 +615,47 @@ public class RnrService {
     }
 
     // Get a list of products
-    public Collection<DProduct> getProducts(String[] ids) {
+    public Iterable<DProduct> getProducts(String[] ids) {
         LOG.debug("Get a list of products:{}", ids);
 
-        Map<String, DProduct> dProducts = productDao.findByPrimaryKeys(Arrays.asList(ids));
-
-        return dProducts.values();
+        return productDao.queryByPrimaryKeys(null, Arrays.asList(ids));
     }
 
     // Get all products
-    public String getProductPage(String cursor, int pageSize, Collection<DProduct> resultList) {
+    public CursorPage<DProduct, String> getProductPage(int pageSize, String cursor) {
         LOG.debug("Get product page with cursor:{} page size:{}", cursor, pageSize);
-        return productDao.getProductPage(cursor, pageSize, resultList);
+
+        return productDao.queryPage(pageSize, cursor);
     }
 
     // Find nearby products with different sort order
-    public String findNearbyProducts(String cursor, int pageSize, Float latitude, Float longitude, int radius, int sortOrder, Collection<DProduct> results) {
+    public CursorPage<DProduct, String> findNearbyProducts(int pageSize, String cursor, Float latitude, Float longitude,
+                                                           int radius, SortOrder sort) {
         LOG.debug("Find nearby products");
 
-        DProductDao.SortOrder order;
-        switch (sortOrder) {
-            case 1:
-                order = DProductDao.SortOrder.TOP_RATED;
-                break;
-            case 2:
-                order = DProductDao.SortOrder.MOST_LIKED;
-                break;
-            default:
-                order = DProductDao.SortOrder.DISTANCE;
-                break;
-        }
-
-        String newCursor = productDao.searchInIndexForNearby(cursor, pageSize, latitude, longitude, radius, order, results);
-
-        return newCursor;
+        return productDao.searchForNearby(pageSize, cursor, latitude, longitude, radius, sort);
     }
 
     // Find nearby products and return in KML format
-    public String findNearbyProductsKml(String cursor, int pageSize, Float latitude, Float longitude, int radius, int sortOrder, PrintWriter out) {
+    public void findNearbyProductsKml(int pageSize, String cursor, Float latitude, Float longitude, int radius,
+                                      SortOrder sort, PrintWriter out) {
         LOG.debug("Find nearby products. Return KML format");
 
-        Collection<DProduct> dProducts = new ArrayList<DProduct>(pageSize);
-        String newCursor = findNearbyProducts(cursor, pageSize, latitude, longitude, radius, sortOrder, dProducts);
-        writeRatingsKml(out, dProducts);
+        CursorPage<DProduct, String> cursorPage = productDao.searchForNearby(pageSize, cursor, latitude, longitude, radius, sort);
 
-        return newCursor;
+        writeRatingsKml(out, cursorPage.getItems());
     }
 
     // Various help methods for generating KML format
-    protected void writeRatingsKml(PrintWriter kmlDest, Collection<DProduct> products) {
+    protected void writeRatingsKml(PrintWriter kmlDest, Collection<DProduct> dProducts) {
         kmlDest.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
         kmlDest.println("<kml xmlns=\"http://www.opengis.net/kml/2.2\">");
         kmlDest.println("<Document>");
         kmlDest.println("   <name>Nearby results</name>");
         kmlDest.println("   <description>This is the description tag of the KML document</description>");
 
-        for (DProduct product : products) {
-            writePlacemarkKml(kmlDest, product);
-        }
+        for (DProduct dProduct : dProducts)
+            writePlacemarkKml(kmlDest, dProduct);
 
         kmlDest.println("</Document>");
         kmlDest.println("</kml>");
@@ -699,170 +683,157 @@ public class RnrService {
     }
 
     // Get the most liked products
-    public Collection<DProduct> getMostLikedProducts(int limit) {
+    public CursorPage<DProduct, String> getMostLikedProducts(int limit, Serializable cursor) {
         LOG.debug("Get most liked products with limit:{}", limit);
 
-        Collection<DProduct> dProducts = productDao.findMostLiked(limit);
-
-        return dProducts;
+        return productDao.queryMostLiked(limit, cursor);
     }
 
     // Get most thumbs up products
-    public Collection<DProduct> getMostThumbsUpProducts(int limit) {
+    public CursorPage<DProduct, String> getMostThumbsUpProducts(int limit, Serializable cursor) {
         LOG.debug("Get most thumbs up products with limit:{}", limit);
 
-        Collection<DProduct> dProducts = productDao.findMostThumbsUp(limit);
-
-        return dProducts;
+        return productDao.queryMostThumbsUp(limit, cursor);
     }
 
     // Get most thumbs down products
-    public Collection<DProduct> getMostThumbsDownProducts(int limit) {
+    public CursorPage<DProduct, String> getMostThumbsDownProducts(int limit, Serializable cursor) {
         LOG.debug("Get most thumbs down products with limit:{}", limit);
 
-        Collection<DProduct> dProducts = productDao.findMostThumbsDown(limit);
-
-        return dProducts;
+        return productDao.queryMostThumbsDown(limit, cursor);
     }
 
-
     // Get the most rated products
-    public Collection<DProduct> getMostRatedProducts(int limit) {
+    public CursorPage<DProduct, String> getMostRatedProducts(int limit, Serializable cursor) {
         LOG.debug("Get most rated products with limit:{}", limit);
 
-        Collection<DProduct> dProducts = productDao.findMostRated(limit);
-
-        return dProducts;
+        return productDao.queryMostRated(limit, cursor);
     }
 
     // Get the top rated products
-    public Collection<DProduct> getTopRatedProducts(int limit) {
+    public CursorPage<DProduct, String> getTopRatedProducts(int limit, Serializable cursor) {
         LOG.debug("Get top rated products with limit:{}", limit);
 
-        Collection<DProduct> dProducts = productDao.findTopRated(limit);
-
-        return dProducts;
+        return productDao.queryTopRated(limit, cursor);
     }
 
     // Get most commented products
-    public Collection<DProduct> getMostCommentedProducts(int limit) {
+    public CursorPage<DProduct, String> getMostCommentedProducts(int limit, Serializable cursor) {
         LOG.debug("Get most commented products with limit:{}", limit);
 
-        Collection<DProduct> dProducts = productDao.findMostCommented(limit);
-
-        return dProducts;
+        return productDao.queryMostCommented(limit, cursor);
     }
 
      // Get all likes for a product
-    public Collection<DLike> getAllLikesForProduct(String productId) {
+    public CursorPage<DLike, Long> getAllLikesForProduct(String productId, int limit, Serializable cursor) {
         LOG.debug("Get all likes for product:{}", productId);
 
-        Collection<DLike> dLikes = likeDao.findByProductId(productId);
-
-        return dLikes;
+        return likeDao.queryPageByProductId(productId, limit, cursor);
     }
 
     // Get all thumbs for a product
-    public Collection<DThumbs> getAllThumbsForProduct(String productId) {
+    public CursorPage<DThumbs, Long> getAllThumbsForProduct(String productId, int limit, Serializable cursor) {
         LOG.debug("Get all thumbs for product:{}", productId);
 
-        Collection<DThumbs> dThumbs = thumbsDao.findByProductId(productId);
-
-        return dThumbs;
+        return thumbsDao.queryPageByProductId(productId, limit, cursor);
     }
 
     // Get all ratings for a product
-    public Collection<DRating> getAllRatingsForProduct(String productId) {
+    public CursorPage<DRating, Long> getAllRatingsForProduct(String productId, int limit, Serializable cursor) {
         LOG.debug("Get all ratings for product:{}", productId);
 
-        Collection<DRating> dRatings = ratingDao.findByProductId(productId);
-
-        return dRatings;
+        return ratingDao.queryPageByProductId(productId, limit, cursor);
     }
 
     // Get all comments for a product
-    public Collection<DComment> getAllCommentsForProduct(String productId) {
+    public CursorPage<DComment, Long> getAllCommentsForProduct(String productId, boolean inHierarchy, int limit, Serializable cursor) {
         LOG.debug("Get all comments for product:{}", productId);
 
-        Collection<DComment> dComments = commentDao.findByProductId(productId);
+        if (inHierarchy) {
+            CursorPage<DComment, Long> dPage = commentDao.queryPageRootCommentsForProductId(productId, limit, cursor);
 
-        return dComments;
+            // Collect all root keys and ask for all children
+            Collection<Key> parentKeys = new ArrayList<Key>();
+            for (DComment dComment : dPage.getItems())
+                parentKeys.add(dComment.getParentKey());
+
+            // Get all child comments from for the parent keys
+            Collection<DComment> childComments = commentDao.findCommentsWithParents(productId, parentKeys);
+
+            // Add children to root comments
+            dPage.getItems().addAll(childComments);
+
+            return dPage;
+
+        } else {
+            return commentDao.queryPageByProductId(productId, limit, cursor);
+        }
     }
 
     // Get all products a user have liked
-    public Collection<DProduct> getProductsLikedByUser(String username) {
+    public Iterable<DProduct> getProductsLikedByUser(String username) {
         LOG.debug("Get all products liked by user:{}", username);
 
-        final Collection<DLike> myLikes = likeDao.findByUsername(username);
+        final Iterator<DLike> dLikeIterator = likeDao.queryByUsername(username).iterator();
 
         // Collect all unique product ids and get their products
-        Set<String> productIds = new HashSet<String>(myLikes.size());
-        for (DLike like : myLikes)
-            productIds.add(like.getProductId());
+        Set<String> productIds = new HashSet<String>();
+        while (dLikeIterator.hasNext())
+            productIds.add(dLikeIterator.next().getProductId());
 
-        final Map<String, DProduct> dProducts = productDao.findByPrimaryKeys(productIds);
-
-        return dProducts.values();
+        return productDao.queryByPrimaryKeys(null, productIds);
     }
 
     // Get all products a user have thumbed
-    public Collection<DProduct> getProductsThumbedByUser(String username) {
+    public Iterable<DProduct> getProductsThumbedByUser(String username) {
         LOG.debug("Get all products thumbed by user:{}", username);
 
-        final Collection<DThumbs> myThumbs = thumbsDao.findByUsername(username);
+        final Iterator<DThumbs> dThumbsIterator = thumbsDao.queryByUsername(username).iterator();
 
         // Collect all unique product ids and get their products
-        Set<String> productIds = new HashSet<String>(myThumbs.size());
-        for (DThumbs dThumbs : myThumbs)
-            productIds.add(dThumbs.getProductId());
+        Set<String> productIds = new HashSet<String>();
+        while (dThumbsIterator.hasNext())
+            productIds.add(dThumbsIterator.next().getProductId());
 
-        final Map<String, DProduct> dProducts = productDao.findByPrimaryKeys(productIds);
-
-        return dProducts.values();
+        return productDao.queryByPrimaryKeys(null, productIds);
     }
 
     // Get all products a user have rated
-    public Collection<DProduct> getProductsRatedByUser(String username) {
+    public Iterable<DProduct> getProductsRatedByUser(String username) {
         LOG.debug("Get all products rated by user:{}", username);
 
-        final Collection<DRating> myRatings = ratingDao.findByUsername(username);
+        final Iterator<DRating> dRatingIterator = ratingDao.queryByUsername(username).iterator();
 
         // Collect all unique product ids and get their products
-        Set<String> productIds = new HashSet<String>(myRatings.size());
-        for (DRating rating : myRatings)
-            productIds.add(rating.getProductId());
+        Set<String> productIds = new HashSet<String>();
+        while (dRatingIterator.hasNext())
+            productIds.add(dRatingIterator.next().getProductId());
 
-        final Map<String, DProduct> dProducts = productDao.findByPrimaryKeys(productIds);
-
-        return dProducts.values();
+        return productDao.queryByPrimaryKeys(null, productIds);
     }
 
     // Get all products a user have commented
-    public Collection<DProduct> getProductsCommentedByUser(String username) {
+    public Iterable<DProduct> getProductsCommentedByUser(String username) {
         LOG.debug("Get all products commented by user:{}", username);
 
-        final Collection<DComment> myComments = commentDao.findByUsername(username);
+        final Iterator<DComment> dCommentIterator = commentDao.queryByUsername(username).iterator();
 
         // Collect all unique product ids and get their products
-        Set<String> productIds = new HashSet<String>(myComments.size());
-        for (DComment dComment : myComments)
-            productIds.add(dComment.getProductId());
+        Set<String> productIds = new HashSet<String>();
+        while (dCommentIterator.hasNext())
+            productIds.add(dCommentIterator.next().getProductId());
 
-        final Map<String, DProduct> dProducts = productDao.findByPrimaryKeys(productIds);
-
-        return dProducts.values();
+        return productDao.queryByPrimaryKeys(null, productIds);
     }
 
 
     // Get all users favorite products
-    public Collection<DProduct> geUserFavoriteProducts(String username) {
+    public Iterable<DProduct> geUserFavoriteProducts(String username) {
         LOG.debug("Get favorite products for user:{}", username);
 
-        final DFavorites dFavorites =favoritesDao.findByPrimaryKey(username);
+        final DFavorites dFavorites = favoritesDao.findByPrimaryKey(username);
 
-        final Map<String, DProduct> dProducts = productDao.findByPrimaryKeys(dFavorites.getProductIds());
-
-        return  dProducts.values();
+        return productDao.queryByPrimaryKeys(null, dFavorites.getProductIds());
     }
 
 
