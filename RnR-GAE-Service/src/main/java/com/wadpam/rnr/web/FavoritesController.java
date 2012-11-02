@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.view.RedirectView;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -49,12 +50,15 @@ public class FavoritesController extends AbstractRestController {
     @RequestMapping(value="{username}", method=RequestMethod.POST)
     public RedirectView addFavorite(HttpServletRequest request,
                                     HttpServletResponse response,
+                                    UriComponentsBuilder uriBuilder,
+                                    @PathVariable String domain,
                                     @PathVariable String username,
                                     @RequestParam(required=true) String productId) {
 
         final DFavorites body = rnrService.addFavorite(productId, username);
 
-        return new RedirectView(request.getRequestURI());
+        return new RedirectView(uriBuilder.path("/{domain}/favorites/{username}").
+                buildAndExpand(domain, username).toUriString());
     }
 
     /**
@@ -70,6 +74,8 @@ public class FavoritesController extends AbstractRestController {
     @RequestMapping(value="{username}", method= RequestMethod.DELETE)
     public RedirectView deleteFavorite(HttpServletRequest request,
                                        HttpServletResponse response,
+                                       UriComponentsBuilder uriBuilder,
+                                       @PathVariable String domain,
                                        @PathVariable String username,
                                        @RequestParam(required=true) String productId) {
 
@@ -78,7 +84,8 @@ public class FavoritesController extends AbstractRestController {
         if (null == body)
             throw new NotFoundException(404, String.format("Product:%s not found for user:%s", productId, username));
 
-        return new RedirectView(request.getRequestURI());
+        return new RedirectView(uriBuilder.path("/{domain}/favorites/{username}").
+                buildAndExpand(domain, username).toUriString());
     }
 
     /**

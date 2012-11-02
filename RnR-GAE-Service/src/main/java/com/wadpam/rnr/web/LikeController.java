@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.view.RedirectView;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -53,6 +54,7 @@ public class LikeController extends AbstractRestController {
     @RequestMapping(value="", method= RequestMethod.POST)
     public RedirectView addLike(HttpServletRequest request,
                                 HttpServletResponse response,
+                                UriComponentsBuilder uriBuilder,
                                 @PathVariable String domain,
                                 @RequestParam(required=true) String productId,
                                 @RequestParam(required=false) String username,
@@ -61,7 +63,8 @@ public class LikeController extends AbstractRestController {
 
         final DLike body = rnrService.addLike(domain, productId, username, latitude, longitude);
 
-        return new RedirectView(request.getRequestURI() + "/" + body.getId().toString());
+        return new RedirectView(uriBuilder.path("/{domain}/like/{id}").
+                buildAndExpand(domain, body.getId()).toUriString());
     }
 
     /**
@@ -145,13 +148,7 @@ public class LikeController extends AbstractRestController {
 
         final CursorPage<DLike, Long> dPage = rnrService.getAllLikesForProduct(productId, pagesize, cursor);
 
-        JCursorPage<JLike> cursorPage = new JCursorPage<JLike>();
-        if (null != dPage.getCursorKey())
-            cursorPage.setCursorKey(dPage.getCursorKey().toString());
-        cursorPage.setPageSize(pagesize);
-        cursorPage.setItems((Collection<JLike>)CONVERTER.convert(dPage.getItems()));
-
-        return new ResponseEntity<JCursorPage<JLike>>(cursorPage, HttpStatus.OK);
+        return new ResponseEntity<JCursorPage<JLike>>((JCursorPage<JLike>)CONVERTER.convert(dPage), HttpStatus.OK);
     }
 
 

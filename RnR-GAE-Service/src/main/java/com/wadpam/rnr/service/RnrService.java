@@ -81,6 +81,7 @@ public class RnrService {
         if (create) {
             dLike = new DLike();
             dLike.setProductId(productId);
+            //dLike.setCreatedBy(username);
             dLike.setUsername(username);
             // Store
             likeDao.persist(dLike);

@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.view.RedirectView;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -56,22 +57,12 @@ public class AppAdminController {
             @RestCode(code=200, message="OK", description="Successful login")
     })
     @RequestMapping(value="login", method= RequestMethod.GET)
-    public ResponseEntity<JAppAdmin> loginAdmin(HttpServletRequest request,
-                                                HttpServletResponse response) {
+    public void loginAdmin(HttpServletRequest request,
+                           HttpServletResponse response,
+                           UriComponentsBuilder uriBuilder) {
 
         // Figure out the base url
-        String baseUrl = null;
-        Pattern pattern = Pattern.compile("^(.*)/api/*");
-        Matcher matcher = pattern.matcher(request.getRequestURL().toString());
-        if (matcher.find())
-            baseUrl = matcher.group(1);
-
-        if (null == baseUrl) {
-            LOG.error("Not possible to create redirect URL when logging in admin");
-            return new ResponseEntity<JAppAdmin>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-
-        String destinationUrl = baseUrl + LOGGEDIN_HTML;
+        String destinationUrl = uriBuilder.replacePath(LOGGEDIN_HTML).build().toUriString();
 
         try {
             // Check if the user is already logged in or not
@@ -79,18 +70,16 @@ public class AppAdminController {
             if (userService.isUserLoggedIn()) {
                 LOG.debug("User already logged with Google, no need to login");
                 response.sendRedirect(destinationUrl);
-                return null; // Do nothing, the redirect handle things
             }  else {
                 // User not logged in, redirect to Google login page
                 LOG.debug("Log in new user with Google");
                 String googleLoginUrl = userService.createLoginURL(destinationUrl);
                 response.sendRedirect(googleLoginUrl);
-                return null; // Do nothing, the redirect handle things
             }
         }
         catch (IOException e) {
             LOG.error("Not possible to redirect user after login with reason:{}", e.getMessage());
-            return new ResponseEntity<JAppAdmin>(HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ServerErrorException(500, "Not possible to redirect admin after Google login");
         }
     }
 
@@ -102,23 +91,13 @@ public class AppAdminController {
             @RestCode(code=302, message="OK", description="Successful logout")
     })
     @RequestMapping(value="logout", method= RequestMethod.GET)
-    public ResponseEntity<JAppAdmin> logoutAdmin(HttpServletRequest request,
-                                                 HttpServletResponse response) {
-
+    public void logoutAdmin(HttpServletRequest request,
+                            HttpServletResponse response,
+                            UriComponentsBuilder uriBuilder) {
 
         // Figure out the base url
-        String baseUrl = null;
-        Pattern pattern = Pattern.compile("^(.*)/api/*");
-        Matcher matcher = pattern.matcher(request.getRequestURL().toString());
-        if (matcher.find())
-            baseUrl = matcher.group(1);
-
-        if (null == baseUrl) {
-            LOG.error("Not possible to create redirect URL when logging out admin");
-            return new ResponseEntity<JAppAdmin>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-
-        String destinationUrl = baseUrl + LOGGEDOUT_HTML;
+        // Figure out the base url
+        String destinationUrl = uriBuilder.replacePath(LOGGEDOUT_HTML).build().toUriString();
 
         try {
             // Check if user already is logged out
@@ -126,17 +105,15 @@ public class AppAdminController {
             if (!userService.isUserLoggedIn()) {
                 LOG.debug("User not logged in with Google, no need to logout");
                 response.sendRedirect(destinationUrl);
-                return null; // Do nothing, the redirect handle things
             } else {
                 LOG.debug("Logout Google user with email " + userService.getCurrentUser().getEmail());
                 String googleLogoutUrl = userService.createLogoutURL(destinationUrl);
                 response.sendRedirect(googleLogoutUrl);
-                return null; // Do nothing, the redirect handle things
             }
         }
         catch (IOException e) {
             LOG.error("Not possible to redirect user after logout with reason:{}", e.getMessage());
-            return new ResponseEntity<JAppAdmin>(HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ServerErrorException(500, "Not possible to redirect admin after Google logout");
         }
     }
 
@@ -150,8 +127,9 @@ public class AppAdminController {
     })
     @RequestMapping(value="", method= RequestMethod.POST)
     public RedirectView createAdmin(HttpServletRequest request,
-                                                 HttpServletResponse response,
-                                                 @RequestParam(required = false) String name) {
+                                    HttpServletResponse response,
+                                    UriComponentsBuilder uriBuilder,
+                                    @RequestParam(required = false) String name) {
 
         // Get current user
         if (null == getCurrentUserDetails()) {
@@ -159,10 +137,10 @@ public class AppAdminController {
             throw new RestException(HttpStatus.UNAUTHORIZED.value(), HttpStatus.UNAUTHORIZED.value(), "Admin not logged in");
         }
 
-        final DAppAdmin body = appService.createAppAdmin(getCurrentUserEmail(), getCurrentUserId(),
-                name, request.getRequestURL().toString());
+        String detailsUrl = uriBuilder.path("/backoffice/admin").build().toUriString();
+        final DAppAdmin body = appService.createAppAdmin(getCurrentUserEmail(), getCurrentUserId(), name, detailsUrl);
 
-        return new RedirectView(request.getRequestURI());
+        return new RedirectView(detailsUrl);
     }
 
     // Get the current user email from Spring security
@@ -303,6 +281,7 @@ public class AppAdminController {
     @RequestMapping(value="{userId}/status/{status}", method= RequestMethod.POST)
     public RedirectView updateAdminAccountStatus(HttpServletRequest request,
                                                  HttpServletResponse response,
+                                                 UriComponentsBuilder uriBuilder,
                                                  @PathVariable String email,
                                                  @PathVariable int status) {
 
@@ -319,24 +298,15 @@ public class AppAdminController {
                 break;
             default:
                 LOG.error("Trying to set account status to state not supported:{}", status);
-                throw new ServerErrorException(400, "Account status not supported");
-        }
-
-        // Figure out the base url
-        String redirectUrl = null;
-        Pattern pattern = Pattern.compile("^(.*/admin/)*");
-        Matcher matcher = pattern.matcher(request.getRequestURL().toString());
-        if (matcher.find())
-            redirectUrl = matcher.group(1);
-
-        if (null == redirectUrl) {
-            LOG.error("Not possible to create redirect url after updating admin account status");
-            throw new ServerErrorException(400, "Not possible to create the redirect URL");
+                throw new RestException(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.value(), "Account status not supported");
         }
 
         final DAppAdmin body = appService.updateAdminAccountStatus(email, accountStatus);
         if (null == body)
             throw new NotFoundException(404, String.format("No app admin found for email:{}", email));
+
+        // Figure out the url
+        String redirectUrl = uriBuilder.path("/backoffice/admin/{email}").buildAndExpand(email).toUriString();
 
         return new RedirectView(redirectUrl);
     }

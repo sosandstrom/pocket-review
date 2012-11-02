@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.view.RedirectView;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -63,6 +65,8 @@ public class CommentController extends AbstractRestController {
     @RequestMapping(value="", method= RequestMethod.POST)
     public RedirectView addComment(HttpServletRequest request,
                                    HttpServletResponse response,
+                                   UriComponentsBuilder uriBuilder,
+                                   @PathVariable String domain,
                                    @RequestParam(required=true) String productId,
                                    @RequestParam(required=false) String username,
                                    @RequestParam(required=false) Float latitude,
@@ -71,7 +75,8 @@ public class CommentController extends AbstractRestController {
 
         final DComment body = rnrService.addComment(productId, username, latitude, longitude, comment);
 
-        return new RedirectView(request.getRequestURI() + "/" + body.getId().toString());
+        return new RedirectView(uriBuilder.path("/{domain}/comment/{id}").
+                buildAndExpand(domain, body.getId()).toUriString());
     }
 
     /**
@@ -155,14 +160,7 @@ public class CommentController extends AbstractRestController {
 
         final CursorPage<DComment, Long> dPage = rnrService.getAllCommentsForProduct(productId, pagesize, cursor);
 
-        // Build the cursor page
-        JCursorPage<JComment> cursorPage = new JCursorPage<JComment>();
-        if (null != dPage.getCursorKey())
-            cursorPage.setCursorKey(dPage.getCursorKey().toString());
-        cursorPage.setPageSize(pagesize);
-        cursorPage.setItems((Collection<JComment>)CONVERTER.convert(dPage.getItems()));
-
-        return new ResponseEntity<JCursorPage<JComment>>(cursorPage, HttpStatus.OK);
+        return new ResponseEntity<JCursorPage<JComment>>((JCursorPage<JComment>)CONVERTER.convert(dPage), HttpStatus.OK);
     }
 
 

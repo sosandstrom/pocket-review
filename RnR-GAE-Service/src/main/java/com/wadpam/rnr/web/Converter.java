@@ -82,13 +82,13 @@ public class Converter extends BaseConverter {
 
         // Set links
         to.setRatingsURL(UriComponentsBuilder.fromUriString(baseUri).
-                pathSegment("rating").queryParam("productId", "{id}").buildAndExpand(to.getId()).toUriString());
+                path("/rating").queryParam("productId", "{id}").buildAndExpand(to.getId()).toUriString());
         to.setLikesURL(UriComponentsBuilder.fromUriString(baseUri).
-                pathSegment("like").queryParam("productId", "{id}").buildAndExpand(to.getId()).toUriString());
+                path("/like").queryParam("productId", "{id}").buildAndExpand(to.getId()).toUriString());
         to.setCommentsURL(UriComponentsBuilder.fromUriString(baseUri).
-                pathSegment("comment").queryParam("productId", "{id}").buildAndExpand(to.getId()).toUriString());
+                path("/comment").queryParam("productId", "{id}").buildAndExpand(to.getId()).toUriString());
         to.setThumbsURL(UriComponentsBuilder.fromUriString(baseUri).
-                pathSegment("thumbs").queryParam("productId", "{id}").buildAndExpand(to.getId()).toUriString());
+                path("/thumbs").queryParam("productId", "{id}").buildAndExpand(to.getId()).toUriString());
 
         return to;
     }
@@ -256,7 +256,7 @@ public class Converter extends BaseConverter {
 
 
     // Convert pages
-    public JCursorPage<?> convert(CursorPage<?, Long> from) {
+    public JCursorPage<?> convert(CursorPage<?, ?> from) {
         final JCursorPage<JBaseObject> to = new JCursorPage<JBaseObject>();
 
         to.setPageSize(from.getRequestedPageSize());

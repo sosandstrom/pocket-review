@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.view.RedirectView;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -59,13 +60,14 @@ public class AppController extends AbstractRestController {
     @RequestMapping(value="{domain}", method= RequestMethod.POST)
     public RedirectView createApp(HttpServletRequest request,
                                           HttpServletResponse response,
+                                          UriComponentsBuilder uriBuilder,
                                           @PathVariable String domain,
                                           @RequestParam(required=false) String description) {
 
 
         appService.createApp(domain, getCurrentUserEmail(), description);
 
-        return new RedirectView(request.getRequestURI());
+        return new RedirectView(uriBuilder.path("/backoffice/app/{domain}").buildAndExpand(domain).toUriString());
     }
 
     // Get the current user email from Spring security
@@ -116,6 +118,7 @@ public class AppController extends AbstractRestController {
     @RequestMapping(value="{domain}", method= RequestMethod.POST, params ="email")
     public RedirectView updateAdminsForApp(HttpServletRequest request,
                                                    HttpServletResponse response,
+                                                   UriComponentsBuilder uriBuilder,
                                                    @PathVariable String domain,
                                                    @RequestParam(required=true) String[] emails) {
 
@@ -138,7 +141,7 @@ public class AppController extends AbstractRestController {
         if (null == body)
             throw new NotFoundException(404, String.format("No app found for domain:{}", domain));
 
-        return new RedirectView(request.getRequestURI());
+        return new RedirectView(uriBuilder.path("/backoffice/app/{domain}").buildAndExpand(domain).toUriString());
     }
 
     // Simple validation of an email address
@@ -215,23 +218,14 @@ public class AppController extends AbstractRestController {
     @RequestMapping(value="{domain}/password", method= RequestMethod.POST)
     public RedirectView generateNewAppPassword(HttpServletRequest request,
                                                        HttpServletResponse response,
+                                                       UriComponentsBuilder uriBuilder,
                                                        @PathVariable String domain) {
 
         final DApp body = appService.generateNewApiPassword(domain);
         if (null == body)
             throw new NotFoundException(404, String.format("No app found for domain:{}", domain));
 
-        // Figure out the base url
-        String redirectUrl = null;
-        Pattern pattern = Pattern.compile("^(.*)/password");
-        Matcher matcher = pattern.matcher(request.getRequestURL().toString());
-        if (matcher.find())
-            redirectUrl = matcher.group(1);
-
-        if (null == redirectUrl)
-            throw new ServerErrorException(500, "Not possible to create base url for redirect after changing password");
-
-        return new RedirectView(redirectUrl);
+        return new RedirectView(uriBuilder.path("/backoffice/app/{domain}").buildAndExpand(domain).toUriString());
     }
 
 

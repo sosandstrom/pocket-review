@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.view.RedirectView;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -59,6 +60,7 @@ public class RatingController extends AbstractRestController {
     public RedirectView addRating(HttpServletRequest request,
                                   HttpServletResponse response,
                                   @PathVariable String domain,
+                                  UriComponentsBuilder uriBuilder,
                                   @RequestParam(required=true) String productId,
                                   @RequestParam(required=false) String username,
                                   @RequestParam(required=false) Float latitude,
@@ -68,7 +70,8 @@ public class RatingController extends AbstractRestController {
 
         final DRating body = rnrService.addRating(domain, productId, username, latitude, longitude, rating, comment);
 
-        return new RedirectView(request.getRequestURI() + "/" + body.getId().toString());
+        return new RedirectView(uriBuilder.path("/{domain}/rating/{id}").
+                buildAndExpand(domain, body.getId()).toUriString());
     }
 
     /**
@@ -152,13 +155,7 @@ public class RatingController extends AbstractRestController {
 
         final CursorPage<DRating, Long> dPage = rnrService.getAllRatingsForProduct(productId, pagesize, cursor);
 
-        JCursorPage<JRating> cursorPage = new JCursorPage<JRating>();
-        if (null != dPage.getCursorKey())
-            cursorPage.setCursorKey(dPage.getCursorKey().toString());
-        cursorPage.setPageSize(pagesize);
-        cursorPage.setItems((Collection<JRating>)CONVERTER.convert(dPage.getItems()));
-
-        return new ResponseEntity<JCursorPage<JRating>>(cursorPage, HttpStatus.OK);
+        return new ResponseEntity<JCursorPage<JRating>>((JCursorPage<JRating>)CONVERTER.convert(dPage), HttpStatus.OK);
     }
 
     /**

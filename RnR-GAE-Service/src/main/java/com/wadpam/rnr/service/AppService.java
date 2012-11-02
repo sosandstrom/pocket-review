@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.security.MessageDigest;
 import java.util.ArrayList;
@@ -234,7 +235,7 @@ public class AppService {
             sb.append("A new admin just joined Pocket-Reviews.\n");
             sb.append("Name: " + name + "\n");
             sb.append("Email: " + dAppAdmin.getEmail() + "\n");
-            sb.append(detailUrl);
+            sb.append(UriComponentsBuilder.fromUriString(detailUrl).path("/{email}").buildAndExpand(dAppAdmin.getEmail()));
             emailSender.sendEmailToAdmin("Pocket-Review have a new app admin", sb.toString());
         }
 

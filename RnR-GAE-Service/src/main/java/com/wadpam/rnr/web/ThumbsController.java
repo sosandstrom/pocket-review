@@ -63,7 +63,7 @@ public class ThumbsController extends AbstractRestController {
 
         final DThumbs body = rnrService.addThumbs(domain, productId, username, latitude, longitude, RnrService.Thumbs.UP);
 
-        return new RedirectView(uriBuilder.replacePath("/api/{brand}/thumbs/{id}").
+        return new RedirectView(uriBuilder.path("/{brand}/thumbs/{id}").
                 buildAndExpand(domain, body.getId()).toUriString());
     }
 
@@ -178,13 +178,7 @@ public class ThumbsController extends AbstractRestController {
 
         final CursorPage<DThumbs, Long> dPage = rnrService.getAllThumbsForProduct(productId, pagesize, cursor);
 
-        JCursorPage<JThumbs> cursorPage = new JCursorPage<JThumbs>();
-        if (null != dPage.getCursorKey())
-            cursorPage.setCursorKey(dPage.getCursorKey().toString());
-        cursorPage.setPageSize(pagesize);
-        cursorPage.setItems((Collection<JThumbs>)CONVERTER.convert(dPage.getItems()));
-
-        return new ResponseEntity<JCursorPage<JThumbs>>(cursorPage, HttpStatus.OK);
+        return new ResponseEntity<JCursorPage<JThumbs>>((JCursorPage<JThumbs>)CONVERTER.convert(dPage), HttpStatus.OK);
     }
 
 
