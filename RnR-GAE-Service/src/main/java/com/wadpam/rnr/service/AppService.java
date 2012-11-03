@@ -6,13 +6,13 @@ import com.wadpam.rnr.dao.DAppAdminDao;
 import com.wadpam.rnr.dao.DAppDao;
 import com.wadpam.rnr.domain.DApp;
 import com.wadpam.rnr.domain.DAppAdmin;
+import com.wadpam.rnr.security.GaeUserDetails;
 import com.wadpam.server.exceptions.BadRequestException;
-import com.wadpam.server.exceptions.NotFoundException;
-import com.wadpam.server.exceptions.RestException;
 import com.wadpam.server.exceptions.ServerErrorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -90,6 +90,10 @@ public class AppService {
             dApp.setDomainName(domain);
             dApp.setApiUser(generateApiUser(domain));
             dApp.setApiPassword(generateApiPassword(domain));
+            dApp.setCreatedBy(getCurrentUserId());
+        } else {
+            // Set updater
+            dApp.setUpdatedBy(getCurrentUserId());
         }
 
         // Properties that should be possible to update
@@ -99,6 +103,16 @@ public class AppService {
         appDao.persist(dApp);
 
         return dApp;
+    }
+
+    // Get the current user id from Spring security
+    private String getCurrentUserId() {
+        return getCurrentUserDetails().getUsername();
+    }
+
+    // Get Google app engine user from the security context
+    private GaeUserDetails getCurrentUserDetails() {
+        return (GaeUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 
     // Generate api user, the MD5 hash of the domain string
@@ -155,6 +169,7 @@ public class AppService {
             emails.add(new Email(appAdmin));
 
         dApp.setAppAdmins(emails);
+        dApp.setUpdatedBy(getCurrentUserId());
         appDao.persist(dApp);
 
         return dApp;
@@ -206,6 +221,7 @@ public class AppService {
             return null;
 
         dApp.setApiPassword(generateApiPassword(domain));
+        dApp.setUpdatedBy(getCurrentUserId());
         appDao.persist(dApp);
 
         return dApp;
@@ -228,7 +244,8 @@ public class AppService {
             dAppAdmin.setAdminId(adminId);
             dAppAdmin.setEmail(new Email(adminEmail));
             dAppAdmin.setAccountStatus(createAccountStartState);
-            dAppAdmin.setMaxNumberOfApps((long)maxNumberOfAppsStartValue);
+            dAppAdmin.setMaxNumberOfApps((long) maxNumberOfAppsStartValue);
+            dAppAdmin.setCreatedBy(getCurrentUserId());
 
             // Send email to indicate new app admin joined
             StringBuilder sb = new StringBuilder();
@@ -237,6 +254,9 @@ public class AppService {
             sb.append("Email: " + dAppAdmin.getEmail() + "\n");
             sb.append(UriComponentsBuilder.fromUriString(detailUrl).path("/{email}").buildAndExpand(dAppAdmin.getEmail()));
             emailSender.sendEmailToAdmin("Pocket-Review have a new app admin", sb.toString());
+        } else {
+            // Set updater
+            dAppAdmin.setUpdatedBy(getCurrentUserId());
         }
 
         // Update the name each time, not only when first created
@@ -290,6 +310,7 @@ public class AppService {
             return null;
 
         dAppAdmin.setAccountStatus(accountStatus);
+        dAppAdmin.setUpdatedBy(getCurrentUserId());
 
         // Update datastore
         appAdminDao.persist(dAppAdmin);
