@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.wadpam.rnr</groupId>
     <artifactId>backend-gae</artifactId>
-    <version>4</version>
+    <version>5-SNAPSHOT</version>
     <packaging>war</packaging>
     <name>RnR-GAE-Backend</name>
 
