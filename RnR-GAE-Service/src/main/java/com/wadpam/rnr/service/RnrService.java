@@ -24,7 +24,6 @@ public class RnrService {
 
     static final Logger LOG = LoggerFactory.getLogger(RnrService.class);
 
-    private DAppDao appDao;
     private DAppSettingsDao appSettingsDao;
     private DProductDao productDao;
     private DRatingDao ratingDao;
@@ -716,10 +715,6 @@ public class RnrService {
 
 
     // Setters and getters
-    public void setAppDao(DAppDao appDao) {
-        this.appDao = appDao;
-    }
-
     public void setRatingDao(DRatingDao ratingDao) {
         this.ratingDao = ratingDao;
     }

@@ -48,12 +48,6 @@ public class Converter extends BaseConverter {
         else if (from instanceof DFavorites) {
             to = convert((DFavorites) from);
         }
-        else if (from instanceof DApp) {
-            to = convert((DApp) from);
-        }
-        else if (from instanceof DAppAdmin) {
-            to = convert((DAppAdmin) from);
-        }
         else {
             throw new UnsupportedOperationException(String.format("No converter for:%s" + from.getClass().getSimpleName()));
         }
@@ -167,47 +161,6 @@ public class Converter extends BaseConverter {
 
         to.setUsername(from.getUsername());
         to.setProductIds(from.getProductIds());
-
-        return to;
-    }
-
-    // Convert app
-    public JApp convert(DApp from) {
-        if (null == from) {
-            return null;
-        }
-
-        final JApp to = new JApp();
-        convert(from, to);
-
-        to.setDomain(from.getDomainName());
-
-        Collection<String> emails = new ArrayList<String>(from.getAppAdmins().size());
-        for (Email email : from.getAppAdmins())
-            emails.add(email.getEmail());
-        to.setAppAdmins(emails);
-
-        to.setApiUser(from.getApiUser());
-        to.setApiPassword(from.getApiPassword());
-        to.setDescription(from.getDescription());
-
-        return to;
-    }
-
-    // Convert admin
-    public JAppAdmin convert(DAppAdmin from) {
-        if (null == from) {
-            return null;
-        }
-
-        final JAppAdmin to = new JAppAdmin();
-        convert(from, to);
-
-        to.setAdminId(from.getAdminId());
-        to.setEmail(from.getEmail().getEmail());
-        to.setName(from.getName());
-        to.setAccountStatus(from.getAccountStatus());
-        to.setMaxNumberOfApps(from.getMaxNumberOfApps());
 
         return to;
     }

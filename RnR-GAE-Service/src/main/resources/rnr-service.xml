@@ -22,7 +22,6 @@
     <import resource="classpath*:spring-dao.xml" />
 
     <bean id="rnrService" class="com.wadpam.rnr.service.RnrService" init-method="init">
-        <property name="appDao" ref="dAppDao" />
         <property name="appSettingsDao" ref="dAppSettingsDao" />
         <property name="productDao" ref="dProductDao" />
         <property name="ratingDao" ref="dRatingDao" />
@@ -30,17 +29,6 @@
         <property name="thumbsDao" ref="dThumbsDao" />
         <property name="commentDao" ref="dCommentDao" />
         <property name="favoritesDao" ref="dFavoritesDao" />
-    </bean>
-
-    <bean id="appService" class="com.wadpam.rnr.service.AppService">
-        <property name="appDao" ref="dAppDao" />
-        <property name="appAdminDao" ref="dAppAdminDao" />
-        <property name="emailSender" ref="emailSender" />
-    </bean>
-
-    <bean id="emailSender" class="com.wadpam.rnr.service.EmailSender">
-        <property name="fromEmailAddress" value="${email.from.address}" />
-        <property name="fromEmailName" value="${email.from.name}" />
     </bean>
 
     <!--           Controllers             -->
@@ -69,16 +57,7 @@
         <property name="rnrService" ref="rnrService" />
     </bean>
 
-    <bean id="appController" class="com.wadpam.rnr.web.AppController">
-        <property name="appService" ref="appService" />
-    </bean>
-
-    <bean id="adminController" class="com.wadpam.rnr.web.AppAdminController">
-        <property name="appService" ref="appService" />
-    </bean>
-
     <bean id="settingsController" class="com.wadpam.rnr.web.AppSettingsController">
-        <property name="appService" ref="appService" />
     </bean>
 
 </beans>

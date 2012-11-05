@@ -14,7 +14,6 @@
     <http pattern="/loggedout.html" security="none" />
     <http pattern="/loggedin.html" security="none" />
 
-
     <http pattern="/api/*/monitor/**" security="none" />
 
 </b:beans>

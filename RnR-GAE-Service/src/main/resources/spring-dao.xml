@@ -35,16 +35,9 @@
           class="com.wadpam.rnr.dao.DFavoritesDaoBean">
     </bean>
 
-    <bean id="dAppDao"
-          class="com.wadpam.rnr.dao.DAppDaoBean">
-    </bean>
-
     <bean id="dAppSettingsDao"
           class="com.wadpam.rnr.dao.DAppSettingsDaoBean">
     </bean>
 
-    <bean id="dAppAdminDao"
-          class="com.wadpam.rnr.dao.DAppAdminDaoBean">
-    </bean>
 
 </beans>
