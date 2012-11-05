@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.wadpam.rnr</groupId>
     <artifactId>backend-gae</artifactId>
-    <version>3</version>
+    <version>4-SNAPSHOT</version>
     <packaging>war</packaging>
     <name>RnR-GAE-Backend</name>
 
@@ -15,7 +15,7 @@
         <spring.version>3.1.1.RELEASE</spring.version>
         <spring.security.version>3.1.1.RELEASE</spring.security.version>
         <org.springframework.social.version>1.0.1.RELEASE</org.springframework.social.version>
-        <openserver.version>3-SNAPSHOT</openserver.version>
+        <openserver.version>3</openserver.version>
         <downloadSources>true</downloadSources>
         <netbeans.hint.deploy.server>Tomcat</netbeans.hint.deploy.server>
         <java.version>1.6</java.version>
@@ -51,7 +51,7 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>service-gae</artifactId>
-            <version>1.2</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
