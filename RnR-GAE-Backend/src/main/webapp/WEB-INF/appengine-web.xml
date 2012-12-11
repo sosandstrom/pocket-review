@@ -19,10 +19,12 @@ xsi:schemaLocation="http://appengine.google.com/ns/1.0 http://googleappengine.go
         <include path="/development-bundle/**" />
         <include path="/**.html" />
         <exclude path="/**/return.html" />
-<!--        <include path="/api/*/brandadmin/*.html" />
+        <!--
+        <include path="/api/*/brandadmin/*.html" />
         <include path="/api/*/domainadmin/*.html" />
         <include path="/*/js/**" />
-        <include path="/*/css/**" />-->
+        <include path="/*/css/**" />
+        -->
     </static-files>
     <sessions-enabled>true</sessions-enabled>
     <threadsafe>true</threadsafe>

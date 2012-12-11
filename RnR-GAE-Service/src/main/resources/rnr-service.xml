@@ -17,7 +17,9 @@
 
     <!--           Service             -->
 
+    <!--
     <import resource="classpath*:spring-security.xml" />
+    -->
 
     <import resource="classpath*:spring-dao.xml" />
 
