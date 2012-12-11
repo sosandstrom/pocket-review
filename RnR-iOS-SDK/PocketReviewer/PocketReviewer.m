@@ -31,7 +31,7 @@
 // http parameter names
 #define ITEM_ID @"itemid"
 #define RATING @"rating"
-#define REVIEW @"review"
+#define COMMENT @"comment"
 #define USER_ID @"username"
 #define LATITUDE @"latitude"
 #define LONGITUDE @"longitude"
@@ -39,6 +39,7 @@
 #define MIN_RATING @"minRating"
 #define IDS @"ids"
 #define MAX_NUMBER_OF_RESULTS @"maxResults"
+#define SORT_ORDER @"sort"
 
 // JSON attribute names
 #define RATING_SUM @"ratingSum"
@@ -55,22 +56,36 @@
 // Private stuff
 @interface PocketReviewer ()
 
-- (void)rateAndReviewItem:(NSString*)itemId forLatitude:(NSNumber*)latitude longitude:(NSNumber*)longitude 
-                   rating:(NSNumber*)rating review:(NSString*)review completionBlock:(void(^)(Rating*, NSError*))block;
-- (void)nearbyAverageRatingsForLatitude:(NSNumber*)latitude andLongitude:(NSNumber*)longitude withinRadius:(NearbyRadius)radius 
-                     maxNumberOfResults:(NSInteger)maxNumberOfResults completionBlock:(void(^)(NSArray*, NSError*))block;
+- (void)doRateItem:(NSString*)itemId
+      withLatitude:(NSNumber*)latitude
+         longitude:(NSNumber*)longitude
+            rating:(NSNumber*)rating
+           comment:(NSString*)comment
+   completionBlock:(void(^)(Rating*, NSError*))block;
 
-- (NSInteger)requestWithUrl:(NSURL*)url body:(NSDictionary*)body completionBlock:(void(^)(id result, NSError* error))block;
+- (void)doGetNearbyTopRatedItemsForLatitude:(NSNumber*)latitude
+                                  longitude:(NSNumber*)longitude
+                                 radius:(NearbyRadius)radius
+                         maxNumberOfResults:(NSInteger)maxNumberOfResults
+                        completionBlock:(void(^)(NSArray*, NSError*))block;
+
+- (NSInteger)requestWithUrl:(NSURL*)url
+                       body:(NSDictionary*)body
+                resultClazz:(Class)clazz
+            completionBlock:(void(^)(id result, NSError* error))block;
+
 - (NSString*)toStringFromDict:(NSDictionary*)dict;
 - (NSInteger)toServerRating:(NSInteger)userRating;
 - (NSError*)parsingErrorWithDescription:(NSString*)format, ...;
 
 - (BOOL)checkUrl:(NSURL*)url error:(NSError**)error;
 - (BOOL)checkDomain:(NSString*)domain error:(NSError **)error;
+- (BOOL)checkAppUser:(NSString*)user error:(NSError **)error;
+- (BOOL)checkAppPassword:(NSString*)password error:(NSError **)error;
 - (BOOL)checkUserId:(NSString*)userId error:(NSError **)error;
 - (BOOL)checkItemId:(NSString*)itemId error:(NSError **)error;
 - (BOOL)checkRating:(NSNumber*)rating error:(NSError**)error;
-- (BOOL)checkReview:(NSString*)review error:(NSError**)error;
+- (BOOL)checkComment:(NSString*)review error:(NSError**)error;
 - (BOOL)checkLatitude:(NSNumber*)latitude error:(NSError**)error;
 - (BOOL)checkLongitude:(NSNumber*)longitude error:(NSError**)error;
 - (BOOL)checkRadius:(NSInteger)radius error:(NSError**)error;
@@ -79,6 +94,8 @@
 
 @property (nonatomic, retain) NSURL *url;
 @property (nonatomic) BOOL anonymous;
+@property (nonatomic, retain) NSString *appUser;
+@property (nonatomic, retain) NSString *appPassword;
 @property (nonatomic) dispatch_queue_t queue;
 @property (nonatomic, readonly) NSString* userAgent;
 
@@ -96,6 +113,8 @@
 @synthesize url = url_;
 @synthesize dryRun = dryRun_;
 @synthesize anonymous = anonymous_;
+@synthesize appUser = appUser_;
+@synthesize appPassword = appPassword_;
 @synthesize queue = queue_;
 @synthesize userAgent = userAgent_;
 
@@ -118,6 +137,8 @@
 - (void)dealloc {
   [userId_ release];
   [url_ release];
+  [appUser_ release];
+  [appPassword_ release];
   dispatch_release(self.queue);
   [userAgent_ release];
   [super dealloc];
@@ -141,12 +162,19 @@
 
 
 // Start rating
-- (BOOL)startReviewingWithServiceUrl:(NSURL*)url domain:(NSString*)domain anonymousUser:(BOOL)anonymous withError:(NSError**)error {
+- (BOOL)startReviewingWithUrl:(NSURL*)url
+                       domain:(NSString*)domain
+                      appUser:(NSString*)appUser
+                  appPassword:(NSString*)appPassword
+                anonymousUser:(BOOL)anonymous
+                    withError:(NSError**)error {
   DLOG(@"Start rating");
 
   // Check paramters
   if (![self checkUrl:url error:error] || 
-      ![self checkDomain:domain error:error]) {
+      ![self checkDomain:domain error:error] ||
+      ![self checkAppUser:appUser error:error] ||
+      ![self checkAppPassword:appPassword error:error]) {
     return NO;
   }
   
@@ -154,6 +182,8 @@
   self.url = APPEND_PATH(domain, url);
 
   self.anonymous = anonymous;
+  self.appUser = appUser;
+  self.appPassword = appPassword;
   
   // Cache the user agent profile already when the service is started
   NSString *userAgent = self.userAgent;
@@ -163,82 +193,23 @@
 }
 
 
-# pragma mark - Rating methods
-
-// Rate an item
-- (void)rateItem:(NSString*)itemId withRating:(NSInteger)rating completionBlock:(void(^)(Rating*, NSError*))block {
-  [self rateAndReviewItem:itemId forLatitude:nil longitude:nil rating:[NSNumber numberWithInteger:rating] 
-                     review:nil completionBlock:block];
-}
+# pragma mark - Items methods
 
 
-// Rate an item with latitude and longitude
-- (void)rateItem:(NSString*)itemId withLatitude:(float)latitude andLongitude:(float)longitude 
-      withRating:(NSInteger)rating completionBlock:(void(^)(Rating*, NSError*))block {
-  [self rateAndReviewItem:itemId forLatitude:[NSNumber numberWithFloat:latitude] 
-                  longitude:[NSNumber numberWithFloat:longitude] rating:[NSNumber numberWithInteger:rating] 
-                     review:nil completionBlock:block];
-}
-
-
-// Internal rating and review method
-- (void)rateAndReviewItem:(NSString*)itemId forLatitude:(NSNumber*)latitude longitude:(NSNumber*)longitude 
-                          rating:(NSNumber*)rating review:(NSString*)review completionBlock:(void(^)(Rating*, NSError*))block {
+// Get info for an item
+- (void)itemWithId:(NSString*)itemId completionBlock:(void(^)(Item*, NSError*))block {
   
   // Use GCD
   dispatch_async(self.queue, ^{
-    DLOG(@"Rate and review an item");
+    DLOG(@"Get Item info");
     
     // Track errors
     NSError *error = nil;
     
     // Check parameters
-    if (![self checkUrl:self.url error:&error] || 
-        ![self checkItemId:itemId error:&error] || 
-        ![self checkLatitude:latitude error:&error] || 
-        ![self checkLongitude:longitude error:&error] ||
-        ![self checkRating:rating error:&error]||
-        ![self checkReview:review error:&error]) {
-      dispatch_async(dispatch_get_main_queue(), ^{ 
-        block(nil, error);
-      });
-      return;
-    }
-    
-    // Build the request path
-    NSURL *requestUrl = APPEND_PATH(@"rating", self.url);
-    requestUrl = APPEND_PATH(itemId, requestUrl);
-    
-    // Collect body paramters
-    NSMutableDictionary *body = [NSMutableDictionary dictionary];
-    if (self.userId) [body setObject:self.userId forKey:USER_ID];
-    if (rating) [body setObject:[NSNumber numberWithInteger:[self toServerRating:[rating integerValue]]] forKey:RATING];
-    if (review) [body setObject:review forKey:REVIEW];
-    if (latitude) [body setObject:latitude forKey:LATITUDE];
-    if (longitude) [body setObject:longitude forKey:LONGITUDE];
-    
-    // Make the request
-    int responseCode = [self requestWithUrl:requestUrl body:body completionBlock:block];
-    DLOG(@"Rating and review request executed with response code %d", responseCode);
-    
-  });
-}
-
-
-// Get the average rating for an item
-- (void)averageRatingForItem:(NSString*)itemId completionBlock:(void(^)(Rating*, NSError*))block {
-  
-  // Use GCD
-  dispatch_async(self.queue, ^{
-    DLOG(@"Get a rating");
-    
-    // Track errors
-    NSError *error = nil;
-    
-    // Check parameters
-    if (![self checkUrl:self.url error:&error] || 
+    if (![self checkUrl:self.url error:&error] ||
         ![self checkItemId:itemId error:&error]) {
-      dispatch_async(dispatch_get_main_queue(), ^{ 
+      dispatch_async(dispatch_get_main_queue(), ^{
         block(nil, error);
       });
       return;
@@ -246,31 +217,31 @@
     
     // Build the request path
     DLOG(@"base url %@", [self.url absoluteString]);
-    NSURL *requestUrl = APPEND_PATH(@"rating", self.url);
+    NSURL *requestUrl = APPEND_PATH(@"product", self.url);
     requestUrl = APPEND_PATH(itemId, requestUrl);
     
     // Make the request
-    int responseCode = [self requestWithUrl:requestUrl body:nil completionBlock:block];
-    DLOG(@"Get rating request executed with response code %d", responseCode);
-  
+    int responseCode = [self requestWithUrl:requestUrl body:nil resultClazz:[Item class] completionBlock:block];
+    DLOG(@"Get item info executed with response code %d", responseCode);
+    
   });
 }
 
 
-// Get average ratings for a list of items
-- (void)averageRatingForItems:(NSArray*)itemIds completionBlock:(void(^)(NSArray*, NSError*))block {
+// Get info for a list of items
+- (void)itemsWithIds:(NSArray*)itemIds completionBlock:(void(^)(NSArray*, NSError*))block {
   
   // Use GCD
-  dispatch_async(self.queue, ^{    
-    DLOG(@"Get rating for an array of items");
+  dispatch_async(self.queue, ^{
+    DLOG(@"Get item info for an array of items");
     
     // Track errors
     NSError *error = nil;
     
     // Check parameters
-    if (![self checkUrl:self.url error:&error] || 
+    if (![self checkUrl:self.url error:&error] ||
         ![self checkItemIds:itemIds error:&error]) {
-      dispatch_async(dispatch_get_main_queue(), ^{ 
+      dispatch_async(dispatch_get_main_queue(), ^{
         block(nil, error);
       });
       return;
@@ -283,97 +254,78 @@
     }];
     
     // Build the request path
-    NSURL *requestUrl = APPEND_PATH(@"rating", self.url);
+    NSURL *requestUrl = APPEND_PATH(@"product", self.url);
     requestUrl = APPEND_QUERY([itemParameters componentsJoinedByString:@"&"], requestUrl);
     
     // Make the request
-    int responseCode = [self requestWithUrl:requestUrl body:nil completionBlock:block];
-    DLOG(@"Get ratings request executed with response code %d", responseCode);
+    int responseCode = [self requestWithUrl:requestUrl body:nil resultClazz:[Item class] completionBlock:block];
+    DLOG(@"Get info for a list of items executed with response code %d", responseCode);
     
   });
 }
 
 
-// Get the individual ratings for an item
-- (void)ratingsForItem:(NSString*)itemId completionBlock:(void(^)(NSArray*, NSError*))block {
+// Get most rated items
+- (void)mostRatedItems:(NSInteger)maxNumberOfResults completionBlock:(void(^)(NSArray*, NSError*))block {
+  // TODO
+  
+}
+
+
+// Get top rated items
+- (void)topRatedItems:(NSInteger)maxNumberOfResults completionBlock:(void(^)(NSArray*, NSError*))block {
   // TODO
 }
 
 
-// Get my ratings
-- (void)myRatingsWithCompletionBlock:(void(^)(NSArray*, NSError*))block {
-  DLOG(@"Get my ratings");
-
-  dispatch_async(self.queue, ^{    
-    // Track errors
-    NSError *error = nil;
-    
-    // Check parameters
-    if (![self checkUrl:self.url error:&error] || 
-        ![self checkUserId:self.userId error:&error]) {
-      dispatch_async(dispatch_get_main_queue(), ^{ 
-        block(nil, error);
-      });
-      return;
-    }
-
-    // Build the query string
-    NSMutableDictionary *query = [NSMutableDictionary dictionary];
-    [query setObject:self.userId forKey:USER_ID];
-    
-    // Build the request path
-    NSURL *requestUrl = APPEND_PATH(@"me", self.url);
-    requestUrl = APPEND_QUERY([self toStringFromDict:query], requestUrl);
-    
-    // Make the request
-    int responseCode = [self requestWithUrl:requestUrl body:nil completionBlock:block];
-    DLOG(@"Get my ratings executed with response code %d", responseCode);
-    
-  });
+// Get nearby top rated items
+- (void)nearbyTopRatedItemsWithRadius:(NearbyRadius)radius
+         maxNumberOfResults:(NSInteger)maxNumberOfResults
+            completionBlock:(void(^)(NSArray*, NSError*))block {
+  
+  [self doGetNearbyTopRatedItemsForLatitude:nil
+                                  longitude:nil
+                                     radius:radius
+                         maxNumberOfResults:maxNumberOfResults
+                            completionBlock:block];
 }
 
 
-// Get top average ratings
-- (void)topAverageRatings:(NSInteger)maxNumberOfResults completionBlock:(void(^)(NSArray*, NSError*))block {
-  // TODO
+// Get nearby top rated items
+- (void)nearbyTopRatedItemsForLatitude:(float)latitude
+                             longitude:(float)longitude
+                                radius:(NearbyRadius)radius
+                    maxNumberOfResults:(NSInteger)maxNumberOfResults
+                       completionBlock:(void(^)(NSArray*, NSError*))block {
+  
+  [self doGetNearbyTopRatedItemsForLatitude:[NSNumber numberWithFloat:latitude]
+                                  longitude:[NSNumber numberWithFloat:longitude]
+                                     radius:radius
+                         maxNumberOfResults:maxNumberOfResults
+                            completionBlock:block];
 }
 
 
-
-// Get nearby items using Google provided latitude and langitude
-- (void)topNearbyAverageRatingsWithinRadius:(NearbyRadius)radius maxNumberOfResults:(NSInteger)maxNumberOfResults 
+// Internal get near by top rated items
+- (void)doGetNearbyTopRatedItemsForLatitude:(NSNumber*)latitude
+                                  longitude:(NSNumber*)longitude
+                                     radius:(NearbyRadius)radius
+                         maxNumberOfResults:(NSInteger)maxNumberOfResults
                             completionBlock:(void(^)(NSArray*, NSError*))block {
-  [self nearbyAverageRatingsForLatitude:nil andLongitude:nil withinRadius:radius maxNumberOfResults:maxNumberOfResults 
-                 completionBlock:block];
-  
-}
-
-
-// Get nearby items 
-- (void)topNearbyAverageRatingsForLatitude:(float)latitude andLongitude:(float)longitude withinRadius:(NearbyRadius)radius 
-                        maxNumberOfResults:(NSInteger)maxNumberOfResults completionBlock:(void(^)(NSArray*, NSError*))block {
-  [self nearbyAverageRatingsForLatitude:[NSNumber numberWithFloat:latitude] andLongitude:[NSNumber numberWithFloat:longitude] 
-                    withinRadius:radius maxNumberOfResults:maxNumberOfResults completionBlock:block];
-  
-}
-
-
-- (void)nearbyAverageRatingsForLatitude:(NSNumber*)latitude andLongitude:(NSNumber*)longitude withinRadius:(NearbyRadius)radius 
-                            maxNumberOfResults:(NSInteger)maxNumberOfResults completionBlock:(void(^)(NSArray*, NSError*))block {
   
   // Use GCD
-  dispatch_async(self.queue, ^{    
-    DLOG(@"Get nearby items");
+  dispatch_async(self.queue, ^{
+    DLOG(@"Get nearby top rated items");
     
     // Track errors
     NSError *error = nil;
     
     // Check parameters
-    if (![self checkUrl:self.url error:&error] || 
-        ![self checkLatitude:latitude error:&error] || 
+    if (![self checkUrl:self.url error:&error] ||
+        ![self checkLatitude:latitude error:&error] ||
         ![self checkLongitude:longitude error:&error] ||
         ![self checkMaxNumberOfResults:maxNumberOfResults error:&error]) {
-      dispatch_async(dispatch_get_main_queue(), ^{ 
+      dispatch_async(dispatch_get_main_queue(), ^{
         block(nil, error);
       });
       return;
@@ -387,45 +339,214 @@
     if (latitude) [query setObject:latitude forKey:LATITUDE];
     if (longitude) [query setObject:longitude forKey:LONGITUDE];
     if (searchRadius) [query setObject:[NSNumber numberWithInteger:radius] forKey:RADIUS];
-    //[query setObject:[NSNumber numberWithInteger:maxNumberOfResults] forKey:MAX_NUMBER_OF_RESULTS]; // TODO: uncomment when backend has been updated
-      
+    [query setObject:[NSNumber numberWithInteger:maxNumberOfResults] forKey:MAX_NUMBER_OF_RESULTS];
+    [query setObject:[NSNumber numberWithInteger:0] forKey:SORT_ORDER];
+
     // Build the request path
-    NSURL *requestUrl = APPEND_PATH(@"rating", self.url);
-    requestUrl = APPEND_PATH(@"nearby", requestUrl);
+    NSURL *requestUrl = APPEND_PATH(@"product/nearby", self.url);
     requestUrl = APPEND_QUERY([self toStringFromDict:query], requestUrl);
     
     // Make the request
-    int responseCode = [self requestWithUrl:requestUrl body:nil completionBlock:block];
+    int responseCode = [self requestWithUrl:requestUrl body:nil resultClazz:[Item class] completionBlock:block];
     DLOG(@"Get ratings nearby request executed with response code %d", responseCode);
     
   });
 }
 
 
-# pragma mark - Review methods
 
-// Add a review
-- (void)reviewItem:(NSString*)itemId withReview:(NSString*)review completionBlock:(void(^)(NSError*))block {
+// Get the items I have rated
+- (void)myRatedItemsWithCompletionBlock:(void(^)(NSArray*, NSError*))block {
+  
+  DLOG(@"Get items I have rated");
+  
+  dispatch_async(self.queue, ^{
+    
+    // Track errors
+    NSError *error = nil;
+    
+    // Check parameters
+    if (![self checkUrl:self.url error:&error] ||
+        ![self checkUserId:self.userId error:&error]) {
+      dispatch_async(dispatch_get_main_queue(), ^{
+        block(nil, error);
+      });
+      return;
+    }
+    
+    // Build the query string
+    NSMutableDictionary *query = [NSMutableDictionary dictionary];
+    [query setObject:self.userId forKey:USER_ID];
+    
+    // Build the request path
+    NSURL *requestUrl = APPEND_PATH(@"product/rated", self.url);
+    requestUrl = APPEND_QUERY([self toStringFromDict:query], requestUrl);
+    
+    // Make the request
+    int responseCode = [self requestWithUrl:requestUrl body:nil resultClazz:[Item class] completionBlock:block];
+    DLOG(@"Get my ratied items executed with response code %d", responseCode);    
+  });
+}
+
+
+// Get items I have liked
+- (void)myLikedItemsWithCompletionBlock:(void(^)(NSArray*, NSError*))block {
   // TODO
 }
 
 
-// Get all reviews for an item
-- (void)reviewsForItem:(NSString*)itemId completionBlock:(void(^)(NSArray*, NSError*))block {
+// Get the items I have commented
+- (void)myCommentedItemsWithCompletionBlock:(void(^)(NSArray*, NSError*))block {
   // TODO
 }
 
 
-// Delete the review written by the current user
-- (void)deleteMyReviewForItem:(NSString*)itemId completionBlock:(void(^)(NSError*))block {
-  // TODO
+# pragma mark - Rating methods
+
+// Rate an item
+- (void)rateItem:(NSString*)itemId
+      withRating:(NSInteger)rating
+         comment:(NSString*)comment
+ completionBlock:(void(^)(Rating*, NSError*))block {
+  
+  [self doRateItem:itemId
+      withLatitude:nil
+         longitude:nil
+            rating:[NSNumber numberWithInteger:rating]
+           comment:comment
+   completionBlock:block];
 }
 
 
-// Get all my reviews
-- (void)myReviewsWithCompletionBlock:(void(^)(NSArray*, NSError*))block {
-  // TODO
+// Rate an item with latitude and longitude
+- (void)rateItem:(NSString*)itemId
+    withLatitude:(float)latitude
+       longitude:(float)longitude
+          rating:(NSInteger)rating
+         comment:(NSString*)comment
+ completionBlock:(void(^)(Rating*, NSError*))block {
+  
+  [self doRateItem:itemId
+      withLatitude:[NSNumber numberWithFloat:latitude]                  
+         longitude:[NSNumber numberWithFloat:longitude]
+            rating:[NSNumber numberWithInteger:rating]
+           comment:comment
+   completionBlock:block];
 }
+
+
+// Internal rating method
+- (void)doRateItem:(NSString*)itemId withLatitude:(NSNumber*)latitude
+                longitude:(NSNumber*)longitude rating:(NSNumber*)rating
+                  comment:(NSString*)comment completionBlock:(void(^)(Rating*, NSError*))block {
+  
+  // Use GCD
+  dispatch_async(self.queue, ^{
+    DLOG(@"Rate an item");
+    
+    // Track errors
+    NSError *error = nil;
+    
+    // Check parameters
+    if (![self checkUrl:self.url error:&error] || 
+        ![self checkItemId:itemId error:&error] || 
+        ![self checkLatitude:latitude error:&error] || 
+        ![self checkLongitude:longitude error:&error] ||
+        ![self checkRating:rating error:&error]||
+        ![self checkComment:comment error:&error]) {
+      dispatch_async(dispatch_get_main_queue(), ^{ 
+        block(nil, error);
+      });
+      return;
+    }
+    
+    // Build the request path
+    NSURL *requestUrl = APPEND_PATH(@"rating", self.url);
+    
+    // Collect body paramters
+    NSMutableDictionary *body = [NSMutableDictionary dictionary];
+    if (itemId) [body setObject:itemId forKey:ITEM_ID];
+    if (self.userId) [body setObject:self.userId forKey:USER_ID];
+    if (rating) [body setObject:[NSNumber numberWithInteger:[self toServerRating:[rating integerValue]]] forKey:RATING];
+    if (comment) [body setObject:comment forKey:COMMENT];
+    if (latitude) [body setObject:latitude forKey:LATITUDE];
+    if (longitude) [body setObject:longitude forKey:LONGITUDE];
+    
+    // Make the request
+    int responseCode = [self requestWithUrl:requestUrl body:body resultClazz:[Rating class] completionBlock:block];
+    DLOG(@"Rating request executed with response code %d", responseCode);
+  });
+}
+
+
+// Get the individual ratings for an item
+- (void)ratingsForItem:(NSString*)itemId completionBlock:(void(^)(NSArray*, NSError*))block {
+  
+  // Use GCD
+  dispatch_async(self.queue, ^{
+    DLOG(@"Get ratings for item %@", itemId);
+    
+    // Track errors
+    NSError *error = nil;
+    
+    // Check parameters
+    if (![self checkUrl:self.url error:&error] ||
+        ![self checkItemId:itemId error:&error]) {
+      dispatch_async(dispatch_get_main_queue(), ^{
+        block(nil, error);
+      });
+      return;
+    }
+    
+    // Build the query string
+    NSMutableDictionary *query = [NSMutableDictionary dictionary];
+    [query setObject:itemId forKey:ITEM_ID];
+    
+    // Build the request path
+    NSURL *requestUrl = APPEND_PATH(@"rating", self.url);
+    requestUrl = APPEND_QUERY([self toStringFromDict:query], requestUrl);
+    
+    // Make the request
+    int responseCode = [self requestWithUrl:requestUrl body:nil resultClazz:[Rating class] completionBlock:block];
+    DLOG(@"Get ratings for item request executed with response code %d", responseCode);
+  });
+}
+
+  
+// Get a historgram
+- (void)ratingHistogramForItem:(NSString*)itemId interval:(int)interval completionBlock:(void(^)(Histogram*, NSError*))block {
+  
+  // Use GCD
+  dispatch_async(self.queue, ^{
+    DLOG(@"Get histogram for item %@", itemId);
+    
+    // Track errors
+    NSError *error = nil;
+    
+    // Check parameters
+    if (![self checkUrl:self.url error:&error] ||
+        ![self checkItemId:itemId error:&error]) {
+      dispatch_async(dispatch_get_main_queue(), ^{
+        block(nil, error);
+      });
+      return;
+    }
+    
+    // Build the query string
+    NSMutableDictionary *query = [NSMutableDictionary dictionary];
+    [query setObject:itemId forKey:ITEM_ID];
+
+    
+    // Build the request path
+    NSURL *requestUrl = APPEND_PATH(@"rating/histogram", self.url);
+    requestUrl = APPEND_QUERY([self toStringFromDict:query], requestUrl);
+    
+    // Make the request
+    int responseCode = [self requestWithUrl:requestUrl body:nil resultClazz:[Histogram class] completionBlock:block];
+    DLOG(@"Get histogram request executed with response code %d", responseCode);
+  });
+}
+
 
 
 # pragma mark - Like methods
@@ -436,74 +557,47 @@
 }
 
 
-// Like an item with a specified position
-- (void)likeItem:(NSString *)itemId withLatitude:(float)latitude andLongitude:(float)longitude completionBlock:(void (^)(NSError *))block {
-  // TODO
-}
-
-
-// Get the number of likes for an item
-- (void)numberOfLikesForItem:(NSString*)itemId completionBlock:(void(^)(Likes*, NSError*))block {
-  // TODO
-}
-
-
-// Get the number of likes for a list of items
-- (void)numberOfLikesForItems:(NSArray*)itemIds completionBlock:(void(^)(NSArray*, NSError*))block {
-  // TODO
-}
-
-
 // Get the individual ratings for an item
 - (void)likesForItem:(NSString*)itemId completionBlock:(void(^)(NSArray*, NSError*))block {
   // TODO
 }
 
 
-// Get most liked items
-- (void)mostLikedItems:(NSInteger)maxNumberOfResults completionBlock:(void(^)(NSArray*, NSError*))block {
+# pragma mark - Comment methods
+
+// Add a comment to an item
+- (void)commentItem:(NSString*)itemId withComment:(NSString*)comment completionBlock:(void(^)(NSError*))block {
   // TODO
 }
 
 
-//  Get most liked nearby items using device location provided by Google
-- (void)mostLikedNearbyItemsWithinRadius:(NearbyRadius)radius maxNumberOfResults:(NSInteger)maxNumberOfResults 
-                         completionBlock:(void(^)(NSArray*, NSError*))block {
-  // TODO
-}
-
-
-//  Get most liked nearby items using device location provided by the application
-- (void)mostLikedNearbyItemsForLatitude:(float)latitude andLongitude:(float)longitude withinRadius:(NearbyRadius)radius 
-                     maxNumberOfResults:(NSInteger)maxNumberOfResults completionBlock:(void(^)(NSArray*, NSError*))block {
-  // TODO
-}
-
-
-// Get my likes
-- (void)myLikesWithCompletionBlock:(void(^)(NSArray*, NSError*))block {
+// Get all individual comments for an item
+- (void)commentsForItem:(NSString*)itemId completionBlock:(void(^)(NSArray*, NSError*))block {
   // TODO
 }
 
 
 # pragma mark - Favorites methods
 
-// Add item to favorites 
-- (void)addItemToMyFavorite:(NSString*)itemId completionBlock:(void(^)(NSError*))block {
+// Add item to favorites
+- (void)addItemToFavorites:(NSString*)itemId completionBlock:(void(^)(NSError*))block {
   // TODO
 }
 
 
-// Remove item from favorites 
-- (void)removeItemsFromMyFavorites:(NSString*)itemId completionBlock:(void(^)(NSError*))block {
+// Remove item from favorites
+- (void)removeItemFromFavorites:(NSString*)itemId completionBlock:(void(^)(NSError*))block {
   // TODO
 }
 
 
 // Get my favorite items
-- (void)myFavoritesWithCompletionBlock:(void(^)(NSArray*, NSError*))block {
+- (void)favoritesWithCompletionBlock:(void(^)(NSArray*, NSError*))block {
   // TODO
 }
+
+
+# pragma mark - Getters and setters
 
 
 // Setter and getter for user id
@@ -518,8 +612,6 @@
   }
 }
 
-
-# pragma mark - Getters and setters
 
 - (NSString*)userId {
 
@@ -573,7 +665,7 @@
 # pragma mark - Helper methods
 
 // Send a request to the backend service
-- (NSInteger)requestWithUrl:(NSURL*)url body:(NSDictionary*)body completionBlock:(void(^)(id result, NSError* error))block; {
+- (NSInteger)requestWithUrl:(NSURL*)url body:(NSDictionary*)body resultClazz:(Class)clazz completionBlock:(void(^)(id result, NSError* error))block; {
     
   // Check if dry run
   if (self.dryRun) {
@@ -627,7 +719,7 @@
       id ratingsJSON = [data objectFromJSONData];
       
       // Map JSON into domain object
-      id result = [ratingsJSON mapToClass:[Rating class] withError:&error];
+      id result = [ratingsJSON mapToClass:clazz withError:&error];
       if (result)
         // Run the completion block
         dispatch_async(dispatch_get_main_queue(), ^{ 
@@ -708,6 +800,22 @@
     return YES;
 }
 
+- (BOOL)checkAppUser:(NSString*)user error:(NSError**)error {
+  if (!user || [user length] == 0) {
+    *error = [self parsingErrorWithDescription:@"Application user name can not be nil or empty"];
+    return NO;
+  } else
+    return YES;
+}
+
+- (BOOL)checkAppPassword:(NSString*)password error:(NSError**)error {
+  if (!password || [password length] == 0) {
+    *error = [self parsingErrorWithDescription:@"Application password can not be nil or empty"];
+    return NO;
+  } else
+    return YES;
+}
+
 - (BOOL)checkItemId:(NSString*)itemId error:(NSError**)error {
   if (!itemId || [itemId length] == 0) {
     *error = [self parsingErrorWithDescription:@"Item id can not be nil or empty"];
@@ -731,14 +839,13 @@
     return YES;
 }
 
-- (BOOL)checkReview:(NSString*)review error:(NSError**)error {
-  if (review && [review length] == 0) {
-    *error = [self parsingErrorWithDescription:@"Review can not be an empty string"];
+- (BOOL)checkComment:(NSString*)comment error:(NSError**)error {
+  if (comment && [comment length] == 0) {
+    *error = [self parsingErrorWithDescription:@"Comment can not be an empty string"];
     return NO;
   } else
     return YES;
 }
-
 
 - (BOOL)checkLatitude:(NSNumber*)latitude error:(NSError**)error {
   if (!latitude && [latitude floatValue] < -90.0f && [latitude floatValue] > 90.0f) {

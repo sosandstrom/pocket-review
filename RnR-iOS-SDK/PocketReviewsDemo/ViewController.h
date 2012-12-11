@@ -23,10 +23,10 @@
 
 - (IBAction)rateItem:(UIButton *)sender;
 
-- (IBAction)rating:(UIButton *)sender;
+- (IBAction)item:(UIButton *)sender;
 
-- (IBAction)allRatings:(id)sender;
+- (IBAction)allItems:(id)sender;
 
-- (IBAction)nearbyRatings:(id)sender;
+- (IBAction)nearbyItems:(id)sender;
 
 @end

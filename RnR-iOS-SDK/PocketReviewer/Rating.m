@@ -14,30 +14,26 @@
 @implementation Rating
 
 
-MapKeyToProperty(id, itemId)
+MapKeyToProperty(id, ratingId)
+@synthesize ratingId = ratingId_;
+
+MapKeyToProperty(productId, itemId)
 @synthesize itemId = itemId_;
 
-MapKeyToProperty(latitude, latitude)
-@synthesize latitude = latitude_;
+MapKeyToProperty(username, username)
+@synthesize username = username_;
 
-MapKeyToProperty(longitude, longitude)
-@synthesize longitude = longitude_;
+MapKeyToProperty(rating, rating)
+@synthesize rating = rating_;
 
-MapKeyToProperty(ratingCount, numberOfRatings)
-@synthesize numberOfRatings = numberOfRatings_;
 
-MapKeyToProperty(average, averageRating)
-MapKeyToBlock(average, ^(NSNumber *serverAverage) {
-  //NSLog(@"Convert average %@", serverAverage);
-  double clientAverage = [serverAverage doubleValue];
-  return [NSNumber numberWithFloat:((float)clientAverage / (100 / [PocketReviewer sharedReviewer].maximumRating))];
-};)
-@synthesize averageRating = averageRating_;
 
 
 // Release instance variables
 - (void)dealloc {
+  [ratingId_ release];
   [itemId_ release];
+  [username_ release];
   [super dealloc];
 }
 
@@ -50,8 +46,8 @@ MapKeyToBlock(average, ^(NSNumber *serverAverage) {
 
 // Custom description
 - (NSString*)description {
-  return [NSString stringWithFormat:@"Id: %@, averate ratng: %f, number of ratings: %d", 
-          self.itemId, self.averageRating, self.numberOfRatings];
+  return [NSString stringWithFormat:@"Id: %@, item id: %@, rating: %d", 
+          self.ratingId, self.itemId, self.rating];
 }
 
 

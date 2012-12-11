@@ -20,35 +20,18 @@
  */
 + (Rating*)rating;
 
-/**
- The unique item id.
- */
+
+/** An unique comment id */
+@property (nonatomic, retain) NSString *ratingId;
+
+/** The items id */
 @property (nonatomic, retain) NSString *itemId;
 
+/** The user who made the comment, can be annonymous */
+@property (nonatomic, retain) NSString *username;
 
-/**
- The items latitue.
- */
-@property (nonatomic) float latitude;
-
-
-/**
- The items longitude.
- */
-@property (nonatomic) float longitude;
-
-
-/**
- The average rating.
- */
-@property (nonatomic) float averageRating;
-
-
-/**
- The total number of ratings.
- */
-@property (nonatomic) NSInteger numberOfRatings;
-
+/** The actual rating */
+@property (nonatomic) NSInteger rating;
 
 
 @end

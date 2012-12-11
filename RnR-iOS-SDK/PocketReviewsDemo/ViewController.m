@@ -36,7 +36,8 @@
   NSLog(@"Start rating");
   self.reviewer = [PocketReviewer sharedReviewer];
   NSURL *serviceURL = [NSURL URLWithString:@"http://localhost:8888/api/"];
-  BOOL result = [self.reviewer startReviewingWithServiceUrl:serviceURL domain:@"dev" anonymousUser:YES withError:nil];
+  BOOL result = [self.reviewer startReviewingWithUrl:serviceURL domain:@"dev" appUser:@"user"
+                                         appPassword:@"password" anonymousUser:YES withError:nil];
   NSAssert(result, @"Failed to start rating");
   
 }
@@ -65,10 +66,10 @@
 
 - (IBAction)myRatings:(id)sender {
   
-  [self.reviewer myRatingsWithCompletionBlock:^(NSArray* ratings, NSError* error) {
+  [self.reviewer myRatedItemsWithCompletionBlock:^(NSArray* items, NSError* error) {
     if (!error) {
-      NSLog(@"Get my ratings for items was successful with %d results returned", [ratings count]);
-      NSLog(@"Ratings %@", ratings);
+      NSLog(@"Get my rated items was successful with %d results returned", [items count]);
+      NSLog(@"Ratings %@", items);
     } else 
       NSLog(@"Get my rated items failed");
   }];
@@ -100,20 +101,19 @@
   }
   
   NSInteger rating = segment.selectedSegmentIndex + 1;
-  [self.reviewer rateItem:item withRating:rating completionBlock:^(Rating* newRating, NSError* error) {
+  [self.reviewer rateItem:item withRating:rating comment:nil completionBlock:^(Rating* newRating, NSError* error) {
     if (!error) {
-      NSLog(@"Rate method was successful");
-      label.text = [NSString stringWithFormat:@"%.1f (%d)", newRating.averageRating, newRating.numberOfRatings];
+      NSLog(@"Rating was successful");
     }
     
     else 
-      NSLog(@"Rate method failed with error %@", [error userInfo]);
+      NSLog(@"Rating failed with error %@", [error userInfo]);
   }];
   
 }
 
 
-- (IBAction)rating:(UIButton *)sender {  
+- (IBAction)item:(UIButton *)sender {
   NSString *item = [NSString stringWithFormat:@"A00%d", sender.tag];
   NSLog(@"Rate item %@", item);
   
@@ -132,41 +132,41 @@
       break;
   }
   
-  [self.reviewer averageRatingForItem:item completionBlock:^(Rating* rating, NSError* error) {
+  [self.reviewer itemWithId:item completionBlock:^(Item* item, NSError* error) {
     if (!error) {
-      NSLog(@"Get rating method was successful");
-      label.text = [NSString stringWithFormat:@"%.1f (%d)", rating.averageRating, rating.numberOfRatings];
+      NSLog(@"Get item was successful");
+      label.text = [NSString stringWithFormat:@"%.1f (%d)", item.averageRating, item.numberOfRatings];
     } else 
-      NSLog(@"Get rating method failed with error %@", [error userInfo]);
+      NSLog(@"Get item failed with error %@", [error userInfo]);
   }];
   
 }
 
-- (IBAction)allRatings:(id)sender {
-  NSLog(@"Get all ratings");
-  [self.reviewer averageRatingForItems:[NSArray arrayWithObjects:@"A001", @"A002", @"A003", nil] completionBlock:^(NSArray* ratings, NSError* error) {
+- (IBAction)allItems:(id)sender {
+  NSLog(@"Get all items");
+  [self.reviewer itemsWithIds:[NSArray arrayWithObjects:@"A001", @"A002", @"A003", nil] completionBlock:^(NSArray* items, NSError* error) {
     if (!error) {
-      NSLog(@"Get ratings for a list of items was successful");
-      for (Rating *rating in ratings) {
-        if ([rating.itemId isEqualToString:@"A001"])
-          self.A001Label.text = [NSString stringWithFormat:@"%.1f (%d)", rating.averageRating, rating.numberOfRatings];
-        else if ([rating.itemId isEqualToString:@"A002"])
-          self.A002Label.text = [NSString stringWithFormat:@"%.1f (%d)", rating.averageRating, rating.numberOfRatings];
-        else if ([rating.itemId isEqualToString:@"A003"])
-          self.A003Label.text = [NSString stringWithFormat:@"%.1f (%d)", rating.averageRating, rating.numberOfRatings];
+      NSLog(@"Get items for a list of items was successful");
+      for (Item *item in items) {
+        if ([item.itemId isEqualToString:@"A001"])
+          self.A001Label.text = [NSString stringWithFormat:@"%.1f (%d)", item.averageRating, item.numberOfRatings];
+        else if ([item.itemId isEqualToString:@"A002"])
+          self.A002Label.text = [NSString stringWithFormat:@"%.1f (%d)", item.averageRating, item.numberOfRatings];
+        else if ([item.itemId isEqualToString:@"A003"])
+          self.A003Label.text = [NSString stringWithFormat:@"%.1f (%d)", item.averageRating, item.numberOfRatings];
       }
     }
   }];
 }
 
 
-- (IBAction)nearbyRatings:(id)sender {
-  NSLog(@"Get nearby ratings");
+- (IBAction)nearbyItems:(id)sender {
+  NSLog(@"Get nearby items");
   
-  [self.reviewer topNearbyAverageRatingsWithinRadius:kDefaultRadius maxNumberOfResults:10 completionBlock:^(NSArray* ratings, NSError* error) {
+  [self.reviewer nearbyTopRatedItemsWithRadius:kDefaultRadius maxNumberOfResults:10 completionBlock:^(NSArray* items, NSError* error) {
     if (!error) {
-      NSLog(@"Get nearby ratings for items was successful with %d results returned", [ratings count]);
-      NSLog(@"Ratings %@", ratings);
+      NSLog(@"Get nearby items was successful with %d results returned", [items count]);
+      NSLog(@"Items %@", items);
     } else 
       NSLog(@"Get nearby items failed");
   }];
