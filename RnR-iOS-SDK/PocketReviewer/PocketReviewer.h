@@ -7,8 +7,10 @@
 
 
 #import <Foundation/Foundation.h>
+#import "Item.h"
 #import "Rating.h"
-#import "Likes.h"
+#import "Histogram.h"
+#import "Like.h"
 
 
 /**
@@ -18,25 +20,26 @@
  
  The follwing features are provided
  
- * Ratings - Rate a product
- * Reviews - Write a review for a product
- * Likes - Like a product
- * Favorites - Add a product to my favorites
+ * Ratings - Rate an item and write an optional review comment
+ * Likes - Like an item
+ * Comments - Write a comment for am item
+ * Favorites - Add an item to my favorites
  
  All methods are asynchronous using GCD and will return immediately. The application will be informed about the outcome 
  of a method by providing a completion block.
  
- ###Item id
- Each method must include a unique item/product id provided by the application. It is applications responsibilty to provide 
+ ###Items id
+ Each method must include a unique item id provided by the application. It is the applications responsibilty to provide 
  this id and ensure uniqueness and consistency through requests. 
  
  ###Anonymous users
  The application can perform all functions either anonymoulsy or providing a unique user identifier. The SDK provide 
- functionality for automatically generating a unique user identifier that will persist through application starts.
+ functionality for automatically generating a unique user identifier that will persist through application starts and
+ upgrades.
  
  ###Location tagged
- The application can optionally supply a position (latitude and longitude) of the item being rated. This will allow 
- the application to perform nearby operations of stored data.
+ The application can optionally supply a position (latitude and longitude) of the product being rated. This will allow 
+ the application to perform nearby operations on items.
  */
 @interface PocketReviewer : NSObject
 
@@ -67,15 +70,127 @@ typedef enum {
  Start reviewing by configuring the service.
  @param url The URL to the review service
  @param domain The unique domain name. The app developer need to register a unique domain name at http://pocket-reviews.appspot.com.
+ @param appUser The appUser is generated when registering the app with the backend
+ @param appPassword The appUser is the generated when registering the app with the backend
  @param anonymous If YES all review and rating requests will be anonymous. 
  If NO a unique user id will be generated that will be used in all requests. The user id will be persisted in user preferences. 
  @param error An optional error message
  @return YES if the reviewer was successfuly started
  */
-- (BOOL)startReviewingWithServiceUrl:(NSURL*)url domain:(NSString*)domain anonymousUser:(BOOL)anonymous withError:(NSError**)error;
+- (BOOL)startReviewingWithUrl:(NSURL*)url
+                       domain:(NSString*)domain                   
+                      appUser:(NSString*)appUser
+                  appPassword:(NSString*)appPassword
+                anonymousUser:(BOOL)anonymous
+                    withError:(NSError**)error;
+
+
+/** @name Item information */
+
+/**
+ Get the item summary for a specific item.
+ 
+ The item summary contain information such as average rating, number of ratings, number of likes etc.
+ @param itemId The unique item id
+ @param block A block that will be executed when the request completes or fails
+ */
+- (void)itemWithId:(NSString*)itemId completionBlock:(void(^)(Item*, NSError*))block;
+
+
+/**
+ Get the item summary for a list of items.
+ @param itemIds An array of items
+ @param block A block that will be executed when the request completes or fails
+ */
+- (void)itemsWithIds:(NSArray*)itemIds completionBlock:(void(^)(NSArray*, NSError*))block;
+
+
+/**
+ Get the most rated items.
+ 
+ The returned items will be sorted on average rating.
+ @param maxNumberOfResults The maximum number of results to return
+ @param block A block that will be executed when the request completes or fails
+ */
+- (void)mostRatedItems:(NSInteger)maxNumberOfResults completionBlock:(void(^)(NSArray*, NSError*))block;
+
+
+/**
+ Get the top rated items.
+ 
+ The returned ratings will be sorted on average rating.
+ @param maxNumberOfResults The maximum number of results to return
+ @param block A block that will be executed when the request completes or fails
+ */
+- (void)topRatedItems:(NSInteger)maxNumberOfResults completionBlock:(void(^)(NSArray*, NSError*))block;
+
+
+/**
+ Get nearby top rated items using the device location provided by Google.
+ 
+ The latitude and logitude automatically provided by GAE will be used as the device location.
+ The location provided by Google is most likely on city level.
+ 
+ Items must be rated using the items latitude and longitude for this method to return anything.
+ 
+ The returned items will be sorted on average rating.
+ @param radius The radius to search within
+ @param maxNumberOfResults The maximum number of results the service should return
+ @param block A block that will be executed when the request completes or fails
+ */
+- (void)nearbyTopRatedItemsWithRadius:(NearbyRadius)radius
+         maxNumberOfResults:(NSInteger)maxNumberOfResults
+            completionBlock:(void(^)(NSArray*, NSError*))block;
+
+
+/**
+ Get nearby top rated items using the device location provided by the application.
+ 
+ Items must be rated using the items latitude and longitude for this method to return anything.
+ 
+ The returned items will be sorted on average rating.
+ @param latitude The devices latitude
+ @param longitude The device longitude
+ @param radius The radius to search within
+ @param maxNumberOfResults The maximum number of results the service should return
+ @param block A block that will be executed when the request completes or fails
+ */
+- (void)nearbyTopRatedItemsForLatitude:(float)latitude
+                             longitude:(float)longitude
+                                radius:(NearbyRadius)radius
+                    maxNumberOfResults:(NSInteger)maxNumberOfResults
+                       completionBlock:(void(^)(NSArray*, NSError*))block;
+
+
+/**
+ Get all items rated my me.
+ 
+ This method will only return items if non-anonymous ratings have been used, otherwise nil will be returned
+ @param block A block that will be executed when the request completes or fails
+ */
+- (void)myRatedItemsWithCompletionBlock:(void(^)(NSArray*, NSError*))block;
+
+
+/**
+ Get all items liked by me.
+ 
+ This method will only return items if non-anonymous likes have been used, otherwise nil will be returned.
+ @param block A block that will be executed when the request completes or fails
+ */
+- (void)myLikedItemsWithCompletionBlock:(void(^)(NSArray*, NSError*))block;
+
+
+/**
+ Get all items commented by me.
+ 
+ This method will only return items if non-anonymous comments have been used, otherwise nil will be returned.
+ @param block A block that will be executed when the request completes or fails
+ */
+- (void)myCommentedItemsWithCompletionBlock:(void(^)(NSArray*, NSError*))block;
 
 
 /** @name Ratings */
+
 
 /**
  Rate an item.
@@ -83,47 +198,40 @@ typedef enum {
  The domain can be configured to only allow non-anonymous users to rate the same item once at http://pocket-reviews.appspot.com.
  @param itemId The unique item being rated
  @param rating The rating value. Default value is 1-5 unless another range is set explicitly
+ @param comment An optional comment associated with the rating
  @param block A block that will be executed when the request completes or fails
  */
-- (void)rateItem:(NSString*)itemId withRating:(NSInteger)rating completionBlock:(void(^)(Rating*, NSError*))block;
+- (void)rateItem:(NSString*)itemId
+      withRating:(NSInteger)rating
+         comment:(NSString*)comment
+ completionBlock:(void(^)(Rating*, NSError*))block;
 
 
 /**
  Rate an item with a specified latitude and longitude.
  
- The domain can be configured to only allow non-anonymous users to rate the same item once at http://pocket-reviews.appspot.com.
- 
- Only non-anonymous users will be able to get their own ratings.
- 
  Please note that it is the rated items location what should be provided, not the device current location.
+
+ The domain can be configured to only allow non-anonymous users to rate the same item once at http://pocket-reviews.appspot.com.
  @param itemId The unique item being rated
  @param latitude The latitude of the item being rated
  @param longitude The longitude of the item being rated
  @param rating The rating value. Default value is 1-5 unless another range is set explicitly
+ @param comment An optional comment associated with the rating
  @param block A block that will be executed when the request completes or fails
  */
-- (void)rateItem:(NSString*)itemId withLatitude:(float)latitude andLongitude:(float)longitude 
-      withRating:(NSInteger)rating completionBlock:(void(^)(Rating*, NSError*))block;
+- (void)rateItem:(NSString*)itemId
+    withLatitude:(float)latitude
+       longitude:(float)longitude
+          rating:(NSInteger)rating
+         comment:(NSString*)comment
+ completionBlock:(void(^)(Rating*, NSError*))block;
+
+/**
+ Get all ratings for a specific item.
  
-
-/**
- Get the average rating and the number of ratings for a specified item.
- @param itemId The unique item id
- @param block A block that will be executed when the request completes or fails
- */
-- (void)averageRatingForItem:(NSString*)itemId completionBlock:(void(^)(Rating*, NSError*))block;
-
-
-/**
- Get the average rating and the number of ratings for a list of items.
- @param itemIds An array of items
- @param block A block that will be executed when the request completes or fails
-  */
-- (void)averageRatingForItems:(NSArray*)itemIds completionBlock:(void(^)(NSArray*, NSError*))block;
-
-
-/**
- Get all individual ratings for an item.
+ This method will return all individual ratings for a specific items.
+ It you prefer to get the calculated average ratings query the item resource instead.
  @param itemId The unique item id
  @param block A block that will be executed when the request completes or fails
  */
@@ -131,99 +239,12 @@ typedef enum {
 
 
 /**
- Get the top average ratings.
- 
- The returned ratings will be sorted on average rating.
- @param maxNumberOfResults The maximum number of results the service should return, e.g. specify 10 to get the top 10 list
- @param block A block that will be executed when the request completes or fails
+ Get the histogram of all rating for a sepcific items.
+ @param itemId The unique item id
+ @param interval The interval used in the returned histogram
+ @param block A block that will be executed when the request completes or fails 
  */
-- (void)topAverageRatings:(NSInteger)maxNumberOfResults completionBlock:(void(^)(NSArray*, NSError*))block;
-
-
-/**
- Get top nearby average ratings using the device location provided by Google.
- 
- The latitude and logitude automatically provided by GAE will be used as the device location. 
- The location provided by Google is most likely on city level.
- 
- Items must be rated using the items latitude and longitude for this method to return the average ratings, 
- otherwise en empty list will be returned.
- 
- The returned ratings will be sorted on average rating.
- @param radius The radius to search within
- @param maxNumberOfResults The maximum number of results the service should return
- @param block A block that will be executed when the request completes or fails
- */
-- (void)topNearbyAverageRatingsWithinRadius:(NearbyRadius)radius maxNumberOfResults:(NSInteger)maxNumberOfResults 
-                            completionBlock:(void(^)(NSArray*, NSError*))block;
-
-
-/**
- Get top nearby average ratings using the device location provided by the application.
- 
- Items must be rated using the items latitude and longitude for this method to return the average ratings, 
- otherwise en empty list will be returned.
- 
- The returned ratings will be sorted on average rating.
- @param latitude The devices latitude
- @param longitude The device longitude
- @param radius The radius to search within
- @param maxNumberOfResults The maximum number of results the service should return
- @param block A block that will be executed when the request completes or fails
- */
-- (void)topNearbyAverageRatingsForLatitude:(float)latitude andLongitude:(float)longitude withinRadius:(NearbyRadius)radius 
-                        maxNumberOfResults:(NSInteger)maxNumberOfResults completionBlock:(void(^)(NSArray*, NSError*))block;
-
-
-/**
- Get my ratings. 
- 
- This method will only return ratings if non-anonymous ratings have been used, otherwise nil will be returned
- @param block A block that will be executed when the request completes or fails
- */
-- (void)myRatingsWithCompletionBlock:(void(^)(NSArray*, NSError*))block;
-
-
-/** @name Reviews */
-
-/**
- Add a review comment to an item.
- 
- The domain can be configured to only allow non-anonymous users to review the same item once at http://pocket-reviews.appspot.com.
- 
- Only non-anonymous users will be able to get their own reviews and delete them.
- @param itemId The unique item being reviewed
- @param review The review comment
- @param block A block that will be executed when the request completes or fails
- */
-- (void)reviewItem:(NSString*)itemId withReview:(NSString*)review completionBlock:(void(^)(NSError*))block;
-
-
-/**
- Get all reviews for an item.
- @param itemId The unique item
- @param block A block that will be executed when the request completes or fails
- */
-- (void)reviewsForItem:(NSString*)itemId completionBlock:(void(^)(NSArray*, NSError*))block;
-
-
-/**
- Delete the review written by the current user.
- 
- This method will only work if non-anonymous review was done.
- @param itemId The unique item
- @param block A block that will be executed when the request completes or fails
- */
-- (void)deleteMyReviewForItem:(NSString*)itemId completionBlock:(void(^)(NSError*))block;
-
-
-/**
- Get all my reviews.
- 
- This method will only return reviews if non-anonymous reviews have been used, otherwise nil will be returned.
- @param block A block that will be executed when the request completes or fails
- */
-- (void)myReviewsWithCompletionBlock:(void(^)(NSArray*, NSError*))block;
+- (void)ratingHistogramForItem:(NSString*)itemId interval:(int)interval completionBlock:(void(^)(Histogram*, NSError*))block;
 
 
 /** @name Likes */
@@ -239,38 +260,6 @@ typedef enum {
 
 
 /**
- Like an item with a specified latitude and longitude.
- 
- The domain can be configured to only allow non-anonymous users to like the same item once at http://pocket-reviews.appspot.com.
- 
- Only non-anonymous users will be able to get their own likes.
- 
- Please note that it is the liked items location what should be provided, not the device current location.
- @param itemId The unique item being rated
- @param latitude The latitude of the item being rated
- @param longitude The longitude of the item being rated
- @param block A block that will be executed when the request completes or fails
- */
-- (void)likeItem:(NSString *)itemId withLatitude:(float)latitude andLongitude:(float)longitude completionBlock:(void (^)(NSError *))block;
-
-
-/**
- Get the total number of likes for an item.
- @param itemId The unique item
- @param block A block that will be executed when the request completes or fails
- */
-- (void)numberOfLikesForItem:(NSString*)itemId completionBlock:(void(^)(Likes*, NSError*))block;
-
-
-/**
- Get the total number of likes for a list of items.
- @param itemIds A list if items
- @param block A block that will be executed when the request completes or fails
- */
-- (void)numberOfLikesForItems:(NSArray*)itemIds completionBlock:(void(^)(NSArray*, NSError*))block;
-
-
-/**
  Get all individual likes for an item.
  @param itemId The unique item id
  @param block A block that will be executed when the request completes or fails
@@ -278,55 +267,25 @@ typedef enum {
 - (void)likesForItem:(NSString*)itemId completionBlock:(void(^)(NSArray*, NSError*))block;
 
 
-/**
- Get the a list of items with the highest number of likes.
- @param maxNumberOfResults The maximum number of results the service should return, e.g. specify 10 to get the top 10 list
- @param block A block that will be executed when the request completes or fails
- */
-- (void)mostLikedItems:(NSInteger)maxNumberOfResults completionBlock:(void(^)(NSArray*, NSError*))block;
-
+/** @name Comments */
 
 /**
- Get the top nearby items with the highest number of likes using the device location provided by Google.
+ Add a comment to an item.
  
- The latitude and logitude automatically provided by GAE will be used as the device location. 
- The location provided by Google is most likely on city level.
- 
- Items must be liked using the items latitude and longitude for this method to return the number of likes, 
- otherwise en empty list will be returned.
- 
- The returned ratings will be sorted on average rating.
- @param radius The radius to search within
- @param maxNumberOfResults The maximum number of results the service should return
+ Only non-anonymous users will be able to get their own comments and delete them.
+ @param itemId The unique item being commented
+ @param comment The comment
  @param block A block that will be executed when the request completes or fails
  */
-- (void)mostLikedNearbyItemsWithinRadius:(NearbyRadius)radius maxNumberOfResults:(NSInteger)maxNumberOfResults 
-                         completionBlock:(void(^)(NSArray*, NSError*))block;
+- (void)commentItem:(NSString*)itemId withComment:(NSString*)comment completionBlock:(void(^)(NSError*))block;
 
 
 /**
- Get the top nearby items with the highest number of likes using the device location provided by the application.
- 
- Items must be liked using the items latitude and longitude for this method to return the number of likes, 
- otherwise en empty list will be returned.
- 
- The returned ratings will be sorted on average rating.
- @param latitude The devices latitude
- @param longitude The device longitude
- @param radius The radius to search within
- @param maxNumberOfResults The maximum number of results the service should return
+ Get all comments for an item.
+ @param itemId The unique item
  @param block A block that will be executed when the request completes or fails
  */
-- (void)mostLikedNearbyItemsForLatitude:(float)latitude andLongitude:(float)longitude withinRadius:(NearbyRadius)radius 
-                     maxNumberOfResults:(NSInteger)maxNumberOfResults completionBlock:(void(^)(NSArray*, NSError*))block;
-
-/**
- Get all my Likes.
- 
- This method will only return Likes if non-anonymous likes have been used, otherwise nil will be retuned.
- @param block A block that will be executed when the request completes or fails
- */
-- (void)myLikesWithCompletionBlock:(void(^)(NSArray*, NSError*))block;
+- (void)commentsForItem:(NSString*)itemId completionBlock:(void(^)(NSArray*, NSError*))block;
 
 
 /** @name Favorites */
@@ -336,7 +295,7 @@ typedef enum {
  @param itemId The unique item
  @param block A block that will be executed when the request completes or fails
  */
-- (void)addItemToMyFavorite:(NSString*)itemId completionBlock:(void(^)(NSError*))block;
+- (void)addItemToFavorites:(NSString*)itemId completionBlock:(void(^)(NSError*))block;
 
 
 /**
@@ -344,24 +303,14 @@ typedef enum {
  @param itemId The unique item
  @param block A block that will be executed when the request completes or fails
  */
-- (void)removeItemsFromMyFavorites:(NSString*)itemId completionBlock:(void(^)(NSError*))block;
-
-
-/* TODO: Should we support this or not
-- (void)nearbyFavoriteItemsWithinRadius:(NearbyRadius)radius maxNumberOfResults:(NSInteger)maxNumberOfResults 
-                        completionBlock:(void(^)(NSArray*, NSError*))block;
-
-
-- (void)nearbyFavoriteItemsForLatitude:(float)latitude andLongitude:(float)longitude withinRadius:(NearbyRadius)radius 
-                     maxNumberOfResults:(NSInteger)maxNumberOfResults completionBlock:(void(^)(NSArray*, NSError*))block;
-*/
+- (void)removeItemFromFavorites:(NSString*)itemId completionBlock:(void(^)(NSError*))block;
 
 
 /**
  Get my favorites.
  @param block A block that will be executed when the request completes or fails
  */
-- (void)myFavoritesWithCompletionBlock:(void(^)(NSArray*, NSError*))block;
+- (void)favoritesWithCompletionBlock:(void(^)(NSArray*, NSError*))block;
    
 
 /** @name Properties */
