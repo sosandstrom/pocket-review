@@ -1,20 +1,18 @@
 package com.wadpam.rnr.service;
 
-import com.google.appengine.api.datastore.*;
+import com.google.appengine.api.datastore.GeoPt;
+import com.google.appengine.api.datastore.Rating;
 import com.wadpam.open.transaction.Idempotent;
 import com.wadpam.rnr.dao.*;
 import com.wadpam.rnr.domain.*;
-
-import java.io.PrintWriter;
-import java.io.Serializable;
-import java.util.*;
-
-import com.wadpam.server.exceptions.BadRequestException;
-import com.wadpam.server.exceptions.NotFoundException;
+import com.wadpam.open.exceptions.NotFoundException;
 import net.sf.mardao.core.CursorPage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.io.Serializable;
+import java.util.*;
 
 /**
  *

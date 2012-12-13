@@ -6,7 +6,7 @@ import com.wadpam.open.json.JCursorPage;
 import com.wadpam.rnr.domain.DProduct;
 import com.wadpam.rnr.json.*;
 import com.wadpam.rnr.service.RnrService;
-import com.wadpam.server.web.AbstractRestController;
+import com.wadpam.open.web.AbstractRestController;
 import net.sf.mardao.core.CursorPage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

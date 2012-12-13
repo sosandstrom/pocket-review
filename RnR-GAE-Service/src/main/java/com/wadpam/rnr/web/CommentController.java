@@ -6,8 +6,8 @@ import com.wadpam.open.json.JCursorPage;
 import com.wadpam.rnr.domain.DComment;
 import com.wadpam.rnr.json.JComment;
 import com.wadpam.rnr.service.RnrService;
-import com.wadpam.server.exceptions.NotFoundException;
-import com.wadpam.server.web.AbstractRestController;
+import com.wadpam.open.exceptions.NotFoundException;
+import com.wadpam.open.web.AbstractRestController;
 import net.sf.mardao.core.CursorPage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,16 +19,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.view.RedirectView;
-import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.security.Principal;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * The comment controller implements all REST methods related to commenting.

@@ -1,6 +1,6 @@
 package com.wadpam.rnr.web;
 
-import com.wadpam.server.web.AbstractRestController;
+import com.wadpam.open.web.AbstractRestController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;

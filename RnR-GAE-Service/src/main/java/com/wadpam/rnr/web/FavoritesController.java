@@ -2,11 +2,11 @@ package com.wadpam.rnr.web;
 
 import com.wadpam.docrest.domain.RestCode;
 import com.wadpam.docrest.domain.RestReturn;
+import com.wadpam.open.exceptions.NotFoundException;
+import com.wadpam.open.web.AbstractRestController;
 import com.wadpam.rnr.domain.DFavorites;
 import com.wadpam.rnr.json.JFavorites;
 import com.wadpam.rnr.service.RnrService;
-import com.wadpam.server.exceptions.NotFoundException;
-import com.wadpam.server.web.AbstractRestController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -21,8 +21,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.security.Principal;
 
 /**
  * The favorites controller implements all REST methods related to favorites.
