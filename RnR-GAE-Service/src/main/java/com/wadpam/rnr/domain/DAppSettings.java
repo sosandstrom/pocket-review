@@ -19,24 +19,36 @@ public class DAppSettings extends AbstractCreatedUpdatedEntity implements Serial
 
     /** The unique domain name for the app */
     @Id
-    private String      domainName;
+    private String domainName;
 
     /** Decides if an identified user only can like a product once  */
     @Basic
-    private Boolean     onlyLikeOncePerUser = true;
+    private Boolean onlyLikeOncePerUser = true;
 
     /** Decides if an identified user only can rate a product once  */
     @Basic
-    private Boolean     onlyRateOncePerUser = true;
+    private Boolean onlyRateOncePerUser = true;
 
     /** Decides if an identified user only can thumb up and down a product once  */
     @Basic
     private Boolean onlyThumbOncePerUser = true;
 
+    /** Decides if a user is allowed to give feedback multiple times on the same reference if */
+    @Basic
+    private Boolean onlyFeedbackOncePerUser = false;
+
+    /** Save user feedback in data store */
+    @Basic
+    private Boolean persistFeedback = true;
+
+    /** Forward user feedback in email */
+    @Basic
+    private Boolean sendFeedbackAsEmail = false;
+
 
     @Override
     public String toString() {
-        return String.format("{domain:%s, only like once:%d only rate once:%d only thumb one:%d}",
+        return String.format("{domain:%s, only like once:%b only rate once:%b only thumb one:%b}",
                 domainName, onlyLikeOncePerUser, onlyRateOncePerUser, onlyThumbOncePerUser);
     }
 
@@ -72,5 +84,29 @@ public class DAppSettings extends AbstractCreatedUpdatedEntity implements Serial
 
     public void setOnlyThumbOncePerUser(Boolean onlyThumbOncePerUser) {
         this.onlyThumbOncePerUser = onlyThumbOncePerUser;
+    }
+
+    public Boolean getOnlyFeedbackOncePerUser() {
+        return onlyFeedbackOncePerUser;
+    }
+
+    public void setOnlyFeedbackOncePerUser(Boolean onlyFeedbackOncePerUser) {
+        this.onlyFeedbackOncePerUser = onlyFeedbackOncePerUser;
+    }
+
+    public Boolean getPersistFeedback() {
+        return persistFeedback;
+    }
+
+    public void setPersistFeedback(Boolean persistFeedback) {
+        this.persistFeedback = persistFeedback;
+    }
+
+    public Boolean getSendFeedbackAsEmail() {
+        return sendFeedbackAsEmail;
+    }
+
+    public void setSendFeedbackAsEmail(Boolean sendFeedbackAsEmail) {
+        this.sendFeedbackAsEmail = sendFeedbackAsEmail;
     }
 }

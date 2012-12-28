@@ -50,19 +50,21 @@ public class ProductController extends AbstractRestController {
     @RequestMapping(value="{productId}", method= RequestMethod.GET)
     public ResponseEntity<JProduct> getProductInfo(HttpServletRequest request,
                                                    HttpServletResponse response,
+                                                   UriComponentsBuilder uriBuilder,
                                                    @PathVariable String domain,
                                                    @PathVariable String productId) {
 
         final DProduct body = rnrService.getProduct(productId);
 
-        return new ResponseEntity<JProduct>(CONVERTER.convert(body, getBaseUri(request, domain)), HttpStatus.OK);
+        return new ResponseEntity<JProduct>(
+                CONVERTER.convert(body, getBaseUri(uriBuilder, domain)),
+                HttpStatus.OK);
     }
 
     // Get the based URL of the request
-    private String getBaseUri(HttpServletRequest request, String domain) {
+    private static String getBaseUri(UriComponentsBuilder uriBuilder, String domain) {
         // Figure out the base url
-        return UriComponentsBuilder.fromUriString(request.getRequestURL().toString()).
-                path("{brand}").buildAndExpand(domain).toUriString();
+        return uriBuilder.path("/{domain}").buildAndExpand(domain).toUriString();
     }
 
     /**
@@ -76,12 +78,15 @@ public class ProductController extends AbstractRestController {
     @RequestMapping(value="", method= RequestMethod.GET, params="ids")
     public ResponseEntity<Collection<JProduct>> getProducts(HttpServletRequest request,
                                                             HttpServletResponse response,
+                                                            UriComponentsBuilder uriBuilder,
                                                             @PathVariable String domain,
                                                             @RequestParam(value = "ids") String ids[]) {
 
         final Iterable<DProduct> dProductIterable = rnrService.getProducts(ids);
 
-        return new ResponseEntity<Collection<JProduct>>(CONVERTER.convert(dProductIterable, getBaseUri(request, domain)), HttpStatus.OK);
+        return new ResponseEntity<Collection<JProduct>>(
+                CONVERTER.convert(dProductIterable, getBaseUri(uriBuilder, domain)),
+                HttpStatus.OK);
     }
 
     /**
@@ -96,11 +101,12 @@ public class ProductController extends AbstractRestController {
             @RestCode(code=200, message="OK", description="Products found")
     })
     @RequestMapping(value="", method=RequestMethod.GET)
-    public ResponseEntity<JCursorPage<JProduct>> getAllProducts(HttpServletRequest request,
-                                                                HttpServletResponse response,
-                                                                @PathVariable String domain,
-                                                                @RequestParam(defaultValue = "10") int pagesize,
-                                                                @RequestParam(required = false) String cursor) {
+    public ResponseEntity<JCursorPage<JProduct>> getAllProducts(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            @PathVariable String domain,
+            @RequestParam(defaultValue="10") int pagesize,
+            @RequestParam(required=false) String cursor) {
 
         // Just in case
         if (null != cursor && cursor.isEmpty())
@@ -108,7 +114,9 @@ public class ProductController extends AbstractRestController {
 
         CursorPage<DProduct, String> dPage = rnrService.getProductPage(pagesize, cursor);
 
-        return new ResponseEntity<JCursorPage<JProduct>>((JCursorPage<JProduct>)CONVERTER.convert(dPage), HttpStatus.OK);
+        return new ResponseEntity<JCursorPage<JProduct>>(
+                (JCursorPage<JProduct>)CONVERTER.convert(dPage),
+                HttpStatus.OK);
     }
 
     /**
@@ -133,15 +141,18 @@ public class ProductController extends AbstractRestController {
             @RestCode(code=200, message="OK", description="Nearby products found")
     })
     @RequestMapping(value="nearby", method=RequestMethod.GET)
-    public ResponseEntity<JCursorPage<JProduct>> findNearbyProducts(HttpServletRequest request,
-                                                                    HttpServletResponse response,
-                                                                    @PathVariable String domain,
-                                                                    @RequestParam(defaultValue="10") int pagesize,
-                                                                    @RequestParam(required=false) String cursor,
-                                                                    @RequestParam(required=false) Float latitude,
-                                                                    @RequestParam(required=false) Float longitude,
-                                                                    @RequestParam(defaultValue="3000") int radius,
-                                                                    @RequestParam(defaultValue="0") int sort)   {
+    public ResponseEntity<JCursorPage<JProduct>> findNearbyProducts(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            @PathVariable String domain,
+            UriComponentsBuilder uriBuilder,
+            @RequestParam(defaultValue="10") int pagesize,
+            @RequestParam(required=false) String cursor,
+            @RequestParam(required=false) Float latitude,
+            @RequestParam(required=false) Float longitude,
+            @RequestParam(defaultValue="3000") int radius,
+            @RequestParam(defaultValue="0") int sort)   {
+
         if (null == latitude) {
             final String cityLatLong = request.getHeader("X-AppEngine-CityLatLong");
             if (null != cityLatLong) {
@@ -168,9 +179,10 @@ public class ProductController extends AbstractRestController {
                 break;
         }
 
-        CursorPage<DProduct, String> dPage = rnrService.findNearbyProducts(pagesize, cursor, latitude, longitude, radius, order);
+        CursorPage<DProduct, String> dPage = rnrService.findNearbyProducts(pagesize, cursor,
+                latitude, longitude, radius, order);
 
-        Collection<JProduct> jProducts = CONVERTER.convert(dPage.getItems(), getBaseUri(request, domain));
+        Collection<JProduct> jProducts = CONVERTER.convert(dPage.getItems(), getBaseUri(uriBuilder, domain));
 
         // Calculate the distance between the provided device position and each product in km
         for (JProduct jProduct : jProducts) {
@@ -182,7 +194,9 @@ public class ProductController extends AbstractRestController {
             }
         }
 
-        return new ResponseEntity<JCursorPage<JProduct>>((JCursorPage<JProduct>)CONVERTER.convert(dPage), HttpStatus.OK);
+        return new ResponseEntity<JCursorPage<JProduct>>(
+                (JCursorPage<JProduct>)CONVERTER.convert(dPage),
+                HttpStatus.OK);
     }
 
     // Calculate the distance between two points using the Harversine formula.
@@ -210,15 +224,18 @@ public class ProductController extends AbstractRestController {
             @RestCode(code=200, message="OK", description="Most liked products found")
     })
     @RequestMapping(value="liked/most", method= RequestMethod.GET)
-    public ResponseEntity<JCursorPage<JProduct>> getMostLikedProducts(HttpServletRequest request,
-                                                                      HttpServletResponse response,
-                                                                      @PathVariable String domain,
-                                                                      @RequestParam(defaultValue="10") int pagesize,
-                                                                      @RequestParam(required=false) String cursor) {
+    public ResponseEntity<JCursorPage<JProduct>> getMostLikedProducts(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            @PathVariable String domain,
+            @RequestParam(defaultValue="10") int pagesize,
+            @RequestParam(required=false) String cursor) {
 
         final CursorPage<DProduct, String> dPage = rnrService.getMostLikedProducts(pagesize,  cursor);
 
-        return new ResponseEntity<JCursorPage<JProduct>>((JCursorPage<JProduct>)CONVERTER.convert(dPage), HttpStatus.OK);
+        return new ResponseEntity<JCursorPage<JProduct>>(
+                (JCursorPage<JProduct>)CONVERTER.convert(dPage),
+                HttpStatus.OK);
     }
 
     /**
@@ -233,15 +250,18 @@ public class ProductController extends AbstractRestController {
             @RestCode(code=200, message="OK", description="Most thumbed up products found")
     })
     @RequestMapping(value="thumbs/up/most", method= RequestMethod.GET)
-    public ResponseEntity<JCursorPage<JProduct>> getMostThumbsUpProducts(HttpServletRequest request,
-                                                                         HttpServletResponse response,
-                                                                         @PathVariable String domain,
-                                                                         @RequestParam(defaultValue="10") int pagesize,
-                                                                         @RequestParam(required=false) String cursor) {
+    public ResponseEntity<JCursorPage<JProduct>> getMostThumbsUpProducts(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            @PathVariable String domain,
+            @RequestParam(defaultValue="10") int pagesize,
+            @RequestParam(required=false) String cursor) {
 
         final CursorPage<DProduct, String> dPage = rnrService.getMostThumbsUpProducts(pagesize, cursor);
 
-        return new ResponseEntity<JCursorPage<JProduct>>((JCursorPage<JProduct>)CONVERTER.convert(dPage), HttpStatus.OK);
+        return new ResponseEntity<JCursorPage<JProduct>>(
+                (JCursorPage<JProduct>)CONVERTER.convert(dPage),
+                HttpStatus.OK);
     }
 
     /**
@@ -256,15 +276,18 @@ public class ProductController extends AbstractRestController {
             @RestCode(code=200, message="OK", description="Most thumbed down products found")
     })
     @RequestMapping(value="thumbs/down/most", method= RequestMethod.GET)
-    public ResponseEntity<JCursorPage<JProduct>> getMostThumbsDownProducts(HttpServletRequest request,
-                                                                           HttpServletResponse response,
-                                                                           @PathVariable String domain,
-                                                                           @RequestParam(defaultValue="10") int pagesize,
-                                                                           @RequestParam(required=false) String cursor) {
+    public ResponseEntity<JCursorPage<JProduct>> getMostThumbsDownProducts(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            @PathVariable String domain,
+            @RequestParam(defaultValue="10") int pagesize,
+            @RequestParam(required=false) String cursor) {
 
         final CursorPage<DProduct, String> dPage = rnrService.getMostThumbsDownProducts(pagesize, cursor);
 
-        return new ResponseEntity<JCursorPage<JProduct>>((JCursorPage<JProduct>)CONVERTER.convert(dPage), HttpStatus.OK);
+        return new ResponseEntity<JCursorPage<JProduct>>(
+                (JCursorPage<JProduct>)CONVERTER.convert(dPage),
+                HttpStatus.OK);
     }
 
     /**
@@ -279,15 +302,18 @@ public class ProductController extends AbstractRestController {
             @RestCode(code=200, message="OK", description="Most liked products found")
     })
     @RequestMapping(value="rated/most", method= RequestMethod.GET)
-    public ResponseEntity<JCursorPage<JProduct>> getMostRatedProducts(HttpServletRequest request,
-                                                                      HttpServletResponse response,
-                                                                      @PathVariable String domain,
-                                                                      @RequestParam(defaultValue="10") int pagesize,
-                                                                      @RequestParam(required=false) String cursor) {
+    public ResponseEntity<JCursorPage<JProduct>> getMostRatedProducts(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            @PathVariable String domain,
+            @RequestParam(defaultValue="10") int pagesize,
+            @RequestParam(required=false) String cursor) {
 
         final CursorPage<DProduct, String> dPage = rnrService.getMostRatedProducts(pagesize, cursor);
 
-        return new ResponseEntity<JCursorPage<JProduct>>((JCursorPage<JProduct>)CONVERTER.convert(dPage), HttpStatus.OK);
+        return new ResponseEntity<JCursorPage<JProduct>>(
+                (JCursorPage<JProduct>)CONVERTER.convert(dPage),
+                HttpStatus.OK);
     }
 
     /**
@@ -302,15 +328,18 @@ public class ProductController extends AbstractRestController {
             @RestCode(code=200, message="OK", description="Most liked products found")
     })
     @RequestMapping(value="rated/top", method= RequestMethod.GET)
-    public ResponseEntity<JCursorPage<JProduct>> getTopRatedProducts(HttpServletRequest request,
-                                                                    HttpServletResponse response,
-                                                                    @PathVariable String domain,
-                                                                    @RequestParam(defaultValue="10") int pagesize,
-                                                                    @RequestParam(required=false) String cursor) {
+    public ResponseEntity<JCursorPage<JProduct>> getTopRatedProducts(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            @PathVariable String domain,
+            @RequestParam(defaultValue="10") int pagesize,
+            @RequestParam(required=false) String cursor) {
 
         final CursorPage<DProduct, String> dPage = rnrService.getTopRatedProducts(pagesize, cursor);
 
-        return new ResponseEntity<JCursorPage<JProduct>>((JCursorPage<JProduct>)CONVERTER.convert(dPage), HttpStatus.OK);
+        return new ResponseEntity<JCursorPage<JProduct>>(
+                (JCursorPage<JProduct>)CONVERTER.convert(dPage),
+                HttpStatus.OK);
     }
 
     /**
@@ -325,36 +354,41 @@ public class ProductController extends AbstractRestController {
             @RestCode(code=200, message="OK", description="Most liked products found")
     })
     @RequestMapping(value="commented/most", method= RequestMethod.GET)
-    public ResponseEntity<JCursorPage<JProduct>> getMostCommentedProducts(HttpServletRequest request,
-                                                                         HttpServletResponse response,
-                                                                         @PathVariable String domain,
-                                                                         @RequestParam(defaultValue="10") int pagesize,
-                                                                         @RequestParam(required=false) String cursor) {
+    public ResponseEntity<JCursorPage<JProduct>> getMostCommentedProducts(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            @PathVariable String domain,
+            @RequestParam(defaultValue="10") int pagesize,
+            @RequestParam(required=false) String cursor) {
 
         final CursorPage<DProduct, String> dPage = rnrService.getMostCommentedProducts(pagesize, cursor);
 
-        return new ResponseEntity<JCursorPage<JProduct>>((JCursorPage<JProduct>)CONVERTER.convert(dPage), HttpStatus.OK);
+        return new ResponseEntity<JCursorPage<JProduct>>(
+                (JCursorPage<JProduct>)CONVERTER.convert(dPage),
+                HttpStatus.OK);
     }
 
     /**
      * Get all products a user have liked.
-     * @param username optional.
-     * If authenticated, and RnrService.fallbackPrincipalName,
-     * principal.name will be used if username is null.
+     * @param username unique user name or id
      * @return a list of products
      */
     @RestReturn(value=JProduct.class, entity=JProduct.class, code={
             @RestCode(code=200, message="OK", description="Products liked by user")
     })
     @RequestMapping(value="liked", method= RequestMethod.GET)
-    public ResponseEntity<Collection<JProduct>> getProductsLikedByUser(HttpServletRequest request,
-                                                                       HttpServletResponse response,
-                                                                       @PathVariable String domain,
-                                                                       @RequestParam(required=true) String username) {
+    public ResponseEntity<Collection<JProduct>> getProductsLikedByUser(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            UriComponentsBuilder uriBuilder,
+            @PathVariable String domain,
+            @RequestParam String username) {
 
         final Iterable<DProduct> dProductIterable = rnrService.getProductsLikedByUser(username);
 
-        return new ResponseEntity<Collection<JProduct>>(CONVERTER.convert(dProductIterable, getBaseUri(request, domain)), HttpStatus.OK);
+        return new ResponseEntity<Collection<JProduct>>(
+                CONVERTER.convert(dProductIterable, getBaseUri(uriBuilder, domain)),
+                HttpStatus.OK);
     }
 
     /**
@@ -366,76 +400,89 @@ public class ProductController extends AbstractRestController {
             @RestCode(code=200, message="OK", description="Products liked by user")
     })
     @RequestMapping(value="thumbs", method= RequestMethod.GET)
-    public ResponseEntity<Collection<JProduct>> getProductsThumbedByUser(HttpServletRequest request,
-                                                                         HttpServletResponse response,
-                                                                         @PathVariable String domain,
-                                                                         @RequestParam(required=true) String username) {
+    public ResponseEntity<Collection<JProduct>> getProductsThumbedByUser(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            UriComponentsBuilder uriBuilder,
+            @PathVariable String domain,
+            @RequestParam String username) {
 
         final Iterable<DProduct> dProductIterable = rnrService.getProductsThumbedByUser(username);
 
-        return new ResponseEntity<Collection<JProduct>>(CONVERTER.convert(dProductIterable, getBaseUri(request, domain)), HttpStatus.OK);
+        return new ResponseEntity<Collection<JProduct>>(
+                CONVERTER.convert(dProductIterable, getBaseUri(uriBuilder, domain)),
+                HttpStatus.OK);
     }
 
     /**
      * Get all products a user have rated.
-     * @param username optional.
-     * If authenticated, and RnrService.fallbackPrincipalName,
-     * principal.name will be used if username is null.
+     * @param username unique user name or id
      * @return a list of products
      */
     @RestReturn(value=JProduct.class, entity=JProduct.class, code={
             @RestCode(code=200, message="OK", description="Products rated by user")
     })
     @RequestMapping(value="rated", method= RequestMethod.GET)
-    public ResponseEntity<Collection<JProduct>> getProductsRatedByUser(HttpServletRequest request,
-                                                                       @PathVariable String domain,
-                                                                       @RequestParam(required=true) String username) {
+    public ResponseEntity<Collection<JProduct>> getProductsRatedByUser(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            UriComponentsBuilder uriBuilder,
+            @PathVariable String domain,
+            @RequestParam String username) {
 
         final Iterable<DProduct> dProductIterable = rnrService.getProductsRatedByUser(username);
 
-        return new ResponseEntity<Collection<JProduct>>(CONVERTER.convert(dProductIterable, getBaseUri(request, domain)), HttpStatus.OK);
+        return new ResponseEntity<Collection<JProduct>>(
+                CONVERTER.convert(dProductIterable, getBaseUri(uriBuilder, domain)),
+                HttpStatus.OK);
     }
 
     /**
      * Get all products a user have commented.
-     * @param username optional.
-     * If authenticated, and RnrService.fallbackPrincipalName,
-     * principal.name will be used if username is null.
+     * @param username unique user name or id
      * @return a list of products
      */
     @RestReturn(value=JProduct.class, entity=JProduct.class, code={
             @RestCode(code=200, message="OK", description="Products commented by user")
     })
     @RequestMapping(value="commented", method= RequestMethod.GET)
-    public ResponseEntity<Collection<JProduct>> getProductsCommentedByUser(HttpServletRequest request,
-                                                                           @PathVariable String domain,
-                                                                           @RequestParam(required=false) String username) {
+    public ResponseEntity<Collection<JProduct>> getProductsCommentedByUser(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            UriComponentsBuilder uriBuilder,
+            @PathVariable String domain,
+            @RequestParam String username) {
 
         final Iterable<DProduct> dProductIterable = rnrService.getProductsCommentedByUser(username);
 
-        return new ResponseEntity<Collection<JProduct>>(CONVERTER.convert(dProductIterable, getBaseUri(request, domain)), HttpStatus.OK);
+        return new ResponseEntity<Collection<JProduct>>(
+                CONVERTER.convert(dProductIterable, getBaseUri(uriBuilder, domain)),
+                HttpStatus.OK);
     }
 
     /**
      * Get favorite products for a user.
      *
      * This method not only returns the product ids but all product information.
-     * @param username optional.
-     * If authenticated, and RnrService.fallbackPrincipalName,
-     * principal.name will be used if username is null.
+     * @param username unique user name or id
      * @return a list of products
      */
     @RestReturn(value=JProduct.class, entity=JProduct.class, code={
             @RestCode(code=200, message="OK", description="Users favorite products")
     })
     @RequestMapping(value="favorites", method= RequestMethod.GET)
-    public ResponseEntity<Collection<JProduct>> geUserFavoriteProducts(HttpServletRequest request,
-                                                                       @PathVariable String domain,
-                                                                       @RequestParam(required=true) String username) {
+    public ResponseEntity<Collection<JProduct>> geUserFavoriteProducts(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            UriComponentsBuilder uriBuilder,
+            @PathVariable String domain,
+            @RequestParam String username) {
 
         final Iterable<DProduct> dProductIterable = rnrService.geUserFavoriteProducts(username);
 
-        return new ResponseEntity<Collection<JProduct>>(CONVERTER.convert(dProductIterable, getBaseUri(request, domain)), HttpStatus.OK);
+        return new ResponseEntity<Collection<JProduct>>(
+                CONVERTER.convert(dProductIterable, getBaseUri(uriBuilder, domain)),
+                HttpStatus.OK);
     }
 
 

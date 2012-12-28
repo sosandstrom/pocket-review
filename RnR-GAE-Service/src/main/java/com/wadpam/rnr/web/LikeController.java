@@ -31,40 +31,56 @@ import java.util.Collection;
  * @author mattiaslevin
  */
 @Controller
-@RequestMapping(value="{domain}/like")
 public class LikeController extends AbstractRestController {
-
     static final Logger LOG = LoggerFactory.getLogger(LikeController.class);
+
+    public static final int ERR_BASE_LIKE = RnrService.ERR_BASE_LIKE;
+    public static final int ERR_LIKE_NOT_FOUND = ERR_BASE_LIKE + 1;
+
     static final Converter CONVERTER = new Converter();
 
     private RnrService rnrService;
 
     /**
      * Add a like to a product.
+     *
+     * This method will either redirect to the created like or the product
+     * summary depending on the incoming uri.
      * @param productId domain-unique id for the product to like
      * @param username optional. A unique user name or id.
      *                 Needed in order to perform user related operations later on.
      * @param latitude optional, -90..90
      * @param longitude optional, -180..180
-     * @return the newly create like
+     * @return redirect to the created like or product summary
      */
     @RestReturn(value=JLike.class, entity=JLike.class, code={
-            @RestCode(code=302, message="OK", description="Redirect to the newly created like")
+            @RestCode(code=302, message="OK", description="Redirect to the newly created like or product summary")
     })
-    @RequestMapping(value="", method= RequestMethod.POST)
+    @RequestMapping(value={"{domain}/like", "{domain}/product/like"}, method= RequestMethod.POST)
     public RedirectView addLike(HttpServletRequest request,
                                 HttpServletResponse response,
                                 UriComponentsBuilder uriBuilder,
                                 @PathVariable String domain,
-                                @RequestParam(required=true) String productId,
+                                @RequestParam String productId,
                                 @RequestParam(required=false) String username,
                                 @RequestParam(required=false) Float latitude,
                                 @RequestParam(required=false) Float longitude) {
 
         final DLike body = rnrService.addLike(domain, productId, username, latitude, longitude);
 
-        return new RedirectView(uriBuilder.path("/{domain}/like/{id}").
-                buildAndExpand(domain, body.getId()).toUriString());
+        // Redirect to different urls depending on request uri
+        String redirectUri;
+        if (request.getRequestURI().contains("product")) {
+            // Redirect to the product summary
+            redirectUri = uriBuilder.path("/{domain}/product/{id}").
+                    buildAndExpand(domain, productId).toUriString();
+        } else {
+            // Redirect to the like
+            redirectUri = uriBuilder.path("/{domain}/like/{id}").
+                    buildAndExpand(domain, body.getId()).toUriString();
+        }
+
+        return new RedirectView(redirectUri);
     }
 
     /**
@@ -76,14 +92,15 @@ public class LikeController extends AbstractRestController {
             @RestCode(code=200, message="OK", description="Like deleted"),
             @RestCode(code=404, message="NOK", description="Like not found and can not be deleted")
     })
-    @RequestMapping(value="{id}", method= RequestMethod.DELETE)
+    @RequestMapping(value="{domain}/like/{id}", method= RequestMethod.DELETE)
     public ResponseEntity<JLike> deleteLike(HttpServletRequest request,
                                             HttpServletResponse response,
                                             @PathVariable long id) {
 
         final DLike body = rnrService.deleteLike(id);
         if (null == body)
-            throw new NotFoundException(404, String.format("Like with id:%s not found", id));
+            throw new NotFoundException(ERR_LIKE_NOT_FOUND,
+                    String.format("Like with id:%s not found", id));
 
         return new ResponseEntity<JLike>(HttpStatus.OK);
     }
@@ -97,14 +114,15 @@ public class LikeController extends AbstractRestController {
             @RestCode(code=200, message="OK", description="Like found"),
             @RestCode(code=404, message="NOK", description="Like not found")
     })
-    @RequestMapping(value="{id}", method= RequestMethod.GET)
+    @RequestMapping(value="{domain}/like/{id}", method= RequestMethod.GET)
     public ResponseEntity<JLike> getLike(HttpServletRequest request,
                                          HttpServletResponse response,
                                          @PathVariable long id) {
 
         final DLike body = rnrService.getLike(id);
         if (null == body)
-            throw new NotFoundException(404, String.format("Like with id:%s not found", id));
+            throw new NotFoundException(ERR_LIKE_NOT_FOUND,
+                    String.format("Like with id:%s not found", id));
 
         return new ResponseEntity<JLike>(CONVERTER.convert(body), HttpStatus.OK);
     }
@@ -117,14 +135,16 @@ public class LikeController extends AbstractRestController {
     @RestReturn(value=JLike.class, entity=JLike.class, code={
             @RestCode(code=200, message="OK", description="All likes for user")
     })
-    @RequestMapping(value="", method= RequestMethod.GET, params="username")
+    @RequestMapping(value="{domain}/like", method= RequestMethod.GET, params="username")
     public ResponseEntity<Collection<JLike>> getMyLikes(HttpServletRequest request,
                                                         HttpServletResponse response,
-                                                        @RequestParam(required=true) String username) {
+                                                        @RequestParam String username) {
 
         final Iterable<DLike> dLikeIterable = rnrService.getMyLikes(username);
 
-        return new ResponseEntity<Collection<JLike>>((Collection<JLike>)CONVERTER.convert(dLikeIterable), HttpStatus.OK);
+        return new ResponseEntity<Collection<JLike>>(
+                (Collection<JLike>)CONVERTER.convert(dLikeIterable),
+                HttpStatus.OK);
     }
 
     /**
@@ -139,16 +159,19 @@ public class LikeController extends AbstractRestController {
     @RestReturn(value=JCursorPage.class, entity=JCursorPage.class, code={
             @RestCode(code=200, message="OK", description="Page of likes for product")
     })
-    @RequestMapping(value="", method= RequestMethod.GET, params="productId")
-    public ResponseEntity<JCursorPage<JLike>> getAllLikesForProduct(HttpServletRequest request,
-                                                                    HttpServletResponse response,
-                                                                    @RequestParam(required=true) String productId,
-                                                                    @RequestParam(defaultValue="10") int pagesize,
-                                                                    @RequestParam(required=false) String cursor) {
+    @RequestMapping(value="{domain}/like", method= RequestMethod.GET, params="productId")
+    public ResponseEntity<JCursorPage<JLike>> getAllLikesForProduct(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            @RequestParam String productId,
+            @RequestParam(defaultValue="10") int pagesize,
+            @RequestParam(required=false) String cursor) {
 
         final CursorPage<DLike, Long> dPage = rnrService.getAllLikesForProduct(productId, pagesize, cursor);
 
-        return new ResponseEntity<JCursorPage<JLike>>((JCursorPage<JLike>)CONVERTER.convert(dPage), HttpStatus.OK);
+        return new ResponseEntity<JCursorPage<JLike>>(
+                (JCursorPage<JLike>)CONVERTER.convert(dPage),
+                HttpStatus.OK);
     }
 
 

@@ -47,6 +47,8 @@ public class Converter extends BaseConverter {
         }
         else if (from instanceof DFavorites) {
             to = convert((DFavorites) from);
+        } else if (from instanceof DFeedback) {
+            to = convert((DFeedback) from);
         }
         else {
             throw new UnsupportedOperationException(String.format("No converter for:%s" + from.getClass().getSimpleName()));
@@ -161,6 +163,30 @@ public class Converter extends BaseConverter {
 
         to.setUsername(from.getUsername());
         to.setProductIds(from.getProductIds());
+
+        return to;
+    }
+
+    // Convert user feedback
+    public JFeedback convert(DFeedback from) {
+        if (null == from) {
+            return null;
+        }
+
+        final JFeedback to = new JFeedback();
+        convert(from, to);
+        to.setTitle(from.getTitle());
+        to.setFeedback(from.getFeedback());
+        to.setReferenceId(from.getReferenceId());
+        to.setCategory(from.getCategory());
+        to.setDeviceModel(from.getDeviceModel());
+        to.setDeviceOS(from.getDeviceOS());
+        to.setDeviceOSVersion(from.getDeviceOSVersion());
+        to.setUsername(from.getUsername());
+        to.setUserContact(from.getUserContact());
+        if (null != from.getLocation()) {
+            to.setLocation(convert(from.getLocation()));
+        }
 
         return to;
     }

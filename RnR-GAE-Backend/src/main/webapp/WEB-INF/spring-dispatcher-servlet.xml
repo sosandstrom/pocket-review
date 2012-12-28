@@ -10,8 +10,9 @@
 
 
 
-    <!--           Security             -->
+    <!--           Security
     <import resource="spring-security.xml" />
+     -->
 
     <!--           Application properties         -->
     <context:property-placeholder location="classpath:application.properties"
@@ -45,6 +46,8 @@
 
     <!--           Controllers             -->
     <bean class="com.wadpam.open.web.MonitorController" />
+
+    <bean class="com.wadpam.open.web.IsAliveController" />
 
 
     <bean id="jsonObjectMapper" class="com.wadpam.open.json.SkipNullObjectMapper" init-method="init" />

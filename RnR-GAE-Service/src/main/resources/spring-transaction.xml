@@ -26,7 +26,7 @@
     <aop:config>
         <aop:aspect id="gaeConcurrentOperationAspect" ref="gaeConcurrentOperationExecutor">
             <aop:pointcut id="transactionMethods"
-                          expression="within(com.wadpam.rnr.service.RnrService)
+                          expression="within(com.wadpam.rnr.service.*Service)
                           and (execution(* add*(..)) or execution(* delete*(..)) or execution(* update*(..)))
                           and @annotation(com.wadpam.open.transaction.Idempotent)"/>
             <aop:around pointcut-ref="transactionMethods" method="doConcurrentOperation" />

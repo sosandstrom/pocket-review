@@ -9,7 +9,6 @@ GET /api/..../?_method=POST&param=...
 
 Maintenance and upgrade controller/filter
 
-Add report feedback / report a problem
 
 -Add App Setting controller
 
@@ -29,9 +28,7 @@ Must fix
 
 -Why is the transaction rollback running on all exception? Impact in the cache as well
 
--Change to Spring URL builder
 -Careful testing
--Move authentication to open-server
 
 
 

@@ -39,5 +39,9 @@
           class="com.wadpam.rnr.dao.DAppSettingsDaoBean">
     </bean>
 
+    <bean id="feedbackDao"
+          class="com.wadpam.rnr.dao.DFeedbackDaoBean">
+    </bean>
+
 
 </beans>

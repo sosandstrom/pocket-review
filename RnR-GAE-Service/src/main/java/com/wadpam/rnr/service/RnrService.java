@@ -19,9 +19,20 @@ import java.util.*;
  * @author os
  */
 public class RnrService {
-
     static final Logger LOG = LoggerFactory.getLogger(RnrService.class);
 
+    public static final int ERR_BASE_FEEDBACK = 10000;
+
+    public static final int ERR_BASE_RNR = 20000;
+    public static final int ERR_BASE_COMMENTS = ERR_BASE_RNR + 1000;
+    public static final int ERR_BASE_FAVORITES = ERR_BASE_RNR + 2000;
+    public static final int ERR_BASE_LIKE = ERR_BASE_RNR + 3000;
+    public static final int ERR_BASE_RATE = ERR_BASE_RNR + 4000;
+    public static final int ERR_BASE_THUMBS = ERR_BASE_RNR + 5000;
+
+    public static final int ERR_BASE_PRODUCT_NOT_FOUND = ERR_BASE_RNR + 1;
+
+    // Properties
     private DAppSettingsDao appSettingsDao;
     private DProductDao productDao;
     private DRatingDao ratingDao;
@@ -183,7 +194,7 @@ public class RnrService {
             dThumbs.setProductId(productId);
             dThumbs.setUsername(username);
         } else
-            existing = (dThumbs.getValue()) > 1 ? Thumbs.UP : Thumbs.DOWN;
+            existing = (dThumbs.getValue()) > 0 ? Thumbs.UP : Thumbs.DOWN;
 
         // Always update the value
         dThumbs.setValue((long)value.getValue());
@@ -561,7 +572,8 @@ public class RnrService {
         final DProduct dProduct = productDao.findByPrimaryKey(productId);
 
         if (null == dProduct)
-            throw new NotFoundException(404, String.format("Product with id:%s not found", productId));
+            throw new NotFoundException(ERR_BASE_PRODUCT_NOT_FOUND,
+                    String.format("Product with id:%s not found", productId));
 
         return dProduct;
     }

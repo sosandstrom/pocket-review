@@ -27,10 +27,13 @@ import javax.servlet.http.HttpServletResponse;
  * @author mattiaslevin
  */
 @Controller
-@RequestMapping(value="{domain}/favorites")
 public class FavoritesController extends AbstractRestController {
-
     static final Logger LOG = LoggerFactory.getLogger(FavoritesController.class);
+
+    public static final int ERR_BASE_FAVORITES = RnrService.ERR_BASE_FAVORITES;
+    public static final int ERR_FAVORITE_NOT_FOUND = ERR_BASE_FAVORITES + 1;
+
+
     static final Converter CONVERTER = new Converter();
 
     private RnrService rnrService;
@@ -40,50 +43,51 @@ public class FavoritesController extends AbstractRestController {
      * Add a product as favorite.
      * @param username unique user name or id
      * @param productId domain-unique id for the product to add as favorites
-     * @return a current favorites for the user
+     * @return redirect to users favorite
      */
     @RestReturn(value=JFavorites.class, entity=JFavorites.class, code={
-            @RestCode(code=302, message="OK", description="Redirect to updated users favorites")
+            @RestCode(code=302, message="OK", description="Redirect to users favorites")
     })
-    @RequestMapping(value="{username}", method=RequestMethod.POST)
+    @RequestMapping(value="{domain}/favorites/{username}", method=RequestMethod.POST)
     public RedirectView addFavorite(HttpServletRequest request,
                                     HttpServletResponse response,
                                     UriComponentsBuilder uriBuilder,
                                     @PathVariable String domain,
-                                    @PathVariable String username,
-                                    @RequestParam(required=true) String productId) {
+                                    @RequestParam String productId,
+                                    @PathVariable String username) {
 
         final DFavorites body = rnrService.addFavorite(productId, username);
 
-        return new RedirectView(uriBuilder.path("/{domain}/favorites/{username}").
-                buildAndExpand(domain, username).toUriString());
+        // Redirect to the favorites
+        String redirectUri = uriBuilder.path("/{domain}/favorites/{username}").
+                buildAndExpand(domain, username).toUriString();
+
+        return new RedirectView(redirectUri);
     }
 
     /**
      * Remove a product from favorites.
      * @param username unique user name or id
      * @param productId domain-unique id for the product to add as favorites
-     * @return the and http response code indicating the outcome of the operation
+     * @return redirect to users favorite
      */
     @RestReturn(value=JFavorites.class, entity=JFavorites.class, code={
             @RestCode(code=302, message="OK", description="Redirect to updated users favorites"),
             @RestCode(code=404, message="NOK", description="Product not a favorite for the user")
     })
-    @RequestMapping(value="{username}", method= RequestMethod.DELETE)
+    @RequestMapping(value="{domain}/favorites/{username}", method= RequestMethod.DELETE)
     public RedirectView deleteFavorite(HttpServletRequest request,
                                        HttpServletResponse response,
                                        UriComponentsBuilder uriBuilder,
                                        @PathVariable String domain,
-                                       @PathVariable String username,
-                                       @RequestParam(required=true) String productId) {
+                                       @RequestParam String productId,
+                                       @PathVariable String username) {
 
+        // Redirect to the favorites
+        String redirectUri = uriBuilder.path("/{domain}/favorites/{username}").
+                buildAndExpand(domain, username).toUriString();
 
-        final DFavorites body = rnrService.deleteFavorite(productId, username);
-        if (null == body)
-            throw new NotFoundException(404, String.format("Product:%s not found for user:%s", productId, username));
-
-        return new RedirectView(uriBuilder.path("/{domain}/favorites/{username}").
-                buildAndExpand(domain, username).toUriString());
+        return new RedirectView(redirectUri);
     }
 
     /**
@@ -94,14 +98,15 @@ public class FavoritesController extends AbstractRestController {
     @RestReturn(value=JFavorites.class, entity=JFavorites.class, code={
             @RestCode(code=200, message="OK", description="Favorites found for user")
     })
-    @RequestMapping(value="{username}", method= RequestMethod.GET)
+    @RequestMapping(value="{domain}/favorites/{username}", method= RequestMethod.GET)
     public ResponseEntity<JFavorites> getFavorites(HttpServletRequest request,
                                                    HttpServletResponse response,
                                                    @PathVariable String username) {
 
         final DFavorites body = rnrService.getFavorites(username);
         if (null == body)
-            throw new NotFoundException(404, String.format("No favorites found for user:%s", username));
+            throw new NotFoundException(ERR_FAVORITE_NOT_FOUND,
+                    String.format("No favorites found for user:%s", username));
 
         return new ResponseEntity<JFavorites>(CONVERTER.convert(body), HttpStatus.OK);
     }

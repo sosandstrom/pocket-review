@@ -33,10 +33,12 @@ import java.util.Map;
  * @author os
  */
 @Controller
-@RequestMapping(value="{domain}/rating")
 public class RatingController extends AbstractRestController {
-
     static final Logger LOG = LoggerFactory.getLogger(RatingController.class);
+
+    public static final int ERR_BASE_RATE = RnrService.ERR_BASE_RATE;
+    public static final int ERR_RATE_NOT_FOUND = ERR_BASE_RATE + 1;
+
     static final Converter CONVERTER = new Converter();
 
     private RnrService rnrService;
@@ -44,6 +46,9 @@ public class RatingController extends AbstractRestController {
 
     /**
      * Add a rating to a product.
+     *
+     * This method will either redirect to the created rating or the product
+     * summary depending on the incoming uri.
      * @param productId domain-unique id for the product to rate
      * @param username optional. A unique user name or id.
      *                 Needed in order to perform user related operations later on.
@@ -51,27 +56,39 @@ public class RatingController extends AbstractRestController {
      * @param longitude optional, -180..180
      * @param rating mandatory, the rating 0..100
      * @param comment optional. review comment
-     * @return the new rating
+     * @return redirect to the create rating or product summary
      */
     @RestReturn(value=JRating.class, entity=JRating.class, code={
-        @RestCode(code=302, message="OK", description="Redirect to newly created rating")
+        @RestCode(code=302, message="OK", description="Redirect to newly created rating or product summary")
     })
-    @RequestMapping(value="", method= RequestMethod.POST)
+    @RequestMapping(value={"{domain}/rating", "{domain}/product/rating"}, method= RequestMethod.POST)
     public RedirectView addRating(HttpServletRequest request,
                                   HttpServletResponse response,
-                                  @PathVariable String domain,
                                   UriComponentsBuilder uriBuilder,
-                                  @RequestParam(required=true) String productId,
+                                  @PathVariable String domain,
+                                  @RequestParam String productId,
+                                  @RequestParam int rating,
                                   @RequestParam(required=false) String username,
                                   @RequestParam(required=false) Float latitude,
                                   @RequestParam(required=false) Float longitude,
-                                  @RequestParam int rating,
                                   @RequestParam(required=false) String comment) {
 
-        final DRating body = rnrService.addRating(domain, productId, username, latitude, longitude, rating, comment);
+        final DRating body = rnrService.addRating(domain, productId, username,
+                latitude, longitude, rating, comment);
 
-        return new RedirectView(uriBuilder.path("/{domain}/rating/{id}").
-                buildAndExpand(domain, body.getId()).toUriString());
+        // Redirect to different urls depending on request uri
+        String redirectUri;
+        if (request.getRequestURI().contains("product")) {
+            // Redirect to the product summary
+            redirectUri = uriBuilder.path("/{domain}/product/{id}").
+                    buildAndExpand(domain, productId).toUriString();
+        } else {
+            // Redirect to the rating
+            redirectUri = uriBuilder.path("/{domain}/rating/{id}").
+                    buildAndExpand(domain, body.getId()).toUriString();
+        }
+
+        return new RedirectView(redirectUri);
     }
 
     /**
@@ -83,14 +100,15 @@ public class RatingController extends AbstractRestController {
             @RestCode(code=200, message="OK", description="Rating deleted"),
             @RestCode(code=404, message="NOK", description="Rating not found and can not be deleted")
     })
-    @RequestMapping(value="{id}", method= RequestMethod.DELETE)
+    @RequestMapping(value="{domain}/rating/{id}", method= RequestMethod.DELETE)
     public ResponseEntity<JRating> deleteLike(HttpServletRequest request,
                                               HttpServletResponse response,
                                               @PathVariable long id) {
 
         final DRating body = rnrService.deleteRating(id);
         if (null == body)
-            throw new NotFoundException(404, String.format("Rating with id:%s not found", id));
+            throw new NotFoundException(ERR_RATE_NOT_FOUND,
+                    String.format("Rating with id:%s not found", id));
 
         return new ResponseEntity<JRating>(HttpStatus.OK);
     }
@@ -104,14 +122,15 @@ public class RatingController extends AbstractRestController {
             @RestCode(code=200, message="OK", description="Rating found"),
             @RestCode(code=404, message="NOK", description="Rating not found")
     })
-    @RequestMapping(value="{id}", method= RequestMethod.GET)
+    @RequestMapping(value="{domain}/rating/{id}", method= RequestMethod.GET)
     public ResponseEntity<JRating> getLike(HttpServletRequest request,
                                            HttpServletResponse response,
                                            @PathVariable long id) {
 
         final DRating body = rnrService.getRating(id);
         if (null == body)
-            throw new NotFoundException(404, String.format("Rating with id:%s not found", id));
+            throw new NotFoundException(ERR_RATE_NOT_FOUND,
+                    String.format("Rating with id:%s not found", id));
 
         return new ResponseEntity<JRating>(CONVERTER.convert(body), HttpStatus.OK);
     }
@@ -124,14 +143,16 @@ public class RatingController extends AbstractRestController {
     @RestReturn(value=JRating.class, entity=JRating.class, code={
         @RestCode(code=200, message="OK", description="Ratings found for user")
     })
-    @RequestMapping(value="", method= RequestMethod.GET, params="username")
+    @RequestMapping(value="{domain}/rating", method= RequestMethod.GET, params="username")
     public ResponseEntity<Collection<JRating>> getMyRatings(HttpServletRequest request,
                                                             HttpServletResponse response,
-                                                            @RequestParam(required=true) String username) {
+                                                            @RequestParam String username) {
 
         final Iterable<DRating> dRatingIterable = rnrService.getMyRatings(username);
 
-        return new ResponseEntity<Collection<JRating>>((Collection<JRating>)CONVERTER.convert(dRatingIterable), HttpStatus.OK);
+        return new ResponseEntity<Collection<JRating>>(
+                (Collection<JRating>)CONVERTER.convert(dRatingIterable),
+                HttpStatus.OK);
     }
 
     /**
@@ -146,16 +167,19 @@ public class RatingController extends AbstractRestController {
     @RestReturn(value=JCursorPage.class, entity=JCursorPage.class, code={
             @RestCode(code=200, message="OK", description="Page of ratings for product")
     })
-    @RequestMapping(value="", method= RequestMethod.GET, params="productId")
-    public ResponseEntity<JCursorPage<JRating>> getAllRatingsForProduct(HttpServletRequest request,
-                                                                       HttpServletResponse response,
-                                                                       @RequestParam(required=true) String productId,
-                                                                       @RequestParam(defaultValue="10") int pagesize,
-                                                                       @RequestParam(required=false) String cursor) {
+    @RequestMapping(value="{domain}/rating", method= RequestMethod.GET, params="productId")
+    public ResponseEntity<JCursorPage<JRating>> getAllRatingsForProduct(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            @RequestParam String productId,
+            @RequestParam(defaultValue="10") int pagesize,
+            @RequestParam(required=false) String cursor) {
 
         final CursorPage<DRating, Long> dPage = rnrService.getAllRatingsForProduct(productId, pagesize, cursor);
 
-        return new ResponseEntity<JCursorPage<JRating>>((JCursorPage<JRating>)CONVERTER.convert(dPage), HttpStatus.OK);
+        return new ResponseEntity<JCursorPage<JRating>>(
+                (JCursorPage<JRating>)CONVERTER.convert(dPage),
+                HttpStatus.OK);
     }
 
     /**
@@ -167,11 +191,11 @@ public class RatingController extends AbstractRestController {
     @RestReturn(value=JHistogram.class, entity=JHistogram.class, code={
             @RestCode(code=200, message="OK", description="Histogram for product")
     })
-    @RequestMapping(value="histogram", method= RequestMethod.GET, params="productId")
+    @RequestMapping(value="{domain}/rating/histogram", method= RequestMethod.GET, params="productId")
     public ResponseEntity<JHistogram> getHistogramForProduct(HttpServletRequest request,
                                                              HttpServletResponse response,
-                                                             @RequestParam(required=true) String productId,
-                                                             @RequestParam(required=false, defaultValue="10") int interval) {
+                                                             @RequestParam String productId,
+                                                             @RequestParam(defaultValue="10") int interval) {
 
         final Map<Long, Long> values = rnrService.getHistogramForProduct(productId, interval);
 

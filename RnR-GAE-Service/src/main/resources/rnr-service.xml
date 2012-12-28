@@ -33,6 +33,13 @@
         <property name="favoritesDao" ref="dFavoritesDao" />
     </bean>
 
+    <bean id="feedbackService" class="com.wadpam.rnr.service.FeedbackService" init-method="init">
+        <property name="appSettingsDao" ref="dAppSettingsDao" />
+        <property name="feedbackDao" ref="feedbackDao" />
+        <property name="fromEmail" value="${email.from.address}" />
+        <property name="fromName" value="${email.from.name}" />
+    </bean>
+
     <!--           Controllers             -->
 
     <bean id="productController" class="com.wadpam.rnr.web.ProductController">
@@ -57,6 +64,10 @@
 
     <bean id="favoritesController" class="com.wadpam.rnr.web.FavoritesController">
         <property name="rnrService" ref="rnrService" />
+    </bean>
+
+    <bean id="feedbackController" class="com.wadpam.rnr.web.FeedbackController">
+        <property name="feedbackService" ref="feedbackService" />
     </bean>
 
     <bean id="settingsController" class="com.wadpam.rnr.web.AppSettingsController">

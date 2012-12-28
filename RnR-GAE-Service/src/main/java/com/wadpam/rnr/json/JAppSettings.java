@@ -3,28 +3,36 @@ package com.wadpam.rnr.json;
 import com.wadpam.open.json.JBaseObject;
 
 /**
- * Created with IntelliJ IDEA.
- * User: mattias
- * Date: 9/9/12
- * Time: 12:18 AM
- * To change this template use File | Settings | File Templates.
+ * Json representation of application settings.
+ * @author mattiaslevin
  */
 public class JAppSettings extends JBaseObject {
 
 
     /** The unique domain name for the app */
-    private String      domain;
+    private String domain;
 
     /** Decides if an identified user only can like a product once  */
-    private boolean     onlyLikeOncePerUser = true;
+    private boolean onlyLikeOncePerUser = true;
 
     /** Decides if an identified user only can rate a product once  */
-    private boolean     onlyRateOncePerUser = true;
+    private boolean onlyRateOncePerUser = true;
+
+    /** Decides if an identified user only can thumb up and down a product once  */
+    private boolean onlyThumbOncePerUser = true;
+
+    /** Decides if a user is allowed to give feedback multiple times on the same reference if */
+    private boolean onlyFeedbackOncePerUser = false;
+
+    /** Forward user feedback in email */
+    private boolean sendFeedbackAsEmail = false;
+
+
 
     @Override
     public String subString() {
-        return String.format("{domain:%s, likeOncePerUser:%d, rateOncePerUser:%d}",
-                getDomain(),isOnlyLikeOncePerUser(), isOnlyLikeOncePerUser());
+        return String.format("{domain:%s, likeOncePerUser:%b, rateOncePerUser:%b}",
+                domain, onlyLikeOncePerUser, onlyRateOncePerUser);
     }
 
 
@@ -51,5 +59,29 @@ public class JAppSettings extends JBaseObject {
 
     public void setOnlyRateOncePerUser(boolean onlyRateOncePerUser) {
         this.onlyRateOncePerUser = onlyRateOncePerUser;
+    }
+
+    public Boolean getOnlyFeedbackOncePerUser() {
+        return onlyFeedbackOncePerUser;
+    }
+
+    public void setOnlyFeedbackOncePerUser(Boolean onlyFeedbackOncePerUser) {
+        this.onlyFeedbackOncePerUser = onlyFeedbackOncePerUser;
+    }
+
+    public Boolean getOnlyThumbOncePerUser() {
+        return onlyThumbOncePerUser;
+    }
+
+    public void setOnlyThumbOncePerUser(Boolean onlyThumbOncePerUser) {
+        this.onlyThumbOncePerUser = onlyThumbOncePerUser;
+    }
+
+    public boolean isSendFeedbackAsEmail() {
+        return sendFeedbackAsEmail;
+    }
+
+    public void setSendFeedbackAsEmail(boolean sendFeedbackAsEmail) {
+        this.sendFeedbackAsEmail = sendFeedbackAsEmail;
     }
 }
