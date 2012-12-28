@@ -58,14 +58,12 @@
             <groupId>com.wadpam.openserver</groupId>
             <artifactId>jsonp</artifactId>
             <version>${openserver.version}</version>
-            <scope>runtime</scope>
         </dependency>
 
         <dependency>
             <groupId>com.wadpam.openserver</groupId>
             <artifactId>tools-gae</artifactId>
             <version>${openserver.version}</version>
-            <scope>runtime</scope>
         </dependency>
 
         <dependency>

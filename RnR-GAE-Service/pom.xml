@@ -165,6 +165,12 @@
             <version>${openserver.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.wadpam.openserver</groupId>
+            <artifactId>tools-gae</artifactId>
+            <version>${openserver.version}</version>
+        </dependency>
+
         <!--  Remove for now
         <dependency>
             <groupId>com.wadpam.openserver</groupId>

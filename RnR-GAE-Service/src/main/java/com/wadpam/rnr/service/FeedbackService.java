@@ -2,6 +2,7 @@ package com.wadpam.rnr.service;
 
 import com.google.appengine.api.datastore.GeoPt;
 import com.wadpam.open.exceptions.BadRequestException;
+import com.wadpam.open.service.EmailSender;
 import com.wadpam.open.transaction.Idempotent;
 import com.wadpam.rnr.dao.DAppSettingsDao;
 import com.wadpam.rnr.dao.DFeedbackDao;
@@ -37,8 +38,6 @@ public class FeedbackService {
 
     private DFeedbackDao feedbackDao;
     private DAppSettingsDao appSettingsDao;
-
-    private EmailSender emailSender = new EmailSender();
 
 
     // Init
@@ -135,7 +134,7 @@ public class FeedbackService {
                 stringBuilder.append("Latitude:").append(latitude).append("\n");
                 stringBuilder.append("Longitude:").append(longitude).append("\n");
 
-                emailSender.sendEmail(destinationEmail, fromEmail, title, stringBuilder.toString());
+                EmailSender.sendEmail(destinationEmail, fromEmail, title, stringBuilder.toString());
             }
         }
 
@@ -190,10 +189,10 @@ public class FeedbackService {
         LOG.info("Wrote CSV file size {} bytes", baos.size());
 
         // Send email
-        emailSender.sendEmail(this.fromEmail, "Backoffice admin",
+        EmailSender.sendEmail(this.fromEmail, "Backoffice admin",
                 Arrays.asList(email), null, null,
                 String.format("User feedback CSV export for %s", domain),
-                null, "Please find all registered users in the attached CSV file.",
+                null, "Please find all registered users in the attached CSV file.\nPlease delete export user feedback to reduce the data stored on the server",
                 baos.toByteArray(), "user_feedback_export.csv", "text/csv");
 
         baos.close();

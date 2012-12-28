@@ -80,7 +80,7 @@ public class FeedbackController extends AbstractRestController {
     @RestReturn(value=RedirectView.class, entity=RedirectView.class, code={
             @RestCode(code=302, message="OK", description="The feedback was logged")
     })
-    @RequestMapping(value="feedback", method= RequestMethod.POST)
+    @RequestMapping(value="{domain}/feedback", method= RequestMethod.POST)
     public RedirectView addFeedback(HttpServletRequest request,
                             HttpServletResponse response,
                             UriComponentsBuilder uriBuilder,
