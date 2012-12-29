@@ -233,7 +233,6 @@ public class Converter extends BaseConverter {
         return returnValue;
     }
 
-
     // Convert pages
     public JCursorPage<?> convert(CursorPage<?, ?> from) {
         final JCursorPage<JBaseObject> to = new JCursorPage<JBaseObject>();
@@ -244,6 +243,4 @@ public class Converter extends BaseConverter {
 
         return to;
     }
-
-
 }

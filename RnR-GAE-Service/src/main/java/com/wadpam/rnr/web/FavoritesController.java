@@ -83,6 +83,12 @@ public class FavoritesController extends AbstractRestController {
                                        @RequestParam String productId,
                                        @PathVariable String username) {
 
+        final DFavorites body = rnrService.deleteFavorite(productId, username);
+        if (null == body) {
+            throw new NotFoundException(ERR_FAVORITE_NOT_FOUND,
+                    String.format("Favorite for user:%s and product:%s not found", username, productId));
+        }
+
         // Redirect to the favorites
         String redirectUri = uriBuilder.path("/{domain}/favorites/{username}").
                 buildAndExpand(domain, username).toUriString();

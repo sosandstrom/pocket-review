@@ -164,7 +164,7 @@ public class RatingController extends AbstractRestController {
      *               If asking for the first page, not cursor should be provided.
      * @return a list of ratings
      */
-    @RestReturn(value=JCursorPage.class, entity=JCursorPage.class, code={
+    @RestReturn(value=JCursorPage.class, entity=JRating.class, code={
             @RestCode(code=200, message="OK", description="Page of ratings for product")
     })
     @RequestMapping(value="{domain}/rating", method= RequestMethod.GET, params="productId")

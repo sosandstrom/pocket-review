@@ -74,13 +74,13 @@ public class DProductDaoBean
         // Index the geo location
         if (null != dProduct.getLocation()) {
             GeoPoint geoPoint = new GeoPoint(dProduct.getLocation().getLatitude(), dProduct.getLocation().getLongitude());
+            int averageRating = (null != dProduct.getRatingAverage()) ? dProduct.getRatingAverage().getRating() : -1;
             Document.Builder locationBuilder = Document.newBuilder()
                     .setId(dProduct.getProductId())
                     .addField(Field.newBuilder().setName("location").setGeoPoint(geoPoint))
-                    .addField(Field.newBuilder().setName("averageRating").setNumber(dProduct.getRatingAverage().getRating()))
+                    .addField(Field.newBuilder().setName("averageRating").setNumber(averageRating))
                     .addField(Field.newBuilder().setName("likeCount").setNumber(dProduct.getLikeCount()))
                     .addField(Field.newBuilder().setName("thumbsUp").setNumber(dProduct.getThumbsUp()));
-
             getLocationIndex().add(locationBuilder.build());
         }
 

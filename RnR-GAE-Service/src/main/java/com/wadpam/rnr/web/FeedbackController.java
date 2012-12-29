@@ -18,15 +18,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -242,14 +240,17 @@ public class FeedbackController extends AbstractRestController {
     })
     @RequestMapping(value="{domain}/feedback", method={RequestMethod.DELETE, RequestMethod.GET},
             params={"_method=DELETE"})
+    @ResponseBody
     public Map deleteListOfFeedback(HttpServletRequest request,
                                     HttpServletResponse response,
                                     @PathVariable String domain,
-                                    @RequestParam(required = false) Long timestamp) {
+                                    @RequestParam(required=false) Long timestamp) {
 
-        feedbackService.deleteListOfFeedback(domain, timestamp);
+        int rowsDeleted = feedbackService.deleteListOfFeedback(domain, timestamp);
 
-        return null;
+        Map<String, Long> resp = new HashMap<String, Long>(1);
+        resp.put("deleted", (long)rowsDeleted);
+        return resp;
     }
 
 
