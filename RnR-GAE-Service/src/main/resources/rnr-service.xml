@@ -14,12 +14,9 @@
        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.1.xsd
        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd">
 
+    <!--           Security             -->
 
     <!--           Service             -->
-
-    <!--
-    <import resource="classpath*:spring-security.xml" />
-    -->
 
     <import resource="classpath*:spring-dao.xml" />
 
@@ -35,7 +32,7 @@
 
     <bean id="feedbackService" class="com.wadpam.rnr.service.FeedbackService" init-method="init">
         <property name="appSettingsDao" ref="dAppSettingsDao" />
-        <property name="feedbackDao" ref="feedbackDao" />
+        <property name="feedbackDao" ref="dFeedbackDao" />
         <property name="fromEmail" value="${email.from.address}" />
         <property name="fromName" value="${email.from.name}" />
     </bean>

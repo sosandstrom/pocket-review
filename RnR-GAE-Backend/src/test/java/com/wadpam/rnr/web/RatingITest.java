@@ -1,10 +1,10 @@
 package com.wadpam.rnr.web;
 
-import com.wadpam.open.json.JCursorPage;
+import com.wadpam.open.AbstractRestTempleIntegrationTest;
 import com.wadpam.rnr.json.JHistogram;
 import com.wadpam.rnr.json.JProduct;
 import com.wadpam.rnr.json.JRating;
-import org.junit.*;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -13,7 +13,6 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import java.net.MalformedURLException;
-import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -30,7 +29,17 @@ public class RatingITest extends AbstractRestTempleIntegrationTest {
 
     @Override
     protected String getBaseUrl() {
-        return "http://localhost:8888/api/dev/";
+        return "http://localhost:8888/api/itest/";
+    }
+
+    @Override
+    protected String getUserName() {
+        return "iuser";
+    }
+
+    @Override
+    protected String getPassword() {
+        return "password";
     }
 
     @Test

@@ -19,7 +19,7 @@
      -->
 
     <bean id="gaeConcurrentOperationExecutor" class="com.wadpam.open.transaction.GaeConcurrentOperationExecutor">
-        <property name="order" value="10"/>
+        <property name="order" value="400"/>
         <property name="maxRetries" value="3"/>
     </bean>
 
@@ -27,7 +27,6 @@
         <aop:aspect id="gaeConcurrentOperationAspect" ref="gaeConcurrentOperationExecutor">
             <aop:pointcut id="transactionMethods"
                           expression="within(com.wadpam.rnr.service.*Service)
-                          and (execution(* add*(..)) or execution(* delete*(..)) or execution(* update*(..)))
                           and @annotation(com.wadpam.open.transaction.Idempotent)"/>
             <aop:around pointcut-ref="transactionMethods" method="doConcurrentOperation" />
         </aop:aspect>
@@ -35,7 +34,7 @@
 
     <tx:annotation-driven transaction-manager="transactionManager" order="200"/>
 
-    <bean id="transactionManager" class="com.wadpam.open.transaction.GaeTransacationManager">
+    <bean id="transactionManager" class="com.wadpam.open.transaction.GaeTransactionManager">
         <property name="transactionSynchronization" value="2" />
     </bean>
 

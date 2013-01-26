@@ -1,9 +1,12 @@
 package com.wadpam.rnr.web;
 
+import com.wadpam.open.AbstractRestTempleIntegrationTest;
 import com.wadpam.rnr.json.JComment;
 import com.wadpam.rnr.json.JProduct;
 import com.wadpam.rnr.json.JRating;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
@@ -19,11 +22,23 @@ import static org.junit.Assert.assertTrue;
  * @author mattiaslevin
  */
 public class CommentITest extends AbstractRestTempleIntegrationTest {
+    private static final Logger LOG = LoggerFactory.getLogger(CommentITest.class);
 
     @Override
     protected String getBaseUrl() {
-        return "http://localhost:8888/api/dev/";
+        return "http://localhost:8888/api/itest/";
     }
+
+    @Override
+    protected String getUserName() {
+        return "iuser";
+    }
+
+    @Override
+    protected String getPassword() {
+        return "password";
+    }
+
 
     @Test
     // Test create and get comment
@@ -148,6 +163,6 @@ public class CommentITest extends AbstractRestTempleIntegrationTest {
         assertEquals("Comments count is correct", 3, (long)productSummary.getBody().getCommentCount());
 
         // Get and count all comments
-        //assertEquals("Found 3 comments", 3, countResourcesInPage(BASE_URL + "comment?productId={id}", productId));
+        assertEquals("Found 3 comments", 3, countResourcesInPage(BASE_URL + "comment?productId={id}", JComment.class, productId));
     }
 }

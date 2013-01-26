@@ -5,6 +5,19 @@
   "http://java.sun.com/dtd/web-app_2_3.dtd">
 
 <web-app>
+    <security-constraint>
+        <web-resource-collection>
+            <url-pattern>/_admin/*</url-pattern>
+            <url-pattern>/_worker/*</url-pattern>
+            <url-pattern>/api/_admin/*</url-pattern>
+            <url-pattern>/api/_worker/*</url-pattern>
+            <url-pattern>/protected/*</url-pattern>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>admin</role-name>
+        </auth-constraint>
+    </security-constraint>
+
     <context-param>
         <param-name>contextConfigLocation</param-name>
         <param-value>/WEB-INF/spring-dispatcher-servlet.xml</param-value>
@@ -17,26 +30,15 @@
     <listener>
         <listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>
     </listener>
-    
+
     <filter>
-        <filter-name>domainFilter</filter-name>
+        <filter-name>domainNamespaceFilter</filter-name>
         <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
     </filter>
     <filter-mapping>
-        <filter-name>domainFilter</filter-name>
+        <filter-name>domainNamespaceFilter</filter-name>
         <url-pattern>/api/*</url-pattern>
     </filter-mapping>
-
-    <!--  Removed Spring security for now
-    <filter>
-        <filter-name>springSecurityFilterChain</filter-name>
-        <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
-    </filter>
-    <filter-mapping>
-        <filter-name>springSecurityFilterChain</filter-name>
-        <url-pattern>/*</url-pattern>
-    </filter-mapping>
-    -->
 
     <filter>
         <filter-name>jsonp</filter-name>

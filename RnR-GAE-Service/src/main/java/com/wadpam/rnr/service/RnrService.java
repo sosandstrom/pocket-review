@@ -68,7 +68,6 @@ public class RnrService {
 
     /* Like related methods */
 
-
     // Like a product
     @Idempotent
     @Transactional

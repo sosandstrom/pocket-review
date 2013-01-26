@@ -35,8 +35,7 @@ public class Converter extends BaseConverter {
         JBaseObject to;
         if (from instanceof DRating) {
             to = convert((DRating) from);
-        }
-        else if (from instanceof DLike) {
+        } else if (from instanceof DLike) {
             to = convert((DLike) from);
         }
         else if (from instanceof DThumbs) {
@@ -49,8 +48,7 @@ public class Converter extends BaseConverter {
             to = convert((DFavorites) from);
         } else if (from instanceof DFeedback) {
             to = convert((DFeedback) from);
-        }
-        else {
+        } else {
             throw new UnsupportedOperationException(String.format("No converter for:%s" + from.getClass().getSimpleName()));
         }
 

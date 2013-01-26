@@ -13,11 +13,9 @@
         <logging.level>ALL</logging.level>
         <downloadSources>false</downloadSources>
         <gae.version>1.7.0</gae.version>
-        <spring.version>3.1.1.RELEASE</spring.version>
-        <spring.security.version>3.1.1.RELEASE</spring.security.version>
-        <spring-social.version>1.0.1.RELEASE</spring-social.version>
-        <mardao.version>2.1.0</mardao.version>
-        <openserver.version>6-SNAPSHOT</openserver.version>
+        <spring.version>3.2.0.RELEASE</spring.version>
+        <mardao.version>2.1.4</mardao.version>
+        <openserver.version>9-SNAPSHOT</openserver.version>
         <docrest.version>1.17</docrest.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <javadocExecutable>${java.home}/../bin/javadoc</javadocExecutable>
@@ -198,24 +196,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-core</artifactId>
-            <version>${spring.security.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-web</artifactId>
-            <version>${spring.security.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-config</artifactId>
-            <version>${spring.security.version}</version>
-        </dependency>
-
-        <dependency>
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjtools</artifactId>
             <version>1.6.2</version>
@@ -252,6 +232,12 @@
             <version>1.6.2</version>
         </dependency>
 
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.6</version>
+        </dependency>
+
         <!-- for javadoc -->
         <dependency>
             <groupId>com.wadpam</groupId>
@@ -272,13 +258,13 @@
             <artifactId>jsr107cache</artifactId>
             <version>1.1</version>
         </dependency>
+
         <dependency>
             <groupId>com.google.appengine</groupId>
             <artifactId>appengine-jsr107cache</artifactId>
             <version>${gae.version}</version>
             <scope>runtime</scope>
         </dependency>
-		
     </dependencies>
 
 

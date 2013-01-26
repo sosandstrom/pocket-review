@@ -1,10 +1,11 @@
 package com.wadpam.rnr.web;
 
-import com.wadpam.rnr.json.JComment;
-import com.wadpam.rnr.json.JLike;
+import com.wadpam.open.AbstractRestTempleIntegrationTest;
 import com.wadpam.rnr.json.JProduct;
 import com.wadpam.rnr.json.JThumbs;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
@@ -20,10 +21,22 @@ import static org.junit.Assert.assertTrue;
  * @author mattiaslevin
  */
 public class ThumbsITest extends AbstractRestTempleIntegrationTest {
+    private static final Logger LOG = LoggerFactory.getLogger(ThumbsITest.class);
+
 
     @Override
     protected String getBaseUrl() {
-        return "http://localhost:8888/api/dev/";
+        return "http://localhost:8888/api/itest/";
+    }
+
+    @Override
+    protected String getUserName() {
+        return "iuser";
+    }
+
+    @Override
+    protected String getPassword() {
+        return "password";
     }
 
     @Test
@@ -191,7 +204,7 @@ public class ThumbsITest extends AbstractRestTempleIntegrationTest {
         assertEquals("Thumbs down count is correct", 2, (long)productSummary.getBody().getThumbsDown());
 
         // Get and count all likes
-        //assertEquals("Found 3 likes", 3, countResourcesInPage(BASE_URL + "like?productId={id}", productId));
+        assertEquals("Found 3 likes", 3, countResourcesInPage(BASE_URL + "like?productId={id}", JThumbs.class, productId));
     }
 
 }

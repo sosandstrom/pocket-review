@@ -10,13 +10,13 @@
 
 
 
-    <!--           Security
-    <import resource="spring-security.xml" />
-     -->
+    <!--           Security      -->
+
 
     <!--           Application properties         -->
-    <context:property-placeholder location="classpath:application.properties"
-                                  ignore-resource-not-found="true"/>
+    <context:property-placeholder
+            location="classpath:application.properties"
+            ignore-resource-not-found="true"/>
 
     <mvc:annotation-driven>
          <mvc:message-converters>
@@ -36,13 +36,24 @@
 
     <mvc:default-servlet-handler />
 
-    <!--           Services             -->
-    <import resource="classpath:/rnr-service.xml" />
+    <!--           Filters             -->
+    <bean id="domainNamespaceFilter" class="com.wadpam.open.web.DomainNamespaceFilter" />
 
-    <bean id="domainFilter" class="com.wadpam.open.domain.service.DomainFilter" />
+    <!--           Domain             -->
+    <import resource="classpath:domain-service.xml" />
+
+    <!--           Services             -->
+    <import resource="classpath:rnr-service.xml" />
+
 
     <!--           Transaction management       -->
-    <import resource="classpath:/spring-transaction.xml" />
+    <import resource="spring-transaction.xml" />
+
+    <!-- Set default domains and settings -->
+    <bean id="defaultDomains" class="com.wadpam.rnr.service.DefaultDomains" init-method="init">
+        <property name="settingsDao" ref="dAppSettingsDao" />
+        <property name="domainDao" ref="dAppDomainDao" />
+    </bean>
 
     <!--           Controllers             -->
     <bean class="com.wadpam.open.web.MonitorController" />

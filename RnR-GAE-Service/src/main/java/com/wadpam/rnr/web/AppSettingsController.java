@@ -15,5 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class AppSettingsController extends AbstractRestController {
     static final Logger LOG = LoggerFactory.getLogger(AppSettingsController.class);
 
+    // TODO Implementation missing
 
 }

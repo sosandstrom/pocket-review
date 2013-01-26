@@ -162,7 +162,7 @@ public class FeedbackController extends AbstractRestController {
         // Check the email format
         if (ValidationUtils.isValidEmailFormat(email)) {
             // Create a queue and add a task
-            String workerUrl = String.format("/api/%s/_worker/feedback/export", domain);
+            String workerUrl = String.format("/api/_worker/%s/feedback/export", domain);
             Queue queue = QueueFactory.getDefaultQueue();
             TaskOptions options = TaskOptions.Builder.withUrl(workerUrl).param("email", email);
             // Guard against timestamp being null
@@ -188,7 +188,7 @@ public class FeedbackController extends AbstractRestController {
      */
     @RestReturn(entity=Void.class, value=Void.class, code={
             @RestCode(code=200, description="The export process was started", message="OK")})
-    @RequestMapping(value="{domain}/_worker/feedback/export", method= RequestMethod.POST,
+    @RequestMapping(value="_worker/{domain}/feedback/export", method= RequestMethod.POST,
             params="email", headers="X-AppEngine-TaskName")
     public void exportFeedbackWorker(HttpServletRequest request,
                                      HttpServletResponse response,

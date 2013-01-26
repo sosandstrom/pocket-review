@@ -7,7 +7,6 @@
     <packaging>pom</packaging>
     <name>RnR parent</name>
 
-
     <modules>
         <module>RnR-GAE-Service</module>
         <module>RnR-GAE-Backend</module>
