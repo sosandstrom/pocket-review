@@ -5,6 +5,8 @@ import com.google.appengine.api.taskqueue.QueueFactory;
 import com.google.appengine.api.taskqueue.TaskOptions;
 import com.wadpam.docrest.domain.RestCode;
 import com.wadpam.docrest.domain.RestReturn;
+import com.wadpam.open.analytics.google.GoogleAnalyticsTracker;
+import com.wadpam.open.analytics.google.GoogleAnalyticsTrackerBuilder;
 import com.wadpam.open.exceptions.NotFoundException;
 import com.wadpam.open.exceptions.ServerErrorException;
 import com.wadpam.open.web.AbstractRestController;
@@ -82,6 +84,8 @@ public class FeedbackController extends AbstractRestController {
     public RedirectView addFeedback(HttpServletRequest request,
                             HttpServletResponse response,
                             UriComponentsBuilder uriBuilder,
+                            @ModelAttribute("email") String email,
+                            @ModelAttribute("trackingCode") String trackingCode,
                             @PathVariable String domain,
                             @RequestParam String title,
                             @RequestParam String feedback,
@@ -93,16 +97,25 @@ public class FeedbackController extends AbstractRestController {
                             @RequestParam(required=false) String username,
                             @RequestParam(required=false) String userContact,
                             @RequestParam(required=false) Float latitude,
-                            @RequestParam(required=false) Float longitude,
-                            @RequestParam(required=false) String toEmail) {
+                            @RequestParam(required=false) Float longitude) {
 
+        // Create a tracker if tracking code is set
+        GoogleAnalyticsTracker tracker = null;
+        if (null != trackingCode) {
+            LOG.debug("Create tracker with tracking code:{}", trackingCode);
+            tracker = new GoogleAnalyticsTrackerBuilder()
+                    .withNameAndTrackingCode(domain, trackingCode)
+                    .withDeviceFromRequest(request)
+                    .withVisitorId(username != null ? username.hashCode() : "anonymous".hashCode())
+                    .build();
+        }
 
         DFeedback dFeedback = feedbackService.addFeedback(domain, title, feedback, referenceId,
                 category,
                 deviceModel, deviceOS, deviceOSVersion,
                 username, userContact,
                 latitude, longitude,
-                toEmail);
+                email, tracker);
 
         if (null == dFeedback) {
             throw new ServerErrorException(ERR_FEEDBACK_CREATE_FAILED,

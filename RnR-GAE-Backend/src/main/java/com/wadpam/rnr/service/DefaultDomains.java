@@ -2,9 +2,11 @@ package com.wadpam.rnr.service;
 
 import com.google.appengine.api.datastore.Email;
 import com.wadpam.open.dao.DAppDomainDao;
+import com.wadpam.open.service.NamespaceUtilities;
 import com.wadpam.rnr.dao.DAppSettingsDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 /**
  * Class for creating default values in the database.
@@ -24,12 +26,24 @@ public class DefaultDomains {
         // Integration tests
         domainDao.persist("itest", null, null, null, "Domain for integration tests",
                 new Email("mattias.levin@gmail.com"), "password", "iuser");
-        settingsDao.persist("itest", false, true, true, true, true, false);
+        // Create settings in the domain namespace
+        NamespaceUtilities.runInNamespace("itest", new Runnable() {
+            @Override
+            public void run() {
+                settingsDao.persist("itest", false, true, true, true, true, false);
+            }
+        });
 
-        // Dev
-        domainDao.persist("dev", null, null, null, "Domain for dev tests",
+        // Dev test
+        domainDao.persist("dev", "UA-38370095-1", null, null, "Domain for dev tests",
                 new Email("mattias.levin@gmail.com"), "password", "devuser");
-        settingsDao.persist("dev", false, true, true, true, true, true);
+        // Create settings in the domain namespace
+        NamespaceUtilities.runInNamespace("dev", new Runnable() {
+            @Override
+            public void run() {
+                settingsDao.persist("dev", false, true, true, true, true, true);
+            }
+        });
     }
 
 

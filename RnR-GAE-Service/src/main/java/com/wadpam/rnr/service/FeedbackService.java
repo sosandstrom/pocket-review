@@ -1,6 +1,7 @@
 package com.wadpam.rnr.service;
 
 import com.google.appengine.api.datastore.GeoPt;
+import com.wadpam.open.analytics.google.GoogleAnalyticsTracker;
 import com.wadpam.open.exceptions.BadRequestException;
 import com.wadpam.open.service.EmailSender;
 import com.wadpam.open.transaction.Idempotent;
@@ -28,6 +29,8 @@ public class FeedbackService {
     public static final int ERR_BASE_FEEDBACK = RnrService.ERR_BASE_FEEDBACK;
     public static final int ERR_EMAIL_TO_FROM_MISSING = ERR_BASE_FEEDBACK + 1;
 
+    // Analytics
+    private static final String FEEDBACK_CATEGORY = "Feedback";
 
     // Optional default email that will be used to send feedback to regardless of domain
     private String toEmail;
@@ -35,10 +38,11 @@ public class FeedbackService {
     private String fromEmail;
     private String fromName;
 
-
+    // Properties
     private DFeedbackDao feedbackDao;
     private DAppSettingsDao appSettingsDao;
 
+    private boolean tracking = true;
 
     // Init
     public void init() {
@@ -56,7 +60,7 @@ public class FeedbackService {
                                  String deviceModel, String deviceOS, String deviceOSVersion,
                                  String username, String userContact,
                                  Float latitude, Float longitude,
-                                 String toEmail) {
+                                 String toEmail, GoogleAnalyticsTracker tracker) {
 
         // Get application settings for this domain
         DAppSettings dAppSettings = appSettingsDao.findByPrimaryKey(domain);
@@ -135,6 +139,16 @@ public class FeedbackService {
                 stringBuilder.append("Longitude:").append(longitude).append("\n");
 
                 EmailSender.sendEmail(destinationEmail, fromEmail, title, stringBuilder.toString());
+            }
+        }
+
+        // Track the event
+        if (isTracking() && null != tracker) {
+            try {
+                tracker.trackEvent(FEEDBACK_CATEGORY, "feedback", referenceId, 1);
+            } catch (Exception doNothing) {
+                // Make sure this never generates and exception that cause the transaction to fail
+                LOG.warn("Sending feedback event to analytics failed:{}", doNothing);
             }
         }
 
@@ -245,5 +259,13 @@ public class FeedbackService {
 
     public void setFromName(String fromName) {
         this.fromName = fromName;
+    }
+
+    public boolean isTracking() {
+        return tracking;
+    }
+
+    public void setTracking(boolean tracking) {
+        this.tracking = tracking;
     }
 }

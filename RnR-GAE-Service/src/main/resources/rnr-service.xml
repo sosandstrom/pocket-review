@@ -38,6 +38,8 @@
     </bean>
 
     <!--           Controllers             -->
+    <bean id="gobalModelAttributeHandlers" class="com.wadpam.rnr.web.GlobalModelAttributeHandlers">
+    </bean>
 
     <bean id="productController" class="com.wadpam.rnr.web.ProductController">
         <property name="rnrService" ref="rnrService" />

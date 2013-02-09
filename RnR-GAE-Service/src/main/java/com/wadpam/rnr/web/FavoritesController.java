@@ -2,6 +2,8 @@ package com.wadpam.rnr.web;
 
 import com.wadpam.docrest.domain.RestCode;
 import com.wadpam.docrest.domain.RestReturn;
+import com.wadpam.open.analytics.google.GoogleAnalyticsTracker;
+import com.wadpam.open.analytics.google.GoogleAnalyticsTrackerBuilder;
 import com.wadpam.open.exceptions.NotFoundException;
 import com.wadpam.open.web.AbstractRestController;
 import com.wadpam.rnr.domain.DFavorites;
@@ -12,10 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -32,7 +31,6 @@ public class FavoritesController extends AbstractRestController {
 
     public static final int ERR_BASE_FAVORITES = RnrService.ERR_BASE_FAVORITES;
     public static final int ERR_FAVORITE_NOT_FOUND = ERR_BASE_FAVORITES + 1;
-
 
     static final Converter CONVERTER = new Converter();
 
@@ -52,11 +50,23 @@ public class FavoritesController extends AbstractRestController {
     public RedirectView addFavorite(HttpServletRequest request,
                                     HttpServletResponse response,
                                     UriComponentsBuilder uriBuilder,
+                                    @ModelAttribute("trackingCode") String trackingCode,
                                     @PathVariable String domain,
                                     @RequestParam String productId,
                                     @PathVariable String username) {
 
-        final DFavorites body = rnrService.addFavorite(productId, username);
+        // Create a tracker if tracking code is set
+        GoogleAnalyticsTracker tracker = null;
+        if (null != trackingCode) {
+            LOG.debug("Create tracker with tracking code:{}", trackingCode);
+            tracker = new GoogleAnalyticsTrackerBuilder()
+                    .withNameAndTrackingCode(domain, trackingCode)
+                    .withDeviceFromRequest(request)
+                    .withVisitorId(username != null ? username.hashCode() : "anonymous".hashCode())
+                    .build();
+        }
+
+        final DFavorites body = rnrService.addFavorite(productId, username, tracker);
 
         // Redirect to the favorites
         String redirectUri = uriBuilder.path("/{domain}/favorites/{username}").

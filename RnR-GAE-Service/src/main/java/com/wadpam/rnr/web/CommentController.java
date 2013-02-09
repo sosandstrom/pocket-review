@@ -2,6 +2,8 @@ package com.wadpam.rnr.web;
 
 import com.wadpam.docrest.domain.RestCode;
 import com.wadpam.docrest.domain.RestReturn;
+import com.wadpam.open.analytics.google.GoogleAnalyticsTracker;
+import com.wadpam.open.analytics.google.GoogleAnalyticsTrackerBuilder;
 import com.wadpam.open.json.JCursorPage;
 import com.wadpam.rnr.domain.DComment;
 import com.wadpam.rnr.json.JComment;
@@ -14,10 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -66,6 +65,7 @@ public class CommentController extends AbstractRestController {
     public RedirectView addComment(HttpServletRequest request,
                                    HttpServletResponse response,
                                    UriComponentsBuilder uriBuilder,
+                                   @ModelAttribute("trackingCode") String trackingCode,
                                    @PathVariable String domain,
                                    @RequestParam String productId,
                                    @RequestParam String comment,
@@ -73,7 +73,19 @@ public class CommentController extends AbstractRestController {
                                    @RequestParam(required=false) Float latitude,
                                    @RequestParam(required=false) Float longitude) {
 
-        final DComment body = rnrService.addComment(productId, username, latitude, longitude, comment);
+        // Create a tracker if tracking code is set
+        GoogleAnalyticsTracker tracker = null;
+        if (null != trackingCode) {
+            LOG.debug("Create tracker with tracking code:{}", trackingCode);
+            tracker = new GoogleAnalyticsTrackerBuilder()
+                    .withNameAndTrackingCode(domain, trackingCode)
+                    .withDeviceFromRequest(request)
+                    .withVisitorId(username != null ? username.hashCode() : "anonymous".hashCode())
+                    .build();
+        }
+
+        final DComment body = rnrService.addComment(productId, username, latitude, longitude,
+                comment, tracker);
 
         // Redirect to different urls depending on request uri
         String redirectUri;

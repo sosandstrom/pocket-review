@@ -2,6 +2,7 @@ package com.wadpam.rnr.service;
 
 import com.google.appengine.api.datastore.GeoPt;
 import com.google.appengine.api.datastore.Rating;
+import com.wadpam.open.analytics.google.GoogleAnalyticsTracker;
 import com.wadpam.open.transaction.Idempotent;
 import com.wadpam.rnr.dao.*;
 import com.wadpam.rnr.domain.*;
@@ -32,6 +33,9 @@ public class RnrService {
 
     public static final int ERR_BASE_PRODUCT_NOT_FOUND = ERR_BASE_RNR + 1;
 
+    // Analytics
+    private static final String RNR_CATEGORY = "RnR";
+
     // Properties
     private DAppSettingsDao appSettingsDao;
     private DProductDao productDao;
@@ -40,6 +44,8 @@ public class RnrService {
     private DThumbsDao thumbsDao;
     private DCommentDao commentDao;
     private DFavoritesDao favoritesDao;
+
+    private boolean tracking = true;
 
     // Decide the sort order in nearby searches
     public enum SortOrder {DISTANCE, TOP_RATED, MOST_LIKED, MOST_THUMBS_UP}
@@ -71,7 +77,8 @@ public class RnrService {
     // Like a product
     @Idempotent
     @Transactional
-    public DLike addLike(String domain, String productId, String username, Float latitude, Float longitude) {
+    public DLike addLike(String domain, String productId, String username, Float latitude, Float longitude,
+                         GoogleAnalyticsTracker tracker) {
         LOG.debug("Add new like to product:{}", productId);
 
         // Specified users can only Like once
@@ -123,6 +130,16 @@ public class RnrService {
         // Uncomment this to run tests
         //throw(new ConcurrentModificationException());
 
+        // Track the event
+        if (isTracking() && null != tracker) {
+            try {
+                tracker.trackEvent(RNR_CATEGORY, "like", productId, 1);
+            } catch (Exception doNothing) {
+                // Make sure this never generates and exception that cause the transaction to fail
+                LOG.warn("Sending like event to analytics failed:{}", doNothing);
+            }
+        }
+
         return dLike;
     }
 
@@ -171,7 +188,8 @@ public class RnrService {
     // Add a thumbs up or down
     @Idempotent
     @Transactional
-    public DThumbs addThumbs(String domain, String productId, String username, Float latitude, Float longitude, Thumbs value) {
+    public DThumbs addThumbs(String domain, String productId, String username, Float latitude, Float longitude,
+                             Thumbs value, GoogleAnalyticsTracker tracker) {
         LOG.debug("Add new thumbs:{} to product:{}", value, productId);
 
         // Specified users can only thumb once
@@ -243,6 +261,16 @@ public class RnrService {
         // Persist and index the location
         productDao.persist(dProduct);
 
+        // Track the event
+        if (isTracking() && null != tracker) {
+            try {
+                tracker.trackEvent(RNR_CATEGORY, value == Thumbs.UP ? "thumbsUp" : "thumbsDown", productId, 1);
+            } catch (Exception doNothing) {
+                // Make sure this never generates and exception that cause the transaction to fail
+                LOG.warn("Sending thumbs event to analytics failed:{}", doNothing);
+            }
+        }
+
         return dThumbs;
     }
 
@@ -296,23 +324,22 @@ public class RnrService {
     @Idempotent
     @Transactional
     public DRating addRating(String domain, String productId, String username,
-                             Float latitude, Float longitude, int rating, String comment) {
+                             Float latitude, Float longitude, int rating, String comment,
+                             GoogleAnalyticsTracker tracker) {
         LOG.debug("Add new rating to product:{}", productId);
-
-        DRating dRating = null;
-        int existing = -1;
 
         // specified users can only rate once
         DAppSettings settings = appSettingsDao.findByPrimaryKey(domain);
         boolean onlyRateOncePerUser = (null != settings) ? settings.getOnlyRateOncePerUser() : true;
 
+        DRating dRating = null;
         if (onlyRateOncePerUser && null != username) {
             dRating = ratingDao.findByProductIdUsername(productId, username);
         }
 
         // create new?
-        final boolean create = null == dRating;
-        if (create) {
+        int existing = -1;
+        if (null == dRating) {
             dRating = new DRating();
             dRating.setProductId(productId);
             dRating.setUsername(username);
@@ -359,6 +386,16 @@ public class RnrService {
 
         // Persist and index location
         productDao.persist(dProduct);
+
+        // Track the event
+        if (isTracking() && null != tracker) {
+            try {
+                tracker.trackEvent(RNR_CATEGORY, "rate", productId, rating);
+            } catch (Exception doNothing) {
+                // Make sure this never generates and exception that cause the transaction to fail
+                LOG.warn("Sending ratings event to analytics failed:{}", doNothing);
+            }
+        }
 
         return dRating;
     }
@@ -440,7 +477,8 @@ public class RnrService {
     // Add a comment to a product
     @Idempotent
     @Transactional
-    public DComment addComment(String productId, String username, Float latitude, Float longitude, String comment) {
+    public DComment addComment(String productId, String username, Float latitude, Float longitude,
+                               String comment, GoogleAnalyticsTracker tracker) {
         LOG.debug("Add new comment to product:(}",  productId);
 
         // Create new comment. Do not check if user have commented before
@@ -468,6 +506,16 @@ public class RnrService {
 
         // Persist and index on location
         productDao.persist(dProduct);
+
+        // Track the event
+        if (isTracking() && null != tracker) {
+            try {
+                tracker.trackEvent(RNR_CATEGORY, "comment", productId, 1);
+            } catch (Exception doNothing) {
+                // Make sure this never generates and exception that cause the transaction to fail
+                LOG.warn("Sending comment event to analytics failed:{}", doNothing);
+            }
+        }
 
         return dComment;
     }
@@ -515,7 +563,7 @@ public class RnrService {
     // Add new favorite product
     @Idempotent
     @Transactional
-    public DFavorites addFavorite(String productId, String username) {
+    public DFavorites addFavorite(String productId, String username, GoogleAnalyticsTracker tracker) {
         LOG.debug("Add product:{} as favorites for user:{}", productId, username);
 
         DFavorites dFavorites = favoritesDao.findByPrimaryKey(username);
@@ -533,6 +581,18 @@ public class RnrService {
 
         // Store
         favoritesDao.persist(dFavorites);
+
+        // Track the event
+        if (isTracking() && null != tracker) {
+            try {
+                tracker.trackEvent(RNR_CATEGORY, "favorite", productId, 1);
+            } catch (Exception doNothing) {
+                // Make sure this never generates and exception that cause the transaction to fail
+                LOG.warn("Sending favorite event to analytics failed:{}", doNothing);
+            }
+        }
+
+        return dLike;
 
         return dFavorites;
     }
@@ -750,5 +810,13 @@ public class RnrService {
 
     public void setAppSettingsDao(DAppSettingsDao appSettingsDao) {
         this.appSettingsDao = appSettingsDao;
+    }
+
+    public boolean isTracking() {
+        return tracking;
+    }
+
+    public void setTracking(boolean tracking) {
+        this.tracking = tracking;
     }
 }

@@ -2,6 +2,8 @@ package com.wadpam.rnr.web;
 
 import com.wadpam.docrest.domain.RestCode;
 import com.wadpam.docrest.domain.RestReturn;
+import com.wadpam.open.analytics.google.GoogleAnalyticsTracker;
+import com.wadpam.open.analytics.google.GoogleAnalyticsTrackerBuilder;
 import com.wadpam.open.json.JCursorPage;
 import com.wadpam.rnr.domain.DThumbs;
 import com.wadpam.rnr.json.JThumbs;
@@ -14,10 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -60,14 +59,26 @@ public class ThumbsController extends AbstractRestController {
     public RedirectView addThumbsUp(HttpServletRequest request,
                                     HttpServletResponse response,
                                     UriComponentsBuilder uriBuilder,
+                                    @ModelAttribute("trackingCode") String trackingCode,
                                     @PathVariable String domain,
                                     @RequestParam String productId,
                                     @RequestParam(required=false) String username,
                                     @RequestParam(required=false) Float latitude,
                                     @RequestParam(required=false) Float longitude) {
 
+        // Create a tracker if tracking code is set
+        GoogleAnalyticsTracker tracker = null;
+        if (null != trackingCode) {
+            LOG.debug("Create tracker with tracking code:{}", trackingCode);
+            tracker = new GoogleAnalyticsTrackerBuilder()
+                    .withNameAndTrackingCode(domain, trackingCode)
+                    .withDeviceFromRequest(request)
+                    .withVisitorId(username != null ? username.hashCode() : "anonymous".hashCode())
+                    .build();
+        }
+
         final DThumbs body = rnrService.addThumbs(domain, productId, username,
-                latitude, longitude, RnrService.Thumbs.UP);
+                latitude, longitude, RnrService.Thumbs.UP, tracker);
 
         // Redirect to different urls depending on request uri
         String redirectUri;
@@ -103,14 +114,26 @@ public class ThumbsController extends AbstractRestController {
     public RedirectView addThumbsDown(HttpServletRequest request,
                                       HttpServletResponse response,
                                       UriComponentsBuilder uriBuilder,
+                                      @ModelAttribute("trackingCode") String trackingCode,
                                       @PathVariable String domain,
                                       @RequestParam String productId,
                                       @RequestParam(required=false) String username,
                                       @RequestParam(required=false) Float latitude,
                                       @RequestParam(required=false) Float longitude) {
 
+        // Create a tracker if tracking code is set
+        GoogleAnalyticsTracker tracker = null;
+        if (null != trackingCode) {
+            LOG.debug("Create tracker with tracking code:{}", trackingCode);
+            tracker = new GoogleAnalyticsTrackerBuilder()
+                    .withNameAndTrackingCode(domain, trackingCode)
+                    .withDeviceFromRequest(request)
+                    .withVisitorId(username != null ? username.hashCode() : "anonymous".hashCode())
+                    .build();
+        }
+
         final DThumbs body = rnrService.addThumbs(domain, productId, username,
-                latitude, longitude, RnrService.Thumbs.DOWN);
+                latitude, longitude, RnrService.Thumbs.DOWN, tracker);
 
         // Redirect to different urls depending on request uri
         String redirectUri;
