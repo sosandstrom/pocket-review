@@ -149,6 +149,35 @@ public class RnrService {
         return likeDao.findByPrimaryKey(id);
     }
 
+    // Return random likes
+    public Collection<DLike> getRandomLikes(String productId, String username, int limit) {
+        LOG.debug("Get a random number of likes for product:{}", productId);
+        List<DLike> randomLikes = likeDao.findRandomByProductId(productId, limit);
+
+        // Check if the user liked the product
+        if (null != username) {
+            DLike userLike = likeDao.findByProductIdUsername(productId, username);
+            if (null != userLike) {
+                // Remove users like from the list (if included)
+                for (DLike dLike : randomLikes) {
+                    if (dLike.getId().equals(userLike.getId())) {
+                        randomLikes.remove(dLike);
+                        break;
+                    }
+                }
+
+                // Add the users own like at the beginning
+                randomLikes.add(0, userLike);
+
+                // Make sure only limit number if items are returned
+                if (randomLikes.size() > limit) {
+                    randomLikes = randomLikes.subList(0, limit);
+                }
+            }
+        }
+
+        return randomLikes;
+    }
 
     // Delete a like with a specific id
     @Idempotent
@@ -592,8 +621,6 @@ public class RnrService {
             }
         }
 
-        return dLike;
-
         return dFavorites;
     }
 
@@ -819,4 +846,5 @@ public class RnrService {
     public void setTracking(boolean tracking) {
         this.tracking = tracking;
     }
+
 }

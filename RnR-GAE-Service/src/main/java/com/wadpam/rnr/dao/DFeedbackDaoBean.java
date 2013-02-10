@@ -1,5 +1,6 @@
 package com.wadpam.rnr.dao;
 
+import com.google.appengine.api.datastore.Query;
 import com.wadpam.rnr.domain.DFeedback;
 import net.sf.mardao.core.Filter;
 
@@ -28,9 +29,8 @@ public class DFeedbackDaoBean
         if (null == timestamp) {
             keys = queryAllKeys();
         } else {
-            LOG.info("Delete older then :{}", timestamp);
-            // TODO How to return older then
-            Filter filter = null;
+            LOG.info("Delete feedback older then :{}", timestamp);
+            Filter filter = new Filter(COLUMN_NAME_UPDATEDDATE, Query.FilterOperator.LESS_THAN_OR_EQUAL, timestamp);
             Iterable<DFeedback> dFeedbackOnlyKeys =
                     queryIterable(true, 0, -1, null, null, COLUMN_NAME_UPDATEDDATE, true, null, false, filter);
             keys = domainsToSimpleKeys(dFeedbackOnlyKeys);
@@ -42,6 +42,7 @@ public class DFeedbackDaoBean
         }
 
         // Delete
+
         delete(null, keys);
 
         return numberDeleted;
@@ -50,12 +51,12 @@ public class DFeedbackDaoBean
 
     // Get all user feedback create after the provided timestamp
     public Iterable<DFeedback> queryUpdatedAfter(Long timestamp) {
+        LOG.info("Return feedback newer then :{}", timestamp);
 
         if (null == timestamp) {
             return queryAll();
         } else {
-            // TODO How to return newer then
-            Filter filter = null;
+            Filter filter = new Filter(COLUMN_NAME_UPDATEDDATE, Query.FilterOperator.GREATER_THAN_OR_EQUAL, timestamp);
             return queryIterable(false, 0, -1, null, null, COLUMN_NAME_UPDATEDDATE, false, null, false, filter);
         }
     }

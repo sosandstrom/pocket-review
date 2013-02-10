@@ -13,6 +13,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import java.net.MalformedURLException;
+import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -178,6 +179,68 @@ public class LikeITest extends AbstractRestTempleIntegrationTest {
 
         // Get and count all likes
         assertEquals("Found 3 likes", 3, countResourcesInPage(BASE_URL + "like?productId={id}", JLike.class, productId));
+    }
+
+    @Test
+    // Get all likes for a product
+    public void testGetRandomLikes() throws MalformedURLException {
+        LOG.info("Test get random likes for product id");
+
+        String productId = "R001";
+        MultiValueMap<String, Object> map = new LinkedMultiValueMap<String, Object>();
+        map.add("productId", productId);
+        map.add("username", "A");
+        // Create and follow redirect
+        ResponseEntity<JLike> entity = postAndFollowRedirect(BASE_URL + "like", map, JLike.class);
+        assertEquals("Response code 200", HttpStatus.OK, entity.getStatusCode());
+
+        map = new LinkedMultiValueMap<String, Object>();
+        map.add("productId", productId);
+        map.add("username", "B");
+        // Create and follow redirect
+        entity = postAndFollowRedirect(BASE_URL + "like", map, JLike.class);
+        assertEquals("Response code 200", HttpStatus.OK, entity.getStatusCode());
+
+        map = new LinkedMultiValueMap<String, Object>();
+        map.add("productId", productId);
+        map.add("username", "C");
+        // Create and follow redirect
+        entity = postAndFollowRedirect(BASE_URL + "like", map, JLike.class);
+        assertEquals("Response code 200", HttpStatus.OK, entity.getStatusCode());
+
+        map = new LinkedMultiValueMap<String, Object>();
+        map.add("productId", productId);
+        map.add("username", "D");
+        // Create and follow redirect
+        entity = postAndFollowRedirect(BASE_URL + "like", map, JLike.class);
+        assertEquals("Response code 200", HttpStatus.OK, entity.getStatusCode());
+
+        map = new LinkedMultiValueMap<String, Object>();
+        map.add("productId", productId);
+        map.add("username", "E");
+        // Create and follow redirect
+        entity = postAndFollowRedirect(BASE_URL + "like", map, JLike.class);
+        assertEquals("Response code 200", HttpStatus.OK, entity.getStatusCode());
+
+        map = new LinkedMultiValueMap<String, Object>();
+        map.add("productId", productId);
+        // Create and follow redirect
+        entity = postAndFollowRedirect(BASE_URL + "like", map, JLike.class);
+        assertEquals("Response code 200", HttpStatus.OK, entity.getStatusCode());
+
+        map = new LinkedMultiValueMap<String, Object>();
+        map.add("productId", productId);
+        map.add("username", "F");
+        // Create and follow redirect
+        entity = postAndFollowRedirect(BASE_URL + "like", map, JLike.class);
+        assertEquals("Response code 200", HttpStatus.OK, entity.getStatusCode());
+
+        // Get likes
+        assertEquals("Found 7 random likes", 7, countResourcesInPage(BASE_URL + "like?productId={id}",
+                JLike.class, productId));
+
+        // Get random likes
+        assertEquals("Found 5 random likes", 5, countResources(BASE_URL + "like/random?productId={id}&username=A", productId));
     }
 
 }

@@ -1,7 +1,13 @@
 package com.wadpam.rnr.dao;
 
+import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.memcache.Expiration;
+import com.google.appengine.api.memcache.MemcacheService;
+import com.google.appengine.api.memcache.MemcacheServiceFactory;
 import com.wadpam.rnr.domain.DLike;
 import net.sf.mardao.core.Filter;
+
+import java.util.*;
 
 /**
  * Implementation of Business Methods related to entity DLike.
@@ -17,6 +23,9 @@ public class DLikeDaoBean
 
 {
 
+    // Properties
+    private int randomLikesExpiration = 60 * 1;
+
     @Override
     // Find likes done by user on product
     public DLike findByProductIdUsername(String productId, String username) {
@@ -26,4 +35,68 @@ public class DLikeDaoBean
         return findUniqueBy(filter1, filter2);
     }
 
+    @Override
+    public List<DLike> findRandomByProductId(String productId, int limit) {
+        // Get the low level cache
+        MemcacheService cache = MemcacheServiceFactory.getMemcacheService();
+
+        // Get keys from the cache
+        List<DLike> randomLikes = (List<DLike>) cache.get(createMemCacheKeyRandom(productId));
+        if (null != randomLikes) {
+            return randomLikes;
+        }
+
+        // Get the keys (up to the 1000 first entities)
+        final Filter filter1 = createEqualsFilter(COLUMN_NAME_PRODUCTID, productId);
+        final Filter filter2 = new Filter(COLUMN_NAME_USERNAME, Query.FilterOperator.NOT_EQUAL, null);
+        Iterator<Long> iterator = queryIterableKeys(0, -1, null, null, null, false, null, false,
+                filter1, filter2).iterator();
+
+        int i = 0;
+        List<Long> keys = new ArrayList<Long>();
+        while (i < 1000 && iterator.hasNext()) {
+           keys.add(iterator.next());
+        }
+
+        // get random keys
+        i = 0;
+        Collection<Long> randomKeys = new ArrayList<Long>(limit);
+        while (!keys.isEmpty() && i < limit) {
+            int index = (int)(Math.random() * keys.size());
+            randomKeys.add(keys.get(index));
+            keys.remove(index);
+            i++;
+        }
+
+        // Get likes
+        randomLikes = new ArrayList<DLike>(randomKeys.size());
+        Iterable<DLike> dLikeIterator = queryByPrimaryKeys(null, randomKeys);
+        for (DLike dLike : dLikeIterator) {
+            randomLikes.add(dLike);
+        }
+
+        // Shuffle
+        // queryByPrimaryKeys will return an ordered list
+        Collections.shuffle(randomLikes);
+
+        // Store in the cache with an expiration timer of 10 minutes
+        cache.put(createMemCacheKeyRandom(productId), randomLikes, Expiration.byDeltaSeconds(randomLikesExpiration));
+
+        return randomLikes;
+    }
+
+
+    private final String createMemCacheKeyRandom(String productId) {
+        return String.format("%s.%s.random()", getTableName(), productId);
+    }
+
+
+    // Setters and getters
+    public int getRandomLikesExpiration() {
+        return randomLikesExpiration;
+    }
+
+    public void setRandomLikesExpiration(int randomLikesExpiration) {
+        this.randomLikesExpiration = randomLikesExpiration;
+    }
 }
