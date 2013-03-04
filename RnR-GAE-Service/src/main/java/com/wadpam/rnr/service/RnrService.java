@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
 import java.util.*;
+import java.util.concurrent.Future;
 
 /**
  *
@@ -35,6 +36,9 @@ public class RnrService {
 
     // Analytics
     private static final String RNR_CATEGORY = "RnR";
+
+    // Max number of random users that liked a product that will be saved
+    private static final int MAX_RANDOM_USERS = 200;
 
     // Properties
     private DAppSettingsDao appSettingsDao;
@@ -123,6 +127,30 @@ public class RnrService {
             dProduct.setLocation(location);
         }
 
+        if (null != username) {
+            // Update random users that liked
+            ArrayList<String> randomLikedUsers  = null;
+
+            if (null == dProduct.getLikeRandomUsernames()) {
+                // First time this product is liked
+                randomLikedUsers = new ArrayList<String>(1);
+            } else {
+                randomLikedUsers = new ArrayList<String>(dProduct.getLikeRandomUsernames());
+            }
+
+            // Remove the first one if more the 200
+            if (randomLikedUsers.size() > MAX_RANDOM_USERS) {
+                randomLikedUsers.remove(1);
+            }
+
+            // Add new user
+            randomLikedUsers.add(username);
+
+            // Shuffle and set
+            Collections.shuffle(randomLikedUsers);
+            dProduct.setLikeRandomUsernames(randomLikedUsers);
+        }
+
         // Persist and index the location
         productDao.persist(dProduct);
 
@@ -149,35 +177,6 @@ public class RnrService {
         return likeDao.findByPrimaryKey(id);
     }
 
-    // Return random likes
-    public Collection<DLike> getRandomLikes(String productId, String username, int limit) {
-        LOG.debug("Get a random number of likes for product:{}", productId);
-        List<DLike> randomLikes = likeDao.findRandomByProductId(productId, limit);
-
-        // Check if the user liked the product
-        if (null != username) {
-            DLike userLike = likeDao.findByProductIdUsername(productId, username);
-            if (null != userLike) {
-                // Remove users like from the list (if included)
-                for (DLike dLike : randomLikes) {
-                    if (dLike.getId().equals(userLike.getId())) {
-                        randomLikes.remove(dLike);
-                        break;
-                    }
-                }
-
-                // Add the users own like at the beginning
-                randomLikes.add(0, userLike);
-
-                // Make sure only limit number if items are returned
-                if (randomLikes.size() > limit) {
-                    randomLikes = randomLikes.subList(0, limit);
-                }
-            }
-        }
-
-        return randomLikes;
-    }
 
     // Delete a like with a specific id
     @Idempotent

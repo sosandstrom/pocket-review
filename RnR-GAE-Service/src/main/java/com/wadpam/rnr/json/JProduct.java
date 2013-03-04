@@ -3,6 +3,8 @@ package com.wadpam.rnr.json;
 import com.wadpam.open.json.JBaseObject;
 import com.wadpam.open.json.JLocation;
 
+import java.util.Collection;
+
 
 /**
  * The Json object for products.
@@ -34,6 +36,8 @@ public class JProduct extends JBaseObject {
 
     /** The total number of Likes */
     private Long        likeCount = 0L;
+
+    private Collection<String> likeRandomUsernames;
 
     /** The deep link to the individual likes */
     private String      likesURL;
@@ -163,5 +167,13 @@ public class JProduct extends JBaseObject {
 
     public void setThumbsURL(String thumbsURL) {
         this.thumbsURL = thumbsURL;
+    }
+
+    public Collection<String> getLikeRandomUsernames() {
+        return likeRandomUsernames;
+    }
+
+    public void setLikeRandomUsernames(Collection<String> likeRandomUsernames) {
+        this.likeRandomUsernames = likeRandomUsernames;
     }
 }

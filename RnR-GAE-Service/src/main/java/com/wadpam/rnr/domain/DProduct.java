@@ -10,6 +10,7 @@ import javax.persistence.Basic;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import java.io.Serializable;
+import java.util.Collection;
 
 /**
  * The domain object for Products.
@@ -44,6 +45,10 @@ public class DProduct extends AbstractCreatedUpdatedEntity implements Serializab
     /** The total number of likes */
     @Basic
     private Long        likeCount = 0L;
+
+    /** Contain a list of 10 random user names that liked this product */
+    @Basic
+    private Collection<String> likeRandomUsernames;
 
     /** The number of thumbs up */
     @Basic
@@ -157,5 +162,13 @@ public class DProduct extends AbstractCreatedUpdatedEntity implements Serializab
 
     public void setThumbsUp(Long thumbsUp) {
         this.thumbsUp = thumbsUp;
+    }
+
+    public Collection<String> getLikeRandomUsernames() {
+        return likeRandomUsernames;
+    }
+
+    public void setLikeRandomUsernames(Collection<String> likeRandomUsernames) {
+        this.likeRandomUsernames = likeRandomUsernames;
     }
 }

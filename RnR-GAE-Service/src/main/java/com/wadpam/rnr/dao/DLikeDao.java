@@ -22,11 +22,4 @@ public interface DLikeDao extends GeneratedDLikeDao {
      */
     public DLike findByProductIdUsername(String productId, String username);
 
-    /**
-     * Return a random set on Likes for the product id
-     * @param productId the product id
-     * @param limit the number of random likes to return
-     * @return iterable likes
-     */
-    public List<DLike> findRandomByProductId(String productId, int limit);
 }

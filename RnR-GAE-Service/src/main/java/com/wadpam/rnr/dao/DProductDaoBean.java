@@ -67,7 +67,7 @@ public class DProductDaoBean
     }
 
 
-    // Persist and index a product based in location (needed for location based search)
+    // Persist and index a product based on location (needed for location based search)
     @Override
     public String persist(DProduct dProduct) {
 

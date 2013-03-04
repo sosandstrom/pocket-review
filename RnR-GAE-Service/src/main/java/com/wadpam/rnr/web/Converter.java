@@ -1,6 +1,5 @@
 package com.wadpam.rnr.web;
 
-import com.google.appengine.api.datastore.Email;
 import com.google.appengine.api.datastore.Key;
 import com.wadpam.open.json.JBaseObject;
 import com.wadpam.open.json.JCursorPage;
@@ -10,14 +9,11 @@ import com.wadpam.rnr.dao.DQuestionDaoBean;
 import com.wadpam.rnr.domain.*;
 import com.wadpam.rnr.json.*;
 import net.sf.mardao.core.CursorPage;
-import net.sf.mardao.core.domain.AbstractLongEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
+import java.util.*;
 
 
 /**
@@ -75,6 +71,7 @@ public class Converter extends BaseConverter {
         to.setRatingSum(from.getRatingSum());
         to.setRatingAverage(from.getRatingAverage() != null ? from.getRatingAverage().getRating() : -1);
         to.setLikeCount(from.getLikeCount());
+        to.setLikeRandomUsernames(pickRandomUsernames(from.getLikeRandomUsernames()));
         to.setThumbsUp(from.getThumbsUp());
         to.setThumbsDown(from.getThumbsDown());
         to.setCommentCount(from.getCommentCount());
@@ -90,6 +87,22 @@ public class Converter extends BaseConverter {
                 path("/thumbs").queryParam("productId", "{id}").buildAndExpand(to.getId()).toUriString());
 
         return to;
+    }
+
+    // Pick out 10 random users that liked
+    private Collection<String> pickRandomUsernames(Collection<String> usernames) {
+        if (null == usernames || usernames.size() == 0) {
+            return null;
+        }
+
+        if (usernames.size() <= 10) {
+            return usernames;
+        } else {
+            // Truncate to max 10 likes including a basic shuffle
+            ArrayList<String> randomUsers = new ArrayList<String>(usernames);
+            int startIndex = new Random().nextInt(randomUsers.size() - 10);
+            return randomUsers.subList(startIndex, startIndex + 10);
+        }
     }
 
     // Convert rating

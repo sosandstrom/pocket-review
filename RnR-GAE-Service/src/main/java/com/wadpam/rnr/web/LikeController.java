@@ -158,36 +158,6 @@ public class LikeController extends AbstractRestController {
                 HttpStatus.OK);
     }
 
-    /**
-     * Returns random likes.
-     * If a username parameter is provider the users like (if any) will be
-     * returned first in the list.
-     *
-     * Random likes are cached per product for 10 minutes. This means that
-     * the likes will be the same during 10 minutes even if new are added.
-     * @param productId the product id
-     * @param username a unique user name or id
-     * @param limit the number if random likes to return.
-     *
-     * @return a list of likes likes
-     */
-    @RestReturn(value=JLike.class, entity=JLike.class, code={
-            @RestCode(code=200, message="OK", description="All likes for user")
-    })
-    @RequestMapping(value="{domain}/like/random", method= RequestMethod.GET)
-    public ResponseEntity<Collection<JLike>> getRandomLikes(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            @RequestParam String productId,
-            @RequestParam(required=false) String username,
-            @RequestParam(required=false, defaultValue="5") int limit) {
-
-        final Collection<DLike> randomLikes = rnrService.getRandomLikes(productId, username, limit);
-
-        return new ResponseEntity<Collection<JLike>>(
-                (Collection<JLike>)CONVERTER.convert(randomLikes),
-                HttpStatus.OK);
-    }
 
     /**
      * Returns all likes for a specific product.
