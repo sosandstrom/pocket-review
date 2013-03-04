@@ -27,12 +27,12 @@ import javax.servlet.http.HttpServletResponse;
  */
 @Controller
 public class FavoritesController extends AbstractRestController {
-    static final Logger LOG = LoggerFactory.getLogger(FavoritesController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FavoritesController.class);
 
-    public static final int ERR_BASE_FAVORITES = RnrService.ERR_BASE_FAVORITES;
-    public static final int ERR_FAVORITE_NOT_FOUND = ERR_BASE_FAVORITES + 1;
+    private static final int ERR_BASE_FAVORITES = RnrService.ERR_BASE_FAVORITES;
+    private static final int ERR_FAVORITE_NOT_FOUND = ERR_BASE_FAVORITES + 1;
 
-    static final Converter CONVERTER = new Converter();
+    private static final Converter CONVERTER = new Converter();
 
     private RnrService rnrService;
 

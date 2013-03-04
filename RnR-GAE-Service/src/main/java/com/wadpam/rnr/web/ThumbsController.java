@@ -30,12 +30,12 @@ import java.util.Collection;
  */
 @Controller
 public class ThumbsController extends AbstractRestController {
-    static final Logger LOG = LoggerFactory.getLogger(ThumbsController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ThumbsController.class);
 
-    public static final int ERR_BASE_THUMBS = RnrService.ERR_BASE_THUMBS;
-    public static final int ERR_THUMBS_NOT_FOUND = ERR_BASE_THUMBS + 1;
+    private static final int ERR_BASE_THUMBS = RnrService.ERR_BASE_THUMBS;
+    private static final int ERR_THUMBS_NOT_FOUND = ERR_BASE_THUMBS + 1;
 
-    static final Converter CONVERTER = new Converter();
+    private static final Converter CONVERTER = new Converter();
 
     private RnrService rnrService;
 

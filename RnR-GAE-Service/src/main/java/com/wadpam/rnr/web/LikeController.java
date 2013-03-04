@@ -31,12 +31,12 @@ import java.util.Collection;
  */
 @Controller
 public class LikeController extends AbstractRestController {
-    static final Logger LOG = LoggerFactory.getLogger(LikeController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(LikeController.class);
 
-    public static final int ERR_BASE_LIKE = RnrService.ERR_BASE_LIKE;
-    public static final int ERR_LIKE_NOT_FOUND = ERR_BASE_LIKE + 1;
+    private static final int ERR_BASE_LIKE = RnrService.ERR_BASE_LIKE;
+    private static final int ERR_LIKE_NOT_FOUND = ERR_BASE_LIKE + 1;
 
-    static final Converter CONVERTER = new Converter();
+    private static final Converter CONVERTER = new Converter();
 
     private RnrService rnrService;
 

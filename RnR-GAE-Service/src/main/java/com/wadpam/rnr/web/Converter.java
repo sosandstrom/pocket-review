@@ -1,9 +1,12 @@
 package com.wadpam.rnr.web;
 
 import com.google.appengine.api.datastore.Email;
+import com.google.appengine.api.datastore.Key;
 import com.wadpam.open.json.JBaseObject;
 import com.wadpam.open.json.JCursorPage;
 import com.wadpam.open.web.BaseConverter;
+import com.wadpam.rnr.dao.DQuestionDao;
+import com.wadpam.rnr.dao.DQuestionDaoBean;
 import com.wadpam.rnr.domain.*;
 import com.wadpam.rnr.json.*;
 import net.sf.mardao.core.CursorPage;
@@ -25,6 +28,9 @@ public class Converter extends BaseConverter {
 
     static final Logger LOG = LoggerFactory.getLogger(Converter.class);
 
+    // Need this to convert to and from datastore key
+    private DQuestionDao questionDao = new DQuestionDaoBean();
+
 
     @Override
     public JBaseObject convertBase(Object from) {
@@ -37,18 +43,17 @@ public class Converter extends BaseConverter {
             to = convert((DRating) from);
         } else if (from instanceof DLike) {
             to = convert((DLike) from);
-        }
-        else if (from instanceof DThumbs) {
+        } else if (from instanceof DThumbs) {
             to = convert((DThumbs) from);
-        }
-        else if (from instanceof DComment) {
+        } else if (from instanceof DComment) {
             to = convert((DComment) from);
-        }
-        else if (from instanceof DFavorites) {
+        } else if (from instanceof DFavorites) {
             to = convert((DFavorites) from);
         } else if (from instanceof DFeedback) {
             to = convert((DFeedback) from);
-        } else {
+        } else if (from instanceof DQuestion) {
+            to = convert((DQuestion) from);
+        }else {
             throw new UnsupportedOperationException(String.format("No converter for:%s" + from.getClass().getSimpleName()));
         }
 
@@ -189,6 +194,42 @@ public class Converter extends BaseConverter {
         return to;
     }
 
+    // Convert question
+    public JQuestion convert(DQuestion from) {
+        if (null == from) {
+            return null;
+        }
+
+        final JQuestion to = new JQuestion();
+        convert(from, to);
+        // The id need to take the parent into account
+        // Convert the datastore key to a string
+        to.setId(toString((Key) questionDao.getPrimaryKey(from)));
+        to.setProductId(from.getProductId());
+        to.setOpUsername(from.getOpUsername());
+        to.setQuestion(from.getQuestion());
+        to.setTagetUsername(from.getTagetUsername());
+        to.setAnswer(from.getAnswer());
+        return to;
+    }
+
+    // Convert to answer
+    // A JQuestion object but will only some properties set
+    public JQuestion convertToAnswer(DQuestion from) {
+        if (null == from) {
+            return null;
+        }
+
+        final JQuestion to = new JQuestion();
+        convert(from, to);
+        // The id need to take the parent into account
+        // Convert the datastore key to a string
+        to.setId(toString((Key) questionDao.getPrimaryKey(from)));
+        to.setTagetUsername(from.getTagetUsername());
+        to.setAnswer(from.getAnswer());
+        return to;
+    }
+
     // Convert collection of products
     public Collection<JProduct> convert(Collection<DProduct> from, String baseUri) {
         if (null == from) {
@@ -231,6 +272,18 @@ public class Converter extends BaseConverter {
         return returnValue;
     }
 
+    public Object convertToAnswers(Iterable<DQuestion> iterable) {
+        // This is a special type of JQuestion, we only like to set some properties in the response JSON
+
+        Iterator<DQuestion> iterator = iterable.iterator();
+
+        Collection<JQuestion> to = new ArrayList<JQuestion>();
+        while (iterator.hasNext())
+            to.add(convertToAnswer(iterator.next()));
+
+        return to;
+    }
+
     // Convert pages
     public JCursorPage<?> convert(CursorPage<?, ?> from) {
         final JCursorPage<JBaseObject> to = new JCursorPage<JBaseObject>();
@@ -241,4 +294,6 @@ public class Converter extends BaseConverter {
 
         return to;
     }
+
+
 }

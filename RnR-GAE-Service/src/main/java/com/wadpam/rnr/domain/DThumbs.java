@@ -27,7 +27,7 @@ public class DThumbs extends AbstractLongEntity {
 
     @Override
     public String toString() {
-        return String.format("{id:%d, productId:%s, username:%s value:%s}", getId(), productId, productId, value);
+        return String.format("{id:%d, productId:%s, username:%s value:%s}", getId(), productId, username, value);
     }
 
     // Setters and getters

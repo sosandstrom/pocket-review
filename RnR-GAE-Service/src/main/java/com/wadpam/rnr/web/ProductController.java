@@ -31,9 +31,9 @@ import java.util.Collection;
 @Controller
 @RequestMapping(value="{domain}/product")
 public class ProductController extends AbstractRestController {
+    private static final Logger LOG = LoggerFactory.getLogger(ProductController.class);
 
-    static final Logger LOG = LoggerFactory.getLogger(ProductController.class);
-    static final Converter CONVERTER = new Converter();
+    private static final Converter CONVERTER = new Converter();
 
     private RnrService rnrService;
 

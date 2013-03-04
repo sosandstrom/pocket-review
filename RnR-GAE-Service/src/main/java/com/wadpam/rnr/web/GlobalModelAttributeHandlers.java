@@ -16,8 +16,7 @@ import javax.servlet.http.HttpServletRequest;
  */
 @ControllerAdvice
 public class GlobalModelAttributeHandlers {
-    static final Logger LOG = LoggerFactory.getLogger(GlobalModelAttributeHandlers.class);
-
+    private static final Logger LOG = LoggerFactory.getLogger(GlobalModelAttributeHandlers.class);
 
     // Name and attribute injected in the request
     private static final String ATTR_NAME_DOMAIN = "_domain";

@@ -33,12 +33,12 @@ import java.util.Map;
  */
 @Controller
 public class RatingController extends AbstractRestController {
-    static final Logger LOG = LoggerFactory.getLogger(RatingController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RatingController.class);
 
-    public static final int ERR_BASE_RATE = RnrService.ERR_BASE_RATE;
-    public static final int ERR_RATE_NOT_FOUND = ERR_BASE_RATE + 1;
+    private static final int ERR_BASE_RATE = RnrService.ERR_BASE_RATE;
+    private static final int ERR_RATE_NOT_FOUND = ERR_BASE_RATE + 1;
 
-    static final Converter CONVERTER = new Converter();
+    private static final Converter CONVERTER = new Converter();
 
     private RnrService rnrService;
 

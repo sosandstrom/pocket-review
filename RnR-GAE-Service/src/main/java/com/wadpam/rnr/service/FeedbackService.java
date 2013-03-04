@@ -1,6 +1,8 @@
 package com.wadpam.rnr.service;
 
 import com.google.appengine.api.datastore.GeoPt;
+import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.KeyFactory;
 import com.wadpam.open.analytics.google.GoogleAnalyticsTracker;
 import com.wadpam.open.exceptions.BadRequestException;
 import com.wadpam.open.service.EmailSender;
@@ -8,8 +10,11 @@ import com.wadpam.open.transaction.Idempotent;
 import com.wadpam.rnr.dao.DAppSettingsDao;
 import com.wadpam.rnr.dao.DFeedbackDao;
 import com.wadpam.rnr.dao.DFeedbackDaoBean;
+import com.wadpam.rnr.dao.DQuestionDao;
 import com.wadpam.rnr.domain.DAppSettings;
 import com.wadpam.rnr.domain.DFeedback;
+import com.wadpam.rnr.domain.DQuestion;
+import net.sf.mardao.core.CursorPage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,8 +31,11 @@ public class FeedbackService {
     static final Logger LOG = LoggerFactory.getLogger(FeedbackService.class);
 
     // Offsets for exceptions
-    public static final int ERR_BASE_FEEDBACK = RnrService.ERR_BASE_FEEDBACK;
-    public static final int ERR_EMAIL_TO_FROM_MISSING = ERR_BASE_FEEDBACK + 1;
+    public static final int ERR_BASE = RnrService.ERR_BASE_FEEDBACK;
+    public static final int ERR_BASE_FEEDBACK = ERR_BASE + 1000;
+    public static final int ERR_BASE_QUESTION = ERR_BASE + 2000;
+
+    private static final int ERR_EMAIL_TO_FROM_MISSING = ERR_BASE + 1;
 
     // Analytics
     private static final String FEEDBACK_CATEGORY = "Feedback";
@@ -41,6 +49,7 @@ public class FeedbackService {
     // Properties
     private DFeedbackDao feedbackDao;
     private DAppSettingsDao appSettingsDao;
+    private DQuestionDao questionDao;
 
     private boolean tracking = true;
 
@@ -238,9 +247,116 @@ public class FeedbackService {
     }
 
 
+    // Question
+
+    // Add a question
+    public DQuestion addQuestion(String domain, String productId, String opUsername,
+                                 String question, List<String> targetUsernames,
+                                 GoogleAnalyticsTracker tracker) {
+        LOG.debug("Add question for product:{} question:{}", productId, question);
+
+        // Associate the question with the poster
+        DQuestion opQuestion = new DQuestion();
+        opQuestion.setProductId(productId);
+        opQuestion.setOpUsername(opUsername);
+        opQuestion.setQuestion(question);
+        questionDao.persist(opQuestion);
+
+        // Save one entity for each target user
+        Collection<DQuestion> targetQuestions = new ArrayList<DQuestion>(targetUsernames.size());
+        for (String targetUsername : targetUsernames) {
+            DQuestion targetQuestion = new DQuestion();
+            targetQuestion.setParent(questionDao.getPrimaryKey(opQuestion));
+            targetQuestion.setProductId(productId);
+            targetQuestion.setOpUsername(opUsername);
+            targetQuestion.setQuestion(question);
+            targetQuestion.setTagetUsername(targetUsername);
+
+            targetQuestions.add(targetQuestion);
+        }
+        questionDao.persist(targetQuestions);
+
+        // Return the op question
+        return opQuestion;
+    }
+
+    // Get question by key
+    public DQuestion getQuestion(Key key) {
+        return questionDao.findByPrimaryKey(key);
+    }
+
+    // Get question by key string
+    public DQuestion getQuestion(String keyString) {
+
+        // Need to convert the string to a datastore key
+        return questionDao.findByPrimaryKey(KeyFactory.stringToKey(keyString));
+    }
+
+    // Delete question
+    // This method should be used with a key for the original question,
+    // it will also delete any created answers. However it will work deleting
+    // an answer record only.
+    public DQuestion deleteQuestion(Key key) {
+        // Putting this code at the top to make the code run faster
+        Iterable<Long> iterable = questionDao.queryKeysByParent(key);
+
+        DQuestion dQuestion = questionDao.findByPrimaryKey(key);
+        if (null != dQuestion) {
+            // Delete parent
+            questionDao.delete(dQuestion);
+
+            // Collect all keys to delete
+            Collection<Long> keysToDelete = new ArrayList<Long>();
+            for (Long id : iterable) {
+                keysToDelete.add(id);
+            }
+
+            // Delete
+            questionDao.delete(key, keysToDelete);
+        }
+
+        return dQuestion;
+    }
+
+
+    // Get questions assigned to a specific user
+    public Iterable<DQuestion> getQuestionsAssignedToUser(String username, int answerState, String productId) {
+        Iterable<DQuestion> iterable =
+                questionDao.queryByTargetUsernameAnswerStateProductId(username, answerState, productId);
+        return iterable;
+    }
+
+
+    // Get question asked by a specific user
+    public Iterable<DQuestion> getQuestionsAskedByUser(String opUsername, String productId) {
+        Iterable<DQuestion> iterable =
+                questionDao.queryByOpUsernameProductId(opUsername, productId);
+        return iterable;
+    }
+
+
+    // Answer a question
+    public DQuestion answerQuestion(Key key, long answer) {
+        DQuestion dQuestion = questionDao.findByPrimaryKey(key);
+        if(null != dQuestion) {
+            dQuestion.setAnswer(answer);
+
+            // persist
+            questionDao.persist(dQuestion);
+        }
+
+        return dQuestion;
+    }
+
+
+    // Get answers for a question
+    public Iterable<DQuestion> getAnwsers(Key questionKey) {
+        Iterable<DQuestion> iterable = questionDao.queryByParent(questionKey);
+        return iterable;
+    }
+
+
     // Setters and Getters
-
-
     public void setAppSettingsDao(DAppSettingsDao appSettingsDao) {
         this.appSettingsDao = appSettingsDao;
     }
@@ -268,4 +384,13 @@ public class FeedbackService {
     public void setTracking(boolean tracking) {
         this.tracking = tracking;
     }
+
+    public DQuestionDao getQuestionDao() {
+        return questionDao;
+    }
+
+    public void setQuestionDao(DQuestionDao questionDao) {
+        this.questionDao = questionDao;
+    }
+
 }

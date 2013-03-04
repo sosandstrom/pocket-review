@@ -30,13 +30,12 @@ import java.util.Collection;
  */
 @Controller
 public class CommentController extends AbstractRestController {
-    static final Logger LOG = LoggerFactory.getLogger(CommentController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CommentController.class);
 
-    public static final int ERR_BASE_COMMENTS = RnrService.ERR_BASE_COMMENTS;
-    public static final int ERR_COMMENT_NOT_FOUND = ERR_BASE_COMMENTS + 1;
+    private static final int ERR_BASE_COMMENTS = RnrService.ERR_BASE_COMMENTS;
+    private static final int ERR_COMMENT_NOT_FOUND = ERR_BASE_COMMENTS + 1;
 
-
-    static final Converter CONVERTER = new Converter();
+    private static final Converter CONVERTER = new Converter();
 
     private RnrService rnrService;
 

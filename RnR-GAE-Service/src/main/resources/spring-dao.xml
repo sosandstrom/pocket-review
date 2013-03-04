@@ -43,5 +43,9 @@
           class="com.wadpam.rnr.dao.DFeedbackDaoBean">
     </bean>
 
+    <bean id="dQuestionDao"
+          class="com.wadpam.rnr.dao.DQuestionDaoBean">
+    </bean>
+
 
 </beans>

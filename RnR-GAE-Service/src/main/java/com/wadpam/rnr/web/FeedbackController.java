@@ -36,17 +36,17 @@ import java.util.Map;
  */
 @Controller
 public class FeedbackController extends AbstractRestController {
-    static final Logger LOG = LoggerFactory.getLogger(FeedbackController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FeedbackController.class);
 
     // Error codes
-    public static final int ERR_FEEDBACK_NOT_FOUND = FeedbackService.ERR_BASE_FEEDBACK + 101;
-    public static final int ERR_FEEDBACK_NOT_FOUND_DURING_DELETE = FeedbackService.ERR_BASE_FEEDBACK + 102;
-    public static final int ERR_FEEDBACK_CREATE_FAILED = FeedbackService.ERR_BASE_FEEDBACK + 103;
-
+    private static final int ERR_BASE = FeedbackService.ERR_BASE_FEEDBACK;
+    private static final int ERR_FEEDBACK_NOT_FOUND = ERR_BASE + 1;
+    private static final int ERR_FEEDBACK_NOT_FOUND_DURING_DELETE = ERR_BASE + 2;
+    private static final int ERR_FEEDBACK_CREATE_FAILED = ERR_BASE + 3;
 
     private FeedbackService feedbackService;
 
-    static final Converter CONVERTER = new Converter();
+    private static final Converter CONVERTER = new Converter();
 
     /**
      * Send a feedback form to the backend.
