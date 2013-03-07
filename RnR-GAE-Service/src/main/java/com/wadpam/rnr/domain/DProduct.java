@@ -50,6 +50,12 @@ public class DProduct extends AbstractCreatedUpdatedEntity implements Serializab
     @Basic
     private Collection<String> likeRandomUsernames;
 
+    /**
+     * If the current user liked this product.
+     * Not stored in DB, calculated dynamically.
+     */
+    private Boolean     likedByUser;
+
     /** The number of thumbs up */
     @Basic
     private Long        thumbsUp = 0L;
@@ -170,5 +176,13 @@ public class DProduct extends AbstractCreatedUpdatedEntity implements Serializab
 
     public void setLikeRandomUsernames(Collection<String> likeRandomUsernames) {
         this.likeRandomUsernames = likeRandomUsernames;
+    }
+
+    public Boolean getLikedByUser() {
+        return likedByUser;
+    }
+
+    public void setLikedByUser(Boolean likedByUser) {
+        this.likedByUser = likedByUser;
     }
 }

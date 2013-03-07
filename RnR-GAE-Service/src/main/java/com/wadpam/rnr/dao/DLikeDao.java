@@ -2,6 +2,7 @@ package com.wadpam.rnr.dao;
 
 import com.wadpam.rnr.domain.DLike;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -22,4 +23,30 @@ public interface DLikeDao extends GeneratedDLikeDao {
      */
     public DLike findByProductIdUsername(String productId, String username);
 
+
+    /**
+     * Find likes done by a specific user and a specific product.
+     * @param productId the product
+     * @param username the unique user name or id
+     * @return a key
+     */
+    Long findKeyByProductIdUsername(String productId, String username);
+
+    /**
+     * Find likes done by user on a list of products
+     *
+     * @param productIds the produce ids
+     * @param username the user name
+     * @return list of matching likes
+     */
+    Iterable<DLike> findByProductIdsUsername(Collection<String> productIds, String username);
+
+    /**
+     * Find like keys done by user on a list of products
+     *
+     * @param productIds the produce ids
+     * @param username the user name
+     * @return list of matching like keys
+     */
+    Iterable<Long> findKeysByProductIdsUsername(Collection<String> productIds, String username);
 }

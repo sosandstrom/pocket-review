@@ -16,6 +16,7 @@ import java.net.MalformedURLException;
 import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -181,5 +182,46 @@ public class LikeITest extends AbstractRestTempleIntegrationTest {
         assertEquals("Found 3 likes", 3, countResourcesInPage(BASE_URL + "like?productId={id}", JLike.class, productId));
     }
 
+
+    @Test
+    // Test create and get like with info if user liked the product or not
+    public void testInnerLike() throws MalformedURLException {
+        LOG.info("Test inner like indication");
+
+        String username = "UserG";
+        String productId = "G001";
+
+        MultiValueMap<String, Object> map = new LinkedMultiValueMap<String, Object>();
+        map.add("productId", productId);
+        map.add("username", username);
+
+        // Create and follow redirect
+        ResponseEntity<JProduct> entity = postAndFollowRedirect("product/like", map, JProduct.class);
+        assertEquals("Response code 200", HttpStatus.OK, entity.getStatusCode());
+        assertEquals("Like count is correct", 1, (long)entity.getBody().getLikeCount());
+
+        // Like with no user
+        map = new LinkedMultiValueMap<String, Object>();
+        map.add("productId", productId);
+
+        // Create and follow redirect
+        entity = postAndFollowRedirect("product/like", map, JProduct.class);
+        assertEquals("Response code 200", HttpStatus.OK, entity.getStatusCode());
+        assertEquals("Like count is correct", 2, (long)entity.getBody().getLikeCount());
+
+        // Check that inner like flag is set to true when user name is provided
+        ResponseEntity<JProduct> product = restTemplate.getForEntity(buildUrl("product/{id}?username={username}"),
+                JProduct.class, productId, username);
+        assertTrue("Inner like set to true", product.getBody().getLikedByUser());
+
+        // Check that inner like is not set tp false when user name is provided but has not liked
+        product = restTemplate.getForEntity(buildUrl("product/{id}?username={username}"),
+                JProduct.class, productId, "DummyUserName");
+        assertNull("Inner like set to false", product.getBody().getLikedByUser());
+
+        // Check that inner like is not set to null when user name is not provided
+        product = restTemplate.getForEntity(buildUrl("product/{id}"), JProduct.class, productId);
+        assertNull("Inner like set not set", product.getBody().getLikedByUser());
+    }
 
 }

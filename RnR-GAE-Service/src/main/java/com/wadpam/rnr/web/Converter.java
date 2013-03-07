@@ -50,7 +50,7 @@ public class Converter extends BaseConverter {
         } else if (from instanceof DQuestion) {
             to = convert((DQuestion) from);
         }else {
-            throw new UnsupportedOperationException(String.format("No converter for:%s" + from.getClass().getSimpleName()));
+            throw new UnsupportedOperationException(String.format("No converter for:%s", from.getClass().getSimpleName()));
         }
 
         return to;
@@ -72,6 +72,7 @@ public class Converter extends BaseConverter {
         to.setRatingAverage(from.getRatingAverage() != null ? from.getRatingAverage().getRating() : -1);
         to.setLikeCount(from.getLikeCount());
         to.setLikeRandomUsernames(pickRandomUsernames(from.getLikeRandomUsernames()));
+        to.setLikedByUser(from.getLikedByUser());
         to.setThumbsUp(from.getThumbsUp());
         to.setThumbsDown(from.getThumbsDown());
         to.setCommentCount(from.getCommentCount());
@@ -265,6 +266,21 @@ public class Converter extends BaseConverter {
         Collection<JProduct> to = new ArrayList<JProduct>();
         while (iterator.hasNext())
             to.add(convert(iterator.next(), baseUri));
+
+        return to;
+    }
+
+    // Convert page of products
+    public JCursorPage<JProduct> convert(CursorPage<DProduct, String> from, String baseUri) {
+        if (null == from) {
+            return null;
+        }
+
+        final JCursorPage<JProduct> to = new JCursorPage<JProduct>();
+
+        to.setPageSize(from.getRequestedPageSize());
+        to.setCursorKey(from.getCursorKey());
+        to.setItems(convert(from.getItems(), baseUri));
 
         return to;
     }

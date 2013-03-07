@@ -1,5 +1,6 @@
 package com.wadpam.rnr.service;
 
+import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.GeoPt;
 import com.google.appengine.api.datastore.Rating;
 import com.wadpam.open.analytics.google.GoogleAnalyticsTracker;
@@ -38,7 +39,7 @@ public class RnrService {
     private static final String RNR_CATEGORY = "RnR";
 
     // Max number of random users that liked a product that will be saved
-    private static final int MAX_RANDOM_USERS = 200;
+    private static final int MAX_RANDOM_USERS = 100;
 
     // Properties
     private DAppSettingsDao appSettingsDao;
@@ -85,32 +86,35 @@ public class RnrService {
                          GoogleAnalyticsTracker tracker) {
         LOG.debug("Add new like to product:{}", productId);
 
-        // Specified users can only Like once
-        DAppSettings settings = appSettingsDao.findByPrimaryKey(domain);
-        boolean onlyLikeOncePerUser = (null != settings) ? settings.getOnlyLikeOncePerUser() : true;
+        // Send of all datastore queries to start with, will run in parallel
+        Future settingsFuture = appSettingsDao.findByPrimaryKeyForFuture(domain);
+        Future productFuture = productDao.findByPrimaryKeyForFuture(productId);
 
         DLike dLike = null;
-        if (onlyLikeOncePerUser && null != username) {
+        if (null != username) {
+            // blocking
             dLike = likeDao.findByProductIdUsername(productId, username);
         }
 
+        // Can users only Like once?
+        DAppSettings settings = appSettingsDao.getDomain(settingsFuture); // block
+        boolean onlyLikeOncePerUser = (null != settings) ? settings.getOnlyLikeOncePerUser() : true;
+
         // Create new?
-        final boolean create = null == dLike;
-        if (create) {
+        if (null == dLike || !onlyLikeOncePerUser) {
             dLike = new DLike();
             dLike.setProductId(productId);
-            //dLike.setCreatedBy(username);
             dLike.setUsername(username);
             // Store
             likeDao.persist(dLike);
         }  else {
             LOG.debug("User:{} already liked this product", username);
-            // Do not increase the like count, just return th existing like
+            // Do not increase the like count, just return the existing like
             return dLike;
         }
 
         // Update total number of likes
-        DProduct dProduct = productDao.findByPrimaryKey(productId);
+        DProduct dProduct = productDao.getDomain(productFuture);
         if (null == dProduct) {
             // First time this product is handled, create new
             dProduct = new DProduct();
@@ -127,8 +131,8 @@ public class RnrService {
             dProduct.setLocation(location);
         }
 
+        // Update random users that liked if user name is provided
         if (null != username) {
-            // Update random users that liked
             ArrayList<String> randomLikedUsers  = null;
 
             if (null == dProduct.getLikeRandomUsernames()) {
@@ -138,7 +142,7 @@ public class RnrService {
                 randomLikedUsers = new ArrayList<String>(dProduct.getLikeRandomUsernames());
             }
 
-            // Remove the first one if more the 200
+            // Remove the first one if more the 100
             if (randomLikedUsers.size() > MAX_RANDOM_USERS) {
                 randomLikedUsers.remove(1);
             }
@@ -188,11 +192,14 @@ public class RnrService {
         if (null == dLike)
            return null;
 
+        // Get product, non blocking already here
+        Future productFuture = productDao.findByPrimaryKeyForFuture(dLike.getProductId());
+
         // Delete the like
-        likeDao.delete(dLike);
+        likeDao.delete(dLike); // block
 
         // Update the product
-        DProduct dProduct = productDao.findByPrimaryKey(dLike.getProductId());
+        DProduct dProduct = productDao.getDomain(productFuture);
         if (null != dProduct) {
             dProduct.setLikeCount(dProduct.getLikeCount() - 1);
             productDao.persist(dProduct);
@@ -220,26 +227,30 @@ public class RnrService {
                              Thumbs value, GoogleAnalyticsTracker tracker) {
         LOG.debug("Add new thumbs:{} to product:{}", value, productId);
 
-        // Specified users can only thumb once
-        DAppSettings settings = appSettingsDao.findByPrimaryKey(domain);
-        boolean onlyThumbOncePerUser = (null != settings) ? settings.getOnlyThumbOncePerUser() : true;
+        // Send of all datastore queries to start with, will run in parallel
+        Future settingsFuture = appSettingsDao.findByPrimaryKeyForFuture(domain);
+        Future productFuture = productDao.findByPrimaryKeyForFuture(productId);
 
         DThumbs dThumbs = null;
-        if (onlyThumbOncePerUser && null != username) {
-            dThumbs = thumbsDao.findByProductIdUsername(productId, username);
+        if (null != username) {
+            dThumbs  = thumbsDao.findByProductIdUsername(productId, username); // blocking
         }
+
+        // Specified users can only thumb once
+        DAppSettings settings = appSettingsDao.getDomain(settingsFuture);
+        boolean onlyThumbOncePerUser = (null != settings) ? settings.getOnlyThumbOncePerUser() : true;
 
         // Remember the existing value
         Thumbs existing = null;
 
         // Create new?
-        final boolean create = null == dThumbs;
-        if (create) {
+        if (null == dThumbs || !onlyThumbOncePerUser) {
             dThumbs = new DThumbs();
             dThumbs.setProductId(productId);
             dThumbs.setUsername(username);
-        } else
+        } else {
             existing = (dThumbs.getValue()) > 0 ? Thumbs.UP : Thumbs.DOWN;
+        }
 
         // Always update the value
         dThumbs.setValue((long)value.getValue());
@@ -248,7 +259,7 @@ public class RnrService {
         thumbsDao.persist(dThumbs);
 
         // Update total number of thumbs
-        DProduct dProduct = productDao.findByPrimaryKey(productId);
+        DProduct dProduct = productDao.getDomain(productFuture);
         if (null == dProduct) {
             // First time this product is handled, create new
             dProduct = new DProduct();
@@ -312,11 +323,14 @@ public class RnrService {
         if (null == dThumbs)
             return null;
 
+        // Get product, non blocking already here
+        Future productFuture = productDao.findByPrimaryKeyForFuture(dThumbs.getProductId());
+
         // Delete
         thumbsDao.delete(dThumbs);
 
         // Update the product
-        DProduct dProduct = productDao.findByPrimaryKey(dThumbs.getProductId());
+        DProduct dProduct = productDao.getDomain(productFuture);
         if (null != dProduct) {
 
             // Figure out what value to decrease
@@ -356,18 +370,22 @@ public class RnrService {
                              GoogleAnalyticsTracker tracker) {
         LOG.debug("Add new rating to product:{}", productId);
 
-        // specified users can only rate once
-        DAppSettings settings = appSettingsDao.findByPrimaryKey(domain);
-        boolean onlyRateOncePerUser = (null != settings) ? settings.getOnlyRateOncePerUser() : true;
+        // Send of all datastore queries to start with, will run in parallel
+        Future settingsFuture = appSettingsDao.findByPrimaryKeyForFuture(domain);
+        Future productFuture = productDao.findByPrimaryKeyForFuture(productId);
 
         DRating dRating = null;
-        if (onlyRateOncePerUser && null != username) {
+        if (null != username) {
             dRating = ratingDao.findByProductIdUsername(productId, username);
         }
 
+        // specified users can only rate once
+        DAppSettings settings = appSettingsDao.getDomain(settingsFuture);
+        boolean onlyRateOncePerUser = (null != settings) ? settings.getOnlyRateOncePerUser() : true;
+
         // create new?
         int existing = -1;
-        if (null == dRating) {
+        if (null == dRating || !onlyRateOncePerUser) {
             dRating = new DRating();
             dRating.setProductId(productId);
             dRating.setUsername(username);
@@ -383,7 +401,7 @@ public class RnrService {
         ratingDao.persist(dRating);
 
         // update product info
-        DProduct dProduct = productDao.findByPrimaryKey(productId);
+        DProduct dProduct = productDao.getDomain(productFuture);
         if (null == dProduct) {
             dProduct = new DProduct();
             dProduct.setProductId(productId);
@@ -444,11 +462,14 @@ public class RnrService {
         if (null == dRating)
             return null;
 
+        // Get product, non-blocking
+        Future productFuture = productDao.findByPrimaryKeyForFuture(dRating.getProductId());
+
         // Delete the rating
         ratingDao.delete(dRating);
 
         // Update the product
-        DProduct dProduct = productDao.findByPrimaryKey(dRating.getProductId());
+        DProduct dProduct = productDao.getDomain(productFuture);
         if (null != dProduct) {
             dProduct.setRatingSum(dProduct.getRatingSum() - dRating.getRating().getRating());
             dProduct.setRatingCount(dProduct.getRatingCount() - 1);
@@ -509,6 +530,9 @@ public class RnrService {
                                String comment, GoogleAnalyticsTracker tracker) {
         LOG.debug("Add new comment to product:(}",  productId);
 
+        // Get product already here, non-blocking
+        Future productFuture = productDao.findByPrimaryKeyForFuture(productId);
+
         // Create new comment. Do not check if user have commented before
         DComment dComment = new DComment();
         dComment.setProductId(productId);
@@ -517,7 +541,7 @@ public class RnrService {
         commentDao.persist(dComment);
 
         // update product info
-        DProduct dProduct = productDao.findByPrimaryKey(productId);
+        DProduct dProduct = productDao.getDomain(productFuture);
         if (null == dProduct) {
             dProduct = new DProduct();
             dProduct.setProductId(productId);
@@ -564,11 +588,14 @@ public class RnrService {
         if (null == dComment)
             return null;
 
+        // Get product alrady here, non-blocking
+        Future productFuture = productDao.findByPrimaryKeyForFuture(dComment.getProductId());
+
         // Delete the comment
         commentDao.delete(dComment);
 
         // Update the product
-        DProduct dProduct = productDao.findByPrimaryKey(dComment.getProductId());
+        DProduct dProduct = productDao.getDomain(productFuture);
         if (null != dProduct) {
             dProduct.setCommentCount(dProduct.getCommentCount() - 1);
             productDao.persist(dProduct);
@@ -651,22 +678,95 @@ public class RnrService {
     /* Product related methods */
 
     // Get a specific product
-    public DProduct getProduct(String productId) {
+    public DProduct getProduct(String productId, String username) {
         LOG.debug("Get product:{}",  productId);
 
-        final DProduct dProduct = productDao.findByPrimaryKey(productId);
+        // Non-blocking get product info
+        final Future futureProduct = productDao.findByPrimaryKeyForFuture(productId);
 
+        // If user name is provided check if this person have liked this product
+        Long likeKey = null;
+        if (null != username) {
+            // Blocking
+            likeKey = likeDao.findKeyByProductIdUsername(productId, username);
+        }
+
+        DProduct dProduct = productDao.getDomain(futureProduct);
+        LOG.info("Future:{}", dProduct);
         if (null == dProduct)
             throw new NotFoundException(ERR_BASE_PRODUCT_NOT_FOUND,
                     String.format("Product with id:%s not found", productId));
+
+        // Insert the user like if available
+        if (null != username) {
+            if (null != likeKey) {
+                dProduct.setLikedByUser(true);
+            } else {
+                dProduct.setLikedByUser(false);
+            }
+        }
 
         return dProduct;
     }
 
     // Get a list of products
-    public Iterable<DProduct> getProducts(String[] ids) {
+    public Iterable<DProduct> getProducts(String[] ids, String username) {
         LOG.debug("Get a list of products:{}", ids);
-        return productDao.queryByPrimaryKeys(null, Arrays.asList(ids));
+
+        Iterable<DProduct> productIterable = productDao.queryByPrimaryKeys(null, Arrays.asList(ids));
+
+        // If user name is provided check if this person have liked this product
+        if (null != username) {
+            // Get all for list of product ids
+            Iterable<DLike> likeIterable = likeDao.findByProductIdsUsername(Arrays.asList(ids), username);
+
+            // Build a hash map for quick lookup
+            HashMap<String, Long> likeMap = new HashMap<String, Long>();
+            for (DLike dLlike : likeIterable) {
+                likeMap.put(dLlike.getProductId(), dLlike.getId());
+            }
+
+            // Check each product against the hash map of like keys
+            for (DProduct dProduct : productIterable) {
+                if (likeMap.containsKey(dProduct.getProductId())) {
+                    dProduct.setLikedByUser(true);
+                } else {
+                    dProduct.setLikedByUser(false);
+                }
+            }
+        }
+
+        return productIterable;
+    }
+
+
+    // Mark the products the user has liked
+    private void markLikedProducts(Collection<DProduct> dProducts, String username) {
+        if (null == username) {
+            return;
+        }
+
+        // Collect all product Ids
+        Collection<String> productIds = new ArrayList<String>();
+        for (DProduct dProduct : dProducts) {
+            productIds.add(dProduct.getProductId());
+        }
+
+        // Get all for list of product ids
+        Iterable<DLike> likeIterable = likeDao.findByProductIdsUsername(productIds, username);
+
+        // Build a hash map for quick lookup
+        HashMap<String, Long> likeMap = new HashMap<String, Long>();
+        for (DLike dLlike : likeIterable) {
+            likeMap.put(dLlike.getProductId(), dLlike.getId());
+        }
+
+        // Check each product against the hash map of like keys
+        for (DProduct dProduct : dProducts) {
+            if (likeMap.containsKey(dProduct.getProductId())) {
+                dProduct.setLikedByUser(true);
+            }
+        }
     }
 
     // Get all products

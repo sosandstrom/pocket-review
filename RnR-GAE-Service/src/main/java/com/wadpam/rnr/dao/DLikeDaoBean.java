@@ -1,9 +1,6 @@
 package com.wadpam.rnr.dao;
 
 import com.google.appengine.api.datastore.Query;
-import com.google.appengine.api.memcache.Expiration;
-import com.google.appengine.api.memcache.MemcacheService;
-import com.google.appengine.api.memcache.MemcacheServiceFactory;
 import com.wadpam.rnr.domain.DLike;
 import net.sf.mardao.core.Filter;
 
@@ -29,5 +26,51 @@ public class DLikeDaoBean
 
         return findUniqueBy(filter1, filter2);
     }
+
+
+    @Override
+    // Find like key done by user on product
+    public Long findKeyByProductIdUsername(String productId, String username) {
+        final Filter filter1 = createEqualsFilter(COLUMN_NAME_PRODUCTID, productId);
+        final Filter filter2 = createEqualsFilter(COLUMN_NAME_USERNAME, username);
+
+        return findUniqueKeyBy(filter1, filter2);
+    }
+
+
+    // Find likes done by user on a list of products
+    @Override
+    public Iterable<DLike> findByProductIdsUsername(Collection<String> productIds, String username) {
+
+        // Create filters
+        List<Filter> filters = new ArrayList<Filter>();
+        filters.add(createEqualsFilter(COLUMN_NAME_USERNAME, username));
+        filters.add(new Filter(COLUMN_NAME_PRODUCTID, Query.FilterOperator.IN, productIds));
+
+        Iterable<DLike> iterable = queryIterable(false, -1, 1000, null, null,
+                COLUMN_NAME_USERNAME, true,
+                null, false,
+                filters.toArray(new Filter[filters.size()]));
+
+        return iterable;
+    }
+
+    // Find likes done by user on a list of products
+    @Override
+    public Iterable<Long> findKeysByProductIdsUsername(Collection<String> productIds, String username) {
+
+        // Create filters
+        Collection<Filter> filters = new ArrayList<Filter>();
+        filters.add(createEqualsFilter(COLUMN_NAME_USERNAME, username));
+        filters.add(new Filter(COLUMN_NAME_PRODUCTID, Query.FilterOperator.IN, productIds));
+
+        Iterable<Long> iterable = queryIterableKeys(-1, 1000, null, null,
+                COLUMN_NAME_USERNAME, true,
+                null, false,
+                filters.toArray(new Filter[filters.size()]));
+
+        return iterable;
+    }
+
 
 }

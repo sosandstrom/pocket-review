@@ -25,6 +25,7 @@ public class JProduct extends JBaseObject {
     /** The total sum or all ratings */
     private Long        ratingSum = 0L;
 
+
     /** The total number of ratings */
     private Long        ratingCount = 0L;
 
@@ -37,7 +38,11 @@ public class JProduct extends JBaseObject {
     /** The total number of Likes */
     private Long        likeCount = 0L;
 
+    /** List of semi random users that liked this product */
     private Collection<String> likeRandomUsernames;
+
+    /** Set if the product has been liked by current user */
+    private Boolean     likedByUser;
 
     /** The deep link to the individual likes */
     private String      likesURL;
@@ -175,5 +180,13 @@ public class JProduct extends JBaseObject {
 
     public void setLikeRandomUsernames(Collection<String> likeRandomUsernames) {
         this.likeRandomUsernames = likeRandomUsernames;
+    }
+
+    public Boolean getLikedByUser() {
+        return likedByUser;
+    }
+
+    public void setLikedByUser(Boolean likedByUser) {
+        this.likedByUser = likedByUser;
     }
 }
