@@ -15,9 +15,7 @@ import org.springframework.util.MultiValueMap;
 import java.net.MalformedURLException;
 import java.util.Collection;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * Integration tests for Likes.
@@ -214,12 +212,12 @@ public class LikeITest extends AbstractRestTempleIntegrationTest {
                 JProduct.class, productId, username);
         assertTrue("Inner like set to true", product.getBody().getLikedByUser());
 
-        // Check that inner like is not set tp false when user name is provided but has not liked
+        // Check that inner like is set to false when user name is provided but has not liked
         product = restTemplate.getForEntity(buildUrl("product/{id}?username={username}"),
                 JProduct.class, productId, "DummyUserName");
-        assertNull("Inner like set to false", product.getBody().getLikedByUser());
+        assertFalse("Inner like set to false", product.getBody().getLikedByUser());
 
-        // Check that inner like is not set to null when user name is not provided
+        // Check that inner like is set to null when user name is not provided
         product = restTemplate.getForEntity(buildUrl("product/{id}"), JProduct.class, productId);
         assertNull("Inner like set not set", product.getBody().getLikedByUser());
     }

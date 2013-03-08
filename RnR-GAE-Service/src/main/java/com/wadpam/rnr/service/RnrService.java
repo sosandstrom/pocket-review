@@ -101,12 +101,13 @@ public class RnrService {
         boolean onlyLikeOncePerUser = (null != settings) ? settings.getOnlyLikeOncePerUser() : true;
 
         // Create new?
+        Future likeFuture = null;
         if (null == dLike || !onlyLikeOncePerUser) {
             dLike = new DLike();
             dLike.setProductId(productId);
             dLike.setUsername(username);
             // Store
-            likeDao.persist(dLike);
+            likeFuture = likeDao.persistForFuture(dLike); // non-blocking
         }  else {
             LOG.debug("User:{} already liked this product", username);
             // Do not increase the like count, just return the existing like
@@ -156,7 +157,7 @@ public class RnrService {
         }
 
         // Persist and index the location
-        productDao.persist(dProduct);
+        productDao.persistForFuture(dProduct);
 
         // Call to generate a datastrore ConcurrentModificationException in order to test the transaction retry mechanism
         // Uncomment this to run tests
@@ -170,6 +171,11 @@ public class RnrService {
                 // Make sure this never generates and exception that cause the transaction to fail
                 LOG.warn("Sending like event to analytics failed:{}", doNothing);
             }
+        }
+
+        // If we have a future get the result to get hold of the like id
+        if (null != likeFuture) {
+            dLike.setId(likeDao.getSimpleKey(likeFuture));
         }
 
         return dLike;
@@ -188,24 +194,26 @@ public class RnrService {
     public DLike deleteLike(long id) {
         LOG.debug("Delete like with id:{}", id);
 
-        DLike dLike = likeDao.findByPrimaryKey(id);
+        DLike dLike = likeDao.findByPrimaryKey(id);  // block
         if (null == dLike)
            return null;
 
         // Get product, non blocking already here
         Future productFuture = productDao.findByPrimaryKeyForFuture(dLike.getProductId());
 
-        // Delete the like
-        likeDao.delete(dLike); // block
-
         // Update the product
-        DProduct dProduct = productDao.getDomain(productFuture);
+        DProduct dProduct = productDao.getDomain(productFuture);  // block
         if (null != dProduct) {
             dProduct.setLikeCount(dProduct.getLikeCount() - 1);
-            productDao.persist(dProduct);
+            productDao.persistForFuture(dProduct);
         } else
             // Should not happen, log error
+        {
             LOG.error("Like exist but not the product:{}", dLike.getProductId());
+        }
+
+        // Delete the like
+        likeDao.delete(dLike); // block
 
         return dLike;
     }
@@ -256,7 +264,7 @@ public class RnrService {
         dThumbs.setValue((long)value.getValue());
 
         // Store
-        thumbsDao.persist(dThumbs);
+        Future thumbdFuture = thumbsDao.persistForFuture(dThumbs);
 
         // Update total number of thumbs
         DProduct dProduct = productDao.getDomain(productFuture);
@@ -298,7 +306,7 @@ public class RnrService {
         }
 
         // Persist and index the location
-        productDao.persist(dProduct);
+        productDao.persistForFuture(dProduct);
 
         // Track the event
         if (isTracking() && null != tracker) {
@@ -308,6 +316,10 @@ public class RnrService {
                 // Make sure this never generates and exception that cause the transaction to fail
                 LOG.warn("Sending thumbs event to analytics failed:{}", doNothing);
             }
+        }
+
+        if (null != thumbdFuture) {
+            dThumbs.setId(thumbsDao.getSimpleKey(thumbdFuture));
         }
 
         return dThumbs;
@@ -326,9 +338,6 @@ public class RnrService {
         // Get product, non blocking already here
         Future productFuture = productDao.findByPrimaryKeyForFuture(dThumbs.getProductId());
 
-        // Delete
-        thumbsDao.delete(dThumbs);
-
         // Update the product
         DProduct dProduct = productDao.getDomain(productFuture);
         if (null != dProduct) {
@@ -339,10 +348,13 @@ public class RnrService {
             else
                 dProduct.setThumbsDown(dProduct.getThumbsDown() - 1);
 
-            productDao.persist(dProduct);
+            productDao.persistForFuture(dProduct);
         } else
             // Should not happen, log error
             LOG.error("Thumb exist but not the product:{}", dThumbs.getProductId());
+
+        // Delete
+        thumbsDao.delete(dThumbs);
 
         return dThumbs;
     }
@@ -398,7 +410,7 @@ public class RnrService {
         // store the rating  (always update the rating and review comment)
         dRating.setRating(new Rating(rating));
         dRating.setComment(comment);
-        ratingDao.persist(dRating);
+        Future ratingFuture = ratingDao.persistForFuture(dRating);
 
         // update product info
         DProduct dProduct = productDao.getDomain(productFuture);
@@ -431,7 +443,7 @@ public class RnrService {
         }
 
         // Persist and index location
-        productDao.persist(dProduct);
+        productDao.persistForFuture(dProduct);
 
         // Track the event
         if (isTracking() && null != tracker) {
@@ -441,6 +453,10 @@ public class RnrService {
                 // Make sure this never generates and exception that cause the transaction to fail
                 LOG.warn("Sending ratings event to analytics failed:{}", doNothing);
             }
+        }
+
+        if (null != ratingFuture) {
+            dRating.setId(ratingDao.getSimpleKey(ratingFuture));
         }
 
         return dRating;
@@ -465,25 +481,29 @@ public class RnrService {
         // Get product, non-blocking
         Future productFuture = productDao.findByPrimaryKeyForFuture(dRating.getProductId());
 
-        // Delete the rating
-        ratingDao.delete(dRating);
-
         // Update the product
-        DProduct dProduct = productDao.getDomain(productFuture);
+        DProduct dProduct = productDao.getDomain(productFuture); // blocking
         if (null != dProduct) {
             dProduct.setRatingSum(dProduct.getRatingSum() - dRating.getRating().getRating());
             dProduct.setRatingCount(dProduct.getRatingCount() - 1);
 
             // Guard against deleting the last rating to avoid / by zero
-            if (0 != dProduct.getRatingCount())
-                dProduct.setRatingAverage(new Rating((int)(dProduct.getRatingSum() / dProduct.getRatingCount())));
-            else
+            if (0 != dProduct.getRatingCount()) {
+                dProduct.setRatingAverage(new Rating((int) (dProduct.getRatingSum() / dProduct.getRatingCount())));
+            }
+            else {
                 dProduct.setRatingAverage(null);
+            }
 
-            productDao.persist(dProduct);
+            productDao.persistForFuture(dProduct);
         } else
             // Should not happen, log error
+        {
             LOG.error("Rating exist but not the product:{}",  dRating.getProductId());
+        }
+
+        // Delete the rating
+        ratingDao.delete(dRating);
 
         return dRating;
     }
@@ -538,7 +558,7 @@ public class RnrService {
         dComment.setProductId(productId);
         dComment.setUsername(username);
         dComment.setComment(comment);
-        commentDao.persist(dComment);
+        Future commentFuture = commentDao.persistForFuture(dComment);
 
         // update product info
         DProduct dProduct = productDao.getDomain(productFuture);
@@ -557,7 +577,7 @@ public class RnrService {
         }
 
         // Persist and index on location
-        productDao.persist(dProduct);
+        productDao.persistForFuture(dProduct);
 
         // Track the event
         if (isTracking() && null != tracker) {
@@ -567,6 +587,11 @@ public class RnrService {
                 // Make sure this never generates and exception that cause the transaction to fail
                 LOG.warn("Sending comment event to analytics failed:{}", doNothing);
             }
+        }
+
+        if (null != commentFuture) {
+            // Get the id
+            dComment.setId(commentDao.getSimpleKey(commentFuture));
         }
 
         return dComment;
@@ -588,7 +613,7 @@ public class RnrService {
         if (null == dComment)
             return null;
 
-        // Get product alrady here, non-blocking
+        // Get product already here, non-blocking
         Future productFuture = productDao.findByPrimaryKeyForFuture(dComment.getProductId());
 
         // Delete the comment
@@ -598,7 +623,7 @@ public class RnrService {
         DProduct dProduct = productDao.getDomain(productFuture);
         if (null != dProduct) {
             dProduct.setCommentCount(dProduct.getCommentCount() - 1);
-            productDao.persist(dProduct);
+            productDao.persistForFuture(dProduct);
         } else
             // Should not happen, log error
             LOG.error("Comment exist but not the product:{}", dComment.getProductId());
@@ -635,7 +660,7 @@ public class RnrService {
                 dFavorites.getProductIds().add(productId);
 
         // Store
-        favoritesDao.persist(dFavorites);
+        favoritesDao.persistForFuture(dFavorites);
 
         // Track the event
         if (isTracking() && null != tracker) {
@@ -663,7 +688,7 @@ public class RnrService {
             return null;
 
         // Store
-        favoritesDao.persist(dFavorites);
+        favoritesDao.persistForFuture(dFavorites);
 
         return dFavorites;
     }

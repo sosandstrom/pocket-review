@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.concurrent.Future;
 
 /**
  * Implementation of Business Methods related to entity DProduct.
@@ -67,11 +68,32 @@ public class DProductDaoBean
     }
 
 
+    @Override
+    // Persist and index a product based on location (needed for location based search)
+    // Non-blocking
+    public Future<?> persistForFuture(DProduct dProduct) {
+        // Index the geo location
+        indexProduct(dProduct);
+
+        return super.persistForFuture(dProduct);
+    }
+
+
     // Persist and index a product based on location (needed for location based search)
     @Override
     public String persist(DProduct dProduct) {
-
         // Index the geo location
+        indexProduct(dProduct);
+
+        return super.persist(dProduct);
+    }
+
+
+    // No need to override delete since we will never delete a product
+
+
+    // Index the geo location
+    private void indexProduct(DProduct dProduct) {
         if (null != dProduct.getLocation()) {
             GeoPoint geoPoint = new GeoPoint(dProduct.getLocation().getLatitude(), dProduct.getLocation().getLongitude());
             int averageRating = (null != dProduct.getRatingAverage()) ? dProduct.getRatingAverage().getRating() : -1;
@@ -83,8 +105,6 @@ public class DProductDaoBean
                     .addField(Field.newBuilder().setName("thumbsUp").setNumber(dProduct.getThumbsUp()));
             getLocationIndex().add(locationBuilder.build());
         }
-
-        return super.persist(dProduct);
     }
 
     // Build location index
