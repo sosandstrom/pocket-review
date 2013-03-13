@@ -30,6 +30,8 @@ import java.util.Collection;
  * @author mattiaslevin
  */
 @Controller
+@RequestMapping(value="{domain}")
+@RestReturn(JLike.class)
 public class LikeController extends AbstractRestController {
     private static final Logger LOG = LoggerFactory.getLogger(LikeController.class);
 
@@ -55,7 +57,7 @@ public class LikeController extends AbstractRestController {
     @RestReturn(value=JLike.class, entity=JLike.class, code={
             @RestCode(code=302, message="OK", description="Redirect to the newly created like or product summary")
     })
-    @RequestMapping(value={"{domain}/like", "{domain}/product/like"}, method= RequestMethod.POST)
+    @RequestMapping(value={"like", "product/like"}, method= RequestMethod.POST)
     public RedirectView addLike(HttpServletRequest request,
                                 HttpServletResponse response,
                                 UriComponentsBuilder uriBuilder,
@@ -103,7 +105,7 @@ public class LikeController extends AbstractRestController {
             @RestCode(code=200, message="OK", description="Like deleted"),
             @RestCode(code=404, message="NOK", description="Like not found and can not be deleted")
     })
-    @RequestMapping(value="{domain}/like/{id}", method= RequestMethod.DELETE)
+    @RequestMapping(value="like/{id}", method= RequestMethod.DELETE)
     public ResponseEntity<JLike> deleteLike(HttpServletRequest request,
                                             HttpServletResponse response,
                                             @PathVariable long id) {
@@ -125,7 +127,7 @@ public class LikeController extends AbstractRestController {
             @RestCode(code=200, message="OK", description="Like found"),
             @RestCode(code=404, message="NOK", description="Like not found")
     })
-    @RequestMapping(value="{domain}/like/{id}", method= RequestMethod.GET)
+    @RequestMapping(value="like/{id}", method= RequestMethod.GET)
     public ResponseEntity<JLike> getLike(HttpServletRequest request,
                                          HttpServletResponse response,
                                          @PathVariable long id) {
@@ -143,10 +145,10 @@ public class LikeController extends AbstractRestController {
      * @param username a unique user name or id
      * @return a list of my likes
      */
-    @RestReturn(value=JLike.class, entity=JLike.class, code={
+    @RestReturn(value=Collection.class, entity=JLike.class, code={
             @RestCode(code=200, message="OK", description="All likes for user")
     })
-    @RequestMapping(value="{domain}/like", method= RequestMethod.GET, params="username")
+    @RequestMapping(value="like", method= RequestMethod.GET, params="username")
     public ResponseEntity<Collection<JLike>> getMyLikes(HttpServletRequest request,
                                                         HttpServletResponse response,
                                                         @RequestParam String username) {
@@ -168,10 +170,10 @@ public class LikeController extends AbstractRestController {
      *               If asking for the first page, not cursor should be provided.
      * @return a page of likes
      */
-    @RestReturn(value=JCursorPage.class, entity=JCursorPage.class, code={
+    @RestReturn(value=JCursorPage.class, entity=JLike.class, code={
             @RestCode(code=200, message="OK", description="Page of likes for product")
     })
-    @RequestMapping(value="{domain}/like", method= RequestMethod.GET, params="productId")
+    @RequestMapping(value="like", method= RequestMethod.GET, params="productId")
     public ResponseEntity<JCursorPage<JLike>> getAllLikesForProduct(
             HttpServletRequest request,
             HttpServletResponse response,

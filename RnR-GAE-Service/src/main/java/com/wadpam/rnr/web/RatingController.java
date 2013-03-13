@@ -32,6 +32,8 @@ import java.util.Map;
  * @author os
  */
 @Controller
+@RequestMapping(value="{domain}")
+@RestReturn(JRating.class)
 public class RatingController extends AbstractRestController {
     private static final Logger LOG = LoggerFactory.getLogger(RatingController.class);
 
@@ -59,7 +61,7 @@ public class RatingController extends AbstractRestController {
     @RestReturn(value=JRating.class, entity=JRating.class, code={
         @RestCode(code=302, message="OK", description="Redirect to newly created rating or product summary")
     })
-    @RequestMapping(value={"{domain}/rating", "{domain}/product/rating"}, method= RequestMethod.POST)
+    @RequestMapping(value={"rating", "product/rating"}, method= RequestMethod.POST)
     public RedirectView addRating(HttpServletRequest request,
                                   HttpServletResponse response,
                                   UriComponentsBuilder uriBuilder,
@@ -110,7 +112,7 @@ public class RatingController extends AbstractRestController {
             @RestCode(code=200, message="OK", description="Rating deleted"),
             @RestCode(code=404, message="NOK", description="Rating not found and can not be deleted")
     })
-    @RequestMapping(value="{domain}/rating/{id}", method= RequestMethod.DELETE)
+    @RequestMapping(value="rating/{id}", method= RequestMethod.DELETE)
     public ResponseEntity<JRating> deleteLike(HttpServletRequest request,
                                               HttpServletResponse response,
                                               @PathVariable long id) {
@@ -132,7 +134,7 @@ public class RatingController extends AbstractRestController {
             @RestCode(code=200, message="OK", description="Rating found"),
             @RestCode(code=404, message="NOK", description="Rating not found")
     })
-    @RequestMapping(value="{domain}/rating/{id}", method= RequestMethod.GET)
+    @RequestMapping(value="rating/{id}", method= RequestMethod.GET)
     public ResponseEntity<JRating> getLike(HttpServletRequest request,
                                            HttpServletResponse response,
                                            @PathVariable long id) {
@@ -150,10 +152,10 @@ public class RatingController extends AbstractRestController {
      * @param username a unique user name or id
      * @return a list of ratings
      */
-    @RestReturn(value=JRating.class, entity=JRating.class, code={
+    @RestReturn(value=Collection.class, entity=JRating.class, code={
         @RestCode(code=200, message="OK", description="Ratings found for user")
     })
-    @RequestMapping(value="{domain}/rating", method= RequestMethod.GET, params="username")
+    @RequestMapping(value="rating", method= RequestMethod.GET, params="username")
     public ResponseEntity<Collection<JRating>> getMyRatings(HttpServletRequest request,
                                                             HttpServletResponse response,
                                                             @RequestParam String username) {
@@ -177,7 +179,7 @@ public class RatingController extends AbstractRestController {
     @RestReturn(value=JCursorPage.class, entity=JRating.class, code={
             @RestCode(code=200, message="OK", description="Page of ratings for product")
     })
-    @RequestMapping(value="{domain}/rating", method= RequestMethod.GET, params="productId")
+    @RequestMapping(value="rating", method= RequestMethod.GET, params="productId")
     public ResponseEntity<JCursorPage<JRating>> getAllRatingsForProduct(
             HttpServletRequest request,
             HttpServletResponse response,
@@ -201,7 +203,7 @@ public class RatingController extends AbstractRestController {
     @RestReturn(value=JHistogram.class, entity=JHistogram.class, code={
             @RestCode(code=200, message="OK", description="Histogram for product")
     })
-    @RequestMapping(value="{domain}/rating/histogram", method= RequestMethod.GET, params="productId")
+    @RequestMapping(value="rating/histogram", method= RequestMethod.GET, params="productId")
     public ResponseEntity<JHistogram> getHistogramForProduct(HttpServletRequest request,
                                                              HttpServletResponse response,
                                                              @RequestParam String productId,

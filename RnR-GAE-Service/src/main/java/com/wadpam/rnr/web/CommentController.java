@@ -29,6 +29,8 @@ import java.util.Collection;
  * @author mattiaslevin
  */
 @Controller
+@RequestMapping(value="{domain}")
+@RestReturn(JComment.class)
 public class CommentController extends AbstractRestController {
     private static final Logger LOG = LoggerFactory.getLogger(CommentController.class);
 
@@ -60,7 +62,7 @@ public class CommentController extends AbstractRestController {
     @RestReturn(value=JComment.class, entity=JComment.class, code={
             @RestCode(code=302, message="OK", description="Redirect to newly created comment or product summary")
     })
-    @RequestMapping(value={"{domain}/comment", "{domain}/product/comment"}, method= RequestMethod.POST)
+    @RequestMapping(value={"comment", "product/comment"}, method= RequestMethod.POST)
     public RedirectView addComment(HttpServletRequest request,
                                    HttpServletResponse response,
                                    UriComponentsBuilder uriBuilder,
@@ -110,7 +112,7 @@ public class CommentController extends AbstractRestController {
             @RestCode(code=200, message="OK", description="Comment deleted"),
             @RestCode(code=404, message="NOK", description="Comment not found and can not be deleted")
     })
-    @RequestMapping(value="{domain}/comment/{id}", method= RequestMethod.DELETE)
+    @RequestMapping(value="comment/{id}", method= RequestMethod.DELETE)
     public ResponseEntity<JComment> deleteComment(HttpServletRequest request,
                                                   HttpServletResponse response,
                                                   @PathVariable long id) {
@@ -132,7 +134,7 @@ public class CommentController extends AbstractRestController {
             @RestCode(code=200, message="OK", description="Comment found"),
             @RestCode(code=404, message="NOK", description="Comment not found")
     })
-    @RequestMapping(value="{domain}/comment/{id}", method= RequestMethod.GET)
+    @RequestMapping(value="comment/{id}", method= RequestMethod.GET)
     public ResponseEntity<JComment> getComment(HttpServletRequest request,
                                                HttpServletResponse response,
                                                @PathVariable long id) {
@@ -150,10 +152,10 @@ public class CommentController extends AbstractRestController {
      * @param username a unique user name or id
      * @return a list of comments
      */
-    @RestReturn(value=JComment.class, entity=JComment.class, code={
+    @RestReturn(value=Collection.class, entity=JComment.class, code={
             @RestCode(code=200, message="OK", description="All comments for user")
     })
-    @RequestMapping(value="{domain}/comment", method= RequestMethod.GET, params="username")
+    @RequestMapping(value="comment", method= RequestMethod.GET, params="username")
     public ResponseEntity<Collection<JComment>> getMyComments(HttpServletRequest request,
                                                               HttpServletResponse response,
                                                               @RequestParam String username) {
@@ -174,10 +176,10 @@ public class CommentController extends AbstractRestController {
      *               If asking for the first page, not cursor should be provided.
      * @return a list of comments
      */
-    @RestReturn(value=JComment.class, entity=JComment.class, code={
+    @RestReturn(value=JCursorPage.class, entity=JComment.class, code={
             @RestCode(code=200, message="OK", description="All comments for product")
     })
-    @RequestMapping(value="{domain}/comment", method= RequestMethod.GET, params="productId")
+    @RequestMapping(value="comment", method= RequestMethod.GET, params="productId")
     public ResponseEntity<JCursorPage<JComment>> getAllCommentsForProduct(
             HttpServletRequest request,
             HttpServletResponse response,
@@ -191,7 +193,6 @@ public class CommentController extends AbstractRestController {
                 (JCursorPage<JComment>)CONVERTER.convert(dPage),
                 HttpStatus.OK);
     }
-
 
 
     // Setters and Getters

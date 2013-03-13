@@ -35,6 +35,8 @@ import java.util.HashMap;
  * @author mattiaslevin
  */
 @Controller
+@RequestMapping(value="{domain}")
+@RestReturn(JQuestion.class)
 public class QuestionController extends AbstractRestController {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractRestController.class);
 
@@ -59,7 +61,7 @@ public class QuestionController extends AbstractRestController {
     @RestReturn(value=JQuestion.class, entity=JQuestion.class, code={
             @RestCode(code=302, message="OK", description="Redirect to newly created question")
     })
-    @RequestMapping(value="{domain}/question", method= RequestMethod.POST)
+    @RequestMapping(value="question", method= RequestMethod.POST)
     public RedirectView addQuestion(HttpServletRequest request,
                                     HttpServletResponse response,
                                     UriComponentsBuilder uriBuilder,
@@ -106,7 +108,7 @@ public class QuestionController extends AbstractRestController {
             @RestCode(code=200, message="OK", description="Question found"),
             @RestCode(code=404, message="NOK", description="Question not found")
     })
-    @RequestMapping(value="{domain}/question/{id}", method= RequestMethod.GET)
+    @RequestMapping(value="question/{id}", method= RequestMethod.GET)
     public ResponseEntity<JQuestion> getQuestion(HttpServletRequest request,
                                                  HttpServletResponse response,
                                                  @PathVariable String domain,
@@ -141,7 +143,7 @@ public class QuestionController extends AbstractRestController {
     @RestReturn(value=Collection.class, entity=JQuestion.class, code={
             @RestCode(code=200, message="OK", description="Questions found"),
     })
-    @RequestMapping(value="{domain}/question", method= RequestMethod.GET, params="username")
+    @RequestMapping(value="question", method= RequestMethod.GET, params="username")
     public ResponseEntity<Collection<JQuestion>> getAssignedQuestions(
             HttpServletRequest request,
             HttpServletResponse response,
@@ -178,7 +180,7 @@ public class QuestionController extends AbstractRestController {
             @RestCode(code=200, message="OK", description="Question found"),
             @RestCode(code=404, message="NOK", description="Question not found")
     })
-    @RequestMapping(value="{domain}/question/{id}", method= RequestMethod.POST, params="answer")
+    @RequestMapping(value="question/{id}", method= RequestMethod.POST, params="answer")
     public ResponseEntity<JQuestion> answerQuestion(HttpServletRequest request,
                                                     HttpServletResponse response,
                                                     @PathVariable String domain,
@@ -209,7 +211,7 @@ public class QuestionController extends AbstractRestController {
     @RestReturn(value=Collection.class, entity=JQuestion.class, code={
             @RestCode(code=200, message="OK", description="Questions found"),
     })
-    @RequestMapping(value="{domain}/question", method=RequestMethod.GET, params="opUsername")
+    @RequestMapping(value="question", method=RequestMethod.GET, params="opUsername")
     public ResponseEntity<Collection<JQuestion>> getAskedQuestions(
             HttpServletRequest request,
             HttpServletResponse response,
@@ -240,7 +242,7 @@ public class QuestionController extends AbstractRestController {
     @RestReturn(value=Collection.class, entity=JQuestion.class, code={
             @RestCode(code=200, message="OK", description="Questions found"),
     })
-    @RequestMapping(value="{domain}/question/{id}/answers", method=RequestMethod.GET)
+    @RequestMapping(value="question/{id}/answers", method=RequestMethod.GET)
     public ResponseEntity<Collection<JQuestion>> getAnwsersToQuestion(
             HttpServletRequest request,
             HttpServletResponse response,
@@ -268,7 +270,7 @@ public class QuestionController extends AbstractRestController {
             @RestCode(code=200, message="OK", description="Question found"),
             @RestCode(code=404, message="NOK", description="Question not found")
     })
-    @RequestMapping(value="{domain}/question/{id}", method=RequestMethod.DELETE)
+    @RequestMapping(value="question/{id}", method=RequestMethod.DELETE)
     public ResponseEntity<JQuestion> deleteQuestion(HttpServletRequest request,
                                                     HttpServletResponse response,
                                                     @PathVariable String domain,

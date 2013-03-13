@@ -35,6 +35,7 @@ import java.util.Map;
  * @author mattiaslevin
  */
 @Controller
+@RestReturn(JFeedback.class)
 public class FeedbackController extends AbstractRestController {
     private static final Logger LOG = LoggerFactory.getLogger(FeedbackController.class);
 

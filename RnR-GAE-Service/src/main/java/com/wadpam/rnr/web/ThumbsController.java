@@ -29,6 +29,8 @@ import java.util.Collection;
  * @author mattiaslevin
  */
 @Controller
+@RequestMapping(value="{domain}")
+@RestReturn(JThumbs.class)
 public class ThumbsController extends AbstractRestController {
     private static final Logger LOG = LoggerFactory.getLogger(ThumbsController.class);
 
@@ -55,7 +57,7 @@ public class ThumbsController extends AbstractRestController {
     @RestReturn(value=JThumbs.class, entity=JThumbs.class, code={
             @RestCode(code=302, message="OK", description="Redirect to newly created thumbs up or product summary")
     })
-    @RequestMapping(value={"{domain}/thumbs/up", "{domain}/product/thumbs/up"}, method= RequestMethod.POST)
+    @RequestMapping(value={"thumbs/up", "product/thumbs/up"}, method= RequestMethod.POST)
     public RedirectView addThumbsUp(HttpServletRequest request,
                                     HttpServletResponse response,
                                     UriComponentsBuilder uriBuilder,
@@ -110,7 +112,7 @@ public class ThumbsController extends AbstractRestController {
     @RestReturn(value=JThumbs.class, entity=JThumbs.class, code={
             @RestCode(code=302, message="OK", description="Redirect to newly created thumbs down or product summary")
     })
-    @RequestMapping(value={"{domain}/thumbs/down", "{domain}/product/thumbs/down"}, method= RequestMethod.POST)
+    @RequestMapping(value={"thumbs/down", "product/thumbs/down"}, method= RequestMethod.POST)
     public RedirectView addThumbsDown(HttpServletRequest request,
                                       HttpServletResponse response,
                                       UriComponentsBuilder uriBuilder,
@@ -160,7 +162,7 @@ public class ThumbsController extends AbstractRestController {
             @RestCode(code=200, message="OK", description="Thumbs deleted"),
             @RestCode(code=404, message="NOK", description="Thumbs not found and can not be deleted")
     })
-    @RequestMapping(value="{domain}/thumbs/{id}", method= RequestMethod.DELETE)
+    @RequestMapping(value="thumbs/{id}", method= RequestMethod.DELETE)
     public ResponseEntity<JThumbs> deleteThumbs(HttpServletRequest request,
                                                 HttpServletResponse response,
                                                 @PathVariable long id) {
@@ -182,7 +184,7 @@ public class ThumbsController extends AbstractRestController {
             @RestCode(code=200, message="OK", description="Thumbs found"),
             @RestCode(code=404, message="NOK", description="Thumbs not found")
     })
-    @RequestMapping(value="{domain}/thumbs/{id}", method= RequestMethod.GET)
+    @RequestMapping(value="thumbs/{id}", method= RequestMethod.GET)
     public ResponseEntity<JThumbs> getThumbs(HttpServletRequest request,
                                              HttpServletResponse response,
                                              @PathVariable long id) {
@@ -201,10 +203,10 @@ public class ThumbsController extends AbstractRestController {
      * @param username a unique user name or id
      * @return a list of thumbs
      */
-    @RestReturn(value=JThumbs.class, entity=JThumbs.class, code={
+    @RestReturn(value=Collection.class, entity=JThumbs.class, code={
             @RestCode(code=200, message="OK", description="All thumbs for user")
     })
-    @RequestMapping(value="{domain}/thumbs", method= RequestMethod.GET, params="username")
+    @RequestMapping(value="thumbs", method= RequestMethod.GET, params="username")
     public ResponseEntity<Collection<JThumbs>> getMyThumbs(HttpServletRequest request,
                                                            HttpServletResponse response,
                                                            @RequestParam String username) {
@@ -225,10 +227,10 @@ public class ThumbsController extends AbstractRestController {
      *               If asking for the first page, not cursor should be provided.
      * @return a page of thumbs
      */
-    @RestReturn(value=JCursorPage.class, entity=JCursorPage.class, code={
+    @RestReturn(value=JCursorPage.class, entity=JThumbs.class, code={
             @RestCode(code=200, message="OK", description="A page of thumbs for product")
     })
-    @RequestMapping(value="{domain}/thumbs", method= RequestMethod.GET, params="productId")
+    @RequestMapping(value="thumbs", method= RequestMethod.GET, params="productId")
     public ResponseEntity<JCursorPage<JThumbs>> getAllThumbsForProduct(
             HttpServletRequest request,
             HttpServletResponse response,

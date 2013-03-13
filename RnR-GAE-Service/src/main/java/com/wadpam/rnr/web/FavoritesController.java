@@ -26,6 +26,8 @@ import javax.servlet.http.HttpServletResponse;
  * @author mattiaslevin
  */
 @Controller
+@RequestMapping(value="{domain}")
+@RestReturn(JFavorites.class)
 public class FavoritesController extends AbstractRestController {
     private static final Logger LOG = LoggerFactory.getLogger(FavoritesController.class);
 
@@ -46,7 +48,7 @@ public class FavoritesController extends AbstractRestController {
     @RestReturn(value=JFavorites.class, entity=JFavorites.class, code={
             @RestCode(code=302, message="OK", description="Redirect to users favorites")
     })
-    @RequestMapping(value="{domain}/favorites/{username}", method=RequestMethod.POST)
+    @RequestMapping(value="favorites/{username}", method=RequestMethod.POST)
     public RedirectView addFavorite(HttpServletRequest request,
                                     HttpServletResponse response,
                                     UriComponentsBuilder uriBuilder,
@@ -85,7 +87,7 @@ public class FavoritesController extends AbstractRestController {
             @RestCode(code=302, message="OK", description="Redirect to updated users favorites"),
             @RestCode(code=404, message="NOK", description="Product not a favorite for the user")
     })
-    @RequestMapping(value="{domain}/favorites/{username}", method= RequestMethod.DELETE)
+    @RequestMapping(value="favorites/{username}", method= RequestMethod.DELETE)
     public RedirectView deleteFavorite(HttpServletRequest request,
                                        HttpServletResponse response,
                                        UriComponentsBuilder uriBuilder,
@@ -114,7 +116,7 @@ public class FavoritesController extends AbstractRestController {
     @RestReturn(value=JFavorites.class, entity=JFavorites.class, code={
             @RestCode(code=200, message="OK", description="Favorites found for user")
     })
-    @RequestMapping(value="{domain}/favorites/{username}", method= RequestMethod.GET)
+    @RequestMapping(value="favorites/{username}", method= RequestMethod.GET)
     public ResponseEntity<JFavorites> getFavorites(HttpServletRequest request,
                                                    HttpServletResponse response,
                                                    @PathVariable String username) {

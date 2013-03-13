@@ -30,6 +30,7 @@ import java.util.Collection;
  */
 @Controller
 @RequestMapping(value="{domain}/product")
+@RestReturn(JProduct.class)
 public class ProductController extends AbstractRestController {
     private static final Logger LOG = LoggerFactory.getLogger(ProductController.class);
 
@@ -81,7 +82,7 @@ public class ProductController extends AbstractRestController {
      *                 should this only be used when absolutely necessary,
      * @return a list of products
      */
-    @RestReturn(value=JProduct.class, entity=JProduct.class, code={
+    @RestReturn(value=Collection.class, entity=JProduct.class, code={
             @RestCode(code=200, message="OK", description="Products found")
     })
     @RequestMapping(value="", method= RequestMethod.GET, params="ids")
@@ -107,7 +108,7 @@ public class ProductController extends AbstractRestController {
      *               If asking for the first page, not cursor should be provided.
      * @return a list of products and new cursor.
      */
-    @RestReturn(value=JCursorPage.class, entity=JCursorPage.class, code={
+    @RestReturn(value=JCursorPage.class, entity=JProduct.class, code={
             @RestCode(code=200, message="OK", description="Products found")
     })
     @RequestMapping(value="", method=RequestMethod.GET)
@@ -148,7 +149,7 @@ public class ProductController extends AbstractRestController {
      *             3 - number of thumbs up
      * @return a list of products
      */
-    @RestReturn(value=JCursorPage.class, entity=JCursorPage.class, code={
+    @RestReturn(value=JCursorPage.class, entity=JProduct.class, code={
             @RestCode(code=200, message="OK", description="Nearby products found")
     })
     @RequestMapping(value="nearby", method=RequestMethod.GET)
@@ -231,7 +232,7 @@ public class ProductController extends AbstractRestController {
      *               If asking for the first page, not cursor should be provided.
      * @return a page of products sorted in most liked order
      */
-    @RestReturn(value=JCursorPage.class, entity=JCursorPage.class, code={
+    @RestReturn(value=JCursorPage.class, entity=JProduct.class, code={
             @RestCode(code=200, message="OK", description="Most liked products found")
     })
     @RequestMapping(value="liked/most", method= RequestMethod.GET)
@@ -258,7 +259,7 @@ public class ProductController extends AbstractRestController {
      *               If asking for the first page, not cursor should be provided.
      * @return a page of products sorted in most thumbs up order
      */
-    @RestReturn(value=JCursorPage.class, entity=JCursorPage.class, code={
+    @RestReturn(value=JCursorPage.class, entity=JProduct.class, code={
             @RestCode(code=200, message="OK", description="Most thumbed up products found")
     })
     @RequestMapping(value="thumbs/up/most", method= RequestMethod.GET)
@@ -285,7 +286,7 @@ public class ProductController extends AbstractRestController {
      *               If asking for the first page, not cursor should be provided.
      * @return a page of products sorted in most thumbs down order
      */
-    @RestReturn(value=JCursorPage.class, entity=JCursorPage.class, code={
+    @RestReturn(value=JCursorPage.class, entity=JProduct.class, code={
             @RestCode(code=200, message="OK", description="Most thumbed down products found")
     })
     @RequestMapping(value="thumbs/down/most", method= RequestMethod.GET)
@@ -312,7 +313,7 @@ public class ProductController extends AbstractRestController {
      *               If asking for the first page, not cursor should be provided.
      * @return a page of products sorted in most rated order
      */
-    @RestReturn(value=JCursorPage.class, entity=JCursorPage.class, code={
+    @RestReturn(value=JCursorPage.class, entity=JProduct.class, code={
             @RestCode(code=200, message="OK", description="Most liked products found")
     })
     @RequestMapping(value="rated/most", method= RequestMethod.GET)
@@ -339,7 +340,7 @@ public class ProductController extends AbstractRestController {
      *               If asking for the first page, not cursor should be provided.
      * @return a page of products sorted in average rating order
      */
-    @RestReturn(value=JCursorPage.class, entity=JCursorPage.class, code={
+    @RestReturn(value=JCursorPage.class, entity=JProduct.class, code={
             @RestCode(code=200, message="OK", description="Most liked products found")
     })
     @RequestMapping(value="rated/top", method= RequestMethod.GET)
@@ -366,7 +367,7 @@ public class ProductController extends AbstractRestController {
      *               If asking for the first page, not cursor should be provided.
      * @return a page of products sorted in most commented order
      */
-    @RestReturn(value=JCursorPage.class, entity=JCursorPage.class, code={
+    @RestReturn(value=JCursorPage.class, entity=JProduct.class, code={
             @RestCode(code=200, message="OK", description="Most liked products found")
     })
     @RequestMapping(value="commented/most", method= RequestMethod.GET)
@@ -390,7 +391,7 @@ public class ProductController extends AbstractRestController {
      * @param username unique user name or id
      * @return a list of products
      */
-    @RestReturn(value=JProduct.class, entity=JProduct.class, code={
+    @RestReturn(value=Collection.class, entity=JProduct.class, code={
             @RestCode(code=200, message="OK", description="Products liked by user")
     })
     @RequestMapping(value="liked", method= RequestMethod.GET)
@@ -413,7 +414,7 @@ public class ProductController extends AbstractRestController {
      * @param username unique user name or id
      * @return a list of products
      */
-    @RestReturn(value=JProduct.class, entity=JProduct.class, code={
+    @RestReturn(value=Collection.class, entity=JProduct.class, code={
             @RestCode(code=200, message="OK", description="Products liked by user")
     })
     @RequestMapping(value="thumbs", method= RequestMethod.GET)
@@ -436,7 +437,7 @@ public class ProductController extends AbstractRestController {
      * @param username unique user name or id
      * @return a list of products
      */
-    @RestReturn(value=JProduct.class, entity=JProduct.class, code={
+    @RestReturn(value=Collection.class, entity=JProduct.class, code={
             @RestCode(code=200, message="OK", description="Products rated by user")
     })
     @RequestMapping(value="rated", method= RequestMethod.GET)
@@ -459,7 +460,7 @@ public class ProductController extends AbstractRestController {
      * @param username unique user name or id
      * @return a list of products
      */
-    @RestReturn(value=JProduct.class, entity=JProduct.class, code={
+    @RestReturn(value=Collection.class, entity=JProduct.class, code={
             @RestCode(code=200, message="OK", description="Products commented by user")
     })
     @RequestMapping(value="commented", method= RequestMethod.GET)
@@ -484,7 +485,7 @@ public class ProductController extends AbstractRestController {
      * @param username unique user name or id
      * @return a list of products
      */
-    @RestReturn(value=JProduct.class, entity=JProduct.class, code={
+    @RestReturn(value=Collection.class, entity=JProduct.class, code={
             @RestCode(code=200, message="OK", description="Users favorite products")
     })
     @RequestMapping(value="favorites", method= RequestMethod.GET)
