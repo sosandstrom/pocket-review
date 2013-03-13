@@ -24,6 +24,7 @@ The service is divided into the following groups of features:
 * Feedback - Give feedback on a product
 * Ask a Question - Ask a question/opinion from another user
 * Poll - Create a poll (still under development)
+* Mark as inappropriate
 
 ### Unique product id
 
