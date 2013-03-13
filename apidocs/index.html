@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>Generated Backend</title>
+		<meta name="viewport" content="width=device-width">
+		<script src="http://code.jquery.com/jquery-latest.min.js"></script>
+		<script src="http://ajax.microsoft.com/ajax/jquery.templates/beta1/jquery.tmpl.min.js"></script>
+		<script src="backendAPI.js"></script>
+		<script src="project.backend.js"></script>
+		<link rel="stylesheet" href="" type="text/css" />
+	</head>
+	<body>
+
+
+
+<script id="JLocation" type="text/x-jquery-tmpl">
+<tr><td>${naN}</td><td>${infinite}</td><td>${naN}</td><td>${infinite}</td><td>${naN}</td><td>${infinite}</td><td>${naN}</td><td>${infinite}</td></tr>
+</script>
+
+
+<script id="JComment" type="text/x-jquery-tmpl">
+<tr><td>${empty}</td><td>${chars}</td><td>${chars}</td><td>${bytes}</td><td>${bytes}</td><td>${bytes}</td><td>${bytes}</td><td>${empty}</td><td>${chars}</td><td>${chars}</td><td>${bytes}</td><td>${bytes}</td><td>${bytes}</td><td>${bytes}</td><td>${latitude}</td><td>${longitude}</td><td>${empty}</td><td>${chars}</td><td>${chars}</td><td>${bytes}</td><td>${bytes}</td><td>${bytes}</td><td>${bytes}</td></tr>
+</script>
+
+
+<script id="JFavorites" type="text/x-jquery-tmpl">
+<tr><td>${empty}</td><td>${chars}</td><td>${chars}</td><td>${bytes}</td><td>${bytes}</td><td>${bytes}</td><td>${bytes}</td><td>${empty}</td></tr>
+</script>
+
+
+<script id="JFeedback" type="text/x-jquery-tmpl">
+<tr><td>${empty}</td><td>${chars}</td><td>${chars}</td><td>${bytes}</td><td>${bytes}</td><td>${bytes}</td><td>${bytes}</td><td>${empty}</td><td>${chars}</td><td>${chars}</td><td>${bytes}</td><td>${bytes}</td><td>${bytes}</td><td>${bytes}</td><td>${empty}</td><td>${chars}</td><td>${chars}</td><td>${bytes}</td><td>${bytes}</td><td>${bytes}</td><td>${bytes}</td><td>${empty}</td><td>${chars}</td><td>${chars}</td><td>${bytes}</td><td>${bytes}</td><td>${bytes}</td><td>${bytes}</td><td>${empty}</td><td>${chars}</td><td>${chars}</td><td>${bytes}</td><td>${bytes}</td><td>${bytes}</td><td>${bytes}</td><td>${empty}</td><td>${chars}</td><td>${chars}</td><td>${bytes}</td><td>${bytes}</td><td>${bytes}</td><td>${bytes}</td><td>${latitude}</td><td>${longitude}</td><td>${empty}</td><td>${chars}</td><td>${chars}</td><td>${bytes}</td><td>${bytes}</td><td>${bytes}</td><td>${bytes}</td><td>${empty}</td><td>${chars}</td><td>${chars}</td><td>${bytes}</td><td>${bytes}</td><td>${bytes}</td><td>${bytes}</td><td>${empty}</td><td>${chars}</td><td>${chars}</td><td>${bytes}</td><td>${bytes}</td><td>${bytes}</td><td>${bytes}</td></tr>
+</script>
+
+
+<script id="JHistogram" type="text/x-jquery-tmpl">
+<tr><td>${interval}</td><td>${empty}</td><td>${}</td></tr>
+</script>
+
+
+<script id="JInappropriate" type="text/x-jquery-tmpl">
+<tr></tr>
+</script>
+
+
+<script id="JLike" type="text/x-jquery-tmpl">
+<tr><td>${empty}</td><td>${chars}</td><td>${chars}</td><td>${bytes}</td><td>${bytes}</td><td>${bytes}</td><td>${bytes}</td><td>${empty}</td><td>${chars}</td><td>${chars}</td><td>${bytes}</td><td>${bytes}</td><td>${bytes}</td><td>${bytes}</td><td>${latitude}</td><td>${longitude}</td></tr>
+</script>
+
+
+<script id="JProduct" type="text/x-jquery-tmpl">
+<tr><td>${latitude}</td><td>${longitude}</td><td>${naN}</td><td>${infinite}</td><td>${naN}</td><td>${infinite}</td><td>${chars}</td><td>${long}</td><td>${long}</td><td>${long}</td><td>${chars}</td><td>${long}</td><td>${long}</td><td>${long}</td><td>${chars}</td><td>${andRemoveCacheProperties}</td><td>${integer}</td><td>${integer}</td><td>${integer}</td><td>${empty}</td><td>${chars}</td><td>${chars}</td><td>${bytes}</td><td>${bytes}</td><td>${bytes}</td><td>${bytes}</td><td>${chars}</td><td>${long}</td><td>${long}</td><td>${long}</td><td>${empty}</td><td>${chars}</td><td>${chars}</td><td>${bytes}</td><td>${bytes}</td><td>${bytes}</td><td>${bytes}</td><td>${chars}</td><td>${long}</td><td>${long}</td><td>${long}</td><td>${empty}</td><td>${chars}</td><td>${chars}</td><td>${bytes}</td><td>${bytes}</td><td>${bytes}</td><td>${bytes}</td><td>${chars}</td><td>${long}</td><td>${long}</td><td>${long}</td><td>${chars}</td><td>${long}</td><td>${long}</td><td>${long}</td><td>${empty}</td><td>${chars}</td><td>${chars}</td><td>${bytes}</td><td>${bytes}</td><td>${bytes}</td><td>${bytes}</td><td>${empty}</td><td>${boolean}</td></tr>
+</script>
+
+
+<script id="JQuestion" type="text/x-jquery-tmpl">
+<tr><td>${chars}</td><td>${long}</td><td>${long}</td><td>${long}</td><td>${empty}</td><td>${chars}</td><td>${chars}</td><td>${bytes}</td><td>${bytes}</td><td>${bytes}</td><td>${bytes}</td><td>${class}</td><td>${empty}</td><td>${chars}</td><td>${chars}</td><td>${bytes}</td><td>${bytes}</td><td>${bytes}</td><td>${bytes}</td><td>${empty}</td><td>${chars}</td><td>${chars}</td><td>${bytes}</td><td>${bytes}</td><td>${bytes}</td><td>${bytes}</td><td>${empty}</td><td>${chars}</td><td>${chars}</td><td>${bytes}</td><td>${bytes}</td><td>${bytes}</td><td>${bytes}</td></tr>
+</script>
+
+
+<script id="JRating" type="text/x-jquery-tmpl">
+<tr><td>${empty}</td><td>${chars}</td><td>${chars}</td><td>${bytes}</td><td>${bytes}</td><td>${bytes}</td><td>${bytes}</td><td>${empty}</td><td>${chars}</td><td>${chars}</td><td>${bytes}</td><td>${bytes}</td><td>${bytes}</td><td>${bytes}</td><td>${latitude}</td><td>${longitude}</td><td>${chars}</td><td>${andRemoveCacheProperties}</td><td>${integer}</td><td>${integer}</td><td>${integer}</td><td>${empty}</td><td>${chars}</td><td>${chars}</td><td>${bytes}</td><td>${bytes}</td><td>${bytes}</td><td>${bytes}</td></tr>
+</script>
+
+
+<script id="JThumbs" type="text/x-jquery-tmpl">
+<tr><td>${latitude}</td><td>${longitude}</td><td>${empty}</td><td>${chars}</td><td>${chars}</td><td>${bytes}</td><td>${bytes}</td><td>${bytes}</td><td>${bytes}</td><td>${empty}</td><td>${chars}</td><td>${chars}</td><td>${bytes}</td><td>${bytes}</td><td>${bytes}</td><td>${bytes}</td><td>${chars}</td><td>${andRemoveCacheProperties}</td><td>${integer}</td><td>${integer}</td><td>${integer}</td></tr>
+</script>
+
+
+<script id="Boolean" type="text/x-jquery-tmpl">
+<tr><td>${boolean}</td></tr>
+</script>
+
+
+<script id="Float" type="text/x-jquery-tmpl">
+<tr><td>${naN}</td><td>${infinite}</td><td>${naN}</td><td>${infinite}</td></tr>
+</script>
+
+
+<script id="Integer" type="text/x-jquery-tmpl">
+<tr><td>${chars}</td><td>${andRemoveCacheProperties}</td><td>${chars}</td><td>${andRemoveCacheProperties}</td><td>${integer}</td><td>${integer}</td><td>${integer}</td><td>${chars}</td><td>${andRemoveCacheProperties}</td><td>${integer}</td><td>${integer}</td><td>${integer}</td><td>${chars}</td><td>${andRemoveCacheProperties}</td><td>${integer}</td><td>${integer}</td><td>${integer}</td></tr>
+</script>
+
+
+<script id="Long" type="text/x-jquery-tmpl">
+<tr><td>${chars}</td><td>${chars}</td><td>${long}</td><td>${long}</td><td>${long}</td><td>${chars}</td><td>${long}</td><td>${long}</td><td>${long}</td><td>${chars}</td><td>${long}</td><td>${long}</td><td>${long}</td></tr>
+</script>
+
+
+<script id="Object" type="text/x-jquery-tmpl">
+<tr><td>${class}</td></tr>
+</script>
+
+
+<script id="String" type="text/x-jquery-tmpl">
+<tr><td>${empty}</td><td>${chars}</td><td>${chars}</td><td>${bytes}</td><td>${bytes}</td><td>${bytes}</td><td>${bytes}</td></tr>
+</script>
+
+
+<script id="Void" type="text/x-jquery-tmpl">
+<tr></tr>
+</script>
+
+
+<script id="Collection" type="text/x-jquery-tmpl">
+<tr><td>${empty}</td></tr>
+</script>
+
+
+<script id="Map" type="text/x-jquery-tmpl">
+<tr><td>${empty}</td><td>${class}</td></tr>
+</script>
+
+
+<script id="RedirectView" type="text/x-jquery-tmpl">
+<tr><td>${redirectView}</td><td>${contextRequired}</td><td>${empty}</td><td>${}</td><td>${eligibleProperty}</td><td>${eligibleValue}</td><td>${http11StatusCode}</td></tr>
+</script>
+
+
+
+
+
+<script>
+
+
+
+
+
+//TODO: create a form to call each function, if it requires data build inputs.
+//call function from project.backend.js
+
+
+
+
+
+
+
+//backendAPI_admin_getAllCommentsForProduct();
+
+//TODO: create a form to call each function, if it requires data build inputs.
+//call function from project.backend.js
+
+
+
+
+
+//backendAPI_admin_getComment();
+
+//TODO: create a form to call each function, if it requires data build inputs.
+//call function from project.backend.js
+
+
+
+
+
+//backendAPI_admin_getMyComments();
+
+//TODO: create a form to call each function, if it requires data build inputs.
+//call function from project.backend.js
+
+
+
+
+
+//backendAPI_admin_getFavorites();
+
+//TODO: create a form to call each function, if it requires data build inputs.
+//call function from project.backend.js
+
+
+
+
+
+
+
+//backendAPI_admin_exportFeedback();
+
+//TODO: create a form to call each function, if it requires data build inputs.
+//call function from project.backend.js
+
+
+
+
+
+
+//backendAPI_admin_getFeedback();
+
+//TODO: create a form to call each function, if it requires data build inputs.
+//call function from project.backend.js
+
+
+
+
+
+
+//backendAPI_admin_getInapproriate();
+
+//TODO: create a form to call each function, if it requires data build inputs.
+//call function from project.backend.js
+
+
+
+
+
+
+
+//backendAPI_admin_getAllLikesForProduct();
+
+//TODO: create a form to call each function, if it requires data build inputs.
+//call function from project.backend.js
+
+
+
+
+
+//backendAPI_admin_getLike();
+
+//TODO: create a form to call each function, if it requires data build inputs.
+//call function from project.backend.js
+
+
+
+
+
+//backendAPI_admin_getMyLikes();
+
+//TODO: create a form to call each function, if it requires data build inputs.
+//call function from project.backend.js
+
+
+
+
+
+
+
+
+
+
+
+//backendAPI_admin_findNearbyProducts();
+
+//TODO: create a form to call each function, if it requires data build inputs.
+//call function from project.backend.js
+
+
+
+
+
+
+
+//backendAPI_admin_getAllProducts();
+
+//TODO: create a form to call each function, if it requires data build inputs.
+//call function from project.backend.js
+
+
+
+
+
+
+
+//backendAPI_admin_getMostCommentedProducts();
+
+//TODO: create a form to call each function, if it requires data build inputs.
+//call function from project.backend.js
+
+
+
+
+
+
+
+//backendAPI_admin_getMostLikedProducts();
+
+//TODO: create a form to call each function, if it requires data build inputs.
+//call function from project.backend.js
+
+
+
+
+
+
+
+//backendAPI_admin_getMostRatedProducts();
+
+//TODO: create a form to call each function, if it requires data build inputs.
+//call function from project.backend.js
+
+
+
+
+
+
+
+//backendAPI_admin_getMostThumbsDownProducts();
+
+//TODO: create a form to call each function, if it requires data build inputs.
+//call function from project.backend.js
+
+
+
+
+
+
+
+//backendAPI_admin_getMostThumbsUpProducts();
+
+//TODO: create a form to call each function, if it requires data build inputs.
+//call function from project.backend.js
+
+
+
+
+
+
+
+//backendAPI_admin_getProductInfo();
+
+//TODO: create a form to call each function, if it requires data build inputs.
+//call function from project.backend.js
+
+
+
+
+
+
+
+//backendAPI_admin_getProducts();
+
+//TODO: create a form to call each function, if it requires data build inputs.
+//call function from project.backend.js
+
+
+
+
+
+
+//backendAPI_admin_getProductsCommentedByUser();
+
+//TODO: create a form to call each function, if it requires data build inputs.
+//call function from project.backend.js
+
+
+
+
+
+
+//backendAPI_admin_getProductsLikedByUser();
+
+//TODO: create a form to call each function, if it requires data build inputs.
+//call function from project.backend.js
+
+
+
+
+
+
+//backendAPI_admin_getProductsRatedByUser();
+
+//TODO: create a form to call each function, if it requires data build inputs.
+//call function from project.backend.js
+
+
+
+
+
+
+//backendAPI_admin_getProductsThumbedByUser();
+
+//TODO: create a form to call each function, if it requires data build inputs.
+//call function from project.backend.js
+
+
+
+
+
+
+
+//backendAPI_admin_getTopRatedProducts();
+
+//TODO: create a form to call each function, if it requires data build inputs.
+//call function from project.backend.js
+
+
+
+
+
+
+//backendAPI_admin_geUserFavoriteProducts();
+
+//TODO: create a form to call each function, if it requires data build inputs.
+//call function from project.backend.js
+
+
+
+
+
+
+//backendAPI_admin_getAnwsersToQuestion();
+
+//TODO: create a form to call each function, if it requires data build inputs.
+//call function from project.backend.js
+
+
+
+
+
+
+
+//backendAPI_admin_getAskedQuestions();
+
+//TODO: create a form to call each function, if it requires data build inputs.
+//call function from project.backend.js
+
+
+
+
+
+
+
+
+//backendAPI_admin_getAssignedQuestions();
+
+//TODO: create a form to call each function, if it requires data build inputs.
+//call function from project.backend.js
+
+
+
+
+
+
+//backendAPI_admin_getQuestion();
+
+//TODO: create a form to call each function, if it requires data build inputs.
+//call function from project.backend.js
+
+
+
+
+
+
+
+//backendAPI_admin_getAllRatingsForProduct();
+
+//TODO: create a form to call each function, if it requires data build inputs.
+//call function from project.backend.js
+
+
+
+
+
+
+//backendAPI_admin_getHistogramForProduct();
+
+//TODO: create a form to call each function, if it requires data build inputs.
+//call function from project.backend.js
+
+
+
+
+
+//backendAPI_admin_getLike();
+
+//TODO: create a form to call each function, if it requires data build inputs.
+//call function from project.backend.js
+
+
+
+
+
+//backendAPI_admin_getMyRatings();
+
+//TODO: create a form to call each function, if it requires data build inputs.
+//call function from project.backend.js
+
+
+
+
+
+
+
+//backendAPI_admin_getAllThumbsForProduct();
+
+//TODO: create a form to call each function, if it requires data build inputs.
+//call function from project.backend.js
+
+
+
+
+
+//backendAPI_admin_getMyThumbs();
+
+//TODO: create a form to call each function, if it requires data build inputs.
+//call function from project.backend.js
+
+
+
+
+
+//backendAPI_admin_getThumbs();
+
+
+//TODO: generate sortable tables for get functions
+//TODO: generate css file
+//TODO: generate forms for post and put
+//TODO: link all sections to menu system
+
+
+
+</script>
+
+		<section>
+			<header><h1>Generated CMS</h1></header>
+			<article>
+<div class="input_form">
+	<h2>getAllCommentsForProduct</h2>
+	<label for="productId">productId</label><input type="text" name="productId" id="productId" /><br />
+	<label for="pagesize">pagesize</label><input type="text" name="pagesize" id="pagesize" /><br />
+	<label for="cursor">cursor</label><input type="text" name="cursor" id="cursor" /><br />
+	<button onclick="backendAPI_admin_getAllCommentsForProduct();">Submit</button>
+</div>
+<div class="input_form">
+	<h2>getComment</h2>
+	<label for="id">id</label><input type="text" name="id" id="id" /><br />
+	<button onclick="backendAPI_admin_getComment();">Submit</button>
+</div>
+<div class="input_form">
+	<h2>getMyComments</h2>
+	<label for="username">username</label><input type="text" name="username" id="username" /><br />
+	<button onclick="backendAPI_admin_getMyComments();">Submit</button>
+</div>
+<div class="input_form">
+	<h2>getFavorites</h2>
+	<label for="username">username</label><input type="text" name="username" id="username" /><br />
+	<button onclick="backendAPI_admin_getFavorites();">Submit</button>
+</div>
+<div class="input_form">
+	<h2>exportFeedback</h2>
+	<label for="domain">domain</label><input type="text" name="domain" id="domain" /><br />
+	<label for="email">email</label><input type="text" name="email" id="email" /><br />
+	<label for="timestamp">timestamp</label><input type="text" name="timestamp" id="timestamp" /><br />
+	<button onclick="backendAPI_admin_exportFeedback();">Submit</button>
+</div>
+<div class="input_form">
+	<h2>getFeedback</h2>
+	<label for="domain">domain</label><input type="text" name="domain" id="domain" /><br />
+	<label for="id">id</label><input type="text" name="id" id="id" /><br />
+	<button onclick="backendAPI_admin_getFeedback();">Submit</button>
+</div>
+<div class="input_form">
+	<h2>getInapproriate</h2>
+	<label for="domain">domain</label><input type="text" name="domain" id="domain" /><br />
+	<label for="id">id</label><input type="text" name="id" id="id" /><br />
+	<button onclick="backendAPI_admin_getInapproriate();">Submit</button>
+</div>
+<div class="input_form">
+	<h2>getAllLikesForProduct</h2>
+	<label for="productId">productId</label><input type="text" name="productId" id="productId" /><br />
+	<label for="pagesize">pagesize</label><input type="text" name="pagesize" id="pagesize" /><br />
+	<label for="cursor">cursor</label><input type="text" name="cursor" id="cursor" /><br />
+	<button onclick="backendAPI_admin_getAllLikesForProduct();">Submit</button>
+</div>
+<div class="input_form">
+	<h2>getLike</h2>
+	<label for="id">id</label><input type="text" name="id" id="id" /><br />
+	<button onclick="backendAPI_admin_getLike();">Submit</button>
+</div>
+<div class="input_form">
+	<h2>getMyLikes</h2>
+	<label for="username">username</label><input type="text" name="username" id="username" /><br />
+	<button onclick="backendAPI_admin_getMyLikes();">Submit</button>
+</div>
+<div class="input_form">
+	<h2>findNearbyProducts</h2>
+	<label for="domain">domain</label><input type="text" name="domain" id="domain" /><br />
+	<label for="pagesize">pagesize</label><input type="text" name="pagesize" id="pagesize" /><br />
+	<label for="cursor">cursor</label><input type="text" name="cursor" id="cursor" /><br />
+	<label for="latitude">latitude</label><input type="text" name="latitude" id="latitude" /><br />
+	<label for="longitude">longitude</label><input type="text" name="longitude" id="longitude" /><br />
+	<label for="radius">radius</label><input type="text" name="radius" id="radius" /><br />
+	<label for="sort">sort</label><input type="text" name="sort" id="sort" /><br />
+	<button onclick="backendAPI_admin_findNearbyProducts();">Submit</button>
+</div>
+<div class="input_form">
+	<h2>getAllProducts</h2>
+	<label for="domain">domain</label><input type="text" name="domain" id="domain" /><br />
+	<label for="pagesize">pagesize</label><input type="text" name="pagesize" id="pagesize" /><br />
+	<label for="cursor">cursor</label><input type="text" name="cursor" id="cursor" /><br />
+	<button onclick="backendAPI_admin_getAllProducts();">Submit</button>
+</div>
+<div class="input_form">
+	<h2>getMostCommentedProducts</h2>
+	<label for="domain">domain</label><input type="text" name="domain" id="domain" /><br />
+	<label for="pagesize">pagesize</label><input type="text" name="pagesize" id="pagesize" /><br />
+	<label for="cursor">cursor</label><input type="text" name="cursor" id="cursor" /><br />
+	<button onclick="backendAPI_admin_getMostCommentedProducts();">Submit</button>
+</div>
+<div class="input_form">
+	<h2>getMostLikedProducts</h2>
+	<label for="domain">domain</label><input type="text" name="domain" id="domain" /><br />
+	<label for="pagesize">pagesize</label><input type="text" name="pagesize" id="pagesize" /><br />
+	<label for="cursor">cursor</label><input type="text" name="cursor" id="cursor" /><br />
+	<button onclick="backendAPI_admin_getMostLikedProducts();">Submit</button>
+</div>
+<div class="input_form">
+	<h2>getMostRatedProducts</h2>
+	<label for="domain">domain</label><input type="text" name="domain" id="domain" /><br />
+	<label for="pagesize">pagesize</label><input type="text" name="pagesize" id="pagesize" /><br />
+	<label for="cursor">cursor</label><input type="text" name="cursor" id="cursor" /><br />
+	<button onclick="backendAPI_admin_getMostRatedProducts();">Submit</button>
+</div>
+<div class="input_form">
+	<h2>getMostThumbsDownProducts</h2>
+	<label for="domain">domain</label><input type="text" name="domain" id="domain" /><br />
+	<label for="pagesize">pagesize</label><input type="text" name="pagesize" id="pagesize" /><br />
+	<label for="cursor">cursor</label><input type="text" name="cursor" id="cursor" /><br />
+	<button onclick="backendAPI_admin_getMostThumbsDownProducts();">Submit</button>
+</div>
+<div class="input_form">
+	<h2>getMostThumbsUpProducts</h2>
+	<label for="domain">domain</label><input type="text" name="domain" id="domain" /><br />
+	<label for="pagesize">pagesize</label><input type="text" name="pagesize" id="pagesize" /><br />
+	<label for="cursor">cursor</label><input type="text" name="cursor" id="cursor" /><br />
+	<button onclick="backendAPI_admin_getMostThumbsUpProducts();">Submit</button>
+</div>
+<div class="input_form">
+	<h2>getProductInfo</h2>
+	<label for="domain">domain</label><input type="text" name="domain" id="domain" /><br />
+	<label for="productId">productId</label><input type="text" name="productId" id="productId" /><br />
+	<label for="username">username</label><input type="text" name="username" id="username" /><br />
+	<button onclick="backendAPI_admin_getProductInfo();">Submit</button>
+</div>
+<div class="input_form">
+	<h2>getProducts</h2>
+	<label for="domain">domain</label><input type="text" name="domain" id="domain" /><br />
+	<label for="ids">ids</label><input type="text" name="ids" id="ids" /><br />
+	<label for="username">username</label><input type="text" name="username" id="username" /><br />
+	<button onclick="backendAPI_admin_getProducts();">Submit</button>
+</div>
+<div class="input_form">
+	<h2>getProductsCommentedByUser</h2>
+	<label for="domain">domain</label><input type="text" name="domain" id="domain" /><br />
+	<label for="username">username</label><input type="text" name="username" id="username" /><br />
+	<button onclick="backendAPI_admin_getProductsCommentedByUser();">Submit</button>
+</div>
+<div class="input_form">
+	<h2>getProductsLikedByUser</h2>
+	<label for="domain">domain</label><input type="text" name="domain" id="domain" /><br />
+	<label for="username">username</label><input type="text" name="username" id="username" /><br />
+	<button onclick="backendAPI_admin_getProductsLikedByUser();">Submit</button>
+</div>
+<div class="input_form">
+	<h2>getProductsRatedByUser</h2>
+	<label for="domain">domain</label><input type="text" name="domain" id="domain" /><br />
+	<label for="username">username</label><input type="text" name="username" id="username" /><br />
+	<button onclick="backendAPI_admin_getProductsRatedByUser();">Submit</button>
+</div>
+<div class="input_form">
+	<h2>getProductsThumbedByUser</h2>
+	<label for="domain">domain</label><input type="text" name="domain" id="domain" /><br />
+	<label for="username">username</label><input type="text" name="username" id="username" /><br />
+	<button onclick="backendAPI_admin_getProductsThumbedByUser();">Submit</button>
+</div>
+<div class="input_form">
+	<h2>getTopRatedProducts</h2>
+	<label for="domain">domain</label><input type="text" name="domain" id="domain" /><br />
+	<label for="pagesize">pagesize</label><input type="text" name="pagesize" id="pagesize" /><br />
+	<label for="cursor">cursor</label><input type="text" name="cursor" id="cursor" /><br />
+	<button onclick="backendAPI_admin_getTopRatedProducts();">Submit</button>
+</div>
+<div class="input_form">
+	<h2>geUserFavoriteProducts</h2>
+	<label for="domain">domain</label><input type="text" name="domain" id="domain" /><br />
+	<label for="username">username</label><input type="text" name="username" id="username" /><br />
+	<button onclick="backendAPI_admin_geUserFavoriteProducts();">Submit</button>
+</div>
+<div class="input_form">
+	<h2>getAnwsersToQuestion</h2>
+	<label for="domain">domain</label><input type="text" name="domain" id="domain" /><br />
+	<label for="id">id</label><input type="text" name="id" id="id" /><br />
+	<button onclick="backendAPI_admin_getAnwsersToQuestion();">Submit</button>
+</div>
+<div class="input_form">
+	<h2>getAskedQuestions</h2>
+	<label for="domain">domain</label><input type="text" name="domain" id="domain" /><br />
+	<label for="opUsername">opUsername</label><input type="text" name="opUsername" id="opUsername" /><br />
+	<label for="productId">productId</label><input type="text" name="productId" id="productId" /><br />
+	<button onclick="backendAPI_admin_getAskedQuestions();">Submit</button>
+</div>
+<div class="input_form">
+	<h2>getAssignedQuestions</h2>
+	<label for="domain">domain</label><input type="text" name="domain" id="domain" /><br />
+	<label for="username">username</label><input type="text" name="username" id="username" /><br />
+	<label for="answerState">answerState</label><input type="text" name="answerState" id="answerState" /><br />
+	<label for="productId">productId</label><input type="text" name="productId" id="productId" /><br />
+	<button onclick="backendAPI_admin_getAssignedQuestions();">Submit</button>
+</div>
+<div class="input_form">
+	<h2>getQuestion</h2>
+	<label for="domain">domain</label><input type="text" name="domain" id="domain" /><br />
+	<label for="id">id</label><input type="text" name="id" id="id" /><br />
+	<button onclick="backendAPI_admin_getQuestion();">Submit</button>
+</div>
+<div class="input_form">
+	<h2>getAllRatingsForProduct</h2>
+	<label for="productId">productId</label><input type="text" name="productId" id="productId" /><br />
+	<label for="pagesize">pagesize</label><input type="text" name="pagesize" id="pagesize" /><br />
+	<label for="cursor">cursor</label><input type="text" name="cursor" id="cursor" /><br />
+	<button onclick="backendAPI_admin_getAllRatingsForProduct();">Submit</button>
+</div>
+<div class="input_form">
+	<h2>getHistogramForProduct</h2>
+	<label for="productId">productId</label><input type="text" name="productId" id="productId" /><br />
+	<label for="interval">interval</label><input type="text" name="interval" id="interval" /><br />
+	<button onclick="backendAPI_admin_getHistogramForProduct();">Submit</button>
+</div>
+<div class="input_form">
+	<h2>getLike</h2>
+	<label for="id">id</label><input type="text" name="id" id="id" /><br />
+	<button onclick="backendAPI_admin_getLike();">Submit</button>
+</div>
+<div class="input_form">
+	<h2>getMyRatings</h2>
+	<label for="username">username</label><input type="text" name="username" id="username" /><br />
+	<button onclick="backendAPI_admin_getMyRatings();">Submit</button>
+</div>
+<div class="input_form">
+	<h2>getAllThumbsForProduct</h2>
+	<label for="productId">productId</label><input type="text" name="productId" id="productId" /><br />
+	<label for="pagesize">pagesize</label><input type="text" name="pagesize" id="pagesize" /><br />
+	<label for="cursor">cursor</label><input type="text" name="cursor" id="cursor" /><br />
+	<button onclick="backendAPI_admin_getAllThumbsForProduct();">Submit</button>
+</div>
+<div class="input_form">
+	<h2>getMyThumbs</h2>
+	<label for="username">username</label><input type="text" name="username" id="username" /><br />
+	<button onclick="backendAPI_admin_getMyThumbs();">Submit</button>
+</div>
+<div class="input_form">
+	<h2>getThumbs</h2>
+	<label for="id">id</label><input type="text" name="id" id="id" /><br />
+	<button onclick="backendAPI_admin_getThumbs();">Submit</button>
+</div>
+
+<br />
+<table id="getAllCommentsForProduct-JComment-output"></table>
+<table id="getComment-JComment-output"></table>
+<table id="getMyComments-JComment-output"></table>
+<table id="getFavorites-JFavorites-output"></table>
+<table id="exportFeedback-Void-output"></table>
+<table id="getFeedback-JFeedback-output"></table>
+<table id="getInapproriate-JInappropriate-output"></table>
+<table id="getAllLikesForProduct-JLike-output"></table>
+<table id="getLike-JLike-output"></table>
+<table id="getMyLikes-JLike-output"></table>
+<table id="findNearbyProducts-JProduct-output"></table>
+<table id="getAllProducts-JProduct-output"></table>
+<table id="getMostCommentedProducts-JProduct-output"></table>
+<table id="getMostLikedProducts-JProduct-output"></table>
+<table id="getMostRatedProducts-JProduct-output"></table>
+<table id="getMostThumbsDownProducts-JProduct-output"></table>
+<table id="getMostThumbsUpProducts-JProduct-output"></table>
+<table id="getProductInfo-JProduct-output"></table>
+<table id="getProducts-JProduct-output"></table>
+<table id="getProductsCommentedByUser-JProduct-output"></table>
+<table id="getProductsLikedByUser-JProduct-output"></table>
+<table id="getProductsRatedByUser-JProduct-output"></table>
+<table id="getProductsThumbedByUser-JProduct-output"></table>
+<table id="getTopRatedProducts-JProduct-output"></table>
+<table id="geUserFavoriteProducts-JProduct-output"></table>
+<table id="getAnwsersToQuestion-JQuestion-output"></table>
+<table id="getAskedQuestions-JQuestion-output"></table>
+<table id="getAssignedQuestions-JQuestion-output"></table>
+<table id="getQuestion-JQuestion-output"></table>
+<table id="getAllRatingsForProduct-JRating-output"></table>
+<table id="getHistogramForProduct-JHistogram-output"></table>
+<table id="getLike-JRating-output"></table>
+<table id="getMyRatings-JRating-output"></table>
+<table id="getAllThumbsForProduct-JThumbs-output"></table>
+<table id="getMyThumbs-JThumbs-output"></table>
+<table id="getThumbs-JThumbs-output"></table>
+
+			</article>
+			<footer></footer>
+		</section>
+	</body>
+</html>

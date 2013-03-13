@@ -1,0 +1,42 @@
+{
+    "apiVersion": "0.2",
+    "swaggerVersion": "1.1",
+    "basePath": "${basePath}",
+    "baseUrl": "${baseUrl}",
+    "clientId": "${clientId}",
+    "apis": [
+        {
+            "path": "/JComment.{format}",
+            "description": "com.wadpam.rnr.json.JComment The comment controller implements all REST methods related to commenting."
+        }
+,        {
+            "path": "/JFavorites.{format}",
+            "description": "com.wadpam.rnr.json.JFavorites The favorites controller implements all REST methods related to favorites."
+        }
+,        {
+            "path": "/JFeedback.{format}",
+            "description": "com.wadpam.rnr.json.JFeedback The feedback controller implements all REST methods related to feedback.
+ This feature can be used to provide registration form or feedback form."
+        }
+,        {
+            "path": "/JLike.{format}",
+            "description": "com.wadpam.rnr.json.JLike The like controller implements all REST methods related to likes."
+        }
+,        {
+            "path": "/JProduct.{format}",
+            "description": "com.wadpam.rnr.json.JProduct The product controller implements all REST methods related to products."
+        }
+,        {
+            "path": "/JQuestion.{format}",
+            "description": "com.wadpam.rnr.json.JQuestion The question controller implements all REST methods related to question and answers."
+        }
+,        {
+            "path": "/JRating.{format}",
+            "description": "com.wadpam.rnr.json.JRating The rating controller implements all REST methods related to ratings and reviews."
+        }
+,        {
+            "path": "/JThumbs.{format}",
+            "description": "com.wadpam.rnr.json.JThumbs A Thumbs and and down controller"
+        }
+    ]
+}
