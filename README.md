@@ -26,6 +26,8 @@ The service is divided into the following groups of features:
 * Poll - Create a poll (still under development)
 * Mark as inappropriate
 
+A high level description of the REST end-points can be found [here](https://github.com/sosandstrom/pocket-review/wiki/REST-end-points).
+
 ### Unique product id
 
 Each method must include a unique product id provided by the application. The application might receive this id from some other service being integrated, e.g. a product catalog or a movie listing web service. It is up to the application to provide this id and ensure uniqueness and consistency throughout requests.
@@ -52,7 +54,7 @@ Developers have several deployment options:
 ## API documentation
 Additional details about the APIs for respective SDK can be found below:
 
-[REST API](TBD)  
+[REST API](http://sosandstrom.github.com/pocket-review/apidocs/api.html)  
 iOS (coming soon)
 Android (coming soon)  
 Javascript (coming soon)
