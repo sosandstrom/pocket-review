@@ -18,7 +18,7 @@
 
     <!--           Service             -->
 
-    <import resource="classpath*:spring-dao.xml" />
+    <import resource="classpath:rnr-dao-context.xml" />
 
     <bean id="rnrService" class="com.wadpam.rnr.service.RnrService" init-method="init">
         <property name="appSettingsDao" ref="dAppSettingsDao" />
