@@ -141,8 +141,8 @@ public class QuestionController extends AbstractRestController {
      * @return a list of questions
      */
     @RestReturn(value=Collection.class, entity=JQuestion.class, code={
-            @RestCode(code=200, message="OK", description="Questions found"),
-    })
+            @RestCode(code=200, message="OK", description="Questions found")
+            })
     @RequestMapping(value="question", method= RequestMethod.GET, params="username")
     public ResponseEntity<Collection<JQuestion>> getAssignedQuestions(
             HttpServletRequest request,
@@ -209,7 +209,7 @@ public class QuestionController extends AbstractRestController {
      * @return list of questions
      */
     @RestReturn(value=Collection.class, entity=JQuestion.class, code={
-            @RestCode(code=200, message="OK", description="Questions found"),
+            @RestCode(code=200, message="OK", description="Questions found")
     })
     @RequestMapping(value="question", method=RequestMethod.GET, params="opUsername")
     public ResponseEntity<Collection<JQuestion>> getAskedQuestions(
@@ -240,7 +240,7 @@ public class QuestionController extends AbstractRestController {
      * @return the original question and all answers
      */
     @RestReturn(value=Collection.class, entity=JQuestion.class, code={
-            @RestCode(code=200, message="OK", description="Questions found"),
+            @RestCode(code=200, message="OK", description="Questions found")
     })
     @RequestMapping(value="question/{id}/answers", method=RequestMethod.GET)
     public ResponseEntity<Collection<JQuestion>> getAnwsersToQuestion(
