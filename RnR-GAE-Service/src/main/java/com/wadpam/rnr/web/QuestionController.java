@@ -83,9 +83,10 @@ public class QuestionController extends AbstractRestController {
         if (null != trackingCode) {
             LOG.debug("Create tracker with tracking code:{}", trackingCode);
             tracker = new GoogleAnalyticsTrackerBuilder()
-                    .withNameAndTrackingCode(domain, trackingCode)
-                    .withDeviceFromRequest(request)
-                    .withVisitorId(opUsername != null ? opUsername.hashCode() : "anonymous".hashCode())
+                    .trackerConfiguration(domain, trackingCode)
+                    .deviceFromRequest(request)
+                    .visitor(opUsername != null ? Integer.toString(opUsername.hashCode()) :
+                            Integer.toString("anonymous".hashCode()))
                     .build();
         }
 

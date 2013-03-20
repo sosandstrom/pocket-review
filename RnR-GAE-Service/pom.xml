@@ -15,7 +15,7 @@
         <gae.version>1.7.0</gae.version>
         <spring.version>3.2.0.RELEASE</spring.version>
         <mardao.version>2.2.1</mardao.version>
-        <openserver.version>17</openserver.version>
+        <openserver.version>19-SNAPSHOT</openserver.version>
         <docrest.version>1.22</docrest.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <javadocExecutable>${java.home}/../bin/javadoc</javadocExecutable>

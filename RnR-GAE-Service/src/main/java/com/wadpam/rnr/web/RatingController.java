@@ -79,9 +79,10 @@ public class RatingController extends AbstractRestController {
         if (null != trackingCode) {
             LOG.debug("Create tracker with tracking code:{}", trackingCode);
             tracker = new GoogleAnalyticsTrackerBuilder()
-                    .withNameAndTrackingCode(domain, trackingCode)
-                    .withDeviceFromRequest(request)
-                    .withVisitorId(username != null ? username.hashCode() : "anonymous".hashCode())
+                    .trackerConfiguration(domain, trackingCode)
+                    .deviceFromRequest(request)
+                    .visitor(username != null ? Integer.toString(username.hashCode()) :
+                            Integer.toString("anonymous".hashCode()))
                     .build();
         }
 
