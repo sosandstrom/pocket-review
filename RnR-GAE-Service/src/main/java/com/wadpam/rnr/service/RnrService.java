@@ -651,14 +651,18 @@ public class RnrService {
             // User does not have any existing favorites
             dFavorites = new DFavorites();
             dFavorites.setUsername(username);
-            ArrayList<String> productIds = new ArrayList<String>(1);
-            productIds.add(productId);
-            dFavorites.setProductIds(productIds);
-        } else
-            // Update existing list of favorites if it is not already a favorite
-            if (dFavorites.getProductIds().contains(productId) == false)
-                dFavorites.getProductIds().add(productId);
-
+            dFavorites.setProductIds(Arrays.asList(productId));
+        } else {
+            //productIds can be null, when removing favorite, we just set productIds to empty
+            if (null == dFavorites.getProductIds()) {
+                dFavorites.setProductIds(Arrays.asList(productId));
+            } else {
+                   // Update existing list of favorites if it is not already a favorite
+                if (dFavorites.getProductIds().contains(productId) == false) {
+                    dFavorites.getProductIds().add(productId);
+                }
+            }
+        }
         // Store
         favoritesDao.persistForFuture(dFavorites);
 
