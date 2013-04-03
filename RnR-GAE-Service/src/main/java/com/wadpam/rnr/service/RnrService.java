@@ -205,15 +205,20 @@ public class RnrService {
         DProduct dProduct = productDao.getDomain(productFuture);  // block
         if (null != dProduct) {
             dProduct.setLikeCount(dProduct.getLikeCount() - 1);
-            productDao.persistForFuture(dProduct);
+            if (null!= dProduct.getLikeRandomUsernames()) {
+                dProduct.getLikeRandomUsernames().remove(dLike.getUsername());
+            }
+            Future futureObject= productDao.persistForFuture(dProduct);
+            // Delete the like
+            likeDao.delete(dLike); // block
+            productDao.getDomain(futureObject);//block
+            
         } else
             // Should not happen, log error
         {
             LOG.error("Like exist but not the product:{}", dLike.getProductId());
+            likeDao.delete(dLike); // block
         }
-
-        // Delete the like
-        likeDao.delete(dLike); // block
 
         return dLike;
     }
