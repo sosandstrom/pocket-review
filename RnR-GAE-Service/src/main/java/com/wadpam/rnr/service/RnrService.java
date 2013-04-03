@@ -194,13 +194,13 @@ public class RnrService {
     public DLike deleteLike(long id) {
         LOG.debug("Delete like with id:{}", id);
 
-        DLike dLike = likeDao.findByPrimaryKey(id);  // block
+        DLike dLike = likeDao.findByPrimaryKey(null, id);  // block
         if (null == dLike)
            return null;
 
         // Get product, non blocking already here
-        Future productFuture = productDao.findByPrimaryKeyForFuture(dLike.getProductId());
-
+        Future productFuture = productDao.findByPrimaryKeyForFuture(null,dLike.getProductId());
+        
         // Update the product
         DProduct dProduct = productDao.getDomain(productFuture);  // block
         if (null != dProduct) {
