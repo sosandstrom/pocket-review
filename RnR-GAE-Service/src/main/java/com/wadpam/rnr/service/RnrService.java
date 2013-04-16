@@ -191,42 +191,19 @@ public class RnrService {
     // Delete a like with a specific productId and username
     @Idempotent
     @Transactional
-    public DLike deleteLike(String productId,String username) {
+    public DLike deleteLike(String productId, String username) {
         LOG.debug("Delete like with username :{}, productId {}", username, productId);
 
+        // Normally the user is restricted to only like once, but the is no technical limitation in the datastore
         DLike dLike = likeDao.findByProductIdsUsername(Arrays.asList(productId), username).iterator().next();
         if (null == dLike) {
-           LOG.warn(" dLike can not found");
+           LOG.debug(" dLike can not found");
            return null;
         }
         return deleteDLike(dLike);
     }
-    
-    //delele dLike entity
-    private DLike deleteDLike(DLike dLike) {
-     // Get product, non blocking already here
-        Future productFuture = productDao.findByPrimaryKeyForFuture(null,dLike.getProductId());
-        
-        // Update the product
-        DProduct dProduct = productDao.getDomain(productFuture);  // block
-        if (null != dProduct) {
-            dProduct.setLikeCount(dProduct.getLikeCount() - 1);
-            if (null!= dProduct.getLikeRandomUsernames()) {
-                dProduct.getLikeRandomUsernames().remove(dLike.getUsername());
-            }
-            Future futureObject= productDao.persistForFuture(dProduct);
-            
-        } else
-            // Should not happen, log error
-        {
-            LOG.error("Like exist but not the product:{}", dLike.getProductId());
-        }
-        // Delete the like
-        likeDao.delete(dLike); // block
 
-        return dLike;
-    }
-    
+
     // Delete a like with a specific id
     @Idempotent
     @Transactional
@@ -235,10 +212,39 @@ public class RnrService {
 
         DLike dLike = likeDao.findByPrimaryKey(null, id);  // block
         if (null == dLike)
-           return null;
+            return null;
 
         return deleteDLike(dLike);
     }
+
+    // Delele dLike entity
+    private DLike deleteDLike(DLike dLike) {
+        // Get product, non blocking already here
+        Future productFuture = productDao.findByPrimaryKeyForFuture(null, dLike.getProductId());
+
+        // Update the product
+        DProduct dProduct = productDao.getDomain(productFuture);  // block
+        if (null != dProduct) {
+            dProduct.setLikeCount(dProduct.getLikeCount() - 1);
+
+            // If the user happens to be part of random users, delete from here as well
+            if (null!= dProduct.getLikeRandomUsernames()) {
+                dProduct.getLikeRandomUsernames().remove(dLike.getUsername());
+            }
+
+            // Persist
+            Future futureObject= productDao.persistForFuture(dProduct);
+        } else {
+            // Should not happen, log error
+            LOG.error("Like exist but not the product:{}", dLike.getProductId());
+        }
+
+        // Delete the like
+        likeDao.delete(dLike); // block
+
+        return dLike;
+    }
+
 
     // Get all likes for a specific user
     public Iterable<DLike> getMyLikes(String username) {
