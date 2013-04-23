@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.wadpam.rnr</groupId>
     <artifactId>service-gae</artifactId>
-    <version>6-SNAPSHOT</version>
+    <version>6</version>
     <packaging>jar</packaging>
     <name>RnR GAE Service</name>
 
