@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.wadpam.rnr</groupId>
     <artifactId>pocket-review</artifactId>
-    <version>6</version>
+    <version>6-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>RnR parent</name>
 
@@ -14,7 +14,7 @@
 
     <scm>
         <url>https://github.com/sosandstrom/pocket-review</url>
-        <developerConnection>scm:git:git@github.com:sosandstrom/pocket-review.git</developerConnection>
+        <developerConnection>scm:git:git@github.com/sosandstrom/pocket-review.git</developerConnection>
     </scm>
 
     <developers>
