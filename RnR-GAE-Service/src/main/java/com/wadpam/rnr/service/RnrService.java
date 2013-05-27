@@ -195,7 +195,12 @@ public class RnrService {
         LOG.debug("Delete like with username :{}, productId {}", username, productId);
 
         // Normally the user is restricted to only like once, but the is no technical limitation in the datastore
-        DLike dLike = likeDao.findByProductIdsUsername(Arrays.asList(productId), username).iterator().next();
+        Iterator<DLike> dlikeIt = likeDao.findByProductIdsUsername(Arrays.asList(productId), username).iterator();
+        DLike dLike = null;
+        if (dlikeIt.hasNext()) {
+            dLike = dlikeIt.next();
+        }
+        
         if (null == dLike) {
            LOG.debug(" dLike can not found");
            return null;
