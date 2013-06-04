@@ -1,21 +1,42 @@
 package com.wadpam.rnr.service;
 
-import com.google.appengine.api.datastore.Entity;
-import com.google.appengine.api.datastore.GeoPt;
-import com.google.appengine.api.datastore.Rating;
-import com.wadpam.open.analytics.google.GoogleAnalyticsTracker;
-import com.wadpam.open.transaction.Idempotent;
-import com.wadpam.rnr.dao.*;
-import com.wadpam.rnr.domain.*;
-import com.wadpam.open.exceptions.NotFoundException;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.Future;
+
 import net.sf.mardao.core.CursorPage;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.Serializable;
-import java.util.*;
-import java.util.concurrent.Future;
+import com.google.appengine.api.datastore.GeoPt;
+import com.google.appengine.api.datastore.Rating;
+import com.wadpam.open.analytics.google.GoogleAnalyticsTracker;
+import com.wadpam.open.exceptions.NotFoundException;
+import com.wadpam.open.transaction.Idempotent;
+import com.wadpam.rnr.dao.DAppSettingsDao;
+import com.wadpam.rnr.dao.DCommentDao;
+import com.wadpam.rnr.dao.DFavoritesDao;
+import com.wadpam.rnr.dao.DLikeDao;
+import com.wadpam.rnr.dao.DProductDao;
+import com.wadpam.rnr.dao.DRatingDao;
+import com.wadpam.rnr.dao.DThumbsDao;
+import com.wadpam.rnr.domain.DAppSettings;
+import com.wadpam.rnr.domain.DComment;
+import com.wadpam.rnr.domain.DFavorites;
+import com.wadpam.rnr.domain.DLike;
+import com.wadpam.rnr.domain.DProduct;
+import com.wadpam.rnr.domain.DRating;
+import com.wadpam.rnr.domain.DThumbs;
 
 /**
  *
@@ -224,13 +245,18 @@ public class RnrService {
 
     // Delele dLike entity
     private DLike deleteDLike(DLike dLike) {
+
+        // Delete the like
+        likeDao.delete(dLike); // block
+
         // Get product, non blocking already here
         Future productFuture = productDao.findByPrimaryKeyForFuture(null, dLike.getProductId());
 
         // Update the product
         DProduct dProduct = productDao.getDomain(productFuture);  // block
         if (null != dProduct) {
-            dProduct.setLikeCount(dProduct.getLikeCount() - 1);
+            final Long likeCount = dProduct.getLikeCount().equals(Long.parseLong("0")) ? 0L : (dProduct.getLikeCount() - 1);
+            dProduct.setLikeCount(likeCount);
 
             // If the user happens to be part of random users, delete from here as well
             if (null!= dProduct.getLikeRandomUsernames()) {
@@ -244,8 +270,6 @@ public class RnrService {
             LOG.error("Like exist but not the product:{}", dLike.getProductId());
         }
 
-        // Delete the like
-        likeDao.delete(dLike); // block
 
         return dLike;
     }
