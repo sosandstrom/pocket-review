@@ -224,13 +224,16 @@ public class RnrService {
 
     // Delele dLike entity
     private DLike deleteDLike(DLike dLike) {
+        // Delete the like
+        likeDao.delete(dLike); // block
+        
         // Get product, non blocking already here
         Future productFuture = productDao.findByPrimaryKeyForFuture(null, dLike.getProductId());
 
         // Update the product
         DProduct dProduct = productDao.getDomain(productFuture);  // block
         if (null != dProduct) {
-            dProduct.setLikeCount(dProduct.getLikeCount() - 1);
+            dProduct.setLikeCount(dProduct.getLikeCount() <=0l ?0l : dProduct.getLikeCount() - 1);
 
             // If the user happens to be part of random users, delete from here as well
             if (null!= dProduct.getLikeRandomUsernames()) {
@@ -244,8 +247,6 @@ public class RnrService {
             LOG.error("Like exist but not the product:{}", dLike.getProductId());
         }
 
-        // Delete the like
-        likeDao.delete(dLike); // block
 
         return dLike;
     }
