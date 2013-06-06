@@ -47,8 +47,8 @@ public class DLikeDaoBean
         filters.add(createEqualsFilter(COLUMN_NAME_USERNAME, username));
         filters.add(new Filter(COLUMN_NAME_PRODUCTID, Query.FilterOperator.IN, productIds));
 
-        Iterable<DLike> iterable = queryIterable(false, -1, 1000, null, null,
-                COLUMN_NAME_USERNAME, true,
+        Iterable<DLike> iterable = queryIterable(false, 0, -1, null, null,
+                null, true,
                 null, false,
                 filters.toArray(new Filter[filters.size()]));
 
