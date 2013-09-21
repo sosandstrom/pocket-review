@@ -846,61 +846,61 @@ public class RnrService {
     }
 
     // Get the most liked products
-    public CursorPage<DProduct, String> getMostLikedProducts(int limit, Serializable cursor) {
+    public CursorPage<DProduct, String> getMostLikedProducts(int limit, String cursor) {
         LOG.debug("Get most liked products with limit:{}", limit);
         return productDao.queryMostLiked(limit, cursor);
     }
 
     // Get most thumbs up products
-    public CursorPage<DProduct, String> getMostThumbsUpProducts(int limit, Serializable cursor) {
+    public CursorPage<DProduct, String> getMostThumbsUpProducts(int limit, String cursor) {
         LOG.debug("Get most thumbs up products with limit:{}", limit);
         return productDao.queryMostThumbsUp(limit, cursor);
     }
 
     // Get most thumbs down products
-    public CursorPage<DProduct, String> getMostThumbsDownProducts(int limit, Serializable cursor) {
+    public CursorPage<DProduct, String> getMostThumbsDownProducts(int limit, String cursor) {
         LOG.debug("Get most thumbs down products with limit:{}", limit);
         return productDao.queryMostThumbsDown(limit, cursor);
     }
 
     // Get the most rated products
-    public CursorPage<DProduct, String> getMostRatedProducts(int limit, Serializable cursor) {
+    public CursorPage<DProduct, String> getMostRatedProducts(int limit, String cursor) {
         LOG.debug("Get most rated products with limit:{}", limit);
         return productDao.queryMostRated(limit, cursor);
     }
 
     // Get the top rated products
-    public CursorPage<DProduct, String> getTopRatedProducts(int limit, Serializable cursor) {
+    public CursorPage<DProduct, String> getTopRatedProducts(int limit, String cursor) {
         LOG.debug("Get top rated products with limit:{}", limit);
         return productDao.queryTopRated(limit, cursor);
     }
 
     // Get most commented products
-    public CursorPage<DProduct, String> getMostCommentedProducts(int limit, Serializable cursor) {
+    public CursorPage<DProduct, String> getMostCommentedProducts(int limit, String cursor) {
         LOG.debug("Get most commented products with limit:{}", limit);
         return productDao.queryMostCommented(limit, cursor);
     }
 
      // Get all likes for a product
-    public CursorPage<DLike, Long> getAllLikesForProduct(String productId, int limit, Serializable cursor) {
+    public CursorPage<DLike, Long> getAllLikesForProduct(String productId, int limit, String cursor) {
         LOG.debug("Get all likes for product:{}", productId);
         return likeDao.queryPageByProductId(productId, limit, cursor);
     }
 
     // Get all thumbs for a product
-    public CursorPage<DThumbs, Long> getAllThumbsForProduct(String productId, int limit, Serializable cursor) {
+    public CursorPage<DThumbs, Long> getAllThumbsForProduct(String productId, int limit, String cursor) {
         LOG.debug("Get all thumbs for product:{}", productId);
         return thumbsDao.queryPageByProductId(productId, limit, cursor);
     }
 
     // Get all ratings for a product
-    public CursorPage<DRating, Long> getAllRatingsForProduct(String productId, int limit, Serializable cursor) {
+    public CursorPage<DRating, Long> getAllRatingsForProduct(String productId, int limit, String cursor) {
         LOG.debug("Get all ratings for product:{}", productId);
         return ratingDao.queryPageByProductId(productId, limit, cursor);
     }
 
     // Get all comments for a product
-    public CursorPage<DComment, Long> getAllCommentsForProduct(String productId, int limit, Serializable cursor) {
+    public CursorPage<DComment, Long> getAllCommentsForProduct(String productId, int limit, String cursor) {
         LOG.debug("Get all comments for product:{}", productId);
         return commentDao.queryPageByProductId(productId, limit, cursor);
     }

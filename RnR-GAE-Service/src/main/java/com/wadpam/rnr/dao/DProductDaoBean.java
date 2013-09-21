@@ -29,41 +29,41 @@ public class DProductDaoBean
 
     // Find most liked products
     @Override
-    public CursorPage<DProduct, String> queryMostLiked(int limit, Serializable cursorKey) {
+    public CursorPage<DProduct, String> queryMostLiked(int limit, String cursorKey) {
         return queryMost(COLUMN_NAME_LIKECOUNT, limit, cursorKey);
     }
 
-    protected CursorPage<DProduct, String> queryMost(String columnName, int limit, Serializable cursorKey) {
+    protected CursorPage<DProduct, String> queryMost(String columnName, int limit, String cursorKey) {
         return queryPage(false, limit, null, null, columnName, false, null, false, cursorKey);
     }
 
     // Find most thumbs up products
     @Override
-    public CursorPage<DProduct, String> queryMostThumbsUp(int limit, Serializable cursorKey) {
+    public CursorPage<DProduct, String> queryMostThumbsUp(int limit, String cursorKey) {
         return queryMost(COLUMN_NAME_THUMBSUP, limit, cursorKey);
     }
 
     // Find most thumbs up products
     @Override
-    public CursorPage<DProduct, String> queryMostThumbsDown(int limit, Serializable cursorKey) {
+    public CursorPage<DProduct, String> queryMostThumbsDown(int limit, String cursorKey) {
         return queryMost(COLUMN_NAME_THUMBSDOWN, limit, cursorKey);
     }
 
     // Find most commented products
     @Override
-    public CursorPage<DProduct, String> queryMostCommented(int limit, Serializable cursorKey) {
+    public CursorPage<DProduct, String> queryMostCommented(int limit, String cursorKey) {
         return queryMost(COLUMN_NAME_COMMENTCOUNT, limit, cursorKey);
     }
 
     // Find most rated products
     @Override
-    public CursorPage<DProduct, String> queryMostRated(int limit, Serializable cursorKey) {
+    public CursorPage<DProduct, String> queryMostRated(int limit, String cursorKey) {
         return queryMost(COLUMN_NAME_RATINGCOUNT, limit, cursorKey);
     }
 
     // Find products with highest average rating
     @Override
-    public CursorPage<DProduct, String> queryTopRated(int limit, Serializable cursorKey) {
+    public CursorPage<DProduct, String> queryTopRated(int limit, String cursorKey) {
         return queryMost(COLUMN_NAME_RATINGAVERAGE, limit, cursorKey);
     }
 

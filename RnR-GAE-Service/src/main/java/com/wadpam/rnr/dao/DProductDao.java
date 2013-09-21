@@ -24,7 +24,7 @@ public interface DProductDao extends GeneratedDProductDao {
      * @param cursorKey A cursor from a previous query or null if this is the first page
      * @return A list of products sorted according to the number of likes
      */
-    public CursorPage<DProduct, String> queryMostLiked(int limit, Serializable cursorKey);
+    public CursorPage<DProduct, String> queryMostLiked(int limit, String cursorKey);
 
     /**
      * Find most thumbs up products
@@ -32,7 +32,7 @@ public interface DProductDao extends GeneratedDProductDao {
      * @param cursorKey A cursor from a previous query or null if this is the first page
      * @return A list of products sorted according to the number of thumbs up
      */
-    public CursorPage<DProduct, String> queryMostThumbsUp(int limit, Serializable cursorKey);
+    public CursorPage<DProduct, String> queryMostThumbsUp(int limit, String cursorKey);
 
     /**
      * Find most thumbs up products
@@ -40,7 +40,7 @@ public interface DProductDao extends GeneratedDProductDao {
      * @param cursorKey A cursor from a previous query or null if this is the first page
      * @return A list of products sorted according to the number of thumbs down
      */
-    public CursorPage<DProduct, String> queryMostThumbsDown(int limit, Serializable cursorKey);
+    public CursorPage<DProduct, String> queryMostThumbsDown(int limit, String cursorKey);
 
 
     /**
@@ -49,7 +49,7 @@ public interface DProductDao extends GeneratedDProductDao {
      * @param cursorKey A cursor from a previous query or null if this is the first page
      * @return A list of products sorted according to the number of comments
      */
-    public CursorPage<DProduct, String> queryMostCommented(int limit, Serializable cursorKey);
+    public CursorPage<DProduct, String> queryMostCommented(int limit, String cursorKey);
 
     /**
      * Find most rated products
@@ -57,7 +57,7 @@ public interface DProductDao extends GeneratedDProductDao {
      * @param cursorKey A cursor from a previous query or null if this is the first page
      * @return A list of products sorted according to the number of ratings
      */
-    public CursorPage<DProduct, String> queryMostRated(int limit, Serializable cursorKey);
+    public CursorPage<DProduct, String> queryMostRated(int limit, String cursorKey);
 
     /**
      * Find products with highest average rating
@@ -65,7 +65,7 @@ public interface DProductDao extends GeneratedDProductDao {
      * @param cursorKey A cursor from a previous query or null if this is the first page
      * @return A list of products sorted according to average rating
      */
-    public CursorPage<DProduct, String> queryTopRated(int limit, Serializable cursorKey);
+    public CursorPage<DProduct, String> queryTopRated(int limit, String cursorKey);
 
     /**
      * Get nearby products
