@@ -96,7 +96,7 @@ public class DLikeDaoBean
 
                 List<String> subProductIds = productIdList.subList(fromIndex, toIndex);
                 Filter filterProductIds = new Filter(COLUMN_NAME_PRODUCTID, Query.FilterOperator.IN, subProductIds);
-                List<DLike> subDLikes = (List<DLike>) queryIterable(false, 0, -1, null, null, null, false, null, false, filterProductIds);
+                List<DLike> subDLikes = convert( queryIterable(false, 0, -1, null, null, null, false, null, false, filterProductIds));
                 dLikes.addAll(subDLikes);
 
                 if (LOG.isDebugEnabled()) {
@@ -113,5 +113,20 @@ public class DLikeDaoBean
             return dLikes; 
         }
       
+        private List<DLike> convert(Iterable<DLike> from) {
+            if (from == null) {
+                return null;
+            }
+            
+            if (from instanceof List || from instanceof ArrayList) {
+                return (List) from;
+            }
+            
+            List<DLike> result = new ArrayList<DLike>();
+            for (DLike dLike : from) {
+                result.add(dLike);
+            }
+            return result;
+        }
 
 }
