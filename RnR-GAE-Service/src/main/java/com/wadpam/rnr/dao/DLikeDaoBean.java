@@ -18,6 +18,8 @@ public class DLikeDaoBean
 	extends GeneratedDLikeDaoImpl
 		implements DLikeDao {
 
+    public static final int MAX_IN_OPERATION_FILTER_PARAM = 30;
+
     @Override
     // Find likes done by user on product
     public DLike findByProductIdUsername(String productId, String username) {
@@ -72,5 +74,44 @@ public class DLikeDaoBean
         return iterable;
     }
 
+    
+    /**
+         * {@inheritDoc}
+         */
+        @Override
+        public Iterable<DLike> queryByProductIds(Collection<String> productIds) {
+            final List<DLike> dLikes = new ArrayList<DLike>();
+            final List<String> productIdList = new ArrayList<String>(productIds);
+            
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(">> Total product IDs: {}, Max elements of collection param: {}", productIdList.size(), MAX_IN_OPERATION_FILTER_PARAM);
+            }
+
+            int fromIndex = 0;
+            while(fromIndex < productIds.size()) {
+                int toIndex = fromIndex + MAX_IN_OPERATION_FILTER_PARAM;
+                if (toIndex > productIds.size()) {
+                    toIndex = productIds.size();
+                }
+
+                List<String> subProductIds = productIdList.subList(fromIndex, toIndex);
+                Filter filterProductIds = new Filter(COLUMN_NAME_PRODUCTID, Query.FilterOperator.IN, subProductIds);
+                List<DLike> subDLikes = (List<DLike>) queryIterable(false, 0, -1, null, null, null, false, null, false, filterProductIds);
+                dLikes.addAll(subDLikes);
+
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug(">> fromIndex: {}, toIndex: {}, Found DLikes: {}", new Object[]{fromIndex, toIndex, subDLikes.size()});
+                }
+
+                fromIndex = toIndex;
+            }
+            
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(">> Total DLikes: {}",  dLikes.size());
+            }
+
+            return dLikes; 
+        }
+      
 
 }

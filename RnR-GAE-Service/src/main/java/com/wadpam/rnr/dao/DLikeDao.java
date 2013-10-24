@@ -16,6 +16,13 @@ import java.util.List;
 public interface DLikeDao extends GeneratedDLikeDao {
 
     /**
+     * Query by product IDs
+     * @param productIds
+     * @return matching like objects
+     */
+    Iterable<DLike> queryByProductIds(Collection<String> productIds);
+    
+    /**
      * Find likes done by a specific user and a specific product.
      * @param productId the product
      * @param username the unique user name or id
