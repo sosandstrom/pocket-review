@@ -12,7 +12,7 @@
         <gae.version>1.7.0</gae.version>
         <gae.application.version>lab</gae.application.version>
         <gae.application.id>pocket-reviews</gae.application.id>
-        <spring.version>3.2.0.RELEASE</spring.version>
+        <spring.version>5.2.0.RELEASE</spring.version>
         <openserver.version>24</openserver.version>
         <downloadSources>true</downloadSources>
         <netbeans.hint.deploy.server>Tomcat</netbeans.hint.deploy.server>
