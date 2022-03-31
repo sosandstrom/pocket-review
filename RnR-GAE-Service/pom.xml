@@ -13,7 +13,7 @@
         <logging.level>ALL</logging.level>
         <downloadSources>false</downloadSources>
         <gae.version>1.7.0</gae.version>
-        <spring.version>3.2.0.RELEASE</spring.version>
+        <spring.version>5.3.18</spring.version>
         <mardao.version>2.3.2</mardao.version>
         <openserver.version>28</openserver.version>
         <docrest.version>1.22</docrest.version>
